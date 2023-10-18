@@ -1,0 +1,29 @@
+{
+    "$schema": "https://json.schemastore.org/package",
+    "name": "@zenflux/tsnode-vm",
+    "description": "A simple VM for running Typescript code in a NodeJS environment, with favor of tsconfig.json",
+    "version": "0.0.0-dev.2",
+    "type": "module",
+    "files": [
+        "src"
+    ],
+    "main": "src/index.js",
+    "exports": {
+        ".": {
+            "import": "./src/index.js",
+            "require": "./src/index.js"
+        },
+        "./utils": {
+            "import": "./src/utils.js",
+            "require": "./src/utils.js"
+        }
+    },
+    "publishConfig": {
+        "access": "public"
+    },
+    "dependencies": {
+        "ts-node": "^10.9.1",
+        "tsconfig-paths": "^4.2.0"
+    },
+    "packageManager": "bun@1.0.5"
+}
