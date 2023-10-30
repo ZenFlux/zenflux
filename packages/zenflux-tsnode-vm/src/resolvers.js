@@ -38,6 +38,7 @@ export class Resolvers {
      */
     constructor( vm ) {
         this.vm = vm;
+        this.cache = new Map();
 
         const tsConfig = vm.node.service.config.options;
 
@@ -63,7 +64,7 @@ export class Resolvers {
             verbose( "resolvers", "try().middleware",
                 () => `requesting: ${ util.inspect( request.modulePath ) } type: ${ util.inspect( request.type ) } trying with path: ${ util.inspect( request.resolvedPath ) }` );
 
-        const promise =  () => new Promise( async ( resolve, reject ) => {
+        const tryPromise = () => new Promise( async ( resolve, reject ) => {
             let resolvedPath, resolver;
 
             for ( const i of resolvers ) {
@@ -71,12 +72,16 @@ export class Resolvers {
                 resolvedPath = await resolver.method.call( this, modulePath, referencingModule, middleware );
 
                 if ( resolvedPath ) {
-                    return resolve( {
+                    const result = {
                         type: resolver.type,
                         resolvedPath,
                         modulePath,
                         referencingModule,
-                    } );
+                    };
+
+                    this.cache.set( modulePath, result );
+
+                    return resolve( result );
                 }
             }
 
@@ -103,11 +108,11 @@ export class Resolvers {
              * @return {Promise<zVmResolverRequest>}
              */
             resolve: async ( callback ) => {
-                const result = await promise();
+                const result = this.cache.has( modulePath ) ? this.cache.get( modulePath ) : await tryPromise();
 
                 verbose( "resolvers", "try().resolve", () => `resolved: ${ util.inspect( result.modulePath ) } type: ${ util.inspect( result.type ) } with path: ${ util.inspect( result.resolvedPath ) }` );
 
-                callback( result );
+                callback?.( result );
 
                 return result;
             }
