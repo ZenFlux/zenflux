@@ -5,6 +5,7 @@ import { isAbsolute, resolve } from "node:path";
 
 import util from "node:util";
 
+import crypto from "node:crypto";
 
 /**
  * Check if path a common path format.
@@ -41,6 +42,18 @@ export const createResolvablePromise = () => {
 
     return result;
 };
+
+/**
+ * Generate checksum for data.
+ *
+ * @param {import("node:crypto").BinaryLike} data
+ *
+ * @return {string}
+ */
+export function checksum( data ) {
+    // Faster checksums like crc32, xor, modulo, are not sufficient for this use case.
+    return crypto.createHash( "sha256" ).update( data ).digest( "hex" );
+}
 
 /**
  * Function to output verbose information.
