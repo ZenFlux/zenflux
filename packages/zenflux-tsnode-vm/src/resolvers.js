@@ -222,7 +222,7 @@ export class Resolvers {
                     doneCallback();
                 },
 
-                undefined,
+                this.vm.config.tsPaths?.extensions,
 
                 ( error, path ) => {
                     error ? reject( error ) : resolve( lastExistsPath );

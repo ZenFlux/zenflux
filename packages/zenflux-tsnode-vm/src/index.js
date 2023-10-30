@@ -46,6 +46,8 @@ const defineConfigPromise = createResolvablePromise(),
          * @type {import("node:vm").CreateContextOptions}
          */
         vmContextOptions: {},
+
+        tsPathsExtensions: [ ".ts", ".tsx", ".js", ".jsx", ".json" ],
     };
 
 /**
@@ -84,6 +86,10 @@ const initialize = async () => {
      */
     const config = {
         paths,
+
+        tsPaths: {
+            extensions: externalConfig.tsPathsExtensions,
+        }
     };
 
     /**
