@@ -6,12 +6,15 @@
  * that can be placed everywhere.
  */
 import tsNode from "ts-node";
-import fs from "fs";
+
+import fs from "node:fs";
+import util from "node:util";
+import path from "node:path";
 
 import { createContext } from "node:vm";
+import { fileURLToPath } from "node:url";
 
-import { fileURLToPath } from "url";
-import { createResolvablePromise, getAbsoluteOrRelativePath } from "./utils.js";
+import { createResolvablePromise, getAbsoluteOrRelativePath, verbose } from "./utils.js";
 
 export { Resolvers } from "./resolvers.js";
 export { Loaders } from "./loaders.js";
@@ -21,6 +24,9 @@ if ( ! process.execArgv.includes( '--experimental-vm-modules' ) ) {
     throw new Error( "Please enable '--experimental-vm-modules' flag" );
 }
 
+util.inspect.defaultOptions.colors = true;
+util.inspect.defaultOptions.breakLength =  1;
+
 const defineConfigPromise = createResolvablePromise(),
     initializePromise = createResolvablePromise(),
     externalConfig = {
@@ -29,7 +35,7 @@ const defineConfigPromise = createResolvablePromise(),
         nodeModulesPath: "../node_modules",
 
         tsConfigPath: "./tsconfig.json",
-        tsConfigVerbose: ( output ) => {},
+        tsConfigVerbose: ( path ) => { verbose( "ts-node", "readConfig", () => `reading: ${ util.inspect( path ) }` ); },
 
         /**
          * @type {import("node:vm").Context}

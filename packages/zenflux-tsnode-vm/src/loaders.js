@@ -1,32 +1,34 @@
 /**
  * @author Leonid Vinikov <leonidvinikov@gmail.com>
  */
-import { inspect } from "util";
+import { fileURLToPath } from "node:url";
+import { isAbsolute } from "node:path";
 
-import { fileURLToPath } from "url";
-
-import fs from "fs";
-
+import fs from "node:fs";
+import util from "node:util";
 import vm from "node:vm";
 
+import { verbose } from "./utils.js";
+
 /**
- * @typedef {{
- *     moduleType?: "node" | "json" | "esm",
+ * @typedef {"node" | "json" | "esm"} zVmModuleType
  *
- *     moduleLocalTextSourceOptions?: zVmModuleLocalTextSourceOptions,
- * }} zVmModuleEvaluateOptions
+ * @typedef {import("node:module").Module | Awaited<ReturnType<import("ts-node").NodeLoaderHooksAPI2.LoadHook>>} zVmModuleSource
  *
- * @typedef {module|Object|Awaited<ReturnType<import("ts-node").NodeLoaderHooksAPI2.LoadHook>>} zVmModuleSource
- *
- * @typedef {module:vm.SyntheticModule|module:vm.SourceTextModule} zVmModule
- *
- * @typedef {{
- *     moduleImportMeta?: ReturnType<module:vm.SourceTextModuleOptions.initializeImportMeta>,
- *     moduleImportDynamically?: ReturnType<module:vm.SourceTextModuleOptions.importModuleDynamically>,
- *
- *     // Null will disable linking.
- *     moduleLinkerCallback?: module:vm.ModuleLinker | null
- * }} zVmModuleLocalTextSourceOptions
+ * @typedef {vm.SyntheticModule|vm.SourceTextModule} zVmModule
+ */
+
+/**
+ * @typedef {Object} zVmModuleLocalTextSourceOptions
+ * @property {ReturnType<vm.SourceTextModuleOptions["initializeImportMeta"]>} [moduleImportMeta]
+ * @property {ReturnType<vm.SourceTextModuleOptions["importModuleDynamically"]>} [moduleImportDynamically]
+ * @property {vm.ModuleLinker | null} [moduleLinkerCallback] - null disable linking.
+ */
+
+/**
+ * @typedef {Object} zVmModuleEvaluateOptions
+ * @property {zVmModuleType} [moduleType]
+ * @property {zVmModuleLocalTextSourceOptions} [moduleLocalTextSourceOptions]
  */
 
 export class Loaders {
@@ -46,7 +48,7 @@ export class Loaders {
         const module = await import( path );
 
         if ( ! module ) {
-            throw new Error( `Module not found at: ${ inspect( path ) }` );
+            throw new Error( `Module not found at: ${ util.inspect( path ) }` );
         }
 
         return this.sanitizeModule( module, path, {
@@ -63,7 +65,7 @@ export class Loaders {
         const json = fs.readFileSync( path, 'utf8' );
 
         if ( ! json ) {
-            throw new Error( `JSON file not found at: ${ inspect( path ) }` );
+            throw new Error( `JSON file not found at: ${ util.inspect( path ) }` );
         }
 
         return this.sanitizeModule( JSON.parse( json ), path, {
@@ -209,16 +211,11 @@ export class Loaders {
                     };
                 }
 
-                try {
-                    vmModule = new vm.SourceTextModule( module.source.toString(), sourceModuleOptions );
-
-                } catch ( error ) {
-                    debugger;
-                }
+                vmModule = new vm.SourceTextModule( module.source.toString(), sourceModuleOptions );
                 break;
 
             default:
-                throw new Error( `Invalid exportType: ${ inspect( options.moduleType ) }` );
+                throw new Error( `Invalid exportType: ${ util.inspect( options.moduleType ) }` );
         }
 
         return vmModule;

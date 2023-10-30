@@ -1,17 +1,18 @@
 /**
  * @author Leonid Vinikov <leonidvinikov@gmail.com>
  */
-import path from "path";
-import fs from "fs";
+import path from "node:path";
+import fs from "node:fs";
+import util from "node:util";
 
 import { createMatchPathAsync } from "tsconfig-paths";
-import { isCommonPathFormat } from "./utils.js";
+import { isCommonPathFormat, verbose } from "./utils.js";
 
 import { createRequire } from 'node:module';
 
 const require = createRequire( import.meta.url );
 
-// TODO: Add cache.
+// TODO: Add switch to disable caching.
 
 /**
  * @typedef zVmResolverType {"relative" | "nodeModule" | "tsPaths" | "esm"}
@@ -20,7 +21,7 @@ const require = createRequire( import.meta.url );
 /**
  * @typedef {Object} zVmResolverRequest
  * @property {string} modulePath
- * @property {import("node-vm").Module} referencingModule
+ * @property {import("node:vm").Module} referencingModule
  * @property {zVmResolverType} type
  * @property {string} [resolvedPath]
  */
@@ -30,8 +31,8 @@ const require = createRequire( import.meta.url );
  * @callback zVmMiddlewareCallback
  * @param {zVmResolverRequest} request
  */
-export class Resolvers {
 
+export class Resolvers {
     /**
      * @param {zVm} vm
      */
@@ -48,17 +49,19 @@ export class Resolvers {
 
     /**
      * @param {string} modulePath
-     * @param {import("node-vm").Module} referencingModule
+     * @param {import("node:vm").Module} referencingModule
      */
     try( modulePath, referencingModule ) {
-        const resolvers = [
-            { method: this.resolveRelative, type: "relative" },
+        verbose( "resolvers", "try",
+            () => `resolving: ${ util.inspect( modulePath ) }, status: ${ util.inspect( referencingModule.status ) } referer: ${ util.inspect( referencingModule.identifier ) }` );
             { method: this.resolveNodeModule, type: "nodeModule" },
             { method: this.resolveTSPaths, type: "tsPaths" }, // TODO: Disable if not in `tsconfig.json`
             { method: this.resolveEsm, type: "esm" },
         ];
 
-        let middleware = () => () => {};
+        let middleware = ( request ) =>
+            verbose( "resolvers", "try().middleware",
+                () => `requesting: ${ util.inspect( request.modulePath ) } type: ${ util.inspect( request.type ) } trying with path: ${ util.inspect( request.resolvedPath ) }` );
 
         const promise =  () => new Promise( async ( resolve, reject ) => {
             let resolvedPath, resolver;
@@ -95,12 +98,14 @@ export class Resolvers {
             },
 
             /**
-             * @param {zVmMiddlewareCallback} callback
+             * @param {zVmMiddlewareCallback} [callback]
              *
              * @return {Promise<zVmResolverRequest>}
              */
             resolve: async ( callback ) => {
                 const result = await promise();
+
+                verbose( "resolvers", "try().resolve", () => `resolved: ${ util.inspect( result.modulePath ) } type: ${ util.inspect( result.type ) } with path: ${ util.inspect( result.resolvedPath ) }` );
 
                 callback( result );
 
@@ -113,7 +118,7 @@ export class Resolvers {
 
     /**
      * @param {string} modulePath
-     * @param {import("node-vm").Module} referencingModule
+     * @param {import("node:vm").Module} referencingModule
      * @param {zVmMiddlewareCallback} middleware
      */
     async resolveRelative( modulePath, referencingModule, middleware = ( request ) => {} ) {
@@ -125,7 +130,7 @@ export class Resolvers {
 
         // Remove file:// prefix.
         const resolvedPath = path.resolve(
-            path.dirname( referencingModule.identifier.replace("file://", "" ) ),
+            path.dirname( referencingModule.identifier.replace( "file://", "" ) ),
             modulePath
         );
 
@@ -140,7 +145,7 @@ export class Resolvers {
 
     /**
      * @param {string} modulePath
-     * @param {import("node-vm").Module} referencingModule
+     * @param {import("node:vm").Module} referencingModule
      * @param {zVmMiddlewareCallback} middleware
      */
     async resolveNodeModule( modulePath, referencingModule, middleware = ( request ) => {} ) {
@@ -172,7 +177,7 @@ export class Resolvers {
 
     /**
      * @param {string} modulePath
-     * @param {import("node-vm").Module} referencingModule
+     * @param {import("node:vm").Module} referencingModule
      * @param {zVmMiddlewareCallback} middleware
      */
     async resolveTSPaths( modulePath, referencingModule, middleware = ( request ) => {} ) {
@@ -217,7 +222,7 @@ export class Resolvers {
      * Uses `ts-node` esm hooks to resolve modulePath.
      *
      * @param {string} modulePath
-     * @param {import("node-vm").Module} referencingModule
+     * @param {import("node:vm").Module} referencingModule
      * @param {zVmMiddlewareCallback} middleware
      */
     async resolveEsm( modulePath, referencingModule, middleware = ( request ) => {} ) {
