@@ -40,12 +40,23 @@ export class Resolvers {
         this.vm = vm;
         this.cache = new Map();
 
+        this.resolvers = [
+            { method: this.resolveRelative, type: "relative" },
+            { method: this.resolveNodeModule, type: "nodeModule" },
+        ];
+
         const tsConfig = vm.node.service.config.options;
 
-        /**
-         * @type {ReturnType<createMatchPathAsync>}
-         */
-        this.matchPath = createMatchPathAsync( tsConfig.baseUrl, tsConfig.paths );
+        if ( Object.keys( tsConfig.paths )?.length ) {
+            this.resolvers.push( { method: this.resolveTSPaths, type: "tsPaths" } );
+
+            /**
+             * @type {ReturnType<createMatchPathAsync>}
+             */
+            this.matchPath = createMatchPathAsync( tsConfig.baseUrl, tsConfig.paths );
+        }
+
+        this.resolvers.push( { method: this.resolveEsm, type: "esm" } );
     }
 
     /**
@@ -55,10 +66,6 @@ export class Resolvers {
     try( modulePath, referencingModule ) {
         verbose( "resolvers", "try",
             () => `resolving: ${ util.inspect( modulePath ) }, status: ${ util.inspect( referencingModule.status ) } referer: ${ util.inspect( referencingModule.identifier ) }` );
-            { method: this.resolveNodeModule, type: "nodeModule" },
-            { method: this.resolveTSPaths, type: "tsPaths" }, // TODO: Disable if not in `tsconfig.json`
-            { method: this.resolveEsm, type: "esm" },
-        ];
 
         let middleware = ( request ) =>
             verbose( "resolvers", "try().middleware",
@@ -67,7 +74,7 @@ export class Resolvers {
         const tryPromise = () => new Promise( async ( resolve, reject ) => {
             let resolvedPath, resolver;
 
-            for ( const i of resolvers ) {
+            for ( const i of this.resolvers ) {
                 resolver = i;
                 resolvedPath = await resolver.method.call( this, modulePath, referencingModule, middleware );
 
