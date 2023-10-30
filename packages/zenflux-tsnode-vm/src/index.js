@@ -134,10 +134,56 @@ const initialize = async () => {
         context
     };
 
+    /**
+     * @param {string} entrypointPath
+     * @param {Loaders} loaders
+     * @param {Resolvers} resolvers
+     */
+    function auto( entrypointPath, loaders, resolvers ) {
+        async function linker( modulePath, referencingModule ) {
+            const result = await resolvers.try( modulePath, referencingModule ).resolve()
+                .catch( ( error ) => /* Lazy... but works */ referencingModule = error.referencingModule );
+
+            if ( result.type ) {
+                let type,
+                    modulePath;
+
+                switch ( result.type ) {
+                    case "nodeModule":
+                        type = "node";
+                        modulePath = result.modulePath;
+                        break;
+
+                    case "tsPaths":
+                    case "relative":
+                    case "esm":
+                        modulePath = result.resolvedPath;
+
+                        if ( path.extname( result.resolvedPath ) === ".json" ) {
+                            type = "json";
+                            break;
+                        }
+
+                        type = "esm";
+                        break;
+                }
+
+
+                return loaders.loadModule( modulePath, type, linker );
+            }
+
+            throw new Error( `Module not found: ${ util.inspect( modulePath ) } referer ${ util.inspect( referencingModule.identifier ) }` );
+        }
+
+        return loaders.loadModule( entrypointPath, "esm", linker );
+    }
+
     return {
         config,
         node,
         sandbox,
+
+        auto,
     };
 };
 
