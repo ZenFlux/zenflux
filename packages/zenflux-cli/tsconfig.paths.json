@@ -1,0 +1,19 @@
+{
+    "compilerOptions": {
+        "outDir": "dist",
+        "baseUrl": "./",
+        "paths": {
+            "@z-cli/*": [
+                "src/*"
+            ]
+        }
+    },
+    "include": [
+        "src/**/*.ts",
+        "package.json"
+    ],
+    "exclude": [
+        "node_modules",
+        "dist"
+    ]
+}
