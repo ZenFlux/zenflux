@@ -2,7 +2,7 @@
 
 ## 📍 Overview
 
-The repository contains a CLI tool called `@zenflux/cli` that offers functionalities related to building, publishing, and watching **monorepo** projects. It utilizes technologies like Babel, Rollup, TypeScript, and Verdaccio. The tool is designed to simplify the development process by providing a command-line interface with various commands for managing and building projects. It includes modules for handling npm registry operations. The tool's value proposition lies in its ability to automate repetitive tasks and streamline project workflows, ultimately enhancing developer productivity.
+The repository contains a CLI tool called `@z-cli` that offers functionalities related to building, publishing, and watching **monorepo** projects. It utilizes technologies like Babel, Rollup, TypeScript, and Verdaccio. The tool is designed to simplify the development process by providing a command-line interface with various commands for managing and building projects. It includes modules for handling npm registry operations. The tool's value proposition lies in its ability to automate repetitive tasks and streamline project workflows, ultimately enhancing developer productivity.
 
 ---
 
@@ -13,9 +13,11 @@ The repository contains a CLI tool called `@zenflux/cli` that offers functionali
 The CLI tool provides a command for building projects. It utilizes technologies such as Babel, Rollup, ApiExtractor, and more to bundle and transpile code for distribution. Developers can use this feature to create distribution-ready packages.
 
 - **CLI Commands**: `@build`, `@watch`
+<br /><br />
 - **Default Behavior**: `@z-cli @build`, `@z-cli @watch`
     - Current working directory is **workspace**: Builds all packages in the workspace
     - Current working directory is **package**: Builds the current package
+<br /><br />
 - **Flow**:
     - Selecting the package to build
     - Loads `zenflux.config.ts` for each package
@@ -24,30 +26,26 @@ The CLI tool provides a command for building projects. It utilizes technologies 
             - Firing callback `onBuiltFormat` for each format, if provided (from `zenflux.config.ts`)<br /><br />
     - Runs `zApiExporter` for each package, if `inputDtsPath` and `outputDtsPath` are provided (from `zenflux.config.ts`)
     - Fires callback `onBuilt` if provided (from `zenflux.config.ts`) for build package
+<br /><br />
 - **Options**
-    ```json
-    {
-      "--workspace": {
-        "description": "Run for specific workspace",
-        "examples": [
-          "--workspace <package-name>",
-          "--workspace <package-name-a>, <package-name-b>"
-        ]
-      },
-      "--dev": {
-        "description": "Run in development mode",
-        "behaviors": [
-          "Shows all api-exporter diagnostics",
-          "No minification",
-          "Loading different tsconfig file: tsconfig.{format}.dev.json",
-          "Sets process.env.NODE_ENV to 'development'"
-        ]
-      }
-    }
-    ```
+  - **--workspace:**
+      - Description: Run for a specific workspace
+      - Examples:
+          - `--workspace <package-name>`
+          - `--workspace <package-name-a>, <package-name-b>`
+<br /><br />
+  - **--dev:**
+      - Description: Run in development mode
+      - Behaviors:
+          - Shows all api-exporter diagnostics
+          - No minification
+          - Loads a different tsconfig file: `tsconfig.{format}.dev.json` or `tsconfig.dev.json`
+          - Sets `process.env.NODE_ENV` to `development`
+
+
 - **Configuration**;
     - `format`:
-        - Array of formats to build, eg: `es` | `cjs` | `umd`
+        - Array of formats to build, eg:```[ "es", "cjs", "umd" ]```
     - `extensions`:
         - Array of extensions to build, eg: ```[ ".ts", ".js" ]```
     - `inputPath`:
@@ -93,6 +91,7 @@ The CLI tool provides a command for building projects. It utilizes technologies 
       
           export default config;
           ```
+<br /><br />
 - **Typescript configuration** - `tsconfig.json`
   - Fallback flow:
     - `--dev`
@@ -122,37 +121,28 @@ The tool supports publishing npm packages to a registry. It includes features fo
 
 The tool handles interactions with npm registries, creating a local npm registry for testing and development purposes
 - **CLI Commands**: `@registry`
+  <br /><br />
 - **Default Behavior**: 
   - `@z-cli @registry @server`
       - Starts a local npm registry and create custom npm (`.npmrc`) configuration file that connects to the local registry
   - `@z-cli @registry @use`
       - Uses the custom npm configuration file to connect to the local registry
+<br /><br />
 - **Sub Commands**:
-
-    ```json
-    {
-      "@server": {
-        "description": "Starts a local npm registry server",
-        "usage": "@z-cli @registry @server"
-      },
-      "@use": {
-        "description": "Use npm with custom configuration, that will be forwarded to local npm server",
-        "examples": [
-          "@z-cli @registry @use npm <command>",
-          "@z-cli @registry @use npm whoami",
-          "@z-cli @registry @use npm install"
-        ]
-      }
-    }
-    ```
+  - **@server:**
+      - Description: Starts a local npm registry server
+      - Usage: `@z-cli @registry @server`
+<br /><br />
+  - **@use:**
+      - Description: Use npm with custom configuration, which will be forwarded to the local npm server
+      - Examples:
+          - `@z-cli @registry @use npm <command>`
+          - `@z-cli @registry @use npm whoami`
+          - `@z-cli @registry @use npm install`
 
 ### Global arguments
-```json
-{
-    "--zvm-verbose": "Log tsnode-vm verbose, shows modules resolution",
-    "--verbose": "Log verbose",
-    "--help": "Show help"
-}
-```
+- **--zvm-verbose:** Log [tsnode-vm](https://github.com/ZenFlux/zenflux/tree/main/packages/zenflux-tsnode-vm) verbose, shows modules resolution
 
----
+- **--verbose:** Log verbose
+
+- **--help:** Show help
