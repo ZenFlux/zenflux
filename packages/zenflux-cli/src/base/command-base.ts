@@ -1,3 +1,6 @@
+/**
+ * @author: Leonid Vinikov <leonidvinikov@gmail.com>
+ */
 import process from "node:process";
 import path from "node:path";
 import util from "node:util";

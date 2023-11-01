@@ -29,5 +29,5 @@ export interface IZConfig extends Omit<IConfigArgs, "format"> {
     /**
      * @internal
      */
-    readonly path: string;
+    readonly path?: string;
 }

@@ -1,3 +1,6 @@
+/**
+ * @author: Leonid Vinikov <leonidvinikov@gmail.com>
+ */
 import { ConsoleMenu } from "@z-cli/modules/console/console-menu";
 
 import type { IConsoleMenuItem, TConsoleMenuKey } from "@z-cli/modules/console/console-menu";

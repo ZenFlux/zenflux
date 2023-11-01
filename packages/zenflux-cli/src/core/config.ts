@@ -3,7 +3,6 @@
  */
 import fs from "fs";
 
-// import { zGlobalInitConfig } from "@z-cli/core/global";
 import { console } from "@z-cli/modules/console";
 
 import type { IZConfig } from "@z-cli/definitions/config";
@@ -36,8 +35,6 @@ export async function zConfigLoad( path: string, silent = false ) {
     }
 
     config.path = path;
-
-    // zGlobalInitConfig( config as IZConfig );
 
     return config as IZConfig;
 }

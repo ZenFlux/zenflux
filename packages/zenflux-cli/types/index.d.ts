@@ -1,3 +1,3 @@
-import type { IZConfig } from "./index";
+import type { IZConfig } from "../src/definitions/config";
 
 export { IZConfig }
