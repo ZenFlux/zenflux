@@ -101,7 +101,7 @@ The CLI tool provides a command for building projects. It utilizes technologies 
         - `tsconfig.{format}.json`
         - `tsconfig.json`
 
-
+<br /><br />
 ### Publishing Packages
 
 The tool supports publishing npm packages to a registry. It includes features for configuring and publishing packages, ensuring they are available for installation by other developers. Developers can manage and publish their packages with ease.
@@ -116,7 +116,7 @@ The tool supports publishing npm packages to a registry. It includes features fo
     - Replacing **workspace** dependencies with corresponding **local** dependencies
     - Showing the user the packages/files that will be published
     - Asking the user for confirmation, and publishing the packages
-
+<br /><br />
 ### Registry Operations
 
 The tool handles interactions with npm registries, creating a local npm registry for testing and development purposes
@@ -139,7 +139,7 @@ The tool handles interactions with npm registries, creating a local npm registry
           - `@z-cli @registry @use npm <command>`
           - `@z-cli @registry @use npm whoami`
           - `@z-cli @registry @use npm install`
-
+<br /><br />
 ### Global arguments
 - **--zvm-verbose:** Log [tsnode-vm](https://github.com/ZenFlux/zenflux/tree/main/packages/zenflux-tsnode-vm) verbose, shows modules resolution
 
