@@ -151,3 +151,10 @@ The tool handles interactions with npm registries, creating a local npm registry
 - **--verbose:** Log verbose
 
 - **--help:** Show help
+
+---
+
+## 🎯 Roadmap / Todo
+- [ ] Publish should handle all input questions with cli arguments - Run without input blocking
+- [ ] Workspace publish/build configuration, should conditionally test & build packages
+- [ ] Make native support for npm workspaces
