@@ -6,6 +6,11 @@ The repository contains a CLI tool called `@z-cli` that offers functionalities r
 
 ---
 
+## 🛠️ Installation
+Via package manager, `bun install @zenflux/cli`
+
+---
+
 ## 📦 Features
 
 ### Building Projects
