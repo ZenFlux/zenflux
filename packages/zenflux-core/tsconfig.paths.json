@@ -9,11 +9,11 @@
         }
     },
     "include": [
-		"src/**/*.ts",
+        "src/**/*.ts",
         "zenflux.config.ts"
-	],
-	"exclude": [
-		"node_modules",
-		"dist"
-	]
+    ],
+    "exclude": [
+        "node_modules",
+        "dist"
+    ]
 }
