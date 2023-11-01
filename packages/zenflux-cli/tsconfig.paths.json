@@ -6,14 +6,14 @@
             "@z-cli/*": [
                 "src/*"
             ]
-        },
+        }
     },
     "include": [
-		"src/**/*.ts",
-        "package.json",
-	],
-	"exclude": [
-		"node_modules",
-		"dist"
-	]
+        "src/**/*.ts",
+        "package.json"
+    ],
+    "exclude": [
+        "node_modules",
+        "dist"
+    ]
 }

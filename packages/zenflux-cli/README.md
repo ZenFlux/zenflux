@@ -2,7 +2,7 @@
 
 ## 📍 Overview
 
-The repository contains a CLI tool called `@z-cli` that offers functionalities related to building, publishing, and watching **monorepo** projects. It utilizes technologies like Babel, Rollup, TypeScript, and Verdaccio. The tool is designed to simplify the development process by providing a command-line interface with various commands for managing and building projects. It includes modules for handling npm registry operations. The tool's value proposition lies in its ability to automate repetitive tasks and streamline project workflows, ultimately enhancing developer productivity.
+The repository contains a CLI tool called `@z-cli` that offers functionalities related to building, publishing, and watching **monorepo** workspaces. It utilizes technologies like Babel, Rollup, TypeScript, and Verdaccio. The tool is designed to simplify the development process by providing a command-line interface with various commands for managing and building projects. It includes modules for handling npm registry operations. The tool's value proposition lies in its ability to automate repetitive tasks and streamline project workflows, ultimately enhancing developer productivity.
 
 ---
 
@@ -28,8 +28,11 @@ The CLI tool provides a command for building projects. It utilizes technologies 
     - Loads `zenflux.config.ts` for each package
     - Loads `tsconfig.{format}.json` for each package, where `{format}` is the format type, described in the `zenflux.config.ts` file
         - Builds the package for each format
-            - Firing callback `onBuiltFormat` for each format, if provided (from `zenflux.config.ts`)<br /><br />
+            - Firing callback `onBuiltFormat` for each format, if provided (from `zenflux.config.ts`)
+              <br /><br />
     - Runs `zApiExporter` for each package, if `inputDtsPath` and `outputDtsPath` are provided (from `zenflux.config.ts`)
+        - Loads `tsconfig.api-extractor.json` for each package
+<br /><br />
     - Fires callback `onBuilt` if provided (from `zenflux.config.ts`) for build package
 <br /><br />
 - **Options**

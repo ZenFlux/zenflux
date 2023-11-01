@@ -3,7 +3,7 @@
     "name": "@zenflux/cli",
     "version": "0.0.0-dev.0",
     "type": "module",
-    "types": "./src/definitions/exports.ts",
+    "types": "./types/index.d.ts",
     "bin": {
         "@z-cli": "bin/cli.js"
     },
@@ -32,16 +32,15 @@
         "npm-packlist": "^8.0.0",
         "pacote": "^17.0.4",
         "rollup": "^4.1.4",
-        "shelljs": "^0.8.5",
         "tslib": "^2.6.2",
-        "verdaccio": "next"
+        "typescript": "^5.2.2",
+        "verdaccio": "next",
+        "@verdaccio/node-api": "next",
+        "@verdaccio/config": "next"
     },
     "devDependencies": {
-        "@types/dts-generator": "^2.1.8",
         "@types/libnpmpublish": "^4.0.5",
-        "@types/npm-packlist": "^7.0.2",
-        "@types/shelljs": "^0.8.13",
-        "@types/tar": "^6.1.7"
+        "@types/npm-packlist": "^7.0.2"
     },
     "publishConfig": {
         "access": "public"
