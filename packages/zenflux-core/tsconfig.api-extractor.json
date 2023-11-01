@@ -1,0 +1,14 @@
+{
+    "extends": "./tsconfig.json",
+    "compilerOptions": {
+        "paths": {
+            "@z-core/*": [
+                "./dist/src/*"
+            ]
+        }
+    },
+    "include": [
+        "dist/**/*.d.ts"
+    ],
+    "exclude": []
+}

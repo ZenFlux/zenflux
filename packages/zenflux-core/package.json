@@ -1,0 +1,31 @@
+{
+    "name": "@zenflux/core",
+    "version": "0.0.1-dev.4",
+    "types": "dist/zenflux-core.d.ts",
+    "type": "module",
+    "files": [
+        "dist",
+        "src",
+        "types"
+    ],
+    "scripts": {
+        "@z-core--test": "jest",
+        "@z-core--build": "@z-cli @build",
+        "@z-core--watch": "@z-cli @watch"
+    },
+    "exports": {
+        ".": {
+            "import": "./dist/zenflux-core.es.js",
+            "default": "./dist/zenflux-core.es.js",
+            "require": "./dist/zenflux-core.cjs.js",
+            "types": "./dist/zenflux-core.d.ts"
+        },
+        "./package.json": "./package.json"
+    },
+    "devDependencies": {
+        "@zenflux/cli": "workspace:*"
+    },
+    "publishConfig": {
+        "access": "public"
+    }
+}
