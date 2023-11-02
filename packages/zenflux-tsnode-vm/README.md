@@ -37,7 +37,13 @@ vm.defineConfig( {
 
     tsConfigPath: path.resolve( currentDir, "./tsconfig.json" ),
 
-    vmContext,
+    vmContext: {
+        global,
+
+        fetch,
+        setTimeout,
+        clearTimeout,
+    },
 
     tsPathsExtensions: [ ".ts", ".json" ],
 } );
