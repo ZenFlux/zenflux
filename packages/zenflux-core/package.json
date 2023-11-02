@@ -11,7 +11,7 @@
     "scripts": {
         "@z-core--test": "jest",
         "@z-core--build": "@z-cli @build",
-        "@z-core--watch": "@z-cli @watch"
+        "@z-core--dev": "@z-cli @watch --dev"
     },
     "exports": {
         ".": {

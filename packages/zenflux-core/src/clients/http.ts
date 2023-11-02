@@ -35,7 +35,7 @@ export class Http extends ObjectBase {
     public constructor( apiBaseUrl = "http://localhost", requestInit: RequestInit = { "credentials": "include" } ) {
         super();
 
-        this.logger = new ZenCore.classes.Logger( Http );
+        this.logger = new zCore.classes.Logger( Http );
 
         this.logger.startsWith( this.constructor, { apiBaseUrl } );
 
