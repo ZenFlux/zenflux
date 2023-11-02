@@ -9,10 +9,10 @@
         }
     },
     "include": [
-		"src/**/*.ts"
-	],
-	"exclude": [
-		"node_modules",
-		"dist"
-	]
+        "src/**/*.ts"
+    ],
+    "exclude": [
+        "node_modules",
+        "dist"
+    ]
 }

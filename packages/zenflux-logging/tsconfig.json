@@ -34,7 +34,6 @@
         "strictFunctionTypes": true,
 
         // Disables strict checking of property initialization in classes
-        // TODO: Do i need it?
         "strictPropertyInitialization": false,
     },
 }

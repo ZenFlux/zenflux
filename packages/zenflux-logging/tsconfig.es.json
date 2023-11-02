@@ -1,12 +1,12 @@
 {
-	"extends": "./tsconfig.json",
-	"compilerOptions": {
-		"declaration": true,
-		"declarationDir": ".",
-		"declarationMap": true,
-		"esModuleInterop": true,
+    "extends": "./tsconfig.json",
+    "compilerOptions": {
+        "declaration": true,
+        "declarationDir": ".",
+        "declarationMap": true,
+        "esModuleInterop": true,
 
         // Specifies the module system used in the code (e.g., ESNext)
         "module": "ESNext"
-    },
+    }
 }
