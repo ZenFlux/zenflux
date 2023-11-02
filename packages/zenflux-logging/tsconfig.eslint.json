@@ -1,0 +1,10 @@
+{
+    "compilerOptions": {
+        "baseUrl": ".",
+        "paths": {
+            "@z-logging/*": [
+                "src/*"
+            ]
+        }
+    }
+}

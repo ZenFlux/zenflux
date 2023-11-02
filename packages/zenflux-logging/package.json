@@ -1,0 +1,20 @@
+{
+    "$schema": "https://json.schemastore.org/package",
+    "name": "@zenflux/logging",
+    "version": "0.0.1-dev.3",
+    "module": "dist/zenflux-logging.es.js",
+    "type": "module",
+    "files": [
+        "dist"
+    ],
+    "scripts": {
+        "@z-logging--build": "@z-cli @build",
+        "@z-logging--dev": "@z-cli @watch --dev"
+    },
+    "peerDependencies": {
+        "@zenflux/core": "workspace:*"
+    },
+    "devDependencies": {
+        "@zenflux/cli": "workspace:*"
+    }
+}
