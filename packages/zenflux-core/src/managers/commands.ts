@@ -73,7 +73,7 @@ export class Commands extends ObjectBase {
 
         const type = ( this.constructor as typeof Commands );
 
-        this.logger = new ZenCore.classes.Logger( type );
+        this.logger = new zCore.classes.Logger( type );
         this.logger.startsEmpty( this.constructor );
     }
 

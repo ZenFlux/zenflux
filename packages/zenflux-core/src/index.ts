@@ -1,7 +1,17 @@
 /**
  * @author Leonid Vinikov <leonidvinikov@gmail.com>
  */
-export { CoreAPI as default } from "@z-core/initializer";
+import * as ZenCore from "@z-core/exports";
 
-export * from "@z-core/exports";
+// TODO: Only in development mode
+if ( ! globalThis?.zCore ) {
+    globalThis.zCore = ZenCore;
+}
 
+declare global {
+    var zCore: typeof ZenCore;
+}
+
+export * from "@z-core/exports-index";
+
+export default ZenCore;

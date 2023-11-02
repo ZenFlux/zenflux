@@ -3,7 +3,7 @@
     "compilerOptions": {
         "paths": {
             "@z-core/*": [
-                "./dist/src/*"
+                "./dist/zenflux-core/src/*"
             ]
         }
     },

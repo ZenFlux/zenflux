@@ -41,7 +41,7 @@ export abstract class CommandBase extends ObjectBase {
 
         const type = ( this.constructor as typeof CommandBase );
 
-        this.logger = new ZenCore.classes.Logger( type, {
+        this.logger = new zCore.classes.Logger( type, {
             // Happens or occurs many times, often in a similar or identical manner.
             repeatedly: true,
         } );
