@@ -16,14 +16,10 @@ const require = createRequire( import.meta.url );
 // TODO: Add switch to disable caching.
 
 /**
- * @typedef zVmResolverType {"relative" | "nodeModule" | "workspace" | "tsPaths" | "esm"}
- */
-
-/**
  * @typedef {Object} zVmResolverRequest
  * @property {string} modulePath
  * @property {import("node:vm").Module} referencingModule
- * @property {zVmResolverType} type
+ * @property {("relative"|"node-module"|"workspace"|"ts-paths"|"tsnode-esm")} type
  * @property {string} [resolvedPath]
  */
 
@@ -41,54 +37,95 @@ export class Resolvers {
         this.vm = vm;
         this.cache = new Map();
 
+        this.#initializeResolvers();
+    }
+
+    #initializeResolvers() {
         this.resolvers = [
             { method: this.resolveRelative, type: "relative" },
         ];
 
-        if ( vm.config.paths.workspacePath ) {
-            // Read root `package.json`
-            const rootPath = vm.config.paths.workspacePath,
-                rootPkgPath = path.resolve( rootPath, "package.json" ),
-                rootPkg = require( rootPkgPath );
+        this.#initializeWorkspaceResolver();
+        this.#initializeNodeResolver();
+        this.#initializeTsPathsResolver();
+        this.#initializeTsNodeEsmResolver();
+    }
 
-            // Get all projects from `package.json` workspaces.
-            const projectsPaths = ( rootPkg.workspaces ).flatMap( ( workspace ) => {
-                const workspaces = getMatchingPathsRecursive( rootPath, new RegExp( workspace ) );
+    /**
+     * Initializes the workspace resolver by reading the root `package.json`.
+     *
+     * Getting all projects from `package.json` workspaces.
+     * Creating paths for module resolution, and caching them.
+     */
+    #initializeWorkspaceResolver() {
+        if ( ! this.vm.config.paths.workspacePath ) {
+            this.resolveWorkspace = () => {
+                throw new Error( "Workspace path is not defined." );
+            };
 
-                // Filter packages that contains package.json
-                return workspaces.filter( ( workspace ) => {
-                    const files = fs.readdirSync( workspace );
-
-                    return files.find( ( file ) => file.endsWith( "package.json" ) );
-                } );
-            } );
-
-            this.workspaceCache = new Map();
-
-            // Create paths that will be used later to resolve modules.
-            projectsPaths.forEach( ( projectPath ) => {
-                const pkg = require( path.resolve( projectPath, "package.json" ) );
-
-                this.workspaceCache.set( pkg.name, projectPath );
-            } );
-
-            this.resolvers.push( { method: this.resolveWorkspace, type: "workspace" } );
+            return;
         }
 
-        this.resolvers.push( { method: this.resolveNodeModule, type: "nodeModule" } );
+        // Read root `package.json`
+        const rootPath = this.vm.config.paths.workspacePath,
+            rootPkgPath = path.resolve( rootPath, "package.json" ),
+            rootPkg = require( rootPkgPath );
 
-        const tsConfig = vm.node.service.config.options;
+        // Get all projects from `package.json` workspaces.
+        const projectsPaths = ( rootPkg.workspaces ).flatMap( ( workspace ) => {
+            const workspaces = getMatchingPathsRecursive( rootPath, new RegExp( workspace ) );
+
+            // Filter packages that contains package.json
+            return workspaces.filter( ( workspace ) => {
+                const files = fs.readdirSync( workspace );
+
+                return files.find( ( file ) => file.endsWith( "package.json" ) );
+            } );
+        } );
+
+        this.workspaceCache = new Map();
+
+        // Create paths that will be used later to resolve modules.
+        projectsPaths.forEach( ( projectPath ) => {
+            const pkg = require( path.resolve( projectPath, "package.json" ) );
+
+            this.workspaceCache.set( pkg.name, projectPath );
+        } );
+
+        this.resolvers.push( { method: this.resolveWorkspace, type: "workspace" } );
+    }
+
+    #initializeTsPathsResolver() {
+        const tsConfig = this.vm.tsNode.service.config.options;
 
         if ( "undefined" !== typeof tsConfig.paths && Object.keys( tsConfig.paths ).length ) {
-            this.resolvers.push( { method: this.resolveTSPaths, type: "tsPaths" } );
+            this.resolvers.push( { method: this.resolveTSPaths, type: "ts-paths" } );
 
             /**
              * @type {ReturnType<createMatchPathAsync>}
              */
             this.matchPath = createMatchPathAsync( tsConfig.baseUrl, tsConfig.paths );
+        } else {
+            this.resolveTSPaths = () => {
+                throw new Error( "TS Paths is not defined." );
+            };
+        }
+    }
+
+    #initializeNodeResolver() {
+        this.resolvers.push( { method: this.resolveNodeModule, type: "node-module" } );
+    }
+
+    #initializeTsNodeEsmResolver() {
+        if ( ! this.vm.tsNode.hooks.esm ) {
+            this.resolveTsNodeEsm = () => {
+                throw new Error( "TS Node ESM is not defined." );
+            };
+
+            return;
         }
 
-        this.resolvers.push( { method: this.resolveEsm, type: "esm" } );
+        this.resolvers.push( { method: this.resolveTsNodeEsm, type: "tsnode-esm" } );
     }
 
     /**
@@ -193,7 +230,7 @@ export class Resolvers {
      * @param {zVmMiddlewareCallback} middleware
      */
     async resolveNodeModule( modulePath, referencingModule, middleware = ( request ) => {} ) {
-        middleware( { modulePath, referencingModule, type: "nodeModule" } );
+        middleware( { modulePath, referencingModule, type: "node-module" } );
 
         if ( isCommonPathFormat( modulePath ) ) {
             return (
@@ -214,7 +251,7 @@ export class Resolvers {
         // Check if node module exists.
         const nodeModulePath = path.resolve( this.vm.config.paths.nodeModules, modulePath );
 
-        middleware( { resolvedPath: nodeModulePath, modulePath, referencingModule, type: "nodeModule" } );
+        middleware( { resolvedPath: nodeModulePath, modulePath, referencingModule, type: "node-module" } );
 
         return fs.existsSync( nodeModulePath ) ? nodeModulePath : null;
     }
@@ -281,7 +318,9 @@ export class Resolvers {
      * @param {zVmMiddlewareCallback} middleware
      */
     async resolveTSPaths( modulePath, referencingModule, middleware = ( request ) => {} ) {
-        middleware( { modulePath, referencingModule, type: "tsPaths" } );
+        const type = "ts-paths";
+
+        middleware( { modulePath, referencingModule, type } );
 
         // Is modulePath is relative path or absolute path, skip.
         if ( isCommonPathFormat( modulePath ) ) {
@@ -297,7 +336,7 @@ export class Resolvers {
             let lastExistsPath = null;
 
             await this.matchPath( modulePath, undefined, async ( resolvedPath, doneCallback ) => {
-                    middleware( { resolvedPath, modulePath, referencingModule, type: "tsPaths" } );
+                    middleware( { resolvedPath, modulePath, referencingModule, type } );
 
                     // Check file exists. only for files
                     if ( fs.existsSync( resolvedPath ) && fs.statSync( resolvedPath )?.isFile() ) {
@@ -325,17 +364,19 @@ export class Resolvers {
      * @param {import("node:vm").Module} referencingModule
      * @param {zVmMiddlewareCallback} middleware
      */
-    async resolveEsm( modulePath, referencingModule, middleware = ( request ) => {} ) {
-        middleware( { modulePath, referencingModule, type: "esm" } );
+    async resolveTsNodeEsm( modulePath, referencingModule, middleware = ( request ) => {} ) {
+        const type = "tsnode-esm";
+
+        middleware( { modulePath, referencingModule, type } );
 
         if ( ! modulePath.startsWith( "file://" ) && ! modulePath.startsWith( "/" ) ) {
             return false;
         }
 
-        const promise = this.vm.node.hooks.esm
+        const promise = this.vm.tsNode.hooks.esm
             .resolve( modulePath, { parentURL: referencingModule.identifier, }, undefined )
             .then( ( resolved ) => {
-                middleware( { resolvedPath: resolved.url, modulePath, referencingModule, type: "esm" } );
+                middleware( { resolvedPath: resolved.url, modulePath, referencingModule, type} );
 
                 return resolved.url;
             } )
@@ -343,7 +384,7 @@ export class Resolvers {
                 const match = e.message.match( /Cannot find (module|package) '(.*)' imported from/ ),
                     url = match[ 2 ];
 
-                middleware( { resolvedPath: url, modulePath, referencingModule, type: "esm" } );
+                middleware( { resolvedPath: url, modulePath, referencingModule, type } );
             } );
 
         return ( await promise )?.url ?? null;
