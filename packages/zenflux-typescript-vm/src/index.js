@@ -97,8 +97,7 @@ const initialize = async () => {
     const config = {
         paths,
 
-        // TODO: Move out from tsPaths, since it's workspace configuration, has added
-        // So it should check if there is tsPaths or workspacePath if so it should somehow get connected.
+        // TODO: Move out from tsPaths, since workspace configuration has been added - it currently used in workspace configuration too.
         tsPaths: {
             extensions: externalConfig.tsPathsExtensions,
         }
