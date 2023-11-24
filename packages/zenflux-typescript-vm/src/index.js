@@ -33,6 +33,7 @@ const defineConfigPromise = createResolvablePromise(),
         projectPath: "./",
         entrypointPath: "src/index.ts",
         nodeModulesPath: "../node_modules",
+        workspacePath: "",
 
         tsConfigPath: "./tsconfig.json",
         tsConfigVerbose: ( path ) => { verbose( "ts-node", "readConfig", () => `reading: ${ util.inspect( path ) }` ); },
@@ -69,13 +70,22 @@ const initialize = async () => {
     const paths = {
         project,
 
+        workspacePath: null,
+
         nodeModules: getAbsoluteOrRelativePath( externalConfig.nodeModulesPath, externalConfig.projectPath ),
 
         tsConfigPath: getAbsoluteOrRelativePath( externalConfig.tsConfigPath, externalConfig.projectPath ),
     };
 
+    if ( externalConfig.workspacePath ) {
+        paths.workspacePath = getAbsoluteOrRelativePath( externalConfig.workspacePath, externalConfig.projectPath );
+    }
+
     // Check all paths exists.
     Object.entries( paths ).forEach( ( [ key, value ] ) => {
+        if ( null === value ) {
+            return;
+        }
         if ( ! fs.existsSync( value ) ) {
             throw new Error( `Path of: '${ key }' not exist '${ value }'` );
         }
@@ -87,6 +97,7 @@ const initialize = async () => {
     const config = {
         paths,
 
+        // TODO: Move out from tsPaths, since workspace configuration has been added - it currently used in workspace configuration too.
         tsPaths: {
             extensions: externalConfig.tsPathsExtensions,
         }
@@ -150,10 +161,17 @@ const initialize = async () => {
 
                 switch ( result.type ) {
                     case "nodeModule":
+                        if ( path.extname( result.resolvedPath ) === ".json" ) {
+                            type = "json";
+                            modulePath = result.resolvedPath;
+
+                            break;
+                        }
                         type = "node";
                         modulePath = result.modulePath;
                         break;
 
+                    case "workspace":
                     case "tsPaths":
                     case "relative":
                     case "esm":
@@ -166,6 +184,11 @@ const initialize = async () => {
 
                         type = "esm";
                         break;
+
+                    default:
+                        throw new Error( `Unknown type: ${ util.inspect( result.type ) }`, {
+                            cause: result
+                        } );
                 }
 
 

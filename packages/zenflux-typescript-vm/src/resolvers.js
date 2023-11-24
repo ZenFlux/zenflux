@@ -5,17 +5,18 @@ import path from "node:path";
 import fs from "node:fs";
 import util from "node:util";
 
-import { createMatchPathAsync } from "tsconfig-paths";
-import { isCommonPathFormat, verbose } from "./utils.js";
-
 import { createRequire } from 'node:module';
+
+import { createMatchPathAsync } from "tsconfig-paths";
+
+import { getMatchingPathsRecursive, isCommonPathFormat, verbose } from "./utils.js";
 
 const require = createRequire( import.meta.url );
 
 // TODO: Add switch to disable caching.
 
 /**
- * @typedef zVmResolverType {"relative" | "nodeModule" | "tsPaths" | "esm"}
+ * @typedef zVmResolverType {"relative" | "nodeModule" | "workspace" | "tsPaths" | "esm"}
  */
 
 /**
@@ -42,12 +43,43 @@ export class Resolvers {
 
         this.resolvers = [
             { method: this.resolveRelative, type: "relative" },
-            { method: this.resolveNodeModule, type: "nodeModule" },
         ];
+
+        if ( vm.config.paths.workspacePath ) {
+            // Read root `package.json`
+            const rootPath = vm.config.paths.workspacePath,
+                rootPkgPath = path.resolve( rootPath, "package.json" ),
+                rootPkg = require( rootPkgPath );
+
+            // Get all projects from `package.json` workspaces.
+            const projectsPaths = ( rootPkg.workspaces ).flatMap( ( workspace ) => {
+                const workspaces = getMatchingPathsRecursive( rootPath, new RegExp( workspace ) );
+
+                // Filter packages that contains package.json
+                return workspaces.filter( ( workspace ) => {
+                    const files = fs.readdirSync( workspace );
+
+                    return files.find( ( file ) => file.endsWith( "package.json" ) );
+                } );
+            } );
+
+            this.workspaceCache = new Map();
+
+            // Create paths that will be used later to resolve modules.
+            projectsPaths.forEach( ( projectPath ) => {
+                const pkg = require( path.resolve( projectPath, "package.json" ) );
+
+                this.workspaceCache.set( pkg.name, projectPath );
+            } );
+
+            this.resolvers.push( { method: this.resolveWorkspace, type: "workspace" } );
+        }
+
+        this.resolvers.push( { method: this.resolveNodeModule, type: "nodeModule" } );
 
         const tsConfig = vm.node.service.config.options;
 
-        if ( Object.keys( tsConfig.paths )?.length ) {
+        if ( "undefined" !== typeof tsConfig.paths && Object.keys( tsConfig.paths ).length ) {
             this.resolvers.push( { method: this.resolveTSPaths, type: "tsPaths" } );
 
             /**
@@ -185,6 +217,62 @@ export class Resolvers {
         middleware( { resolvedPath: nodeModulePath, modulePath, referencingModule, type: "nodeModule" } );
 
         return fs.existsSync( nodeModulePath ) ? nodeModulePath : null;
+    }
+
+    /**
+     * @param {string} modulePath
+     * @param {import("node:vm").Module} referencingModule
+     * @param {zVmMiddlewareCallback} middleware
+     */
+    async resolveWorkspace( modulePath, referencingModule, middleware ) {
+        middleware( { modulePath, referencingModule, type: "workspace" } );
+
+        if ( isCommonPathFormat( modulePath ) ) {
+            return null;
+        }
+
+        // Check if package exists in workspace.
+        const [ workspaceName, workspacePackage ] = modulePath.split( "/" ),
+            packageName = `${ workspaceName }/${ workspacePackage }`;
+
+        if ( ! this.workspaceCache.has( packageName  ) ) {
+            return null;
+        }
+
+        modulePath = modulePath.replace( packageName, this.workspaceCache.get( packageName ) );
+
+        function checkWorkspaceModuleExists( workspacePath, modulePath ) {
+            const workspaceModulePath = path.resolve( workspacePath, modulePath );
+
+            middleware( { resolvedPath: workspaceModulePath, modulePath, referencingModule, type: "workspace" } );
+
+            return fs.existsSync( workspaceModulePath ) ? workspaceModulePath : null;
+        }
+
+        const { extensions } = this.vm.config.tsPaths;
+
+        for( const ext of extensions ) {
+            const workspaceModulePath = checkWorkspaceModuleExists(
+                this.vm.config.paths.workspacePath,
+                `${ modulePath }${ ext }`
+            );
+
+            if ( workspaceModulePath ) {
+                return workspaceModulePath;
+            }
+
+            // Retry with index.*
+            const workspaceModuleIndexPath = checkWorkspaceModuleExists(
+                this.vm.config.paths.workspacePath,
+                path.join( modulePath, `index${ ext }` )
+            );
+
+            if ( workspaceModuleIndexPath ) {
+                return workspaceModuleIndexPath;
+            }
+        }
+
+        return null;
     }
 
     /**
