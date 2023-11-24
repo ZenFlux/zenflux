@@ -12,9 +12,9 @@ import vm from "node:vm";
 import { checksum, verbose } from "./utils.js";
 
 /**
- * @typedef {"node" | "json" | "esm"} zVmModuleType
+ * @typedef {("node"|"json"|"tsnode-esm")} zVmModuleType
  *
- * @typedef {import("node:module").Module | Awaited<ReturnType<import("ts-node").NodeLoaderHooksAPI2.LoadHook>>} zVmModuleSource
+ * @typedef {import("node:module").Module|Awaited<ReturnType<import("ts-node").NodeLoaderHooksAPI2.LoadHook>>} zVmModuleSource
  *
  * @typedef {vm.SyntheticModule|vm.SourceTextModule} zVmModule
  */
@@ -23,7 +23,7 @@ import { checksum, verbose } from "./utils.js";
  * @typedef {Object} zVmModuleLocalTextSourceOptions
  * @property {ReturnType<vm.SourceTextModuleOptions["initializeImportMeta"]>} [moduleImportMeta]
  * @property {ReturnType<vm.SourceTextModuleOptions["importModuleDynamically"]>} [moduleImportDynamically]
- * @property {vm.ModuleLinker | null} [moduleLinkerCallback] - null disable linking.
+ * @property {(vm.ModuleLinker|null)} [moduleLinkerCallback] - null disable linking.
  */
 
 /**
@@ -52,7 +52,7 @@ export class Loaders {
      */
     async loadModule( path, type, linkerCallback, dynamicLinkerCallback = linkerCallback ) {
         // TODO: Enable options for all loaders, currently its fine.
-        if ( "esm" === type ) {
+        if ( "tsnode-esm" === type ) {
             return this.loadModuleWithOptions( path, type, {
                 moduleLinkerCallback: linkerCallback,
                 moduleImportDynamically: dynamicLinkerCallback,
@@ -87,8 +87,8 @@ export class Loaders {
                 module = this.loadJsonModule( path );
                 break;
 
-            case "esm":
-                module = this.loadEsmModule( path, options );
+            case "tsnode-esm":
+                module = this.loadTsNodeEsmModule( path, options );
                 break;
 
             default:
@@ -140,7 +140,7 @@ export class Loaders {
      *
      * @return {Promise<module:vm.SourceTextModule>}
      */
-    async loadEsmModule( path, options ) {
+    async loadTsNodeEsmModule( path, options ) {
         const url = path.startsWith( "file://" ) ? path : "file://" + path;
 
         /**
@@ -160,13 +160,13 @@ export class Loaders {
             }
         };
 
-        const module = await this.vm.node.hooks.esm.load( url, { format }, defaultLoad );
+        const module = await this.vm.tsNode.hooks.esm.load( url, { format }, defaultLoad );
 
         /**
          * @type {zVmModuleEvaluateOptions}
          */
         const evalOptions = {
-            moduleType: "esm",
+            moduleType: "tsnode-esm",
         };
 
         if ( options ) {
@@ -244,8 +244,7 @@ export class Loaders {
 
                 break;
 
-            case "esm":
-
+            case "tsnode-esm":
                 /**
                  * @type {SourceTextModuleOptions}
                  */

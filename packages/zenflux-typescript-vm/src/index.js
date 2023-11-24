@@ -5,8 +5,6 @@
  * Facing top level await in esm modules, and other issues, in order to achieve doc definitions, and dynamic `defineConfig()`
  * that can be placed everywhere.
  */
-import tsNode from "ts-node";
-
 import fs from "node:fs";
 import util from "node:util";
 import path from "node:path";
@@ -47,6 +45,8 @@ const defineConfigPromise = createResolvablePromise(),
          * @type {import("node:vm").CreateContextOptions}
          */
         vmContextOptions: {},
+
+        useTsNode: true,
 
         tsPathsExtensions: [ ".ts", ".tsx", ".js", ".jsx", ".json" ],
     };
@@ -103,38 +103,39 @@ const initialize = async () => {
         }
     };
 
-    /**
-     * @type {import("ts-node").RegisterOptions}
-     */
-    const registerOptions = {
-        project: config.paths.tsConfigPath,
-
-        files: true,
-
-        transpileOnly: true,
-
-        require: [
-            "ts-node/register",
-        ],
-
-        readFile: ( path ) => {
-            externalConfig.tsConfigVerbose( path );
-
-            return fs.readFileSync( path, "utf8" );
-        }
-    };
-
-    const service = tsNode.register( registerOptions ),
-        esmHooks = tsNode.createEsmHooks( service );
 
     /**
-     * @name zVm.node
+     * @name zVm.tsNode
+     * @type {import("./ts-node.js").default}
      */
-    const node = {
-        service,
+    let tsNode;
 
-        hooks: { esm: esmHooks },
-    };
+    if ( externalConfig.useTsNode ) {
+        /**
+         * @type {import("ts-node").RegisterOptions}
+         */
+        const registerOptions = {
+            project: config.paths.tsConfigPath,
+
+            files: true,
+
+            transpileOnly: true,
+
+            require: [
+                "ts-node/register",
+            ],
+
+            readFile: ( path ) => {
+                externalConfig.tsConfigVerbose( path );
+
+                return fs.readFileSync( path, "utf8" );
+            }
+        };
+
+        const tsNodeModule = ( await import( "./ts-node.js" ) ).default;
+
+        tsNode = new tsNodeModule( registerOptions );
+    }
 
     const context = createContext( externalConfig.vmContext, externalConfig.vmContextOptions );
 
@@ -160,7 +161,7 @@ const initialize = async () => {
                     modulePath;
 
                 switch ( result.type ) {
-                    case "nodeModule":
+                    case "node-module":
                         if ( path.extname( result.resolvedPath ) === ".json" ) {
                             type = "json";
                             modulePath = result.resolvedPath;
@@ -172,9 +173,9 @@ const initialize = async () => {
                         break;
 
                     case "workspace":
-                    case "tsPaths":
                     case "relative":
-                    case "esm":
+                    case "ts-paths":
+                    case "tsnode-esm":
                         modulePath = result.resolvedPath;
 
                         if ( path.extname( result.resolvedPath ) === ".json" ) {
@@ -182,7 +183,7 @@ const initialize = async () => {
                             break;
                         }
 
-                        type = "esm";
+                        type = "tsnode-esm";
                         break;
 
                     default:
@@ -198,13 +199,14 @@ const initialize = async () => {
             throw new Error( `Module not found: ${ util.inspect( modulePath ) } referer ${ util.inspect( referencingModule.identifier ) }` );
         }
 
-        return loaders.loadModule( entrypointPath, "esm", linker );
+        return loaders.loadModule( entrypointPath, "tsnode-esm", linker );
     }
 
     return {
         config,
-        node,
         sandbox,
+
+        tsNode,
 
         auto,
     };

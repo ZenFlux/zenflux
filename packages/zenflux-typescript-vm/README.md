@@ -90,3 +90,4 @@ vm.tap( async ( vm ) => {
 - [ ] Remove `tsconfig-paths` dependency
 - [ ] Circular dependency detection
 - [ ] Configurable tsnode/swc loader
+- [ ] Add cli with arguments for configuration
