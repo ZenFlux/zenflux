@@ -1,8 +1,8 @@
 {
     "$schema": "https://json.schemastore.org/package",
-    "name": "@zenflux/tsnode-vm",
+    "name": "@zenflux/typescript-vm",
     "description": "A simple VM for running Typescript code in a NodeJS environment, with favor of tsconfig.json",
-    "version": "0.0.0-dev.3",
+    "version": "0.0.0-dev.4",
     "type": "module",
     "files": [
         "src"
@@ -13,8 +13,12 @@
             "import": "./src/index.js"
         },
         "./utils": {
-            "import": "./src/utils.js"
+            "import": "./src/utils.js",
+            "types": "./types/utils.d.ts"
         }
+    },
+    "scripts": {
+        "@z-tsnode-vm--build-utils-dts": "tsc src/utils.js --declaration --allowJs --emitDeclarationOnly --outDir types"
     },
     "publishConfig": {
         "access": "public"
@@ -23,5 +27,5 @@
         "ts-node": "^10.9.1",
         "tsconfig-paths": "^4.2.0"
     },
-    "packageManager": "bun@1.0.5"
+    "packageManager": "bun@1.0.11"
 }

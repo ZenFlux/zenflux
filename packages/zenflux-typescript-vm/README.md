@@ -1,4 +1,4 @@
-# @zenflux/tsnode-vm
+# @zenflux/typescript-vm
 
 ## 📍 Overview
 
@@ -11,7 +11,7 @@ for Typescript projects.
 ---
 
 ## 🛠️ Installation
-Via package manager, `bun install @zenflux/tsnode-vm`
+Via package manager, `bun install @zenflux/typescript-vm`
 
 ---
 
@@ -22,7 +22,7 @@ import path from "path";
 
 import { fileURLToPath } from "url";
 
-import { vm, Loaders, Resolvers } from "@zenflux/tsnode-vm";
+import { vm, Loaders, Resolvers } from "@zenflux/typescript-vm";
 
 const currentDir = path.dirname( fileURLToPath( import.meta.url ) );
 
@@ -36,6 +36,9 @@ vm.defineConfig( {
     nodeModulesPath: path.resolve( currentDir, "../../../node_modules" ),
 
     tsConfigPath: path.resolve( currentDir, "./tsconfig.json" ),
+
+    // Enable support for workspace `workspace:` paths from `package.json`
+    workspacePath: path.resolve( currentDir, "../../../" ),
 
     vmContext: {
         global,
@@ -86,3 +89,4 @@ vm.tap( async ( vm ) => {
 - [ ] More Examples
 - [ ] Remove `tsconfig-paths` dependency
 - [ ] Circular dependency detection
+- [ ] Configurable tsnode/swc loader
