@@ -1,0 +1,10 @@
+{
+    "compilerOptions": {
+        "esModuleInterop": true,
+        "allowJs": true,
+    },
+    "include": [
+        "./src/*.js",
+        "./types/*.d.ts",
+    ]
+}
