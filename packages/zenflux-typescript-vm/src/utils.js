@@ -7,6 +7,7 @@ import util from "node:util";
 import path from "node:path";
 import crypto from "node:crypto";
 import fs from "node:fs";
+import process from "node:process";
 
 /**
  * Check if path a common path format.
@@ -40,6 +41,28 @@ export const createResolvablePromise = () => {
         result.resolve = resolve;
         result.reject = reject;
     } );
+
+    // Alias.
+    result.await = result.promise;
+
+    // State
+    result.isPending = true;
+    result.isRejected = false;
+    result.isFulfilled = false;
+
+    // Attach state changers.
+    result.promise.then(
+        function(v) {
+            result.isFulfilled = true;
+            result.isPending = false;
+            return v;
+        },
+        function(e) {
+            result.isRejected = true;
+            result.isFulfilled = false;
+            throw e;
+        }
+    );
 
     return result;
 };

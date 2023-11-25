@@ -10,9 +10,9 @@ import util from "node:util";
 import path from "node:path";
 
 import { createContext } from "node:vm";
-import { fileURLToPath } from "node:url";
 
-import { createResolvablePromise, getAbsoluteOrRelativePath, verbose } from "./utils.js";
+import { createResolvablePromise, getAbsoluteOrRelativePath } from "./utils.js";
+import { defineConfig, externalConfig, waitForConfig } from "./config.js";
 
 export { Resolvers } from "./resolvers.js";
 export { Loaders } from "./loaders.js";
@@ -23,52 +23,16 @@ if ( ! process.execArgv.includes( '--experimental-vm-modules' ) ) {
 }
 
 util.inspect.defaultOptions.colors = true;
-util.inspect.defaultOptions.breakLength =  1;
+util.inspect.defaultOptions.breakLength = 1;
 
-const defineConfigPromise = createResolvablePromise(),
-    initializePromise = createResolvablePromise(),
-    externalConfig = {
-        projectPath: "./",
-        entrypointPath: "src/index.ts",
-        nodeModulesPath: "../node_modules",
-        workspacePath: "",
-
-        tsConfigPath: "./tsconfig.json",
-        tsConfigVerbose: ( path ) => { verbose( "ts-node", "readConfig", () => `reading: ${ util.inspect( path ) }` ); },
-
-        /**
-         * @type {import("node:vm").Context}
-         */
-        vmContext: {},
-
-        /**
-         * @type {import("node:vm").CreateContextOptions}
-         */
-        vmContextOptions: {},
-
-        useTsNode: true,
-
-        tsPathsExtensions: [ ".ts", ".tsx", ".js", ".jsx", ".json" ],
-    };
-
-/**
- * @param {typeof externalConfig} config
- */
-export function defineConfig( config ) {
-    Object.assign( externalConfig, config );
-
-    defineConfigPromise.resolve();
-};
+const initializePromise = createResolvablePromise();
 
 const initialize = async () => {
     // Wait for config to be defined.
-    await defineConfigPromise.promise;
-
-    const filename = fileURLToPath( import.meta.url ),
-        project = getAbsoluteOrRelativePath( externalConfig.projectPath );
+    await waitForConfig();
 
     const paths = {
-        project,
+        project: getAbsoluteOrRelativePath( externalConfig.projectPath ),
 
         workspacePath: null,
 
@@ -97,53 +61,70 @@ const initialize = async () => {
     const config = {
         paths,
 
-        // TODO: Move out from tsPaths, since workspace configuration has been added - it currently used in workspace configuration too.
-        tsPaths: {
-            extensions: externalConfig.tsPathsExtensions,
-        }
+        extensions: externalConfig.extensions,
     };
 
-
-    /**
-     * @name zVm.tsNode
-     * @type {import("./ts-node.js").default}
-     */
-    let tsNode;
-
+    // TODO: Find better solution.
+    let tsOptions, tsNodeProvider;
     if ( externalConfig.useTsNode ) {
-        /**
-         * @type {import("ts-node").RegisterOptions}
-         */
-        const registerOptions = {
-            project: config.paths.tsConfigPath,
+        tsNodeProvider =
+            new ( ( await import( "./providers/ts-node-provider.js" ) ).TsNodeProvider )( {
+                skipInitialize: true,
 
-            files: true,
+                tsConfigPath: config.paths.tsConfigPath,
+                tsConfigReadCallback: externalConfig.tsConfigVerbose
+            } );
 
-            transpileOnly: true,
+        tsNodeProvider.initialize();
 
-            require: [
-                "ts-node/register",
-            ],
-
-            readFile: ( path ) => {
-                externalConfig.tsConfigVerbose( path );
-
-                return fs.readFileSync( path, "utf8" );
-            }
-        };
-
-        const tsNodeModule = ( await import( "./ts-node.js" ) ).default;
-
-        tsNode = new tsNodeModule( registerOptions );
+        tsOptions = tsNodeProvider.service.config.options;
     }
 
-    const context = createContext( externalConfig.vmContext, externalConfig.vmContextOptions );
+    /**
+     * Execution order is important.
+     *
+     * @name zVm.providers
+     *
+     * @type {import("./providers/base").ProviderBase[]}
+     */
+    const providers = [
+        new ( await import( "./providers/relative-provider.js" ) ).RelativeProvider(),
+    ];
+
+    if ( externalConfig.workspacePath ) {
+        providers.push( new ( await import( "./providers/workspace-provider.js" ) ).WorkspaceProvider( {
+            workspacePath: config.paths.workspacePath,
+            extensions: config.extensions,
+        } ) );
+    }
+
+    providers.push( new ( await import( "./providers/node-provider.js" ) ).NodeProvider( {
+        nodeModulesPath: config.paths.nodeModules,
+        projectPath: config.paths.project,
+    } ) );
+
+    if ( "undefined" !== typeof tsOptions.paths && Object.keys( tsOptions.paths ).length ) {
+        providers.push( new ( await import( "./providers/ts-paths-provider.js" ) ).TsPathsProvider( {
+            baseUrl: tsOptions.baseUrl,
+            paths: tsOptions.paths,
+            extensions: config.extensions,
+        } ) );
+    }
+
+    if ( externalConfig.useTsNode ) {
+        providers.push( tsNodeProvider );
+    }
+
+    // Other no resolvers providers, order is not important.
+    providers.push(
+        new ( await import( "./providers/json-provider.js" ) ).JsonProvider(),
+    );
 
     /**
      * @name zVm.sandbox
      */
     const sandbox = {
-        context
+        context: createContext( externalConfig.vmContext, externalConfig.vmContextOptions ),
     };
 
     /**
@@ -152,61 +133,69 @@ const initialize = async () => {
      * @param {Resolvers} resolvers
      */
     function auto( entrypointPath, loaders, resolvers ) {
-        async function linker( modulePath, referencingModule ) {
-            const result = await resolvers.try( modulePath, referencingModule ).resolve()
-                .catch( ( error ) => /* Lazy... but works */ referencingModule = error.referencingModule );
+        // defer to next tick, allow to load all providers.
+        return new Promise( ( resolve, reject ) => {
+            setTimeout( () => {
+                async function linker( modulePath, referencingModule ) {
+                    const result = await resolvers.try( modulePath, referencingModule ).resolve()
+                        .catch( ( error ) => /* Lazy... but works */ referencingModule = error.referencingModule );
 
-            if ( result.type ) {
-                let type,
-                    modulePath;
+                    if ( result.provider ) {
+                        let type,
+                            modulePath;
 
-                switch ( result.type ) {
-                    case "node-module":
-                        if ( path.extname( result.resolvedPath ) === ".json" ) {
-                            type = "json";
-                            modulePath = result.resolvedPath;
+                        switch ( result.provider.name ) {
+                            case "node":
+                                // TODO If file includes "." dot
+                                if ( path.extname( result.resolvedPath ) === ".json" ) {
+                                    type = "json";
+                                    modulePath = result.resolvedPath;
 
-                            break;
+                                    break;
+                                }
+                                type = "node";
+                                modulePath = result.modulePath;
+                                break;
+
+                            case "workspace":
+                            case "relative":
+                            case "ts-paths":
+                            case "tsnode-esm":
+                                modulePath = result.resolvedPath;
+
+                                if ( path.extname( result.resolvedPath ) === ".json" ) {
+                                    type = "json";
+                                    break;
+                                }
+
+                                type = "esm";
+                                break;
+
+                            default:
+                                throw new Error( `Unknown provider: ${ util.inspect( result.provider.name ) }`, {
+                                    cause: result
+                                } );
                         }
-                        type = "node";
-                        modulePath = result.modulePath;
-                        break;
 
-                    case "workspace":
-                    case "relative":
-                    case "ts-paths":
-                    case "tsnode-esm":
-                        modulePath = result.resolvedPath;
 
-                        if ( path.extname( result.resolvedPath ) === ".json" ) {
-                            type = "json";
-                            break;
-                        }
+                        return loaders.loadModule( modulePath, type, linker );
+                    }
 
-                        type = "tsnode-esm";
-                        break;
-
-                    default:
-                        throw new Error( `Unknown type: ${ util.inspect( result.type ) }`, {
-                            cause: result
-                        } );
+                    throw new Error( `Module not found: ${ util.inspect( modulePath ) } referer ${ util.inspect( referencingModule.identifier ) }` );
                 }
 
-
-                return loaders.loadModule( modulePath, type, linker );
-            }
-
-            throw new Error( `Module not found: ${ util.inspect( modulePath ) } referer ${ util.inspect( referencingModule.identifier ) }` );
-        }
-
-        return loaders.loadModule( entrypointPath, "tsnode-esm", linker );
+                loaders.loadModule( entrypointPath, "esm", linker )
+                    .then( resolve )
+                    .catch( reject );
+            } );
+        } );
     }
 
     return {
         config,
         sandbox,
 
-        tsNode,
+        providers,
 
         auto,
     };

@@ -2,35 +2,13 @@
  * @author Leonid Vinikov <leonidvinikov@gmail.com>
  * TODO: Add switch to disable caching, should there be caching at all?
  */
-import { fileURLToPath } from "node:url";
 import { isAbsolute } from "node:path";
 
 import fs from "node:fs";
 import util from "node:util";
 import vm from "node:vm";
 
-import { checksum, verbose } from "./utils.js";
-
-/**
- * @typedef {("node"|"json"|"tsnode-esm")} zVmModuleType
- *
- * @typedef {import("node:module").Module|Awaited<ReturnType<import("ts-node").NodeLoaderHooksAPI2.LoadHook>>} zVmModuleSource
- *
- * @typedef {vm.SyntheticModule|vm.SourceTextModule} zVmModule
- */
-
-/**
- * @typedef {Object} zVmModuleLocalTextSourceOptions
- * @property {ReturnType<vm.SourceTextModuleOptions["initializeImportMeta"]>} [moduleImportMeta]
- * @property {ReturnType<vm.SourceTextModuleOptions["importModuleDynamically"]>} [moduleImportDynamically]
- * @property {(vm.ModuleLinker|null)} [moduleLinkerCallback] - null disable linking.
- */
-
-/**
- * @typedef {Object} zVmModuleEvaluateOptions
- * @property {zVmModuleType} [moduleType]
- * @property {zVmModuleLocalTextSourceOptions} [moduleLocalTextSourceOptions]
- */
+import { checksum, createResolvablePromise, verbose } from "./utils.js";
 
 export class Loaders {
     /**
@@ -40,6 +18,23 @@ export class Loaders {
         this.vm = vm;
 
         this.moduleCache = new Map();
+        this.modulePrepareCache = new Map();
+
+        this.moduleProviders = new Map();
+
+        this.vm.providers.forEach( provider => {
+            if ( ! provider.type ) {
+                return;
+            }
+
+            // If already registered, error
+            if ( this.moduleProviders.has( provider.type ) ) {
+                throw new Error( `Provider with name: ${ util.inspect( provider.name ) } cannot be registered, type: ${ util.inspect( provider.type ) } is already registered` );
+            }
+
+            // Register provider
+            this.moduleProviders.set( provider.type, provider );
+        } );
     }
 
     /**
@@ -51,8 +46,8 @@ export class Loaders {
      * @return {Promise<Module|vm.SyntheticModule>}
      */
     async loadModule( path, type, linkerCallback, dynamicLinkerCallback = linkerCallback ) {
-        // TODO: Enable options for all loaders, currently its fine.
-        if ( "tsnode-esm" === type ) {
+        // TODO: Enable options for all moduleProviders, currently its fine.
+        if ( "esm" === type ) {
             return this.loadModuleWithOptions( path, type, {
                 moduleLinkerCallback: linkerCallback,
                 moduleImportDynamically: dynamicLinkerCallback,
@@ -67,113 +62,68 @@ export class Loaders {
      * @param {zVmModuleType} type
      * @param {zVmModuleLocalTextSourceOptions} [options]
      *
-     * @return {Promise<Module|vm.SyntheticModule>}
+     * @return {Promise<vm.Module|vm.SyntheticModule>}
      */
     async loadModuleWithOptions( path, type, options ) {
         let module;
 
-        module = this.getFromCache( path, type );
+        const id = this.getModuleId( path, type );
+
+        /**
+         * TODO: Find better solution for this
+         *
+         * Trying to get from cache if possible, some modules won't get synthesis till their dependencies are loaded
+         * and if they depend one a module that depends on initial load module (circular dependency), it will cause a new module synthesis.
+         */
+        module = await this.getFromCache( id, path, type );
 
         if ( module ) {
             return module;
         }
 
+        this.setPrepareCache( id, path, type );
+
+        const provider = this.moduleProviders.get( type );
+
+        module = await provider.load( path );
+
         switch ( type ) {
             case "node":
-                module = this.loadNodeModule( path );
+                module = await this.sanitizeModule( module, path, {
+                    moduleType: "node",
+                } );
                 break;
 
             case "json":
-                module = this.loadJsonModule( path );
+                module = await this.sanitizeModule( module, path, {
+                    moduleType: "json",
+                } );
                 break;
 
-            case "tsnode-esm":
-                module = this.loadTsNodeEsmModule( path, options );
+            case "esm":
+                const url = path.startsWith( "file://" ) ? path : "file://" + path;
+
+                /**
+                 * @type {zVmModuleEvaluateOptions}
+                 */
+                const evalOptions = {
+                    moduleType: "esm",
+                };
+
+                if ( options ) {
+                    evalOptions.moduleLocalTextSourceOptions = options;
+                }
+
+                module = await this.sanitizeModule( module, url, evalOptions );
                 break;
 
             default:
                 throw new Error( `Invalid module type: ${ util.inspect( type ) }` );
         }
 
-        this.setToCache( path, type, module );
+        this.setToCache( id, path, type, module );
 
         return module;
-    }
-
-    /**
-     * @param {string} path
-     *
-     * @return {Promise<vm.SyntheticModule>}
-     */
-    async loadNodeModule( path ) {
-        const module = await import( path );
-
-        if ( ! module ) {
-            throw new Error( `Module not found at: ${ util.inspect( path ) }` );
-        }
-
-        return this.sanitizeModule( module, path, {
-            moduleType: "node",
-        } );
-    }
-
-    /**
-     * @param {string} path
-     *
-     * @return {Promise<module:vm.SyntheticModule>}
-     */
-    async loadJsonModule( path ) {
-        const json = fs.readFileSync( path, 'utf8' );
-
-        if ( ! json ) {
-            throw new Error( `JSON file not found at: ${ util.inspect( path ) }` );
-        }
-
-        return this.sanitizeModule( JSON.parse( json ), path, {
-            moduleType: "json",
-        } );
-    }
-
-    /**
-     * @param {string} path
-     * @param {zVmModuleLocalTextSourceOptions} [options]
-     *
-     * @return {Promise<module:vm.SourceTextModule>}
-     */
-    async loadTsNodeEsmModule( path, options ) {
-        const url = path.startsWith( "file://" ) ? path : "file://" + path;
-
-        /**
-         * @type {import("ts-node").NodeLoaderHooksFormat}
-         */
-        const format = "module";
-
-        /**
-         * @type {import("ts-node").NodeLoaderHooksAPI2.LoadHook}
-         */
-        const defaultLoad = async ( url, context, defaultLoad ) => {
-            const path = fileURLToPath( url );
-
-            return {
-                format,
-                source: fs.readFileSync( path, "utf8" ),
-            }
-        };
-
-        const module = await this.vm.tsNode.hooks.esm.load( url, { format }, defaultLoad );
-
-        /**
-         * @type {zVmModuleEvaluateOptions}
-         */
-        const evalOptions = {
-            moduleType: "tsnode-esm",
-        };
-
-        if ( options ) {
-            evalOptions.moduleLocalTextSourceOptions = options;
-        }
-
-        return this.sanitizeModule( module, url, evalOptions );
     }
 
     /**
@@ -213,7 +163,7 @@ export class Loaders {
                 const exportNames = Object.keys( module );
 
                 /**
-                 * @this {module:vm.SyntheticModule}
+                 * @this {vm.SyntheticModule}
                  */
                 const evaluateExportsAll = function () {
                     exportNames.forEach( key =>
@@ -230,7 +180,7 @@ export class Loaders {
 
             case "json":
                 /**
-                 * @this {module:vm.SyntheticModule}
+                 * @this {vm.SyntheticModule}
                  */
                 const evaluateExportsDefault = function () {
                     this.setExport( "default", module );
@@ -244,9 +194,10 @@ export class Loaders {
 
                 break;
 
-            case "tsnode-esm":
+            // should be source-module
+            case "esm":
                 /**
-                 * @type {SourceTextModuleOptions}
+                 * @type {vm.SourceTextModuleOptions}
                  */
                 const sourceModuleOptions = moduleOptions;
 
@@ -271,7 +222,7 @@ export class Loaders {
                     };
                 }
 
-                vmModule = new vm.SourceTextModule( module.source.toString(), sourceModuleOptions );
+                vmModule = new vm.SourceTextModule( module, sourceModuleOptions );
                 break;
 
             default:
@@ -297,36 +248,72 @@ export class Loaders {
     }
 
     /**
+     * @param {string} id
      * @param {string} path
-     * @param {zVmModuleEvaluateOptions["moduleType"]} type
-     * @param {Promise<import("vm").Module>} module
+     * @param {zVmModuleType} type
+     * @param {import("vm").Module} module
      */
-    setToCache( path, type, module ) {
-        const id = this.getModuleId( path, type );
-
-        if ( this.moduleCache.has( id ) ) {
-            throw new Error( `Module path: ${ util.inspect( path ) }, id: ${ util.inspect( id ) } is already cached` );
+    setToCache( id, path, type, module ) {
+        if ( ! ( module instanceof vm.Module ) ) {
+            throw new Error( `Module path: ${ util.inspect( path ) }, id: ${ util.inspect( id ) } type: ${ util.inspect( type ) } is not a module` );
         }
 
-        verbose( "loaders", "setToCache", () => `caching: ${ util.inspect( path ) } id: ${ util.inspect( id ) }` );
+        if ( this.moduleCache.has( id ) ) {
+            verbose( "loaders", "setToCache", () => `cache id: ${ util.inspect( id ) } path: ${ util.inspect( path ) } type: ${ util.inspect( type ) } is already set` );
+            return;
+        }
+
+        verbose( "loaders", "setToCache", () => `caching: ${ util.inspect( path ) } id: ${ util.inspect( id ) } type: ${ util.inspect( type ) }` );
 
         this.moduleCache.set( id, {
             path,
             type,
             module,
         } );
+
+        if ( this.modulePrepareCache.has( id ) ) {
+            verbose( "loaders", "setToCache", () => `resolving prepare cache id: ${ util.inspect( id ) }` );
+
+            this.modulePrepareCache.get( id ).promise.resolve( module );
+        }
     }
 
     /**
+     * @param {string} id
      * @param {string} path
+     * @param {zVmModuleType} type
+     */
+    setPrepareCache( id, path, type ) {
+        if ( this.modulePrepareCache.has( id ) ) {
+            return;
+        }
+
+        verbose( "loaders", "setPrepareCache", () => `setting prepare cache id: ${ util.inspect( id ) }` );
+
+        this.modulePrepareCache.set( id, {
+            promise: createResolvablePromise(),
+            prepare: true,
+        } )
+    }
+
+    /**
+     * @param {string} id
+     * @param {string} path
+     * @param {zVmModuleType} type
      * @param {zVmModuleEvaluateOptions["moduleType"]} type
      *
      * @return {Promise<import("vm").Module>}
      */
-    getFromCache( path, type ) {
+    async getFromCache( id, path, type ) {
         let result = undefined;
 
-        const id = this.getModuleId( path, type );
+        if ( this.modulePrepareCache.has( id ) ) {
+            verbose( "loaders", "getFromCache", () => `waiting for prepare: ${ util.inspect( path ) } id: ${ util.inspect( id ) } type: ${ util.inspect( type ) }` );
+
+            await this.modulePrepareCache.get( id ).promise.await;
+
+            verbose( "loaders", "getFromCache", () => `prepare released: ${ util.inspect( path ) } id: ${ util.inspect( id ) } type: ${ util.inspect( type ) }` );
+        }
 
         // Check if the module is already cached
         if ( this.moduleCache.has( id ) ) {
