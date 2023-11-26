@@ -20,7 +20,7 @@ export class TsPathsProvider extends ProviderBase {
     baseUrl;
 
     /**
-     * @type {string[][]}
+     * @type {{[key: string]: Array<string>}}
      */
     paths;
 
@@ -39,7 +39,7 @@ export class TsPathsProvider extends ProviderBase {
      *
      * @param {object} args
      * @param {string} args.baseUrl
-     * @param {string[][]} args.paths
+     * @param {{[key: string]: Array<string>}} args.paths
      * @param {string[]} args.extensions
      */
     constructor( args ) {
