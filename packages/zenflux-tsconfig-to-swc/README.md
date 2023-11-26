@@ -63,7 +63,7 @@ Converts TypeScript compiler options to SWC compiler options
 
 **Arguments:**
 
-* `tsConfig`: `ts.ParsedCommandLine` - TypeScript compiler options
+* `tsConfig`: `ts.ParsedCommandLine` - TypeScript parsed configuration object
 * `inherentOptionsSwcOptions`: `swc.Options` - SWC compiler options object. Default to an empty object
 
 **Returns:**
