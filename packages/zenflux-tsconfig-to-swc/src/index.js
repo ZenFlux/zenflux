@@ -3,18 +3,7 @@ import path from "node:path";
 
 import ts from "typescript";
 
-import swc from "@swc/core";
-
 const defaultCompilerOptions = ts.getDefaultCompilerOptions();
-
-/**
- * Retrieves the version of the SWC.
- *
- * @returns {string} The version of the SWC.
- */
-export function getSwcVersion() {
-    return swc.version;
-}
 
 /**
  * Reads and parses a TypeScript Configuration file.
@@ -24,7 +13,7 @@ export function getSwcVersion() {
  *
  * @throws {Error} Throws an error if there is an error reading or parsing the file.
  *
- * @returns {ts.ParsedCommandLine} The parsed TypeScript Configuration object.
+ * @returns {import("typescript").ParsedCommandLine} The parsed TypeScript Configuration object.
  */
 export function readTsConfig( tsConfigPath, readConfigCallback = undefined ) {
     function readConfig( path ) {
@@ -76,13 +65,14 @@ export function readTsConfig( tsConfigPath, readConfigCallback = undefined ) {
 /**
  * Converts TypeScript compiler options to SWC compiler options
  *
- * @param {ts.ParsedCommandLine} tsConfig - TypeScript compiler options
- * @param {swc.Options} inherentOptionsSwcOptions - SWC compiler options object. Default to an empty object
+ * @param {import("typescript").ParsedCommandLine} tsConfig - TypeScript parsed configuration object
+ * @param {import("@swc/types").Options} inherentOptionsSwcOptions - SWC compiler options object. Default to an empty object
  *
- * @returns {swc.Options} - The converted/customized SWC options
+ * @returns {import("@swc/types").Options} - The converted/customized SWC options
  */
 export function convertTsConfig( tsConfig, inherentOptionsSwcOptions = {} ) {
     // Destructuring assignment to define default values for certain TypeScript options
+    // Defaults: https://github.com/Microsoft/TypeScript-Handbook/blob/master/pages/Compiler%20Options.md
     const {
         baseUrl,
         emitDecoratorMetadata = false,
@@ -93,7 +83,9 @@ export function convertTsConfig( tsConfig, inherentOptionsSwcOptions = {} ) {
         jsxFragmentFactory = 'React.Fragment',
         jsxImportSource = 'react',
         paths,
-        sourceMap = true,
+        sourceMap = false,
+        inlineSourceMap = false,
+        inlineSources = false,
         target = ts.ScriptTarget.ES3,
     } = tsConfig.options;
 
@@ -101,7 +93,7 @@ export function convertTsConfig( tsConfig, inherentOptionsSwcOptions = {} ) {
         jsxDevelopment = jsx === ts.JsxEmit.ReactJSXDev ? true : undefined;
 
     /**
-     * @type {swc.Options}
+     * @type {import("@swc/types").Options}
      */
     const defaults = {
         jsc: {
@@ -131,8 +123,11 @@ export function convertTsConfig( tsConfig, inherentOptionsSwcOptions = {} ) {
             paths,
             baseUrl,
         },
+
         module: convertModuleOptions( tsConfig.options ),
-        sourceMaps: sourceMap,
+
+        sourceMaps: sourceMap ? ( inlineSourceMap ?? "inline" ) : false,
+        inlineSourcesContent: sourceMap ? inlineSources : false,
     };
 
     // Create `transformedOptions` object by combining both tsOptions and swcOptions
@@ -142,13 +137,13 @@ export function convertTsConfig( tsConfig, inherentOptionsSwcOptions = {} ) {
 /**
  * Converts TypeScript's ScriptTarget version to SWC JscTarget version.
  *
- * @param {ts.ScriptTarget} target - The TypeScript ScriptTarget version.
+ * @param {import("typescript").ScriptTarget} target - The TypeScript ScriptTarget version.
  *
- * @returns {swc.JscTarget} - The corresponding SWC JscTarget version.
+ * @returns {import("@swc/types").JscTarget} - The corresponding SWC JscTarget version.
  */
 export function convertScriptTarget( target ) {
     /**
-     * @type {Record<ts.ScriptTarget, swc.JscTarget>}
+     * @type {Record<ts.ScriptTarget, import("@swc/types").JscTarget>}
      */
     const mapping = {
         [ ts.ScriptTarget.ES3 ]: "es3",
@@ -176,13 +171,13 @@ export function convertScriptTarget( target ) {
 /**
  * Converts TypeScript CompilerOptions to SWC ModuleConfig.
  *
- * @param {ts.CompilerOptions} compilerOptions - TypeScript CompilerOptions
+ * @param {import("typescript").CompilerOptions} compilerOptions - TypeScript CompilerOptions
  *
- * @returns {swc.ModuleConfig} - The corresponding SWC ModuleConfig
+ * @returns {import("@swc/types").ModuleConfig} - The corresponding SWC ModuleConfig
  */
 export function convertModuleOptions( compilerOptions ) {
     /**
-     * @type {ts.CompilerOptions}
+     * @type {import("typescript").CompilerOptions}
      */
     const {
         esModuleInterop = false,
@@ -191,7 +186,7 @@ export function convertModuleOptions( compilerOptions ) {
     } = compilerOptions;
 
     /**
-     * @type {Record<ts.ModuleKind, swc.ModuleConfig>}
+     * @type {Record<import("typescript").ModuleKind, import("@swc/types").ModuleConfig>}
      */
     const mapping = {
         [ ts.ModuleKind.None ]: { type: "es6" },
@@ -209,7 +204,7 @@ export function convertModuleOptions( compilerOptions ) {
     };
 
     /**
-     * @type {swc.ModuleConfig|swc.BaseModuleConfig}
+     * @type {import("@swc/types").ModuleConfig|import("@swc/types").BaseModuleConfig}
      */
     const moduleConfig = mapping[ compilerOptions.module ] || mapping[ ts.ModuleKind.None ]; // Default to "es6"
 
