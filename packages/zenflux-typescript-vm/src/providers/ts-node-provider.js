@@ -61,7 +61,7 @@ export class TsNodeProvider extends ProviderBase {
         };
     }
 
-    initialize( args ) {
+    initialize() {
         this.service = tsNodeModule.register( this.registerOptions );
         this.hooks = tsNodeModule.createEsmHooks( this.service );;
     }

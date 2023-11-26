@@ -65,7 +65,8 @@ const initialize = async () => {
     };
 
     // TODO: Find better solution.
-    let tsOptions, tsNodeProvider;
+    let tsOptions, tsNodeProvider, swcProvider;
+
     if ( externalConfig.useTsNode ) {
         tsNodeProvider =
             new ( ( await import( "./providers/ts-node-provider.js" ) ).TsNodeProvider )( {
@@ -78,6 +79,16 @@ const initialize = async () => {
         tsNodeProvider.initialize();
 
         tsOptions = tsNodeProvider.service.config.options;
+    } else if ( externalConfig.useSwc ) {
+        swcProvider =
+            new ( ( await import( "./providers/swc-provider.js" ) ).SwcProvider )( {
+                tsConfigPath: config.paths.tsConfigPath,
+                tsConfigReadCallback: externalConfig.tsConfigVerbose
+            } );
+
+        swcProvider.initialize();
+
+        tsOptions = swcProvider.tsConfig;
     }
 
     /**
@@ -113,6 +124,8 @@ const initialize = async () => {
 
     if ( externalConfig.useTsNode ) {
         providers.push( tsNodeProvider );
+    } else if ( externalConfig.useSwc ) {
+        providers.push( swcProvider );
     }
 
     // Other no resolvers providers, order is not important.
@@ -161,6 +174,7 @@ const initialize = async () => {
                             case "relative":
                             case "ts-paths":
                             case "tsnode-esm":
+                            case "swc":
                                 modulePath = result.resolvedPath;
 
                                 if ( path.extname( result.resolvedPath ) === ".json" ) {
