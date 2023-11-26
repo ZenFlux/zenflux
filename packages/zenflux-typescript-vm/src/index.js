@@ -99,7 +99,9 @@ const initialize = async () => {
      * @type {import("./providers/base").ProviderBase[]}
      */
     const providers = [
-        new ( await import( "./providers/relative-provider.js" ) ).RelativeProvider(),
+        new ( await import( "./providers/relative-provider.js" ) ).RelativeProvider( {
+            extensions: config.extensions,
+        } ),
     ];
 
     if ( externalConfig.workspacePath ) {
