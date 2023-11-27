@@ -5,8 +5,15 @@ import { createResolvablePromise, verbose } from "./utils.js";
 const defineConfigPromise = createResolvablePromise();
 
 export const externalConfig = {
-    projectPath: "./",
+    /**
+     * Enable support for resolving workspace packages, eg: `@company/package`,
+     * it will read "workspace" field from `package.json`.
+     *
+     * @type {string}
+     */
     workspacePath: "",
+
+    projectPath: "./",
     entrypointPath: "src/index.ts",
     nodeModulesPath: "../node_modules",
 
@@ -30,7 +37,7 @@ export const externalConfig = {
      *
      * @param {boolean}
      */
-    useTsNode: true,
+    useTsNode: false,
 
     /**
      * Determines whether to use SWC compiler or not.
@@ -49,8 +56,12 @@ export const externalConfig = {
  * @param {typeof externalConfig} config
  */
 function validateConfig( config ) {
-    if ( ! config.useTsNode && ! config.useSwc ) {
+    if ( externalConfig.extensions.includes( [ ".ts", ".tsx" ] && ( ! config.useTsNode && ! config.useSwc )) ) {
         throw new Error( "Must use either `useTsNode` or `useSwc` to transpile typescript" );
+    }
+
+    if ( config.useTsNode && config.useSwc ) {
+        throw new Error( "Cannot use both `useTsNode` and `useSwc`" );
     }
 }
 

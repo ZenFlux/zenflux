@@ -65,7 +65,11 @@ const initialize = async () => {
     };
 
     // TODO: Find better solution.
-    let tsOptions, tsNodeProvider, swcProvider;
+    /**
+     * @type {import("typescript").ParsedCommandLine}
+     */
+    let tsConfig;
+    let tsNodeProvider, swcProvider;
 
     if ( externalConfig.useTsNode ) {
         tsNodeProvider =
@@ -78,7 +82,7 @@ const initialize = async () => {
 
         tsNodeProvider.initialize();
 
-        tsOptions = tsNodeProvider.service.config.options;
+        tsConfig = tsNodeProvider.service.config;
     } else if ( externalConfig.useSwc ) {
         swcProvider =
             new ( ( await import( "./providers/swc-provider.js" ) ).SwcProvider )( {
@@ -88,7 +92,7 @@ const initialize = async () => {
 
         swcProvider.initialize();
 
-        tsOptions = swcProvider.tsConfig;
+        tsConfig = swcProvider.tsConfig;
     }
 
     /**
@@ -99,7 +103,9 @@ const initialize = async () => {
      * @type {import("./providers/base").ProviderBase[]}
      */
     const providers = [
-        new ( await import( "./providers/relative-provider.js" ) ).RelativeProvider(),
+        new ( await import( "./providers/relative-provider.js" ) ).RelativeProvider( {
+            extensions: config.extensions,
+        } ),
     ];
 
     if ( externalConfig.workspacePath ) {
@@ -114,10 +120,24 @@ const initialize = async () => {
         projectPath: config.paths.project,
     } ) );
 
-    if ( "undefined" !== typeof tsOptions.paths && Object.keys( tsOptions.paths ).length ) {
+    if ( "undefined" !== typeof tsConfig.options?.paths && Object.keys( tsConfig.options?.paths ).length ) {
+        // Convert parsed typescript paths to tsconfig-paths compatible.
+        /**
+         * @type {{ [ key: string ]: string[] }}
+         */
+        const tsConfigPaths = {};
+
+        Object.entries( tsConfig.options.paths ).forEach( ( [ key, value ] ) => {
+            if ( ! tsConfigPaths[ key ] ) {
+                tsConfigPaths[ key ] = [];
+            }
+
+            tsConfigPaths[ key ].push( ... value );
+        } );
+
         providers.push( new ( await import( "./providers/ts-paths-provider.js" ) ).TsPathsProvider( {
-            baseUrl: tsOptions.baseUrl,
-            paths: tsOptions.paths,
+            baseUrl: tsConfig.options.baseUrl,
+            paths: tsConfigPaths,
             extensions: config.extensions,
         } ) );
     }

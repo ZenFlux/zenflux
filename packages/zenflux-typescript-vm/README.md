@@ -10,6 +10,15 @@ for Typescript projects.
 
 ---
 
+## 📦 Features
+- Supports `tsconfig.json` + *paths*
+- Resolving workspace packages
+- Caching modules
+- Transpile with:
+    - [SWC](https://github.com/swc-project/swc/)
+    - [TS-Node](https://github.com/TypeStrong/ts-node)
+
+
 ## 🛠️ Installation
 Via package manager, `bun install @zenflux/typescript-vm`
 
@@ -37,9 +46,22 @@ vm.defineConfig( {
 
     tsConfigPath: path.resolve( currentDir, "./tsconfig.json" ),
 
-    // Enable support for workspace `workspace:` paths from `package.json`
+    /**
+     * Enable support for resolving workspace packages, eg: `@company/package`, 
+     * it will read "workspace" field from `package.json`.
+     */
     workspacePath: path.resolve( currentDir, "../../../" ),
 
+    /**
+     * Determines whether to use ts-node compiler or not.
+     */
+    useTsNode: false,
+
+    /**
+     * Determines whether to use SWC compiler or not.
+     */
+    useSwc: true,
+    
     vmContext: {
         global,
 
@@ -89,5 +111,4 @@ vm.tap( async ( vm ) => {
 - [ ] More Examples
 - [ ] Remove `tsconfig-paths` dependency
 - [ ] Circular dependency detection
-- [ ] Configurable tsnode/swc loader
 - [ ] Add cli with arguments for configuration
