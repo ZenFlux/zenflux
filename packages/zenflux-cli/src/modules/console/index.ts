@@ -15,8 +15,8 @@ export * from "@zenflux/cli/src/modules/console/console-menu-hotkey";
 export const console = new class extends Console {
     public readonly prefix: string;
 
-    public constructor( stdin: NodeJS.ReadStream, stdout: NodeJS.WriteStream ) {
-        super( stdin, stdout );
+    public constructor( stdout: NodeJS.WriteStream, stderr: NodeJS.WriteStream ) {
+        super( stdout, stderr );
 
         if ( ! process.argv.includes( "--verbose" ) ) {
             this.verbose = () => {};
@@ -86,6 +86,6 @@ export const console = new class extends Console {
             ... result
         ] );
     }
-}( process.stdin, process.stdout );
+}( process.stdout, process.stderr );
 
 export default console;
