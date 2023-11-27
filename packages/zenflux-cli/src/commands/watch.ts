@@ -35,7 +35,7 @@ export default class Watch extends CommandBuildBase {
         for ( const config of configs ) {
             const onBuiltFormat = config.onBuiltFormat || function ( _ ) {};
 
-            for ( const rollupConfig of this.getRollupConfig( config.path ) ) {
+            for ( const rollupConfig of this.getRollupConfig( config ) ) {
                 const output = rollupConfig.output as OutputOptions;
 
                 if ( ! output ) {

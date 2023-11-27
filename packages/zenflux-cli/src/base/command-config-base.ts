@@ -13,10 +13,10 @@ import { Package } from "@zenflux/cli/src/modules/npm/package";
 
 import { console } from "@zenflux/cli/src/modules/console";
 
-import type { IZConfig } from "@zenflux/cli/src/definitions/config";
+import type { IZConfigInternal } from "@zenflux/cli/src/definitions/config";
 
 export abstract class CommandConfigBase extends CommandBase {
-    private configs: IZConfig[] = [];
+    private configs: IZConfigInternal[] = [];
 
     protected isWorkspaceSpecified = false;
 
@@ -55,11 +55,20 @@ export abstract class CommandConfigBase extends CommandBase {
             return;
         }
 
+        const configArgIndex = this.args.indexOf( "--config" );
+
+        let configFileName: string | undefined;
+        if ( configArgIndex > -1 ) {
+            configFileName = this.args[ configArgIndex + 1 ];
+        }
+
         const promises = this.paths.projects.map( async ( projectPath: string ) => {
-            const config = await zConfigLoad( zGlobalGetConfigPath( projectPath ), this.paths.projects.length > 1 );
+            const path = zGlobalGetConfigPath( projectPath, configFileName );
+
+            const config = await zConfigLoad( path, this.paths.projects.length > 1 );
 
             if ( config ) {
-                this.configs.push( config );
+                this.configs.push( ... config );
             }
         } );
 
@@ -74,6 +83,14 @@ export abstract class CommandConfigBase extends CommandBase {
         super.showHelp( name );
 
         console.log( util.inspect( {
+            "--config": {
+                description: "Specify a custom config file",
+                // aliases: [ "-c" ],
+                examples: [
+                    "--config <config-file-name>",
+                    "--config zenflux.test.config.ts",
+                ]
+            },
             "--workspace": {
                 description: "Run for specific workspace",
                 examples: [

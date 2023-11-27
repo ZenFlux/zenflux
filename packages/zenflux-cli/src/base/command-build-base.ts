@@ -13,9 +13,11 @@ import { zApiExporter } from "@zenflux/cli/src/core/api-extractor";
 
 import { console } from "@zenflux/cli/src/modules/console";
 
+import { Z_CONFIG_DEFAULTS } from "@zenflux/cli/src/definitions/config";
+
 import type { RollupOptions } from "rollup";
 
-import type { IZConfig } from "@zenflux/cli/src/definitions/config";
+import type { IZConfigInternal } from "@zenflux/cli/src/definitions/config";
 
 export abstract class CommandBuildBase extends CommandConfigBase {
     private rollupConfig: {
@@ -36,14 +38,16 @@ export abstract class CommandBuildBase extends CommandConfigBase {
 
         await result.then( () => {
             this.getConfigs().forEach( config => {
-                this.rollupConfig[ config.path ] = this.getConfigForEachFormat( config );
+                console.verbose( () => `${ CommandBuildBase.name }::${ this.loadConfigs.name }() -> Start building rollup config for: ${ util.inspect( config.outputName ) } config path: ${ util.inspect( config.path ) }` );
+
+                this.rollupConfig[ config.path + "-" + config.outputName ] = this.getConfigForEachFormat( config );
             } );
         } );
 
         return result;
     }
 
-    protected tryUseApiExtractor( config: IZConfig ) {
+    protected tryUseApiExtractor( config: IZConfigInternal ) {
         const projectPath = path.dirname( config.path );
 
         // Check if we need to generate dts file.
@@ -56,12 +60,13 @@ export abstract class CommandBuildBase extends CommandConfigBase {
         }
     }
 
-    protected getRollupConfig( pathKey: string ) {
-        return this.rollupConfig[ pathKey ];
+    protected getRollupConfig( config: IZConfigInternal ) {
+        return this.rollupConfig[ config.path + "-" + config.outputName ];
     }
 
-    private getConfigForEachFormat( config: IZConfig ) {
+    private getConfigForEachFormat( config: IZConfigInternal ) {
         return config.format.map( format => zRollupGetConfig( {
+            ... Z_CONFIG_DEFAULTS,
             ... config,
             format
         }, path.dirname( config.path ) ) );

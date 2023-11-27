@@ -22,7 +22,7 @@ export default class Build extends CommandBuildBase {
         for ( const config of configs ) {
             console.log( `Building - '${ config.path }'` );
 
-            const rollupConfig = this.getRollupConfig( config.path );
+            const rollupConfig = this.getRollupConfig( config );
 
             rollupConfig.map( ( rollupOptions ) => {
                 promises.push( this.build( rollupOptions ).then(
