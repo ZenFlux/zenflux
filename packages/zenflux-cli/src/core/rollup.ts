@@ -4,102 +4,53 @@
 import path from "node:path";
 import process from "node:process";
 
-import ts from "typescript";
-
 import nodeResolve from "@rollup/plugin-node-resolve";
-import typescript from "@rollup/plugin-typescript";
-import babel from "@rollup/plugin-babel";
-import json from "@rollup/plugin-json";
-import terser from "@rollup/plugin-terser";
 
-import { zTSConfigRead } from "@zenflux/cli/src/core/tsconfig";
+import zRollupCjsAsyncWrapPlugin
+    from "@zenflux/cli/src/core/rollup-plugins/rollup-cjs-async-wrap/rollup-cjs-async-wrap-plugin";
+import zRollupCustomLoaderPlugin
+    from "@zenflux/cli/src/core/rollup-plugins/rollup-custom-loader/rollup-custom-loader-plugin";
+
+import zRollupSwcPlugin from "@zenflux/cli/src/core/rollup-plugins/rollup-swc/rollup-swc-plugin";
+
+import { zTSConfigRead } from "@zenflux/cli/src/core/typescript";
 
 import packageJSON from "@zenflux/cli/package.json";
 
-import type { OutputOptions, OutputPlugin, RollupOptions } from "rollup";
-import type { RollupBabelInputPluginOptions } from "@rollup/plugin-babel";
-import type { RollupTypescriptOptions } from "@rollup/plugin-typescript";
+import type { OutputOptions, OutputPlugin, Plugin, RollupOptions } from "rollup";
 
 import type { IOutputArgs, IPluginArgs } from "@zenflux/cli/src/definitions/rollup";
-import type { IConfigArgs } from "@zenflux/cli/src/definitions/config";
+import type { TZConfigInternalArgs } from "@zenflux/cli/src/definitions/config";
 import type { TZFormatType } from "@zenflux/cli/src/definitions/zenflux";
 
-const gBabelRuntimeVersion = packageJSON.dependencies[ "@babel/runtime" ].replace( /^[^0-9]*/, "" );
-
 /**
- * This function returns an array of Rollup plugins based on the provided arguments.
- * It configures and adds plugins for resolving dependencies, TypeScript, Babel, JSON, and optionally Terser for minification.
+ * Function zRollupGetPlugins(): This function returns an array of Rollup plugins based on the provided arguments.
  */
 export const zRollupGetPlugins = ( args: IPluginArgs, projectPath: string ): OutputPlugin[] => {
     const { extensions, format } = args;
 
-    const plugins = [
-        nodeResolve( { extensions } ),
-    ];
+    const plugins: Plugin[] = [];
 
-    const rand = Math.random();
+    plugins.push( nodeResolve( { extensions } ) );
 
-    const rollupTypescriptOptions: RollupTypescriptOptions = {
-        compilerOptions: {
-            [ rand.toString() ]: true,
-        },
-
-        // Override `ts.parseJsonConfigFileContent` to avoid loading of tsconfig multiple times, since there are no way to pass custom object to the plugin.
-        typescript: Object.assign( {}, ts, {
-            parseJsonConfigFileContent: ( ... args: any ) => {
-                if ( args[ 0 ]?.compilerOptions?.[ rand.toString() ] ) {
-                    return zTSConfigRead( format as TZFormatType, projectPath );
-                }
-
-                return ts.parseJsonConfigFileContent.apply( ts, args );
-            }
-        } ),
-    };
-
-    plugins.push( typescript( rollupTypescriptOptions ) );
-
-    const babelConfig: RollupBabelInputPluginOptions = {
-        extensions,
-        plugins: [],
-        babelHelpers: args.babelHelper,
-        configFile: projectPath + "/.babelrc",
-    };
-
-    if ( args.babelExcludeNodeModules ) {
-        babelConfig.exclude = "node_modules/**";
+    if ( ! args.tsConfig ) {
+        args.tsConfig = zTSConfigRead( format as TZFormatType, projectPath );
     }
 
-    if ( args.babelUseESModules ) {
-        babelConfig.plugins?.push( [ "@babel/plugin-transform-runtime", {
-            version: gBabelRuntimeVersion,
-            useESModules: true,
-        } ] );
-    } else {
-        babelConfig.plugins?.push( [ "@babel/plugin-transform-runtime", { version: gBabelRuntimeVersion } ] );
-    }
+    plugins.push( zRollupSwcPlugin( args as Required<IPluginArgs> ) );
 
-    if ( "bundled" === args.babelHelper ) {
-        babelConfig.skipPreflightCheck = true;
-    }
+    plugins.push( zRollupCustomLoaderPlugin( args ) );
 
-    plugins.push( json() );
-    plugins.push( babel( babelConfig ) );
-
-    if ( args.minify ) {
-        plugins.push( terser( {
-            compress: {
-                pure_getters: true,
-                unsafe: true,
-                unsafe_comps: true
-            }
-        } ) );
+    if ( "cjs" === format ) {
+        // Depends on `transpiler` plugin
+        plugins.push( zRollupCjsAsyncWrapPlugin( args ) );
     }
 
     return plugins;
 };
 
 /**
- * This function generates an OutputOptions object based on the provided arguments.
+ * Function zRollupGetOutput(): Generates an OutputOptions object based on the provided arguments.
  * It configures the output format, file path, and other options for the Rollup output.
  */
 export const zRollupGetOutput = ( args: IOutputArgs, projectPath: string ): OutputOptions => {
@@ -116,14 +67,10 @@ export const zRollupGetOutput = ( args: IOutputArgs, projectPath: string ): Outp
     const outDir = `${ tsConfig.options.outDir || projectPath + "/dist" }`;
 
     const result: OutputOptions = {
-        // TODO: Should be configurable, eg: `{tsOutDir}/{outputFileName}.{format}.{ext}`
-        // file: `${ outDir }/${ outputFileName }.${ format }.${ ext }`,
-
         dir: outDir,
         entryFileNames: `${ outputFileName }.${ format }`,
         chunkFileNames: `${ outputFileName }-[name].${ format }`,
 
-        // inlineDynamicImports: !! tsConfig.options.sourceMap,
         sourcemap: tsConfig.options.sourceMap,
 
         format,
@@ -151,13 +98,31 @@ export const zRollupGetOutput = ( args: IOutputArgs, projectPath: string ): Outp
 };
 
 /**
- * This function generates a Rollup configuration object based on the provided arguments.
+ * Function zRollupGetPluginArgs(): Retrieves the arguments for a zenflux rollup plugins.
+ */
+export const zRollupGetPluginArgs = ( extensions: string[], format: TZFormatType, sourcemap?: boolean, moduleForwarding?: TZConfigInternalArgs["moduleForwarding"] ) => {
+    const pluginsArgs: IPluginArgs = {
+        extensions,
+        format,
+        moduleForwarding,
+
+        // For zenflux rollup plugins
+        sourcemap: !! sourcemap,
+
+        minify: "development" !== process.env.NODE_ENV,
+    };
+
+    return pluginsArgs;
+};
+
+/**
+ * Function zRollupGetConfig(): This function generates a Rollup configuration object based on the provided arguments.
  * It assembles the input, output, and plugin configurations for Rollup.
  */
-export const zRollupGetConfig = ( args: IConfigArgs, projectPath: string ): RollupOptions => {
+export const zRollupGetConfig = ( args: TZConfigInternalArgs, projectPath: string ): RollupOptions => {
     const {
         extensions,
-        external = [],
+        external,
         format,
         globals,
         inputPath,
@@ -170,15 +135,12 @@ export const zRollupGetConfig = ( args: IConfigArgs, projectPath: string ): Roll
         external,
     };
 
-    const outputArgs = {
+    const outputArgs: IOutputArgs = {
         format,
         globals,
-        outputFileName,
-    } as IOutputArgs;
-
-    // if ( "esm" === format ) {
-    //     outputArgs.ext = "mjs";
-    // }
+        outputName,
+        outputFileName
+    };
 
     if ( outputName ) {
         outputArgs.outputName = outputName;
@@ -186,30 +148,12 @@ export const zRollupGetConfig = ( args: IConfigArgs, projectPath: string ): Roll
 
     result.output = zRollupGetOutput( outputArgs, projectPath );
 
-    const pluginsArgs: IPluginArgs = {
+    const pluginsArgs = zRollupGetPluginArgs(
         extensions,
         format,
-        minify: "development" !== process.env.NODE_ENV,
-    };
-
-    // noinspection FallThroughInSwitchStatementJS
-    switch ( format ) {
-        case "es":
-            pluginsArgs.babelUseESModules = true;
-        case "cjs":
-            pluginsArgs.babelHelper = "runtime";
-            break;
-
-        case "umd":
-            pluginsArgs.babelExcludeNodeModules = true;
-        // case "esm": // TODO: Figure out why this is needed for ESM.
-            pluginsArgs.babelHelper = "bundled";
-            break;
-
-        default: {
-            throw new Error( `Unknown format: ${ format }` );
-        }
-    }
+        !! result.output.sourcemap,
+        args.moduleForwarding
+    );
 
     result.plugins = zRollupGetPlugins( pluginsArgs, projectPath );
 

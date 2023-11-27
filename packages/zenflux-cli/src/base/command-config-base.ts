@@ -21,7 +21,6 @@ export abstract class CommandConfigBase extends CommandBase {
     protected isWorkspaceSpecified = false;
 
     public initialize() {
-        // TODO: CommandBase should have a method to get base help info, eg for --workspace
         const workspaceArgIndex = this.args.indexOf( "--workspace" );
 
         // Determine if the workspace is specified

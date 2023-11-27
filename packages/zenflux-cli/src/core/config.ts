@@ -97,7 +97,6 @@ export async function zConfigLoad( path: string, silent = false ) {
     } else {
         Object.entries( config as IZConfigs ).forEach( ( [ key, i ] ) => {
             if ( i && ! hasRequiredKeys( i as IZConfigInternal ) ) {
-                // TODO: `$defaults` should be const.
                 if ( "$defaults" === key ) {
                     $defaults = i as IConfigArgsBase;
                 } else {
