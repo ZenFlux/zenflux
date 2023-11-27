@@ -5,8 +5,7 @@ import process from "process";
 
 import { Console } from "node:console";
 
-// eslint-disable-next-line no-restricted-imports
-import packageJSON from "../../../package.json";
+import packageJSON from "@zenflux/cli/package.json" assert { type: "json" };
 
 export * from "@zenflux/cli/src/modules/console/console-menu";
 export * from "@zenflux/cli/src/modules/console/console-menu-checkbox";
