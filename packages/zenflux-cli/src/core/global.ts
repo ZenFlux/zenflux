@@ -46,6 +46,9 @@ export function zGlobalInitPaths( args: {
     }
 
     global.__ZENFLUX_CLI__.paths = Object.freeze( {
+        // Chain path to the cli
+        cli: global.__ZENFLUX_CLI__.paths.cli,
+
         workspace: args.workspacePath || "",
         projects: args.projectsPaths,
 
@@ -67,7 +70,7 @@ export function zGlobalPathsGet() {
     return global.__ZENFLUX_CLI__.paths;
 }
 
-export function zGlobalGetConfigPath( project: string ) {
+export function zGlobalGetConfigPath( project: string, configFileName = DEFAULT_Z_CONFIG_FILE  ) {
     // Find the project path
     const projectPath = zGlobalPathsGet().projects.find( projectPath => projectPath === project );
 
@@ -75,7 +78,7 @@ export function zGlobalGetConfigPath( project: string ) {
         throw new Error( `Project '${ project }' not found` );
     }
 
-    return path.resolve( projectPath, DEFAULT_Z_CONFIG_FILE );
+    return path.resolve( projectPath, configFileName );
 }
 
 declare global {
@@ -84,4 +87,9 @@ declare global {
 }
 
 // Since commands are loaded dynamically, it should use the same node context
-global.__ZENFLUX_CLI__ =  shared;
+global.__ZENFLUX_CLI__ = Object.assign(
+    {},
+    // Can be injected from the outside
+    global.__ZENFLUX_CLI__,
+    shared
+);

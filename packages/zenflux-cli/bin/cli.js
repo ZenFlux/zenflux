@@ -5,10 +5,17 @@ import { fileURLToPath } from "url";
 
 import { Loaders, Resolvers, vm } from "@zenflux/tsnode-vm";
 
-const currentDir = path.dirname( fileURLToPath( import.meta.url ) );
+const currentFile = fileURLToPath( import.meta.url );
+const currentDir = path.dirname( currentFile );
 
 // For better error stack trace, since we are using vm.
 Error.stackTraceLimit = Infinity;
+
+global.__ZENFLUX_CLI__ = {
+    paths: {
+        cli: currentFile,
+    }
+};
 
 const vmContext = {
     global,
