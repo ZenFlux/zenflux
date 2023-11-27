@@ -56,9 +56,7 @@ export const console = new class extends Console {
     public error( ... args: any[] ) {
         return super.error.apply( this, [
             this.prefix,
-            "\x1b[31m",
-            ... args,
-            "\x1b[0m"
+            ... args
         ] );
     }
 
