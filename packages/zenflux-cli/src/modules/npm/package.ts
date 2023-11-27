@@ -12,14 +12,14 @@ import npmpublish from "libnpmpublish";
 // @ts-ignore - no types available
 import pack from "libnpmpack";
 
-import { Registry } from "@z-cli/modules/npm/registry";
+import { Registry } from "@zenflux/cli/src/modules/npm/registry";
 
 import {
     DEFAULT_NPM_RC_PATH,
     DEFAULT_NPM_REMOTE_REGISTRY_URL
-} from "@z-cli/modules/npm/definitions";
+} from "@zenflux/cli/src/modules/npm/definitions";
 
-import type { TForceEnumKeys } from "@z-cli/utils/common";
+import type { TForceEnumKeys } from "@zenflux/cli/src/utils/common";
 
 export type TPackages = { [ packageName: string ]: Package };
 

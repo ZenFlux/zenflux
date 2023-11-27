@@ -6,7 +6,7 @@ import util from "node:util";
 
 import { Extractor, ExtractorConfig } from "@microsoft/api-extractor";
 
-import console from "@z-cli/modules/console";
+import console from "@zenflux/cli/src/modules/console";
 
 export function zApiExporter( projectPath: string, inputPath: string, outputPath: string ) {
     console.verbose( () => `${ zApiExporter.name }() -> ${ util.inspect( {

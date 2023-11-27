@@ -3,7 +3,7 @@
  */
 import path from "path";
 
-import { DEFAULT_NPM_RC_FILE } from "@z-cli/modules/npm/definitions";
+import { DEFAULT_NPM_RC_FILE } from "@zenflux/cli/src/modules/npm/definitions";
 
 import {
     DEFAULT_Z_CONFIG_FILE,
@@ -12,10 +12,13 @@ import {
     DEFAULT_Z_VERDACCIO_FOLDER,
     DEFAULT_Z_VERDACCIO_HTPASSWD_FILE,
     DEFAULT_Z_VERDACCIO_STORAGE_FOLDER
-} from "@z-cli/definitions/zenflux";
+} from "@zenflux/cli/src/definitions/zenflux";
 
 const shared = {
     paths: {
+        // Depends on the cli self
+        cli: global.__ZENFLUX_CLI__?.paths?.cli || "",
+
         workspace: "",
         projects: [] as string[],
         etc: "",

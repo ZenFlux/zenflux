@@ -12,17 +12,17 @@ import babel from "@rollup/plugin-babel";
 import json from "@rollup/plugin-json";
 import terser from "@rollup/plugin-terser";
 
-import { zTSConfigRead } from "@z-cli/core/tsconfig";
+import { zTSConfigRead } from "@zenflux/cli/src/core/tsconfig";
 
-import packageJSON from "@z-cli/../package.json";
+import packageJSON from "@zenflux/cli/package.json";
 
 import type { OutputOptions, OutputPlugin, RollupOptions } from "rollup";
 import type { RollupBabelInputPluginOptions } from "@rollup/plugin-babel";
 import type { RollupTypescriptOptions } from "@rollup/plugin-typescript";
 
-import type { IOutputArgs, IPluginArgs } from "@z-cli/definitions/rollup";
-import type { IConfigArgs } from "@z-cli/definitions/config";
-import type { TZFormatType } from "@z-cli/definitions/zenflux";
+import type { IOutputArgs, IPluginArgs } from "@zenflux/cli/src/definitions/rollup";
+import type { IConfigArgs } from "@zenflux/cli/src/definitions/config";
+import type { TZFormatType } from "@zenflux/cli/src/definitions/zenflux";
 
 const gBabelRuntimeVersion = packageJSON.dependencies[ "@babel/runtime" ].replace( /^[^0-9]*/, "" );
 

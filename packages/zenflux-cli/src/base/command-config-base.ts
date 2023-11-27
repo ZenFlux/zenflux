@@ -3,17 +3,17 @@
  */
 import util from "node:util";
 
-import { zConfigLoad } from "@z-cli/core/config";
-import { zWorkspaceFindPackages, zWorkspaceGetPackagesPaths } from "@z-cli/core/workspace";
-import { zGlobalGetConfigPath } from "@z-cli/core/global";
+import { zConfigLoad } from "@zenflux/cli/src/core/config";
+import { zWorkspaceFindPackages, zWorkspaceGetPackagesPaths } from "@zenflux/cli/src/core/workspace";
+import { zGlobalGetConfigPath } from "@zenflux/cli/src/core/global";
 
-import { CommandBase } from "@z-cli/base/command-base";
+import { CommandBase } from "@zenflux/cli/src/base/command-base";
 
-import { Package } from "@z-cli/modules/npm/package";
+import { Package } from "@zenflux/cli/src/modules/npm/package";
 
-import { console } from "@z-cli/modules/console";
+import { console } from "@zenflux/cli/src/modules/console";
 
-import type { IZConfig } from "@z-cli/definitions/config";
+import type { IZConfig } from "@zenflux/cli/src/definitions/config";
 
 export abstract class CommandConfigBase extends CommandBase {
     private configs: IZConfig[] = [];

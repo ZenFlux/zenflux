@@ -1,7 +1,7 @@
 /**
  * @author: Leonid Vinikov <leonidvinikov@gmail.com>
  */
-import type { TZFormatType } from "@z-cli/definitions/zenflux";
+import type { TZFormatType } from "@zenflux/cli/src/definitions/zenflux";
 
 // The arguments are precisely the only things that are used in `zRollupGetConfig`
 // `zRollupGetConfig` runs for each format in the `ZConfig`, those are representing the arguments for each format.

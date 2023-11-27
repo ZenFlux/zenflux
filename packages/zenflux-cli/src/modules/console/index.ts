@@ -8,9 +8,9 @@ import { Console } from "node:console";
 // eslint-disable-next-line no-restricted-imports
 import packageJSON from "../../../package.json";
 
-export * from "@z-cli/modules/console/console-menu";
-export * from "@z-cli/modules/console/console-menu-checkbox";
-export * from "@z-cli/modules/console/console-menu-hotkey";
+export * from "@zenflux/cli/src/modules/console/console-menu";
+export * from "@zenflux/cli/src/modules/console/console-menu-checkbox";
+export * from "@zenflux/cli/src/modules/console/console-menu-hotkey";
 
 export const console = new class extends Console {
     public readonly prefix: string;

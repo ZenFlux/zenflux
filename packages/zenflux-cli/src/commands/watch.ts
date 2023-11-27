@@ -7,13 +7,13 @@ import util from "node:util";
 
 import { watch } from "rollup";
 
-import { CommandBuildBase } from "@z-cli/base/command-build-base";
+import { CommandBuildBase } from "@zenflux/cli/src/base/command-build-base";
 
-import { console } from "@z-cli/modules/console";
+import { console } from "@zenflux/cli/src/modules/console";
 
 import type { OutputOptions, RollupWatchOptions } from "rollup";
 
-import type { TZFormatType } from "@z-cli/definitions/zenflux";
+import type { TZFormatType } from "@zenflux/cli/src/definitions/zenflux";
 
 const DEFAULT_ON_BUILT_DELAY = 2000;
 

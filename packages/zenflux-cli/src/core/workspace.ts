@@ -6,13 +6,13 @@ import path from "node:path";
 import fs from "node:fs";
 import util from "node:util";
 
-import { getMatchingPathsRecursive } from "@z-cli/utils/path";
+import { console } from "@zenflux/cli/src/modules/console";
 
-import { console } from "@z-cli/modules/console";
+import { Package } from "@zenflux/cli/src/modules/npm/package";
 
-import { Package } from "@z-cli/modules/npm/package";
+import { getMatchingPathsRecursive } from "@zenflux/cli/src/utils/path";
 
-import type { TNewPackageOptions, TPackageDependencies, TPackages } from "@z-cli/modules/npm/package";
+import type { TNewPackageOptions, TPackageDependencies, TPackages } from "@zenflux/cli/src/modules/npm/package";
 
 export type TWorkspace = {
     workspace: string;

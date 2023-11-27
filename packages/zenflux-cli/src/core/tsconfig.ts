@@ -7,9 +7,9 @@ import path from "node:path";
 
 import ts from "typescript";
 
-import { console } from "@z-cli/modules/console";
+import { console } from "@zenflux/cli/src/modules/console";
 
-import type { TZFormatType } from "@z-cli/definitions/zenflux";
+import type { TZFormatType } from "@zenflux/cli/src/definitions/zenflux";
 
 const pathsCache: { [ key: string ]: string } = {},
     configCache: { [ key: string ]: ts.ParsedCommandLine } = {};

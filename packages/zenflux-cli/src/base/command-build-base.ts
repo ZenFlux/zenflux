@@ -6,16 +6,16 @@ import process from "node:process";
 
 import util from "node:util";
 
-import { CommandConfigBase } from "@z-cli/base/command-config-base";
+import { CommandConfigBase } from "@zenflux/cli/src/base/command-config-base";
 
-import { zRollupGetConfig } from "@z-cli/core/rollup";
-import { zApiExporter } from "@z-cli/core/api-extractor";
+import { zRollupGetConfig } from "@zenflux/cli/src/core/rollup";
+import { zApiExporter } from "@zenflux/cli/src/core/api-extractor";
 
-import { console } from "@z-cli/modules/console";
+import { console } from "@zenflux/cli/src/modules/console";
 
 import type { RollupOptions } from "rollup";
 
-import type { IZConfig } from "@z-cli/definitions/config";
+import type { IZConfig } from "@zenflux/cli/src/definitions/config";
 
 export abstract class CommandBuildBase extends CommandConfigBase {
     private rollupConfig: {

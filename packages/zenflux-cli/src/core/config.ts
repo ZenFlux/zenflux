@@ -3,9 +3,9 @@
  */
 import fs from "fs";
 
-import { console } from "@z-cli/modules/console";
+import { console } from "@zenflux/cli/src/modules/console";
 
-import type { IZConfig } from "@z-cli/definitions/config";
+import type { IZConfig } from "@zenflux/cli/src/definitions/config";
 
 export async function zConfigLoad( path: string, silent = false ) {
     // Check if target config exists.
