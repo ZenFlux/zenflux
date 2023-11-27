@@ -113,17 +113,31 @@ export const zRollupGetOutput = ( args: IOutputArgs, projectPath: string ): Outp
 
     const tsConfig = zTSConfigRead( format as TZFormatType, projectPath );
 
-    const result = {
-        // TODO: Should be configurable, eg: `{tsOutDir}/{outputFileName}.{format}.{ext}`
-        file: `${ tsConfig.options.outDir || "dist" }/${ outputFileName }.${ format }.${ ext }`,
+    const outDir = `${ tsConfig.options.outDir || projectPath + "/dist" }`;
 
+    const result: OutputOptions = {
+        // TODO: Should be configurable, eg: `{tsOutDir}/{outputFileName}.{format}.{ext}`
+        // file: `${ outDir }/${ outputFileName }.${ format }.${ ext }`,
+
+        dir: outDir,
+        entryFileNames: `${ outputFileName }.${ format }`,
+        chunkFileNames: `${ outputFileName }-[name].${ format }`,
+
+        // inlineDynamicImports: !! tsConfig.options.sourceMap,
         sourcemap: tsConfig.options.sourceMap,
 
         format,
 
         indent: false,
         exports: "named",
-    } as OutputOptions;
+
+        banner: "" +
+            "/**\n" +
+            ` * Bundled with love using the help of ${ packageJSON.name } toolkit v${ packageJSON.version }\n` +
+            ` * Bundle name: ${ outputName } fileName: ${ outputFileName }, built at ${ new Date() }\n` +
+            " */\n",
+
+    };
 
     if ( globals ) {
         result.globals = globals;
