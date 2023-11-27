@@ -54,15 +54,11 @@ vm.defineConfig( {
 
     /**
      * Determines whether to use ts-node compiler or not.
-     *
-     * @param {boolean}
      */
     useTsNode: false,
 
     /**
      * Determines whether to use SWC compiler or not.
-     *
-     * @type {boolean}
      */
     useSwc: true,
     

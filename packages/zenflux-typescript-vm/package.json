@@ -2,7 +2,7 @@
     "$schema": "https://json.schemastore.org/package",
     "name": "@zenflux/typescript-vm",
     "description": "A simple VM for running Typescript code in a NodeJS environment, with favor of tsconfig.json",
-    "version": "0.0.0-dev.6",
+    "version": "0.0.0-dev.7",
     "type": "module",
     "files": [
         "src",
