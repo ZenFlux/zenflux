@@ -19,7 +19,7 @@
         }
     },
     "scripts": {
-        "@z-tsnode-vm--build-utils-dts": "tsc src/utils.js --declaration --allowJs --emitDeclarationOnly --outDir types -- Cant stay like that"
+        "@z-tsnode-vm--build-utils-dts": "tsc src/utils.js --declaration --allowJs --emitDeclarationOnly --outDir types"
     },
     "publishConfig": {
         "access": "public"
