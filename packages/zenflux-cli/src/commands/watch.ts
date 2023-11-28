@@ -8,8 +8,11 @@
  */
 import util from "node:util";
 import process from "node:process";
+import path from "node:path";
 
 import chokidar from "chokidar";
+
+import { zTSConfigRead, zTSPreDiagnostics } from "@zenflux/cli/src/core/typescript";
 
 import { CommandBuildBase } from "@zenflux/cli/src/base/command-build-base";
 
@@ -57,7 +60,8 @@ export default class Watch extends CommandBuildBase {
             watcher.close();
         } );
 
-        let totalBuildTime = 0;
+        let totalBuildTime = 0,
+            builtOnce = false;
 
         // Create build request with thread per config.
         for ( const config of configs ) {
@@ -67,7 +71,12 @@ export default class Watch extends CommandBuildBase {
             this.watch( rollupConfig, config, watcher, configs.indexOf( config ) )
                 .onWorkerStart( ( id ) => {
                     if ( buildTimePerThread.size === 0 ) {
+                        if ( builtOnce ) {
+                            console.clear();
+                        }
+
                         totalBuildTime = Date.now();
+                        builtOnce = true;
                     }
 
                     buildTimePerThread.set( id, Date.now() );
@@ -83,10 +92,18 @@ export default class Watch extends CommandBuildBase {
                     buildTimePerThread.delete( id );
 
                     if ( buildTimePerThread.size === 0 ) {
-                        console.log( `Watcher\tT\tTotal\t${ util.inspect( config.path ) } toke: ${ util.inspect( ( Date.now() - totalBuildTime ) + "ms" ) }` );
+                        console.log( `Watcher\tT\tTotal\t${ util.inspect( configs.map( c => c.outputFileName ), { breakLength: Infinity } ) } toke: ${ util.inspect( ( Date.now() - totalBuildTime ) + "ms" ) }` );
+
+                        this.onBuiltAll( configs );
                     }
                 } );
         }
+    }
+
+    protected onBuiltAll( configs: IZConfigInternal[] ) {
+        configs.forEach( ( config ) => {
+            zTSPreDiagnostics(zTSConfigRead( null, path.dirname( config.path ) ), false );
+        } );
     }
 
     private watch( rollupOptions: RollupOptions[], config: IZConfigInternal, watcher: ReturnType<typeof chokidar.watch>, id: number = 0 ) {
@@ -130,9 +147,6 @@ export default class Watch extends CommandBuildBase {
                 console.verbose( () => `Watcher\t${ id }\tChanges\t${ util.inspect( config.outputName ) } at ${ util.inspect( path ) }` );
 
                 debounce( `__WATCHER__${ id }__`, () => {
-                    // Clear the console.
-                    console.clear();
-
                     buildCallback();
                 }, DEFAULT_ON_CHANGE_DELAY );
             } );
