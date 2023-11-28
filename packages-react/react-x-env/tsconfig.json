@@ -1,0 +1,16 @@
+{
+    "compilerOptions": {
+        "outDir": "./dist/",
+        // Specifies the ECMAScript version to transpile to (e.g., ESNext)
+        "target": "ESNext",
+        // Specifies the module system used in the code (e.g., ESNext)
+        "module": "ESNext",
+        // Defines how TypeScript resolves module import paths (Node.js style)
+        "moduleResolution": "bundler",
+        // Enable default imports from modules with no default export
+        "esModuleInterop": true,
+        // Emit a declaration
+        "declaration": true
+    },
+    "include": ["./src/**/*.ts"],
+}

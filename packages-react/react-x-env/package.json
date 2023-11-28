@@ -1,0 +1,25 @@
+{
+    "name": "@zenflux/react-x-env",
+    "type": "module",
+    "types": "./dist/src/index.d.ts",
+    "exports": {
+        ".": {
+            "types": "./dist/src/index.d.ts",
+            "import": "./dist/react-x-env.es",
+            "require": "./dist/react-x-env.cjs"
+        },
+        "./internals": {
+            "types": "./dist/src/react-internals.d.ts",
+            "import": "./dist/react-x-env.internals.es",
+            "require": "./dist/react-x-env.internals.cjs"
+        }
+    },
+    "scripts": {
+        "@z-react-x-env--build": "bun run @z-cli @build",
+        "@z-react-x-env--build-dev": "bun run @z-react-x-env--build --dev",
+        "@z-react-x-env--dev": "bun run @z-cli @watch --dev"
+    },
+    "dependencies": {
+        "react": "^18.2.0"
+    }
+}
