@@ -45,7 +45,7 @@ export function zCustomizeDiagnostic( diagnostic: ts.Diagnostic ) {
  * It checks for different TypeScript configuration files depending on the environment and format.
  */
 export function zTSConfigGetPath( format: TZFormatType | null, targetPath: string, showErrors = true ) {
-    const cacheKey = targetPath + format ? "_" + format : "";
+    const cacheKey = targetPath + "_" + format;
 
     if ( pathsCache[ cacheKey ] ) {
         return pathsCache[ cacheKey ];
@@ -117,6 +117,8 @@ export function zTSConfigRead( format: TZFormatType | null, projectPath: string 
     if ( ! tsConfigPath ) {
         throw new Error( "tsconfig.json not found" );
     }
+
+    console.verbose( () => `${ zTSConfigRead.name }() -> Reading and parsing '${ tsConfigPath }' of project '${ projectPath }'` );
 
     const data = ts.readConfigFile( tsConfigPath, ts.sys.readFile );
 
