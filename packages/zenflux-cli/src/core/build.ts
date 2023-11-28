@@ -17,14 +17,8 @@ import { console } from "@zenflux/cli/src/modules/console";
 
 import type { OutputOptions, RollupOptions } from "rollup";
 
-import type { IZConfigInternal } from "@zenflux/cli/src/definitions/config";
 import type { TZFormatType } from "@zenflux/cli/src/definitions/zenflux";
-
-type TZBuildOptions = {
-    silent?: boolean;
-    thread?: number,
-    config: IZConfigInternal
-}
+import type { TZBuildOptions } from "@zenflux/cli/src/definitions/build";
 
 const workers = new Map<number, Worker>();
 
