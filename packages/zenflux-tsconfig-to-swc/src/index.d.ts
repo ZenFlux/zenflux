@@ -13,11 +13,11 @@ export function readTsConfig(tsConfigPath: string, readConfigCallback?: (path: s
  * Converts TypeScript compiler options to SWC compiler options
  *
  * @param {import("typescript").ParsedCommandLine} tsConfig - TypeScript parsed configuration object
- * @param {import("@swc/types").Options} inherentOptionsSwcOptions - SWC compiler options object. Default to an empty object
+ * @param {import("@swc/types").Options} overrideOptionsSwcOptions - SWC compiler options object. Default to an empty object
  *
  * @returns {import("@swc/types").Options} - The converted/customized SWC options
  */
-export function convertTsConfig(tsConfig: import("typescript").ParsedCommandLine, inherentOptionsSwcOptions?: import("@swc/types").Options): import("@swc/types").Options;
+export function convertTsConfig(tsConfig: import("typescript").ParsedCommandLine, overrideOptionsSwcOptions?: import("@swc/types").Options): import("@swc/types").Options;
 /**
  * Converts TypeScript's ScriptTarget version to SWC JscTarget version.
  *
