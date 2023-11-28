@@ -66,11 +66,11 @@ export function readTsConfig( tsConfigPath, readConfigCallback = undefined ) {
  * Converts TypeScript compiler options to SWC compiler options
  *
  * @param {import("typescript").ParsedCommandLine} tsConfig - TypeScript parsed configuration object
- * @param {import("@swc/types").Options} inherentOptionsSwcOptions - SWC compiler options object. Default to an empty object
+ * @param {import("@swc/types").Options} overrideOptionsSwcOptions - SWC compiler options object. Default to an empty object
  *
  * @returns {import("@swc/types").Options} - The converted/customized SWC options
  */
-export function convertTsConfig( tsConfig, inherentOptionsSwcOptions = {} ) {
+export function convertTsConfig( tsConfig, overrideOptionsSwcOptions = {} ) {
     // Destructuring assignment to define default values for certain TypeScript options
     // Defaults: https://github.com/Microsoft/TypeScript-Handbook/blob/master/pages/Compiler%20Options.md
     const {
@@ -78,14 +78,14 @@ export function convertTsConfig( tsConfig, inherentOptionsSwcOptions = {} ) {
         emitDecoratorMetadata = false,
         experimentalDecorators = false,
         importHelpers = false,
-        jsx= defaultCompilerOptions.jsx,
+        inlineSourceMap = false,
+        inlineSources = false,
+        jsx = defaultCompilerOptions.jsx,
         jsxFactory = 'React.createElement',
         jsxFragmentFactory = 'React.Fragment',
         jsxImportSource = 'react',
         paths,
         sourceMap = false,
-        inlineSourceMap = false,
-        inlineSources = false,
         target = ts.ScriptTarget.ES3,
     } = tsConfig.options;
 
@@ -130,8 +130,29 @@ export function convertTsConfig( tsConfig, inherentOptionsSwcOptions = {} ) {
         inlineSourcesContent: sourceMap ? inlineSources : false,
     };
 
-    // Create `transformedOptions` object by combining both tsOptions and swcOptions
-    return Object.assign( defaults, inherentOptionsSwcOptions );
+    function isObject( item ) {
+        return ( item && typeof item === 'object' && ! Array.isArray( item ) );
+    }
+
+    function deepMerge( target, source ) {
+        const output = { ...target };
+        if ( isObject( target ) && isObject( source ) ) {
+            Object.keys( source ).forEach( key => {
+                const isSourceKeyAnObject = isObject( source[ key ] );
+                const doesKeyExistInTarget = key in target;
+
+                if ( isSourceKeyAnObject && doesKeyExistInTarget ) {
+                    output[ key ] = deepMerge( target[ key ], source[ key ] );
+                } else {
+                    output[ key ] = source[ key ];
+                }
+            } );
+        }
+        return output;
+    }
+
+    // Create `transformedOptions` object by combining both tsOptions and overrideOptionsSwcOptions, using deep merge
+    return deepMerge( defaults, overrideOptionsSwcOptions );
 }
 
 /**
