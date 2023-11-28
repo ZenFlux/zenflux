@@ -1,5 +1,4 @@
 import fs from "node:fs";
-import inspector from "node:inspector";
 
 import swc from "@swc/core";
 
@@ -63,39 +62,27 @@ export class SwcProvider extends ProviderBase {
 
         this.swcConfig = convertTsConfig( this.tsConfig, {} );
 
-        // If debugger present, inline source maps, otherwise breakpoints won't work
-        this.sourceMapFlag = inspector.url() ? "inline" : this.swcConfig.sourceMaps;
-
-        const uncaughtExecutionHandler = ( reason, promise ) => {
-            sourceMapSupport.install( {
-                retrieveSourceMap: ( path ) => {
-                    if ( this.loadedFiles[ path ] ) {
-                        const source = fs.readFileSync( path.replace( "file://", "" ), "utf-8" );
-
-                        const result = swc.transformSync( source, {
-                            ...this.swcConfig,
-                            filename: path,
-                            sourceMaps: true,
-                        } );
-
-                        return {
-                            url: null,
-                            map: result.map,
-                        };
-                    }
-
-                    return null;
-                },
-            } );
-
-            process.removeListener( "uncaughtException", uncaughtExecutionHandler );
-
-            // Re-emit the exception
-            process.emit( "uncaughtException", reason, promise );
-        };
-
         // SWC unable to handle valid source maps in vm, so we need correct it
-        process.on( "uncaughtException", uncaughtExecutionHandler );
+        sourceMapSupport.install( {
+            retrieveSourceMap: ( path ) => {
+                if ( this.loadedFiles[ path ] ) {
+                    const source = fs.readFileSync( path.replace( "file://", "" ), "utf-8" );
+
+                    const result = swc.transformSync( source, {
+                        ...this.swcConfig,
+                        filename: path,
+                        sourceMaps: true,
+                    } );
+
+                    return {
+                        url: null,
+                        map: result.map,
+                    };
+                }
+
+                return null;
+            },
+        } );
     }
 
     async resolve( modulePath, referencingModule, middleware ) {
@@ -108,13 +95,19 @@ export class SwcProvider extends ProviderBase {
 
         this.loadedFiles[ "file://" + path ] = true;
 
-        const result = await swc.transform( source, {
+        /**
+         * @type {import("@swc/core").Options}
+         */
+        const swcOptions = {
             ...this.swcConfig,
             filename: path,
-            // Since the code runs from memory, we need to inline the source maps
-            sourceMaps: this.sourceMapFlag,
-        } );
+            sourceMaps: true,
+        };
 
-        return result.code;
+        const result = await swc.transform( source, swcOptions );
+
+        // Since the code runs from memory, and the source always comes from the file system,
+        return result.code + '\n//# sourceMappingURL=data:application/json;base64,' +
+            btoa( result.map );
     }
 }

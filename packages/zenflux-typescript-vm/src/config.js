@@ -19,7 +19,7 @@ export const externalConfig = {
 
     tsConfigPath: "./tsconfig.json",
     tsConfigVerbose: ( path ) => {
-        verbose( "ts-node", "readConfig", () => `reading: ${ util.inspect( path ) }` );
+        verbose( "typescript-vm", "readConfig", () => `reading: ${ util.inspect( path ) }` );
     },
 
     /**

@@ -1,9 +1,13 @@
 import path from "node:path";
-import fs from "node:fs";
 
 import { isCommonPathFormat } from "../utils.js";
 
 import { ProviderBase } from "./base/provider-base.js";
+
+/**
+ * @typedef {ProviderBaseArgs} RelativeProviderArgs
+ * @property {string[]} extensions
+ */
 
 export class RelativeProvider extends ProviderBase {
     static getName() {
@@ -20,10 +24,7 @@ export class RelativeProvider extends ProviderBase {
     extensions;
 
     /**
-     * @override
-     *
-     * @param {object} args
-     * @param {string[]} args.extensions
+     * @param {RelativeProviderArgs} args
      */
     constructor( args ) {
         super();
@@ -47,13 +48,13 @@ export class RelativeProvider extends ProviderBase {
         middleware( { resolvedPath, modulePath, referencingModule, provider: this } );
 
         // If no dot is present, try to resolve the file with the extensions.
-        if ( ! fs.existsSync( resolvedPath ) && ! path.basename( resolvedPath ).includes( "." ) ) {
+        if ( ! this.fileExistsSync( resolvedPath ) && ! path.basename( resolvedPath ).includes( "." ) ) {
             for ( const extension of this.extensions ) {
                 const resolvedPathWithExtension = `${ resolvedPath }${ extension }`;
 
                 middleware( { resolvedPath: resolvedPathWithExtension, modulePath, referencingModule, provider: this } );
 
-                if ( fs.existsSync( resolvedPathWithExtension ) ) {
+                if ( this.fileExistsSync( resolvedPathWithExtension ) ) {
                     resolvedPath = resolvedPathWithExtension;
                     break;
                 }

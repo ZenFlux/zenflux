@@ -9,6 +9,12 @@ import { ProviderBase } from "./base/provider-base.js";
 
 const require = createRequire( import.meta.url );
 
+/**
+ * @typedef {ProviderBaseArgs} WorkspaceProviderArgs
+ * @property {string} workspacePath
+ * @property {string[]} extensions
+ */
+
 export class WorkspaceProvider extends ProviderBase {
     static getName() {
         return "workspace";
@@ -34,11 +40,7 @@ export class WorkspaceProvider extends ProviderBase {
     workspaceCache;
 
     /**
-     * @override
-     *
-     * @param {object} args
-     * @param {string} args.workspacePath
-     * @param {string[]} args.extensions
+     * @param {WorkspaceProviderArgs} args
      */
     constructor( args ) {
         super();
@@ -92,16 +94,20 @@ export class WorkspaceProvider extends ProviderBase {
 
         modulePath = modulePath.replace( packageName, this.workspaceCache.get( packageName ) );
 
+        /**
+         * @this {WorkspaceProvider}
+         */
         function checkWorkspaceModuleExists( workspacePath, modulePath ) {
             const workspaceModulePath = path.resolve( workspacePath, modulePath );
 
             middleware( { resolvedPath: workspaceModulePath, modulePath, referencingModule, provider: this } );
 
-            return fs.existsSync( workspaceModulePath ) ? workspaceModulePath : null;
+            return this.fileExistsSync( workspaceModulePath );
         }
 
         for( const ext of this.extensions ) {
-            const workspaceModulePath = checkWorkspaceModuleExists(
+            const workspaceModulePath = checkWorkspaceModuleExists.call(
+                this,
                 this.workspacePath,
                 `${ modulePath }${ ext }`
             );
@@ -111,7 +117,8 @@ export class WorkspaceProvider extends ProviderBase {
             }
 
             // Retry with index.*
-            const workspaceModuleIndexPath = checkWorkspaceModuleExists(
+            const workspaceModuleIndexPath = checkWorkspaceModuleExists.call(
+                this,
                 this.workspacePath,
                 path.join( modulePath, `index${ ext }` )
             );

@@ -66,7 +66,7 @@ export class NodeProvider extends ProviderBase {
 
         middleware( { resolvedPath: nodeModulePath, modulePath, referencingModule, provider: this } );
 
-        return fs.existsSync( nodeModulePath ) ? nodeModulePath : null;
+        return this.fileExistsSync( nodeModulePath );
     }
 
     async load( path, options ) {

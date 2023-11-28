@@ -104,12 +104,14 @@ const initialize = async () => {
      */
     const providers = [
         new ( await import( "./providers/relative-provider.js" ) ).RelativeProvider( {
+            tsConfig,
             extensions: config.extensions,
         } ),
     ];
 
     if ( externalConfig.workspacePath ) {
         providers.push( new ( await import( "./providers/workspace-provider.js" ) ).WorkspaceProvider( {
+            tsConfig,
             workspacePath: config.paths.workspacePath,
             extensions: config.extensions,
         } ) );
