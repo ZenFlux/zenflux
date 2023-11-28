@@ -231,7 +231,7 @@ export function convertModuleOptions( compilerOptions ) {
 
     moduleConfig.strict = alwaysStrict || ! noImplicitUseStrict;
     moduleConfig.strictMode = compilerOptions.alwaysStrict || ! compilerOptions.noImplicitUseStrict;
-    moduleConfig.importInterop = esModuleInterop ?? "swc";
+    moduleConfig.importInterop = esModuleInterop ? "swc" : "none";
 
     return moduleConfig;
 }
