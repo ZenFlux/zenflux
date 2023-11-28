@@ -5,6 +5,11 @@ import { isCommonPathFormat } from "../utils.js";
 import { ProviderBase } from "./base/provider-base.js";
 import { createMatchPathAsync } from "tsconfig-paths";
 
+/**
+ * @typedef {ProviderBaseArgs} TsPathsProviderArgs
+ * @property {string[]} extensions
+ */
+
 export class TsPathsProvider extends ProviderBase {
     static getName() {
         return "ts-paths";
@@ -13,11 +18,6 @@ export class TsPathsProvider extends ProviderBase {
     static getType() {
         return null;
     }
-
-    /**
-     * @type {string}
-     */
-    baseUrl;
 
     /**
      * @type {{[key: string]: Array<string>}}
@@ -35,23 +35,30 @@ export class TsPathsProvider extends ProviderBase {
     matchPath;
 
     /**
-     * @override
-     *
-     * @param {object} args
-     * @param {string} args.baseUrl
-     * @param {{[key: string]: Array<string>}} args.paths
-     * @param {string[]} args.extensions
+     * @param {TsPathsProviderArgs} args
      */
     constructor( args ) {
         super();
 
-        this.baseUrl = args.baseUrl;
-        this.paths = args.paths;
         this.extensions = args.extensions;
     }
 
     initialize() {
-        this.matchPath = createMatchPathAsync( this.baseUrl, this.paths );
+        // Convert parsed typescript paths to tsconfig-paths compatible.
+        /**
+         * @type {{ [ key: string ]: string[] }}
+         */
+        const tsConfigPaths = {};
+
+        Object.entries( this.tsConfig.options.paths ).forEach( ( [ key, value ] ) => {
+            if ( ! tsConfigPaths[ key ] ) {
+                tsConfigPaths[ key ] = [];
+            }
+
+            tsConfigPaths[ key ].push( ... value );
+        } );
+
+        this.matchPath = createMatchPathAsync( this.tsConfig.options.baseUrl, this.paths );
     }
 
     async resolve( modulePath, referencingModule, middleware ) {
@@ -74,7 +81,7 @@ export class TsPathsProvider extends ProviderBase {
                     middleware( { resolvedPath, modulePath, referencingModule, provider: this.provider } );
 
                     // Check file exists. only for files
-                    if ( fs.existsSync( resolvedPath ) && fs.statSync( resolvedPath )?.isFile() ) {
+                    if ( this.fileExistsSync( resolvedPath ) && fs.statSync( resolvedPath )?.isFile() ) {
                         lastExistsPath = resolvedPath;
 
                         return doneCallback( undefined, true );
@@ -86,7 +93,7 @@ export class TsPathsProvider extends ProviderBase {
 
                 this.extensions,
 
-                ( error, path ) => {
+                ( error, _path ) => {
                     error ? reject( error ) : resolve( lastExistsPath );
                 } );
         } );
