@@ -3,15 +3,10 @@
  */
 import type ts from "typescript";
 
-import type { GlobalsOption, ModuleFormat } from "rollup";
-
-export type TZBabelHelperType = "bundled" | "runtime" | "inline" | "external"
+import type { ModuleFormat } from "rollup";
 
 export interface IPluginArgs {
     tsConfig?: ts.ParsedCommandLine;
-    babelExcludeNodeModules?: boolean;
-    babelHelper?: TZBabelHelperType;
-    babelUseESModules?: boolean;
     extensions: string[],
     format: ModuleFormat;
     minify: boolean;
@@ -20,9 +15,7 @@ export interface IPluginArgs {
 }
 
 export interface IOutputArgs {
-    ext?: string;
     format: ModuleFormat;
-    globals?: GlobalsOption;
     outputFileName: string;
     outputName: string,
 }

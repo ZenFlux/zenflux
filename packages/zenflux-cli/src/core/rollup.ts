@@ -55,9 +55,7 @@ export const zRollupGetPlugins = ( args: IPluginArgs, projectPath: string ): Out
  */
 export const zRollupGetOutput = ( args: IOutputArgs, projectPath: string ): OutputOptions => {
     const {
-        ext = "js",
         format,
-        globals,
         outputName,
         outputFileName
     } = args;
@@ -86,10 +84,6 @@ export const zRollupGetOutput = ( args: IOutputArgs, projectPath: string ): Outp
 
     };
 
-    if ( globals ) {
-        result.globals = globals;
-    }
-
     if ( outputName ) {
         result.name = outputName;
     }
@@ -106,7 +100,6 @@ export const zRollupGetConfig = ( args: TZConfigInternalArgs, projectPath: strin
         extensions,
         external,
         format,
-        globals,
         inputPath,
         outputFileName,
         outputName,
@@ -119,7 +112,6 @@ export const zRollupGetConfig = ( args: TZConfigInternalArgs, projectPath: strin
 
     const outputArgs: IOutputArgs = {
         format,
-        globals,
         outputName,
         outputFileName
     };
