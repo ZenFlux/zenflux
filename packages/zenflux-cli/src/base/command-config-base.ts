@@ -78,6 +78,16 @@ export abstract class CommandConfigBase extends CommandBase {
         return this.configs;
     }
 
+    protected getConfigsPaths() {
+        const result: { [ key: string ]: boolean } = {};
+
+        for ( const config of this.configs ) {
+            result[ config.path ] = true;
+        }
+
+        return Object.keys( result );
+    }
+
     protected showHelp( name: string ) {
         super.showHelp( name );
 
