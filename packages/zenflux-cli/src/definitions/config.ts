@@ -54,6 +54,12 @@ export interface IZConfig extends IConfigArgsForEachFormat, IConfigArgsGeneral {
 /**
  * @public
  */
+export interface IZConfigInMulti extends IConfigArgsForEachFormat, IConfigArgsGeneral {
+};
+
+/**
+ * @public
+ */
 export interface IZConfigs {
     /**
      * Every config object will inherit from this object.
@@ -63,7 +69,7 @@ export interface IZConfigs {
     // TODO: add $overrides
     // TODO: add $rollupOverrides
 
-    [ key: string ]: IZConfig | IConfigArgsBase | undefined,
+    [ key: string ]: IZConfigInMulti | IConfigArgsBase | undefined,
 };
 
 /**
