@@ -11,7 +11,7 @@ import { parentPort, Worker, workerData } from "node:worker_threads";
 
 import { rollup } from "rollup";
 
-import { zRollupGetPluginArgs, zRollupGetPlugins } from "@zenflux/cli/src/core/rollup";
+import { zRollupGetPlugins } from "@zenflux/cli/src/core/rollup";
 
 import { console } from "@zenflux/cli/src/modules/console";
 
@@ -55,15 +55,13 @@ function zRollupBuildInWorker() {
     const linkedRollupOptions = rollupOptions.map( ( rollupOptions ) => {
         const output = rollupOptions.output as OutputOptions;
 
-        const pluginsArgs = zRollupGetPluginArgs(
-            config.extensions as string[],
-            output.format as TZFormatType,
-            !! output.sourcemap,
-            config.moduleForwarding
-        );
-
-        rollupOptions.plugins = zRollupGetPlugins(
-            pluginsArgs,
+        rollupOptions.plugins = zRollupGetPlugins( {
+                extensions: config.extensions || [],
+                format: output.format!,
+                moduleForwarding: config.moduleForwarding,
+                sourcemap: !! output.sourcemap,
+                minify: "development" !== process.env.NODE_ENV,
+            },
             path.dirname( config.path ),
         );
 

@@ -98,24 +98,6 @@ export const zRollupGetOutput = ( args: IOutputArgs, projectPath: string ): Outp
 };
 
 /**
- * Function zRollupGetPluginArgs(): Retrieves the arguments for a zenflux rollup plugins.
- */
-export const zRollupGetPluginArgs = ( extensions: string[], format: TZFormatType, sourcemap?: boolean, moduleForwarding?: TZConfigInternalArgs["moduleForwarding"] ) => {
-    const pluginsArgs: IPluginArgs = {
-        extensions,
-        format,
-        moduleForwarding,
-
-        // For zenflux rollup plugins
-        sourcemap: !! sourcemap,
-
-        minify: "development" !== process.env.NODE_ENV,
-    };
-
-    return pluginsArgs;
-};
-
-/**
  * Function zRollupGetConfig(): This function generates a Rollup configuration object based on the provided arguments.
  * It assembles the input, output, and plugin configurations for Rollup.
  */
@@ -148,12 +130,14 @@ export const zRollupGetConfig = ( args: TZConfigInternalArgs, projectPath: strin
 
     result.output = zRollupGetOutput( outputArgs, projectPath );
 
-    const pluginsArgs = zRollupGetPluginArgs(
-        extensions,
-        format,
-        !! result.output.sourcemap,
-        args.moduleForwarding
-    );
+    const pluginsArgs: IPluginArgs = {
+        extensions: extensions,
+        format: format,
+        moduleForwarding: args.moduleForwarding,
+        sourcemap: !! result.output.sourcemap,
+
+        minify: "development" !== process.env.NODE_ENV,
+    };
 
     result.plugins = zRollupGetPlugins( pluginsArgs, projectPath );
 
