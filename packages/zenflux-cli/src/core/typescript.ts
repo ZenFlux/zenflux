@@ -34,7 +34,15 @@ export function zCustomizeDiagnostic( diagnostic: ts.Diagnostic ) {
 
     // TypeScript doesn't show always the file name, for easier error handling we will add it.
     if ( ! isIntroduceFile && diagnostic.file?.fileName ) {
-        return customized + " caused by: file://" + diagnostic.file?.fileName;
+        let filename = diagnostic.file.fileName;
+
+        if ( diagnostic.start ) {
+            const { line, character } = diagnostic.file.getLineAndCharacterOfPosition( diagnostic.start );
+
+            filename += `:${ line + 1 }:${ character + 1 }`;
+        }
+
+        return customized + " caused by: file://" + filename;
     }
 
     return customized;
