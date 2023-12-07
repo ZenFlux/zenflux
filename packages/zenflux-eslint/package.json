@@ -2,15 +2,19 @@
     "$schema": "https://json.schemastore.org/package",
     "name": "@zenflux/eslint",
     "type": "module",
+    "version": "0.0.2-dev",
     "main": ".eslintrc.js",
-    "devDependencies": {
+    "publishConfig": {
+        "access": "public"
+    },
+    "dependencies": {
         "@eslint/eslintrc": "^2.1.2",
-        "@eslint/js": "^8.52.0",
-        "@types/eslint": "^8.44.6",
+        "@types/eslint": "^8.44.7",
         "@typescript-eslint/eslint-plugin": "^6.7.3",
         "@typescript-eslint/parser": "^6.7.3",
-        "eslint": "^8.52.0",
+        "eslint": "^8.54.0",
         "eslint-import-resolver-typescript": "^3.6.1",
         "eslint-plugin-import": "^2.28.1"
-    }
+    },
+    "packageManager": "bun@1.0.11"
 }
