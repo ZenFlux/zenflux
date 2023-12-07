@@ -8,7 +8,6 @@ export const configs: IZConfigs = {
 
         external: [
             "react",
-            "@zenflux/react-reconciler",
         ],
     },
     "@zenflux/react-x-env": {
