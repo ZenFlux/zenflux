@@ -21,7 +21,30 @@ interface IConfigOptionalArgs {
 
 // Here are properties that are not format dependent
 interface IConfigArgsGeneral {
-    // TODO: For while `moduleForwarding` will applies for all formats
+    /**
+     * This property is an object that maps module names to their respective paths.
+     * It is used to redirect module imports to different locations, which can be useful in a monorepo setup.
+     *
+     * The keys of the object represent the module names that you want to redirect.
+     * The values are another object that maps the source module path to the target module path.
+     *
+     * For example:
+     *
+     *    moduleForwarding: {
+     *         "@zenflux/react-reconciler": {
+     *             "@zenflux/react-scheduler": "@zenflux/react-scheduler/mock",
+     *         },
+     *         "@zenflux/react-noop-renderer": {
+     *             "@zenflux/react-scheduler": "@zenflux/react-scheduler/mock",
+     *         }
+     *     }
+     *
+     * In the above example, whenever the `@zenflux/react-reconciler` imports `@zenflux/react-scheduler`,
+     * it will be redirected to `@zenflux/react-scheduler/mock`.
+     * The same goes for `@zenflux/react-noop-renderer`.
+     *
+     * TODO: For while `moduleForwarding` will applies for all formats
+     */
     moduleForwarding?: {
         [ forModule: string ]: {
             [ source: string ]: string

@@ -71,35 +71,56 @@ The CLI tool provides a command for building projects. It utilizes technologies 
         - Object that will be used as globals, eg: `{ jquery: "jQuery" }`
     - `external` (**optional**):
         - Array of external packages, packages that should not be bundled, eg: `react-dom`
-<br /><br />
-     - Example
-          ```ts
-          import type { IZConfig } from "@zenflux/cli";
+    - `moduleForwarding`
+      - This property is an object that maps module names to their respective paths. It is used to redirect module imports to different locations, which can be particularly useful in a monorepo setup.
+    <br />
+      The keys of the object represent the module names that you want to redirect. The values are another object that maps the source module path to the target module path.
 
-          const config: IZConfig = {
-              format: [ "es", "cjs" ],
+       For example:
 
-              extensions: [ ".ts" ],
+        ```ts
+        moduleForwarding: {
+            "@zenflux/react-reconciler": {
+                "@zenflux/react-scheduler": "@zenflux/react-scheduler/mock",
+            },
+            "@zenflux/react-noop-renderer": {
+                "@zenflux/react-scheduler": "@zenflux/react-scheduler/mock",
+            }
+        }
+        ```
+       In the above example, whenever the `@zenflux/react-reconciler` module imports `@zenflux/react-scheduler`, it will be redirected to `@zenflux/react-scheduler/mock`.
+       <br />The same goes for `@zenflux/react-noop-renderer`.
+       <br />This allows you to substitute certain modules with others, which can be especially useful for testing or development purposes.
+    <br /><br />
 
-              inputPath: "src/index.ts",
+- **Single Configuration**
+     ```ts
+     import type { IZConfig } from "@zenflux/cli";
 
-              outputName: "@my-mono-repo/demo-package",
-              outputFileName: "zenflux-core",
+     const config: IZConfig = {
+         format: [ "es", "cjs" ],
 
-              inputDtsPath: "dist/src/index.d.ts",
-              outputDtsPath: "dist/demo-package.d.ts",
+         extensions: [ ".ts" ],
 
-              globals: {
-                  jquery: "jQuery",
-              },
+         inputPath: "src/index.ts",
 
-              external: [
-                  "react-dom",
-              ],
-          };
+         outputName: "@my-mono-repo/demo-package",
+         outputFileName: "zenflux-core",
 
-          export default config;
-          ```
+         inputDtsPath: "dist/src/index.d.ts",
+         outputDtsPath: "dist/demo-package.d.ts",
+
+         globals: {
+             jquery: "jQuery",
+         },
+
+         external: [
+             "react-dom",
+         ],
+     };
+
+     export default config;
+     ```
 <br />
 
   - **Multi Configuration**
