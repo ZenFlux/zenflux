@@ -29,6 +29,12 @@ async function rollupBuildInternal( config: RollupOptions, options: TZBuildOptio
         throw new Error( "Rollup output not found." );
     }
 
+    config.onLog = ( logLevel, message ) => {
+        // @ts-ignore
+        message.projectPath = options.config.path;
+        console.log( `Rollup: ${ util.inspect( message ) }` );
+    };
+
     const bundle = await rollup( config ),
         startTime = Date.now(),
         file = output.file ?? output.entryFileNames;
@@ -61,8 +67,8 @@ function zRollupBuildInWorker() {
                 moduleForwarding: config.moduleForwarding,
                 sourcemap: !! output.sourcemap,
                 minify: "development" !== process.env.NODE_ENV,
+                projectPath: path.dirname( config.path )
             },
-            path.dirname( config.path ),
         );
 
         return rollupOptions;
@@ -80,18 +86,25 @@ function zRollupBuildInWorker() {
 
                         console.log( `Thread\t${ id }\tBuild\t${ util.inspect( config.outputName ) } format ${ util.inspect( output.format ) } bundle to ${ util.inspect( output.file ?? output.entryFileNames ) }` );
 
-                        await rollupBuildInternal( singleRollupOptions, workerData.options );
+                        try {
+                            await rollupBuildInternal( singleRollupOptions, workerData.options );
+                        } catch ( error ) {
+                            parentPort?.postMessage( {
+                                __ERROR_WORKER_INTERNAL__: true,
+                                error: {
+                                    ... JSON.parse( JSON.stringify( error ) ),
+                                    message: (error as Error).message,
+                                    stack: (error as Error).stack
+                                },
+                                config: config.path
+                            } );
+                        }
 
                         console.verbose( () => `Thread\t${ id }\tReady\t${ util.inspect( config.outputName ) } format ${ util.inspect( output.format ) } bundle of ${ util.inspect( output.file ?? output.entryFileNames ) }` );
                     } ) );
                 };
 
-                await buildRequest().catch( ( error ) => {
-                    parentPort?.postMessage( {
-                        __ERROR_WORKER_INTERNAL__: true,
-                        error: error,
-                    } );
-                } );
+                await buildRequest();
 
                 console.verbose( () => `Thread\t${ id }\tDone\t${ util.inspect( config.outputName ) }` );
 
@@ -147,12 +160,12 @@ async function zRollupCreateBuildWorker( rollupOptions: RollupOptions[], options
 
                 default:
                     if ( message.__ERROR_WORKER_INTERNAL__ ) {
-                        const newError = new Error();
+                        const { error } = message;
 
-                        newError.stack = message.error.stack;
-                        newError.message = message.error.message;
+                        error.cause = message.config;
 
-                        throw newError;
+                        console.error( "\n" + util.inspect( error ) );
+                        process.exit( 1 );
                     }
 
                     throw new Error( `Unknown message: ${ message }` );
