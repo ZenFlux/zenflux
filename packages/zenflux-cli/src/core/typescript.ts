@@ -161,7 +161,7 @@ export function zTSConfigRead( format: TZFormatType | null, projectPath: string 
         }
     }
 
-    configCache[ cacheKey ] = content;
+    configCache[ cacheKey ] = Object.assign( {}, content );
 
     content.options.rootDir = content.options.rootDir || projectPath;
     content.options.configFilePath = tsConfigPath;
@@ -172,7 +172,16 @@ export function zTSConfigRead( format: TZFormatType | null, projectPath: string 
 /**
  * Function zTSPreDiagnostics() - Runs pre-diagnostics for specific TypeScript configuration.
  */
-export function zTSPreDiagnostics( tsConfig: ts.ParsedCommandLine, useCache = true ) {
+export function zTSPreDiagnostics( tsConfig: ts.ParsedCommandLine, args: {
+    useCache?: boolean,
+    haltOnError?: boolean,
+} = {} ) {
+    // ---
+    const {
+        useCache = true,
+        haltOnError = false,
+    } = args;
+
     /**
      * Validation should run only once per tsconfig.json file, validation and declaration generation
      * should be based on main `tsconfig.json` file, not on `tsconfig.es.json` or `tsconfig.es.dev.json`, etc.
@@ -182,12 +191,29 @@ export function zTSPreDiagnostics( tsConfig: ts.ParsedCommandLine, useCache = tr
         return;
     }
 
-    const program = ts.createProgram( tsConfig.fileNames, Object.assign( tsConfig.options, {
-        options: {
-            noEmit: true,
-            declaration: false,
+    const declarationPath = tsConfig.options.declarationDir || tsConfig.options.outDir;
+
+    if ( ! declarationPath ) {
+        throw new Error( `${ tsConfig.options.configFilePath }: 'declarationDir' or 'outDir' is required` );
+    }
+
+    const compilerHost = ts.createCompilerHost( tsConfig.options, true ),
+        compilerHostGetSourceFile = compilerHost.getSourceFile;
+
+    compilerHost.getSourceFile = ( fileName, languageVersion, onError, shouldCreateNewSourceFile ) => {
+        // Exclude internal TypeScript files from validation
+        if ( fileName.startsWith( declarationPath) ) {
+            console.verbose( () => `${ zTSPreDiagnostics.name }() -> Skipping validation for '${ fileName }', internal TypeScript file` );
+            return;
         }
-    } as ts.ParsedCommandLine ) );
+
+        return compilerHostGetSourceFile( fileName, languageVersion, onError, shouldCreateNewSourceFile );
+    };
+
+    const program = ts.createProgram( tsConfig.fileNames, Object.assign( tsConfig.options, {
+        noEmit: true,
+        declaration: false,
+    } as ts.CompilerOptions ), compilerHost );
 
     const diagnostics = ts.getPreEmitDiagnostics( program );
 
@@ -196,13 +222,16 @@ export function zTSPreDiagnostics( tsConfig: ts.ParsedCommandLine, useCache = tr
     if ( diagnostics.length ) {
         const error = new Error();
 
-        error.name = `\x1b[31mTypeScript validation has ${ diagnostics.length } error(s)\x1b[0m`;
+        error.name = `\x1b[31mTypeScript validation has ${ diagnostics.length } error(s)\x1b[0m config: ${ "file://" + tsConfig.options.configFilePath }`;
         error.message = "\n" + diagnostics.map( error => zCustomizeDiagnostic( error ) ).join( "\n\n" );
 
         console.error( error );
 
-        if ( tsConfig.options.noEmitOnError ) {
+        if ( haltOnError || tsConfig.options.noEmitOnError ) {
             process.exit( 1 );
         }
     }
+
+    return diagnostics.length;
+}
 }
