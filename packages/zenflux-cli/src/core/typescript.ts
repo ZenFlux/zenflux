@@ -234,4 +234,28 @@ export function zTSPreDiagnostics( tsConfig: ts.ParsedCommandLine, args: {
 
     return diagnostics.length;
 }
+
+export function zTSCreateDeclaration( tsConfig: ts.ParsedCommandLine ) {
+    const program = ts.createProgram( tsConfig.fileNames, Object.assign( tsConfig.options, {
+        declaration: true,
+        noEmit: false,
+        emitDeclarationOnly: true,
+        declarationDir: tsConfig.options.declarationDir || tsConfig.options.outDir,
+        noErrorTruncation: true,
+    } as ts.CompilerOptions ) );
+
+    // Remove old declaration .d.ts files
+    const declarationPath = tsConfig.options.declarationDir || tsConfig.options.outDir;
+
+    if ( ! declarationPath ) {
+        throw new Error( `${ tsConfig.options.configFilePath }: 'declarationDir' or 'outDir' is required` );
+    }
+
+    program.emit();
+
+    console.verbose( () => `${ zTSCreateDeclaration.name }() -> Declaration created for '${ tsConfig.options.configFilePath }'` );
+
+    return program;
+}
+
 }
