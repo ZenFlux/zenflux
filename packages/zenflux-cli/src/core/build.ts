@@ -155,6 +155,9 @@ async function zRollupCreateBuildWorker( rollupOptions: RollupOptions[], options
         worker.once( "message", ( message ) => {
             switch ( message ) {
                 case "done":
+                    // Kill the worker.
+                    worker.terminate();
+
                     resolve( undefined );
                     break;
 

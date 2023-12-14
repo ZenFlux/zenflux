@@ -40,10 +40,6 @@ export abstract class CommandBuildBase extends CommandConfigBase {
 
         await result.then( () => {
             this.getConfigs().forEach( config => {
-                const tsConfig = zTSConfigRead( null, path.dirname( config.path ) );
-
-                zTSPreDiagnostics( tsConfig );
-
                 console.verbose( () => `${ CommandBuildBase.name }::${ this.loadConfigs.name }() -> Start building rollup config for: ${ util.inspect( config.outputName ) } config path: ${ util.inspect( config.path ) }` );
 
                 this.rollupConfig[ config.path + "-" + config.outputName ] = this.getConfigForEachFormat( config );
@@ -67,6 +63,7 @@ export abstract class CommandBuildBase extends CommandConfigBase {
     }
 
     protected getRollupConfig( config: IZConfigInternal ) {
+        // TODO: Use helper function if its used in more than one place
         return this.rollupConfig[ config.path + "-" + config.outputName ];
     }
 
