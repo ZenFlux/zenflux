@@ -1,3 +1,5 @@
+import util from "node:util";
+
 import { convertTsConfig } from "@zenflux/tsconfig-to-swc";
 
 import swc from "@swc/core";
@@ -12,6 +14,20 @@ export default function zRollupSwcPlugin( args: Required<IPluginArgs> ): Plugin 
         minify: args.minify,
     } );
 
+    if ( ! swcOptions || ! swcOptions.module ) {
+        throw new Error( "Unable to convert tsconfig to swc options" );
+    }
+
+    if ( args.format === "cjs" && swcOptions.module.type !== "commonjs" ) {
+        throw new Error( "Trying to bundle cjs format but tsconfig has invalid module type, caused by file://" + args.tsConfig.options.configFilePath );
+    } else if ( (args.format === "esm" || args.format === "module" ) && swcOptions.module.type !== "es6" ) {
+        throw new Error( "Trying to bundle es format but tsconfig has invalid module type, caused by file://" + args.tsConfig.options.configFilePath );
+    }
+
+    if ( swcOptions.jsc?.paths ) {
+        throw new Error( "@zenflux/cli currently does not support paths, caused by file://" + args.tsConfig.options.configFilePath );
+    }
+
     const cache = new Map<string, swc.Output>();
 
     return {
@@ -22,11 +38,26 @@ export default function zRollupSwcPlugin( args: Required<IPluginArgs> ): Plugin 
                 return cache.get( id )!;
             }
 
-            const output = swc.transformSync( source, swcOptions );
+            try {
+                const output = swc.transformSync( source, swcOptions );
 
-            cache.set( id, output );
+                cache.set( id, output );
 
-            return output;
+                return output;
+            } catch ( error: any ) {
+                // Make error message more readable/useful
+                if ( "undefined" !== typeof error.message ) {
+                    let newMessage = `${ error.message } in project ${ util.inspect( args.tsConfig.options.configFilePath ) }\n    While SWC transform of file: (${ id.startsWith( "file://" ) ? id : "file://" + id }) ` +
+                        `with options: \n    ${ util.inspect( swcOptions, {
+                            breakLength: 1,
+                            compact: false,
+                        } ).replace( /^ +/gm, a => "    ".repeat( a.split( "" ).length ) ) }`;
+
+                    error.message = newMessage.substring( newMessage.length - 1, 1 ) + "    }";
+                }
+
+                throw error;
+            }
         },
     };
 };
