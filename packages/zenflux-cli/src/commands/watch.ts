@@ -102,7 +102,9 @@ export default class Watch extends CommandBuildBase {
 
     protected onBuiltAll( configs: IZConfigInternal[] ) {
         configs.forEach( ( config ) => {
-            zTSPreDiagnostics(zTSConfigRead( null, path.dirname( config.path ) ), false );
+            zTSPreDiagnostics(zTSConfigRead( null, path.dirname( config.path ) ), {
+                useCache: false,
+            } );
         } );
     }
 

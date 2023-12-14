@@ -15,7 +15,7 @@ export abstract class CommandBase {
 
     protected initPathsArgs = {
         cwd: process.cwd(),
-        workspacePath: path.dirname( zWorkspaceFindRootPackageJson( true ) ),
+        workspacePath: path.dirname( zWorkspaceFindRootPackageJson( { silent: true } ) ),
     } as Parameters<typeof zGlobalInitPaths>[ 0 ];
 
     public constructor( protected args: string[], protected options: any = {} ) {
