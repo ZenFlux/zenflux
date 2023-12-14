@@ -21,16 +21,18 @@ The CLI tool provides a command for building projects. It utilizes technologies 
 <br /><br />
 - **Default Behavior**: `@z-cli @build`, `@z-cli @watch`
     - Current working directory is **workspace**: Builds all packages in the workspace
-    - Current working directory is **package**: Builds the current package
+    - Current working directory is **package**: Build the current package
 <br /><br />
-
+- **@Multi-threading**
+    Both `@build` and `@watch` are multi-threaded:
+![image](https://github.com/iNewLegend/zenflux/assets/10234691/fb367066-040d-41a9-9697-5fb54971252e)
 - **Options**
-- **--config:**
-    - Description: Specify a custom config file
-    - Examples:
-        - `--config <config-file-name>`
-        - `--config zenflux.test.config.ts`
-          <br /><br />
+    - **--config:**
+        - Description: Specify a custom config file
+        - Examples:
+            - `--config <config-file-name>`
+            - `--config zenflux.test.config.ts`
+              <br /><br />
   - **--workspace:**
       - Description: Run for a specific workspace
       - Examples:
@@ -73,11 +75,10 @@ The CLI tool provides a command for building projects. It utilizes technologies 
         - Array of external packages, packages that should not be bundled, eg: `react-dom`
     - `moduleForwarding`
       - This property is an object that maps module names to their respective paths. It is used to redirect module imports to different locations, which can be particularly useful in a monorepo setup.
-    <br />
-      The keys of the object represent the module names that you want to redirect. The values are another object that maps the source module path to the target module path.
+        <br />
+          The keys of the object represent the module names that you want to redirect. The values are another object that maps the source module path to the target module path.
 
-       For example:
-
+        For example:
         ```ts
         moduleForwarding: {
             "@zenflux/react-reconciler": {
@@ -88,10 +89,10 @@ The CLI tool provides a command for building projects. It utilizes technologies 
             }
         }
         ```
-       In the above example, whenever the `@zenflux/react-reconciler` module imports `@zenflux/react-scheduler`, it will be redirected to `@zenflux/react-scheduler/mock`.
-       <br />The same goes for `@zenflux/react-noop-renderer`.
-       <br />This allows you to substitute certain modules with others, which can be especially useful for testing or development purposes.
-    <br /><br />
+        In the above example, whenever the `@zenflux/react-reconciler` module imports `@zenflux/react-scheduler`, it will be redirected to `@zenflux/react-scheduler/mock`.
+        <br />The same goes for `@zenflux/react-noop-renderer`.
+        <br />This allows you to substitute certain modules with others, which can be especially useful for testing or development purposes.
+        <br /><br />
 
 - **Single Configuration**
      ```ts
@@ -200,6 +201,8 @@ The CLI tool provides a command for building projects. It utilizes technologies 
   - **Watch Method**: The `watch` method is used to set up a watcher for a specific package. It triggers a build process whenever a change is detected in the package. The build process is debounced to avoid triggering multiple builds for rapid successive changes.
   - **Debounce Function**: The `debounce` function ensures that the build process is not triggered more than once within a specified delay. This is useful to avoid triggering multiple builds for rapid successive changes. The debounce function works by delaying the execution of the build process until a certain amount of time has passed without any new changes being detected. This ensures that if multiple changes are made in quick succession, the build process will only be triggered once, after the last change.
     <br /><br />
+
+  
 ### Publishing Packages
 
 The tool supports publishing npm packages to a registry. It includes features for configuring and publishing packages, ensuring they are available for installation by other developers. Developers can manage and publish their packages with ease.
