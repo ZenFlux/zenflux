@@ -74,8 +74,8 @@ export async function zConfigLoad( path: string, silent = false ) {
     else if ( Object.values( config ).some( i => hasRequiredKeys( i as IZConfigInternal ) ) ) {
         configType = "multi";
     } else {
-        throw new Error( `Invalid config: 'file://${ path }' unable to determine the config type, the required keys are missing:\n` +
-            Object.keys( Z_CONFIG_REQUIRED_KEYS ).join( ", " )
+        throw new Error( `Invalid config: 'file://${ path }' unable to determine the config type, the required keys are missing\n` +
+            "Ensure you have them both per config: " + Z_CONFIG_REQUIRED_KEYS.join( ", " )
         );
     }
 

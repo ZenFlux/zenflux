@@ -14,7 +14,19 @@ import {
     DEFAULT_Z_VERDACCIO_STORAGE_FOLDER
 } from "@zenflux/cli/src/definitions/zenflux";
 
-const shared = {
+const shared: {
+    paths: {
+        cli: any;
+        verdaccioConfig: string;
+        workspace: string;
+        projects: string[];
+        verdaccio: string;
+        etc: string;
+        verdaccioStorage: string;
+        verdaccioHtpasswd: string;
+        npmRc: string
+    }
+} = {
     paths: {
         // Depends on the cli self
         cli: global.__ZENFLUX_CLI__?.paths?.cli || "",

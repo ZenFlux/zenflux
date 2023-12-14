@@ -7,7 +7,8 @@ import type { ModuleFormat } from "rollup";
 
 export interface IPluginArgs {
     tsConfig?: ts.ParsedCommandLine;
-    extensions: string[],
+    extensions?: string[],
+    projectPath: string;
     format: ModuleFormat;
     minify: boolean;
     moduleForwarding?: { [ key: string ]: { [ key: string ]: string } };
