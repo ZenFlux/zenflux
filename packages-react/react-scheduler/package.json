@@ -1,0 +1,40 @@
+{
+    "name": "@zenflux/react-scheduler",
+    "version": "0.23.0",
+    "description": "Cooperative scheduler for the browser environment.",
+    "license": "MIT",
+    "type": "module",
+    "types": "./dist/zenflux-react-scheduler.d.ts",
+    "exports": {
+        ".": {
+            "import": "./dist/zenflux-react-scheduler.es.js",
+            "require": "./dist/zenflux-react-scheduler.cjs",
+            "types": "./dist/zenflux-react-scheduler.d.ts"
+        },
+        "./mock": {
+            "import": "./dist/zenflux-react-scheduler.mock.es.js",
+            "require": "./dist/zenflux-react-scheduler.mock.cjs",
+            "types": "./dist/zenflux-react-scheduler.mock.d.ts"
+        },
+        "./package.json": "./package.json",
+        "./src/*.ts": "./src/*.ts",
+        "./src/forks/*.ts": "./src/forks/*.ts"
+    },
+    "scripts": {
+        "@z-react-scheduler--build": "@z-cli @build",
+        "@z-react-scheduler--build-dev": "@z-cli @build --dev"
+    },
+    "dependencies": {
+        "loose-envify": "^1.1.0"
+    },
+    "browserify": {
+        "transform": [
+            "loose-envify"
+        ]
+    },
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/zenflux/zenflux.git",
+        "directory": "react-packages/zenflux-react-scheduler"
+    }
+}

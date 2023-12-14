@@ -1,0 +1,9 @@
+{
+    "extends": "./tsconfig.paths.json",
+    "compilerOptions": {
+        "baseUrl": ".",
+        "paths": {
+            "@zenflux/react-scheduler/src/*": ["src/*"],
+        }
+    }
+}
