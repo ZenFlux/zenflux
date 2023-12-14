@@ -3,7 +3,7 @@
  */
 import path from "path";
 
-import { DEFAULT_NPM_RC_FILE } from "@z-cli/modules/npm/definitions";
+import { DEFAULT_NPM_RC_FILE } from "@zenflux/cli/src/modules/npm/definitions";
 
 import {
     DEFAULT_Z_CONFIG_FILE,
@@ -12,10 +12,25 @@ import {
     DEFAULT_Z_VERDACCIO_FOLDER,
     DEFAULT_Z_VERDACCIO_HTPASSWD_FILE,
     DEFAULT_Z_VERDACCIO_STORAGE_FOLDER
-} from "@z-cli/definitions/zenflux";
+} from "@zenflux/cli/src/definitions/zenflux";
 
-const shared = {
+const shared: {
     paths: {
+        cli: any;
+        verdaccioConfig: string;
+        workspace: string;
+        projects: string[];
+        verdaccio: string;
+        etc: string;
+        verdaccioStorage: string;
+        verdaccioHtpasswd: string;
+        npmRc: string
+    }
+} = {
+    paths: {
+        // Depends on the cli self
+        cli: global.__ZENFLUX_CLI__?.paths?.cli || "",
+
         workspace: "",
         projects: [] as string[],
         etc: "",
@@ -43,6 +58,9 @@ export function zGlobalInitPaths( args: {
     }
 
     global.__ZENFLUX_CLI__.paths = Object.freeze( {
+        // Chain path to the cli
+        cli: global.__ZENFLUX_CLI__.paths.cli,
+
         workspace: args.workspacePath || "",
         projects: args.projectsPaths,
 
@@ -64,7 +82,7 @@ export function zGlobalPathsGet() {
     return global.__ZENFLUX_CLI__.paths;
 }
 
-export function zGlobalGetConfigPath( project: string ) {
+export function zGlobalGetConfigPath( project: string, configFileName = DEFAULT_Z_CONFIG_FILE  ) {
     // Find the project path
     const projectPath = zGlobalPathsGet().projects.find( projectPath => projectPath === project );
 
@@ -72,7 +90,7 @@ export function zGlobalGetConfigPath( project: string ) {
         throw new Error( `Project '${ project }' not found` );
     }
 
-    return path.resolve( projectPath, DEFAULT_Z_CONFIG_FILE );
+    return path.resolve( projectPath, configFileName );
 }
 
 declare global {
@@ -81,4 +99,9 @@ declare global {
 }
 
 // Since commands are loaded dynamically, it should use the same node context
-global.__ZENFLUX_CLI__ =  shared;
+global.__ZENFLUX_CLI__ = Object.assign(
+    {},
+    // Can be injected from the outside
+    global.__ZENFLUX_CLI__,
+    shared
+);

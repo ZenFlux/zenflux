@@ -1,23 +1,22 @@
 /**
  * @author: Leonid Vinikov <leonidvinikov@gmail.com>
  */
-import type { GlobalsOption, ModuleFormat } from "rollup";
+import type ts from "typescript";
 
-export type TZBabelHelperType = "bundled" | "runtime" | "inline" | "external"
+import type { ModuleFormat } from "rollup";
 
 export interface IPluginArgs {
-    babelExcludeNodeModules?: boolean;
-    babelHelper?: TZBabelHelperType;
-    babelUseESModules?: boolean;
-    extensions: string[],
+    tsConfig?: ts.ParsedCommandLine;
+    extensions?: string[],
+    projectPath: string;
     format: ModuleFormat;
     minify: boolean;
+    moduleForwarding?: { [ key: string ]: { [ key: string ]: string } };
+    sourcemap: boolean;
 }
 
 export interface IOutputArgs {
-    ext?: string;
     format: ModuleFormat;
-    globals?: GlobalsOption;
     outputFileName: string;
     outputName: string,
 }

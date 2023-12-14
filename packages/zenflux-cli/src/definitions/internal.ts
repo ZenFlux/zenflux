@@ -1,5 +1,5 @@
 /**
  * @author: Leonid Vinikov <leonidvinikov@gmail.com>
  */
-export * from "@z-cli/definitions/rollup";
-export * from "@z-cli/definitions/config";
+export * from "@zenflux/cli/src/definitions/rollup";
+export * from "@zenflux/cli/src/definitions/config";

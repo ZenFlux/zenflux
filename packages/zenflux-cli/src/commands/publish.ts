@@ -7,19 +7,19 @@ import fs from "fs";
 import path from "path";
 import process from "process";
 
-import { CommandBase } from "@z-cli/base/command-base";
+import { CommandBase } from "@zenflux/cli/src/base/command-base";
 
-import { zWorkspaceGetPackages, zWorkspaceGetWorkspaceDependencies } from "@z-cli/core/workspace";
+import { zWorkspaceGetPackages, zWorkspaceGetWorkspaceDependencies } from "@zenflux/cli/src/core/workspace";
 
-import { Package } from "@z-cli/modules/npm/package";
+import { Package } from "@zenflux/cli/src/modules/npm/package";
 
-import { ConsoleMenuCheckbox } from "@z-cli/modules/console/console-menu-checkbox";
-import { console } from "@z-cli/modules/console";
+import { ConsoleMenuCheckbox } from "@zenflux/cli/src/modules/console/console-menu-checkbox";
+import { console } from "@zenflux/cli/src/modules/console";
 
-import { DEFAULT_Z_REGISTRY_URL } from "@z-cli/definitions/zenflux";
-import { DEFAULT_NPM_RC_PATH, DEFAULT_NPM_REMOTE_REGISTRY_URL } from "@z-cli/modules/npm/definitions";
+import { DEFAULT_Z_REGISTRY_URL } from "@zenflux/cli/src/definitions/zenflux";
+import { DEFAULT_NPM_RC_PATH, DEFAULT_NPM_REMOTE_REGISTRY_URL } from "@zenflux/cli/src/modules/npm/definitions";
 
-import type { TNewPackageOptions, TPackages } from "@z-cli/modules/npm/package";
+import type { TNewPackageOptions, TPackages } from "@zenflux/cli/src/modules/npm/package";
 
 const localPublishRequirements = [ "publishConfig", "version" ];
 

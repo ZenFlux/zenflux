@@ -6,16 +6,20 @@ import process from "node:process";
 
 import util from "node:util";
 
-import { CommandConfigBase } from "@z-cli/base/command-config-base";
+import { CommandConfigBase } from "@zenflux/cli/src/base/command-config-base";
 
-import { zRollupGetConfig } from "@z-cli/core/rollup";
-import { zApiExporter } from "@z-cli/core/api-extractor";
+import { zRollupGetConfig } from "@zenflux/cli/src/core/rollup";
+import { zApiExporter } from "@zenflux/cli/src/core/api-extractor";
 
-import { console } from "@z-cli/modules/console";
+import { console } from "@zenflux/cli/src/modules/console";
+
+import { Z_CONFIG_DEFAULTS } from "@zenflux/cli/src/definitions/config";
+
+import { zTSConfigRead, zTSPreDiagnostics } from "@zenflux/cli/src/core/typescript";
 
 import type { RollupOptions } from "rollup";
 
-import type { IZConfig } from "@z-cli/definitions/config";
+import type { IZConfigInternal } from "@zenflux/cli/src/definitions/config";
 
 export abstract class CommandBuildBase extends CommandConfigBase {
     private rollupConfig: {
@@ -36,14 +40,16 @@ export abstract class CommandBuildBase extends CommandConfigBase {
 
         await result.then( () => {
             this.getConfigs().forEach( config => {
-                this.rollupConfig[ config.path ] = this.getConfigForEachFormat( config );
+                console.verbose( () => `${ CommandBuildBase.name }::${ this.loadConfigs.name }() -> Start building rollup config for: ${ util.inspect( config.outputName ) } config path: ${ util.inspect( config.path ) }` );
+
+                this.rollupConfig[ config.path + "-" + config.outputName ] = this.getConfigForEachFormat( config );
             } );
         } );
 
         return result;
     }
 
-    protected tryUseApiExtractor( config: IZConfig ) {
+    protected tryUseApiExtractor( config: IZConfigInternal ) {
         const projectPath = path.dirname( config.path );
 
         // Check if we need to generate dts file.
@@ -56,12 +62,14 @@ export abstract class CommandBuildBase extends CommandConfigBase {
         }
     }
 
-    protected getRollupConfig( pathKey: string ) {
-        return this.rollupConfig[ pathKey ];
+    protected getRollupConfig( config: IZConfigInternal ) {
+        // TODO: Use helper function if its used in more than one place
+        return this.rollupConfig[ config.path + "-" + config.outputName ];
     }
 
-    private getConfigForEachFormat( config: IZConfig ) {
+    private getConfigForEachFormat( config: IZConfigInternal ) {
         return config.format.map( format => zRollupGetConfig( {
+            ... Z_CONFIG_DEFAULTS,
             ... config,
             format
         }, path.dirname( config.path ) ) );

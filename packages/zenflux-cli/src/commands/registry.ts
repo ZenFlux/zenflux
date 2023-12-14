@@ -8,18 +8,18 @@ import child_process from "child_process";
 import { runServer } from "@verdaccio/node-api";
 import { fromJStoYAML, parseConfigFile } from "@verdaccio/config";
 
-import { CommandBase } from "@z-cli/base/command-base";
+import { CommandBase } from "@zenflux/cli/src/base/command-base";
 
-import { Package } from "@z-cli/modules/npm/package";
+import { Package } from "@zenflux/cli/src/modules/npm/package";
 
-import { console } from "@z-cli/modules/console";
+import { console } from "@zenflux/cli/src/modules/console";
 
 import {
     DEFAULT_Z_REGISTRY_HOST,
     DEFAULT_Z_REGISTRY_PASSWORD,
     DEFAULT_Z_REGISTRY_URL,
     DEFAULT_Z_REGISTRY_USER
-} from "@z-cli/definitions/zenflux";
+} from "@zenflux/cli/src/definitions/zenflux";
 
 export default class Registry extends CommandBase {
 

@@ -3,12 +3,17 @@
  */
 import process from "node:process";
 import util from "node:util";
+import fs from "node:fs";
+import path from "node:path";
 
 import { Extractor, ExtractorConfig } from "@microsoft/api-extractor";
 
-import console from "@z-cli/modules/console";
+import console from "@zenflux/cli/src/modules/console";
 
 export function zApiExporter( projectPath: string, inputPath: string, outputPath: string ) {
+    const logDiagnosticsFile = process.env.NODE_ENV === "development" ?
+        path.resolve( projectPath, `api-extractor-diagnostics.${ path.basename( inputPath ) }.log` ) : undefined;
+
     console.verbose( () => `${ zApiExporter.name }() -> ${ util.inspect( {
         projectPath,
         inputPath,
@@ -32,28 +37,50 @@ export function zApiExporter( projectPath: string, inputPath: string, outputPath
         packageJsonFullPath: projectPath + "/package.json",
     } );
 
+    if ( logDiagnosticsFile && fs.existsSync( logDiagnosticsFile ) ) {
+        console.verbose( () => `${ zApiExporter.name }() -> Removing old diagnostics file: ${ logDiagnosticsFile }` );
+        fs.unlinkSync( logDiagnosticsFile );
+    }
+
+    const devDiagnostics: string[] = [];
+
     // Invoke API Extractor
-    return Extractor.invoke( extractorConfig, {
+    const result = Extractor.invoke( extractorConfig, {
         localBuild: true,
         showDiagnostics: process.env.NODE_ENV === "development",
 
         messageCallback( message ) {
-            if ( process.env.NODE_ENV === "development" ) {
-                console.log( message.text );
-                return;
+            let handled = true;
+
+            if ( logDiagnosticsFile ) {
+                devDiagnostics.push( message.text );
+            } else {
+                switch ( message.logLevel ) {
+                    case "error":
+                        console.error( message.text );
+                        break;
+                    case "warning":
+                        console.warn( message.text );
+                        break;
+                    case "verbose":
+                        console.verbose( () => `${ zApiExporter.name }() -> ${ message.text }` );
+                        break;
+
+                    default:
+                        handled = false;
+                };
             }
 
-            switch ( message.logLevel ) {
-                case "error":
-                    console.error( message.text );
-                    break;
-                case "warning":
-                    console.warn( message.text );
-                    break;
-                case "verbose":
-                    console.verbose( () => `${ zApiExporter.name }() -> ${ message.text }` );
-                    break;
-            }
+            // By default, API Extractor sends its messages to the console, this flag tells api-extractor to not log to console.
+            message.handled = handled;
         }
     } );
+
+    if ( logDiagnosticsFile ) {
+        fs.writeFile( logDiagnosticsFile, devDiagnostics.join( "\n" ), () => {
+            console.log( `Api-Extractor diagnostics file: ${ logDiagnosticsFile } is created.` );
+        } );
+    }
+
+    return result;
 }

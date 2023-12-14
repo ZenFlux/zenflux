@@ -1,14 +1,23 @@
-#!/usr/bin/env node --unhandled-rejections=strict --experimental-vm-modules --trace-uncaught --no-warnings --trace-exit
-import path from "path";
+#!/usr/bin/env node --unhandled-rejections=strict --experimental-vm-modules --trace-uncaught --no-warnings
+import path from "node:path";
 
-import { fileURLToPath } from "url";
+import { fileURLToPath } from "node:url";
 
-import { Loaders, Resolvers, vm } from "@zenflux/tsnode-vm";
+import { Loaders, Resolvers, vm } from "@zenflux/typescript-vm";
 
-const currentDir = path.dirname( fileURLToPath( import.meta.url ) );
+import { workerData } from "node:worker_threads";
+
+const currentFile = fileURLToPath( import.meta.url );
+const currentDir = path.dirname( currentFile );
 
 // For better error stack trace, since we are using vm.
 Error.stackTraceLimit = Infinity;
+
+global.__ZENFLUX_CLI__ = {
+    paths: {
+        cli: currentFile,
+    }
+};
 
 const vmContext = {
     global,
@@ -27,22 +36,26 @@ Object.defineProperty( vmContext, "console", {
 vm.defineConfig( {
     projectPath: path.resolve( currentDir, "../" ),
 
+    workspacePath: path.resolve( currentDir, "../../../" ),
+
     nodeModulesPath: path.resolve( currentDir, "../../../node_modules" ),
 
     tsConfigPath: path.resolve( currentDir, "./tsconfig.json" ),
 
     vmContext,
 
-    tsPathsExtensions: [ ".ts", ".json" ],
+    extensions: [ ".ts", ".json" ],
+
+    useSwc: true,
+
+    useTsNode: false,
 } );
 
 vm.tap( async ( vm ) => {
     const resolvers = new Resolvers( vm ),
         loaders = new Loaders( vm );
 
-    await vm.auto( vm.config.paths.project + "/src/boot.ts", loaders, resolvers ).catch( ( err, f ) => {
-        // Find better way to handle this.
-        console.error( `Error:`, err );
-        process.exit( 1 );
+    await vm.auto( workerData?.zCliWorkPath || vm.config.paths.project + "/src/boot.ts", loaders, resolvers ).catch( ( err ) => {
+        throw err;
     } );
 } );

@@ -6,21 +6,35 @@ import path from "node:path";
 import fs from "node:fs";
 import util from "node:util";
 
-import { getMatchingPathsRecursive } from "@z-cli/utils/path";
+import { console } from "@zenflux/cli/src/modules/console";
 
-import { console } from "@z-cli/modules/console";
+import { Package } from "@zenflux/cli/src/modules/npm/package";
 
-import { Package } from "@z-cli/modules/npm/package";
+import { getMatchingPathsRecursive } from "@zenflux/cli/src/utils/path";
 
-import type { TNewPackageOptions, TPackageDependencies, TPackages } from "@z-cli/modules/npm/package";
+import type { TNewPackageOptions, TPackageDependencies, TPackages } from "@zenflux/cli/src/modules/npm/package";
 
 export type TWorkspace = {
     workspace: string;
     packages: string[]
 };
 
-export function zWorkspaceFindRootPackageJson( silent = false ) {
-    let currentPath = process.env[ "npm_package_json" ] ? path.dirname( process.env[ "npm_package_json" ] ) : process.cwd();
+const zWorkspaceFindRootPackageJsonCache: {
+    [ packagePath: string ]: string
+} = {};
+
+export function zWorkspaceFindRootPackageJson( options: {
+    silent?: boolean
+    useCache?: boolean
+} = {} ) {
+    const { silent = false, useCache = true } = options;
+
+    let currentPath = process.env[ "npm_package_json" ] ?
+        path.dirname( process.env[ "npm_package_json" ] ) : process.cwd();
+
+    if ( useCache && zWorkspaceFindRootPackageJsonCache[ currentPath ] ) {
+        return zWorkspaceFindRootPackageJsonCache[ currentPath ];
+    }
 
     do {
         const packageJsonPath = path.join( currentPath, "package.json" );
@@ -30,6 +44,11 @@ export function zWorkspaceFindRootPackageJson( silent = false ) {
             const packageJson = JSON.parse( fs.readFileSync( packageJsonPath, "utf8" ) );
 
             if ( packageJson.workspaces ) {
+
+                if ( useCache ) {
+                    zWorkspaceFindRootPackageJsonCache[ currentPath ] = packageJsonPath;
+                }
+
                 return packageJsonPath;
             }
         }
@@ -56,10 +75,47 @@ export function zWorkspaceExtractPackage( name: string, rootPkg: Package, packag
     }
 }
 
-export function zWorkspaceFindPackages( names: string[], workspacePath = path.dirname( zWorkspaceFindRootPackageJson( true ) ), silent = false ) {
+const zWorkspaceFindPackagesCache: {
+    [ packagePath: string ]: {
+        [ packageName: string ]: Package
+    }
+} = {};
+
+export function zWorkspaceFindPackages(
+    names: string[],
+    workspacePath = path.dirname( zWorkspaceFindRootPackageJson( { silent: true } ) ),
+    options: {
+        silent?: boolean
+        useCache?: boolean
+    } = {},
+) {
+    const result: TPackages = {};
+
+    const { silent = false, useCache = true } = options;
+
+    if ( useCache && zWorkspaceFindPackagesCache[ workspacePath ] ) {
+        const fromCache = Object.entries( zWorkspaceFindPackagesCache[ workspacePath ] );
+
+        if ( fromCache.length === names.length && fromCache.every( ( [ key ] ) => names.includes( key ) ) ) {
+            return zWorkspaceFindPackagesCache[ workspacePath ];
+        }
+
+        Object.entries( zWorkspaceFindPackagesCache[ workspacePath ] ).forEach( ( [ key, value ] ) => {
+            if ( names.includes( key ) ) {
+                result[ key ] = value;
+            }
+        } );
+
+        if ( names.every( ( name ) => result[ name ] ) ) {
+            return result;
+        }
+    }
+
+    // Exclude names that already found
+    names = names.filter( ( name ) => ! result[ name ] );
+
     const rootPkg = new Package( workspacePath ),
-        packages = zWorkspaceGetPackages( rootPkg ),
-        result: TPackages = {};
+        packages = zWorkspaceGetPackages( rootPkg );
 
     names.forEach( ( name ) => {
         const currentPackage = zWorkspaceExtractPackage( name, rootPkg, packages );
@@ -77,10 +133,24 @@ export function zWorkspaceFindPackages( names: string[], workspacePath = path.di
         }
     } );
 
+    Object.assign( zWorkspaceFindPackagesCache[ workspacePath ] ??= {}, result );
+
     return result;
 }
 
-export function zWorkspaceGetPackages( rootPkg: Package, newPackageOptions?: TNewPackageOptions ): TPackages {
+const zWorkspaceGetPackagesCache: {
+    [ packagePath: string ]: TPackages
+} = {};
+
+export function zWorkspaceGetPackages( rootPkg: Package | "auto", newPackageOptions?: TNewPackageOptions, options = { useCache: true } ): TPackages {
+    if ( rootPkg === "auto" ) {
+        rootPkg = new Package( path.dirname( zWorkspaceFindRootPackageJson() ) );
+    }
+
+    if ( options.useCache && zWorkspaceGetPackagesCache[ rootPkg.getPath() ] ) {
+        return zWorkspaceGetPackagesCache[ rootPkg.getPath() ];
+    }
+
     const packages: TPackages = {};
 
     zWorkspaceGetPackagesPaths( rootPkg ).forEach( ( workspace: TWorkspace ) => {
@@ -95,10 +165,18 @@ export function zWorkspaceGetPackages( rootPkg: Package, newPackageOptions?: TNe
     return packages;
 }
 
-export function zWorkspaceGetPackagesPaths( rootPkg: Package ): TWorkspace[] {
+const zWorkspaceGetPackagesPathsCache: {
+    [ packagePath: string ]: TWorkspace[]
+} = {};
+
+export function zWorkspaceGetPackagesPaths( rootPkg: Package, options = { useCache: true } ): TWorkspace[] {
     // Check if package contains `workspaces` property
     if ( ! rootPkg.json.workspaces?.length ) {
         return [];
+    }
+
+    if ( options.useCache && zWorkspaceGetPackagesPathsCache[ rootPkg.getPath() ] ) {
+        return zWorkspaceGetPackagesPathsCache[ rootPkg.getPath() ];
     }
 
     const result = ( rootPkg.json.workspaces ).map( ( workspace: string ) => {
@@ -123,6 +201,8 @@ export function zWorkspaceGetPackagesPaths( rootPkg: Package ): TWorkspace[] {
             paths: Object.values( result.map( ( i ) => i.packages ).flat() ),
         }
     ) ] );
+
+    zWorkspaceGetPackagesPathsCache[ rootPkg.getPath() ] = result;
 
     return result;
 }

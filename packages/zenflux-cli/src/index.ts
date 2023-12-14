@@ -4,26 +4,26 @@
 import util from "node:util";
 import process from "node:process";
 
-import { CommandConfigBase } from "@z-cli/base/command-config-base";
+import { CommandConfigBase } from "@zenflux/cli/src/base/command-config-base";
 
-import { console } from "@z-cli/modules/console";
+import { console } from "@zenflux/cli/src/modules/console";
 
 export default async function boot( args = process.argv.slice( 2 ) ) {
     const commands = {
         "@watch": {
-            module: async () => ( await import( "@z-cli/commands/watch" ) ).default,
+            module: async () => ( await import( "@zenflux/cli/src/commands/watch" ) ).default,
         },
 
         "@build": {
-            module: async () => ( await import( "@z-cli/commands/build" ) ).default,
+            module: async () => ( await import( "@zenflux/cli/src/commands/build" ) ).default,
         },
 
         "@publish": {
-            module: async () => ( await import( "@z-cli/commands/publish" ) ).default,
+            module: async () => ( await import( "@zenflux/cli/src/commands/publish" ) ).default,
         },
 
         "@registry": {
-            module: async () => ( await import( "@z-cli/commands/registry" ) ).default,
+            module: async () => ( await import( "@zenflux/cli/src/commands/registry" ) ).default,
         },
     };
 

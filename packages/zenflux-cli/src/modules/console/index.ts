@@ -5,18 +5,17 @@ import process from "process";
 
 import { Console } from "node:console";
 
-// eslint-disable-next-line no-restricted-imports
-import packageJSON from "../../../package.json";
+import packageJSON from "@zenflux/cli/package.json" assert { type: "json" };
 
-export * from "@z-cli/modules/console/console-menu";
-export * from "@z-cli/modules/console/console-menu-checkbox";
-export * from "@z-cli/modules/console/console-menu-hotkey";
+export * from "@zenflux/cli/src/modules/console/console-menu";
+export * from "@zenflux/cli/src/modules/console/console-menu-checkbox";
+export * from "@zenflux/cli/src/modules/console/console-menu-hotkey";
 
 export const console = new class extends Console {
     public readonly prefix: string;
 
-    public constructor( stdin: NodeJS.ReadStream, stdout: NodeJS.WriteStream ) {
-        super( stdin, stdout );
+    public constructor( stdout: NodeJS.WriteStream, stderr: NodeJS.WriteStream ) {
+        super( stdout, stderr );
 
         if ( ! process.argv.includes( "--verbose" ) ) {
             this.verbose = () => {};
@@ -56,9 +55,7 @@ export const console = new class extends Console {
     public error( ... args: any[] ) {
         return super.error.apply( this, [
             this.prefix,
-            "\x1b[31m",
-            ... args,
-            "\x1b[0m"
+            ... args
         ] );
     }
 
@@ -86,6 +83,6 @@ export const console = new class extends Console {
             ... result
         ] );
     }
-}( process.stdin, process.stdout );
+}( process.stdout, process.stderr );
 
 export default console;

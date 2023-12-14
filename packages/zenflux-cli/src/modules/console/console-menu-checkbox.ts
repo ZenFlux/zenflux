@@ -1,9 +1,9 @@
 /**
  * @author: Leonid Vinikov <leonidvinikov@gmail.com>
  */
-import { ConsoleMenu } from "@z-cli/modules/console/console-menu";
+import { ConsoleMenu } from "@zenflux/cli/src/modules/console/console-menu";
 
-import type { IConsoleMenuItem, TConsoleMenuKey } from "@z-cli/modules/console/console-menu";
+import type { IConsoleMenuItem, TConsoleMenuKey } from "@zenflux/cli/src/modules/console/console-menu";
 
 interface MenuItemCheckbox extends IConsoleMenuItem {
     checked?: boolean;

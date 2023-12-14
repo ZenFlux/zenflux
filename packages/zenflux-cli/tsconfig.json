@@ -8,6 +8,11 @@
             "ESNext"
         ],
 
+        "types": [
+            "node",
+            "bun-types"
+        ],
+
         // Specifies the ECMAScript version to transpile to (e.g., ESNext)
         "target": "ESNext",
 
@@ -15,7 +20,7 @@
         "module": "ESNext",
 
         // Defines how TypeScript resolves module import paths (Node.js style)
-        "moduleResolution": "Node",
+        "moduleResolution": "bundler",
 
         "resolveJsonModule": true,
 

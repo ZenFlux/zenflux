@@ -1,57 +1,79 @@
 /**
  * @author: Leonid Vinikov <leonidvinikov@gmail.com>
  */
-import { rollup } from "rollup";
+import path from "node:path";
+import util from "node:util";
+import process from "node:process";
 
-import { CommandBuildBase } from "@z-cli/base/command-build-base";
+import { zTSConfigRead, zTSCreateDeclaration, zTSPreDiagnostics } from "@zenflux/cli/src/core/typescript";
 
-import { console } from "@z-cli/modules/console";
+import { CommandBuildBase } from "@zenflux/cli/src/base/command-build-base";
 
-import type { OutputOptions, RollupOptions } from "rollup";
+import { console } from "@zenflux/cli/src/modules/console";
 
-import type { TZFormatType } from "@z-cli/definitions/zenflux";
+import { zRollupBuild } from "@zenflux/cli/src/core/build";
+
+import type { TZBuildOptions } from "@zenflux/cli/src/definitions/build";
+
+// TODO:
+//  - add --thread flag
+//  - add DEFAULT_MIN_SINGLE_BUILD_CONFIGS configuration
+const DEFAULT_MIN_SINGLE_BUILD_CONFIGS = 3;
 
 export default class Build extends CommandBuildBase {
 
     public async run() {
-        const configs = this.getConfigs();
+        const configs = this.getConfigs(),
+            configsPaths = this.getConfigsPaths();
 
-        const promises: Promise<void>[] = [];
+        configsPaths.forEach( ( configPath ) => {
+            const tsConfig = zTSConfigRead( null, path.dirname( configPath ) );
 
-        // TODO: Create promise per config.
+            zTSPreDiagnostics( tsConfig, {
+                // TODO: Avoid usage of `process.argv` use CommandBase instead.
+                haltOnError: process.argv.includes( "--haltOnDiagnosticError" ),
+            } );
+        } );
+
         for ( const config of configs ) {
             console.log( `Building - '${ config.path }'` );
 
-            const rollupConfig = this.getRollupConfig( config.path );
+            const rollupConfig = this.getRollupConfig( config );
 
-            rollupConfig.map( ( rollupOptions ) => {
-                promises.push( this.build( rollupOptions ).then(
-                    () => config.onBuiltFormat?.( ( rollupOptions.output as OutputOptions ).format as TZFormatType ),
-                ) );
-            } );
+            const options: TZBuildOptions = {
+                config,
+            };
 
-            await Promise.all( promises );
+            if ( configs.length > DEFAULT_MIN_SINGLE_BUILD_CONFIGS ) {
+                options.thread = configs.indexOf( config );
+            }
 
-            this.tryUseApiExtractor( config );
+            await zRollupBuild( rollupConfig, options );
 
             config.onBuilt?.();
         }
+
+        configsPaths.forEach( ( configPath ) => {
+            console.log( `Creating declaration files for '${ configPath }'` );
+
+            zTSCreateDeclaration( zTSConfigRead( null, path.dirname( configPath ) ) );
+        } );
+
+        configs.forEach( config => {
+            console.log( `Trying to use api-extractor for '${ config.path }'` );
+
+            this.tryUseApiExtractor( config );
+        } );
     }
 
-    private async build( config: RollupOptions ) {
-        const output = config.output as OutputOptions;
+    public showHelp( name: string ) {
+        super.showHelp( name );
 
-        if ( ! output ) {
-            throw new Error( "Rollup output not found." );
-        }
-
-        const bundle = await rollup( config ),
-            startTime = Date.now();
-
-        console.log( `Writing - '${ output.format }' bundle to '${ output.file }'` );
-
-        await bundle.write( output );
-
-        console.log( `Writing - Done '${ output.format }' bundle to '${ output.file }' in ${ Date.now() - startTime }ms` );
+        console.log( util.inspect( {
+            "--haltOnDiagnosticError": {
+                description: "Halt on typescript diagnostic error",
+                behaviors: "Kill the process if typescript diagnostic error occurred"
+            }
+        } ) );
     }
 }

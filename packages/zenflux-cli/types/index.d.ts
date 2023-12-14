@@ -1,3 +1,4 @@
-import type { IZConfig } from "../src/definitions/config";
+// TODO: Find better solution, this cause of dts re-bundling in projects whos use the cli
+export type { IZConfig, IZConfigs } from "../src/definitions/config";
 
-export { IZConfig }
+

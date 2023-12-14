@@ -5,17 +5,17 @@ import process from "node:process";
 import path from "node:path";
 import util from "node:util";
 
-import { console } from "@z-cli/modules/console";
+import { console } from "@zenflux/cli/src/modules/console";
 
-import { zGlobalInitPaths } from "@z-cli/core/global";
-import { zWorkspaceFindRootPackageJson } from "@z-cli/core/workspace";
+import { zGlobalInitPaths } from "@zenflux/cli/src/core/global";
+import { zWorkspaceFindRootPackageJson } from "@zenflux/cli/src/core/workspace";
 
 export abstract class CommandBase {
     declare protected paths: ReturnType<typeof zGlobalInitPaths>;
 
     protected initPathsArgs = {
         cwd: process.cwd(),
-        workspacePath: path.dirname( zWorkspaceFindRootPackageJson( true ) ),
+        workspacePath: path.dirname( zWorkspaceFindRootPackageJson( { silent: true } ) ),
     } as Parameters<typeof zGlobalInitPaths>[ 0 ];
 
     public constructor( protected args: string[], protected options: any = {} ) {
