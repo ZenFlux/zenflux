@@ -1,5 +1,12 @@
 {
     "compilerOptions": {
+        "target": "ESNext",
+        "module": "ESNext",
+        "moduleResolution": "bundler",
         "esModuleInterop": true,
-    }
+        "baseUrl": "./"
+    },
+    "include": [
+        "src/*.ts"
+    ]
 }
