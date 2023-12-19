@@ -7,22 +7,37 @@
     "types": "./dist/zenflux-react-scheduler.d.ts",
     "exports": {
         ".": {
-            "import": "./dist/zenflux-react-scheduler.es.js",
+            "import": "./dist/zenflux-react-scheduler.mjs",
             "require": "./dist/zenflux-react-scheduler.cjs",
             "types": "./dist/zenflux-react-scheduler.d.ts"
         },
         "./mock": {
-            "import": "./dist/zenflux-react-scheduler.mock.es.js",
+            "import": "./dist/zenflux-react-scheduler.mock.mjs",
             "require": "./dist/zenflux-react-scheduler.mock.cjs",
             "types": "./dist/zenflux-react-scheduler.mock.d.ts"
         },
+        "./post-task": {
+            "import": "./dist/zenflux-react-scheduler.post-task.mjs",
+            "require": "./dist/zenflux-react-scheduler.post-task.cjs",
+            "types": "./dist/zenflux-react-scheduler.post-task.d.ts"
+        },
         "./package.json": "./package.json",
+
         "./src/*.ts": "./src/*.ts",
-        "./src/forks/*.ts": "./src/forks/*.ts"
+        "./src/forks/*.ts": "./src/forks/*.ts",
+
+        "./src/scheduler-min-heap": "./src/scheduler-min-heap.ts",
+        "./src/scheduler-profiling": "./src/scheduler-profiling.ts",
+        "./src/scheduler-priorities": "./src/scheduler-priorities.ts",
+        "./src/scheduler-feature-flags": "./src/scheduler-feature-flags.ts",
+
+        "./src/forks/scheduler": "./src/forks/scheduler.ts",
+        "./src/forks/scheduler-mock": "./src/forks/scheduler-mock.ts"
     },
     "scripts": {
         "@z-react-scheduler--build": "@z-cli @build",
-        "@z-react-scheduler--build-dev": "@z-cli @build --dev"
+        "@z-react-scheduler--build-dev": "@z-cli @build --dev",
+        "@z-react-scheduler--dev": "@z-cli @watch --dev"
     },
     "dependencies": {
         "loose-envify": "^1.1.0"

@@ -19,7 +19,7 @@ declare global {
     }
 }
 
-// Debug protection to make sure we don't double-define the package.
+// Added by ZenFlux - Debug protection to make sure we don't double-define the package.
 if ( "undefined" === typeof globalThis.__REACT_SCHEDULER_DEF__ ) {
     globalThis.__REACT_SCHEDULER_DEF__ = true;
 } else {
