@@ -1,10 +1,21 @@
 {
-  "$schema": "https://json.schemastore.org/package",
-  "name": "@zenflux/jest",
-  "devDependencies": {
-    "@types/jest": "^29.5.5",
-    "jest": "^29.7.0",
-    "ts-jest": "^29.1.1",
-    "ts-node": "^10.9.1"
-  }
+    "$schema": "https://json.schemastore.org/package",
+    "name": "@zenflux/jest",
+    "type": "module",
+    "bin": {
+        "@z-jest": "bin/cli.js"
+    },
+    "scripts": {
+        "@z-jest": "@z-jest"
+    },
+    "exports": {
+        "./bin/cli.js": "./bin/cli.js"
+    },
+    "devDependencies": {
+        "@zenflux/cli": "workspace:*",
+        "@jest/globals": "^29.5.5",
+        "jest": "^29.7.0",
+        "ts-jest": "^29.1.1",
+        "ts-node": "^10.9.1"
+    }
 }
