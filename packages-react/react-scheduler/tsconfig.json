@@ -6,6 +6,10 @@
         "typeRoots": [
             "../../node_modules/@types"
         ],
+        "lib": [
+            "ESNext",
+            "DOM"
+        ],
         // Specifies the ECMAScript version to transpile to (e.g., ESNext)
         "target": "ESNext",
         // Specifies the module system used in the code (e.g., ESNext)

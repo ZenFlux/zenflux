@@ -14,17 +14,18 @@ import {
 
 import type { PriorityLevel } from "@zenflux/react-scheduler/src/scheduler-priorities";
 
-abstract class TaskController {
-    public signal: unknown;
+interface TaskSignal extends AbortSignal {
+    readonly priority: PostTaskPriorityLevel;
+    readonly aborted: boolean;
+    readonly reason: any;
 
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    public constructor( options?: {
-        priority?: string;
-    } ) {
+    onprioritychange: (() => void) | null;
+    onabort: ((this: AbortSignal, ev: Event) => any) | null;
+}
 
-    }
-
-    public abstract abort(): void;
+interface TaskController {
+    readonly signal: TaskSignal;
+    abort(): void;
 }
 
 type PostTaskPriorityLevel = "user-blocking" | "user-visible" | "background";
@@ -36,12 +37,28 @@ type CallbackNode = {
 type SchedulerCallback<T> = ( didTimeout_DEPRECATED: boolean ) => T // May return a continuation
     | SchedulerCallback<T>;
 
+declare global {
+    namespace globalThis {
+        var scheduler: {
+            postTask( callback: () => void, options: { delay: number; signal: TaskSignal } ): Promise<void>;
+            postTask( callback: () => void, options: { signal: TaskSignal } ): Promise<void>;
+            postTask( callback: () => void, options: { delay: number } ): Promise<void>;
+            postTask( callback: () => void ): Promise<void>;
+            yield?( options: { signal: TaskSignal } ): Promise<void>;
+        };
+
+        var TaskController: {
+            prototype: TaskController;
+            new( options?: { priority: PostTaskPriorityLevel } ): TaskController;
+        };
+    }
+}
+
 // Capture local references to native APIs, in case a polyfill overrides them.
 const perf = window.performance;
 const setTimeout = window.setTimeout;
 
 // Use experimental Chrome Scheduler postTask API.
-// @ts-ignore
 const scheduler = global.scheduler;
 const getCurrentTime: () => DOMHighResTimeStamp = perf.now.bind( perf );
 
@@ -90,13 +107,7 @@ export function unstable_scheduleCallback<T>( priorityLevel: PriorityLevel, call
             break;
     }
 
-    const controller = new class extends TaskController {
-        public abort() {
-            // No-op
-        }
-    }( {
-        priority: postTaskPriority
-    } );
+    const controller = new global.TaskController( { priority: postTaskPriority } );
 
     const postTaskOptions = {
         delay: typeof options === "object" && options !== null ? options.delay : 0,
@@ -107,10 +118,12 @@ export function unstable_scheduleCallback<T>( priorityLevel: PriorityLevel, call
         _controller: controller
     };
 
-    scheduler.postTask(
-        runTask.bind( null, priorityLevel, postTaskPriority, node, callback ),
-        postTaskOptions
-    ).catch( handleAbortError );
+    scheduler
+        .postTask(
+            runTask.bind( null, priorityLevel, postTaskPriority, node, callback ),
+            postTaskOptions,
+        )
+        .catch( handleAbortError );
 
     return node;
 }

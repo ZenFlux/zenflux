@@ -1,0 +1,11 @@
+{
+    "extends": "./tsconfig.json",
+    "compilerOptions": {
+        "extendedDiagnostics": true,
+        "declaration": true,
+        "declarationMap": true,
+        "sourceMap": true,
+        "inlineSourceMap": true,
+        "noEmitOnError": true
+    }
+}
