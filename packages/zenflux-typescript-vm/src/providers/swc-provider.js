@@ -1,6 +1,7 @@
 import fs from "node:fs";
+import * as inspector from "node:inspector";
 
-import swc from "@swc/core";
+import swc, { transformFile } from "@swc/core";
 
 import { convertTsConfig, readTsConfig } from "@zenflux/tsconfig-to-swc";
 
@@ -30,12 +31,8 @@ export class SwcProvider extends ProviderBase {
     /**
      * @type {object}
      */
-    loadedFiles;
+    transformedFiles;
 
-    /**
-     * @type {typeof import("@swc/types").Config.sourceMaps}
-     */
-    sourceMapFlag;
 
     /**
      * @override
@@ -50,7 +47,7 @@ export class SwcProvider extends ProviderBase {
         this.tsConfigPath = args.tsConfigPath;
         this.tsReadConfigCallback = args.tsConfigReadCallback;
 
-        this.loadedFiles = {};
+        this.transformedFiles = {};
     }
 
     initialize() {
@@ -65,19 +62,15 @@ export class SwcProvider extends ProviderBase {
         // SWC unable to handle valid source maps in vm, so we need correct it
         sourceMapSupport.install( {
             retrieveSourceMap: ( path ) => {
-                if ( this.loadedFiles[ path ] ) {
-                    const source = fs.readFileSync( path.replace( "file://", "" ), "utf-8" );
+                const pathSafe = path.replace( "file://", "" );
 
-                    const result = swc.transformSync( source, {
-                        ...this.swcConfig,
-                        filename: path,
-                        sourceMaps: true,
-                    } );
-
+                if ( this.transformedFiles[ pathSafe ]?.map ) {
                     return {
-                        url: null,
-                        map: result.map,
-                    };
+                        url: path,
+                        map: this.transformedFiles[ pathSafe ].map,
+                    }
+                } else if ( inspector.url() ) {
+                    console.warn( `Source map for ${ path } not found` );
                 }
 
                 return null;
@@ -93,8 +86,6 @@ export class SwcProvider extends ProviderBase {
     async load( path, options ) {
         const source = fs.readFileSync( path, "utf-8" );
 
-        this.loadedFiles[ "file://" + path ] = true;
-
         /**
          * @type {import("@swc/core").Options}
          */
@@ -105,6 +96,8 @@ export class SwcProvider extends ProviderBase {
         };
 
         const result = await swc.transform( source, swcOptions );
+
+        this.transformedFiles[ path ] = result;
 
         // Since the code runs from memory, and the source always comes from the file system,
         return result.code + '\n//# sourceMappingURL=data:application/json;base64,' +
