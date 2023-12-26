@@ -12,7 +12,17 @@ import console from "@zenflux/cli/src/modules/console";
 
 export function zApiExporter( projectPath: string, inputPath: string, outputPath: string ) {
     const logDiagnosticsFile = process.env.NODE_ENV === "development" ?
-        path.resolve( projectPath, `api-extractor-diagnostics.${ path.basename( inputPath ) }.log` ) : undefined;
+        path.resolve( projectPath, `log/api-extractor-diagnostics.${ path.basename( inputPath ) }.log` ) : undefined;
+
+    // TODO, Make it configurable
+    if ( logDiagnosticsFile ) {
+        const logFolder = path.dirname( logDiagnosticsFile );
+
+        // Ensure folder exists
+        if ( !fs.existsSync( logFolder ) ) {
+            fs.mkdirSync( logFolder, { recursive: true } );
+        }
+    }
 
     console.verbose( () => `${ zApiExporter.name }() -> ${ util.inspect( {
         projectPath,
