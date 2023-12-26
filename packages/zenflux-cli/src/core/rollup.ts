@@ -236,6 +236,9 @@ export const zRollupGetConfig = ( args: TZConfigInternalArgs, projectPath: strin
     const result: RollupOptions = {
         input: path.isAbsolute( inputPath ) ? inputPath : path.resolve( projectPath, inputPath ),
         external,
+
+        // Rollup is not trushworthy enough to do treeshaking, assuming swc will do it better
+        treeshake: false,
     };
 
     const outputArgs: IOutputArgs = {
