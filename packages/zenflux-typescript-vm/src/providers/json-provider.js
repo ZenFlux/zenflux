@@ -19,7 +19,15 @@ export class JsonProvider extends ProviderBase {
             throw new Error( `JSON file not found at: ${ util.inspect( path ) }` );
         }
 
-        return JSON.parse( json );
+        try {
+            return JSON.parse( json
+                // Remove trailing commas
+                .replace( /,\s*([\]}])/g, "$1" )
+            );
+        } catch ( e ) {
+            e.message += `\ncaused by: ${ util.inspect( "file://" + path ) }`;
+            throw e;
+        }
     }
 
     resolve( modulePath, referencingModule, middleware ) {
