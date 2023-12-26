@@ -1,4 +1,5 @@
 import util from "node:util";
+import fs from "node:fs";
 
 import { convertTsConfig } from "@zenflux/tsconfig-to-swc";
 
@@ -18,30 +19,48 @@ export default function zRollupSwcPlugin( args: Required<IPluginArgs> ): Plugin 
         throw new Error( "Unable to convert tsconfig to swc options" );
     }
 
-    if ( args.format === "cjs" && swcOptions.module.type !== "commonjs" ) {
-        throw new Error( "Trying to bundle cjs format but tsconfig has invalid module type, caused by file://" + args.tsConfig.options.configFilePath );
-    } else if ( (args.format === "esm" || args.format === "module" ) && swcOptions.module.type !== "es6" ) {
-        throw new Error( "Trying to bundle es format but tsconfig has invalid module type, caused by file://" + args.tsConfig.options.configFilePath );
+    if ( ( args.format === "esm" || args.format === "module" ) && ! [ "nodenext", "es6" ].includes( swcOptions.module.type ) ) {
+        // Tell the user that bundling esm is limited to 'NodeNext' or 'ES6'
+        throw new Error( "Bundling esm is limited to 'NodeNext' or 'ES6'\n" +
+            "Please ensure that `\"module\": \"NodeNext\"` or any ES(eg: `\"module\": \"ESNext\"` type is set in your `tsconfig.json`\n" +
+            "Caused by file://" + args.tsConfig.options.configFilePath );
+    }
+
+    if ( args.format === "cjs" && swcOptions.module.type !== "nodenext" ) {
+        throw new Error( "Rollup does not bundle `require` calls, currently bundling commonjs is limited to 'NodeNext'\n" +
+            "Please ensure that `\"module\": \"NodeNext\"` is set in your `tsconfig.json`\n" +
+            "Caused by file://" + args.tsConfig.options.configFilePath );
     }
 
     if ( swcOptions.jsc?.paths ) {
         throw new Error( "@zenflux/cli currently does not support paths, caused by file://" + args.tsConfig.options.configFilePath );
     }
 
-    const cache = new Map<string, swc.Output>();
+    const cache = new Map<string, {
+        output: swc.Output;
+        lastModified: number;
+    }>();
 
     return {
         name: "z-rollup-swc-plugin",
 
         transform( source, id ) {
-            if ( cache.has( id ) ) {
-                return cache.get( id )!;
+            const lastModified = fs.statSync( id ).mtimeMs;
+
+            const cached = cache.get( id );
+
+            // Since `z-cli` being used with manual watch mode, we can't rely on `rollup`'s cache
+            if ( cached && cached.lastModified === lastModified ) {
+                return cached.output;
             }
 
             try {
                 const output = swc.transformSync( source, swcOptions );
 
-                cache.set( id, output );
+                // Acknowledge change for `build` command
+                this.cache.set( id, { output, lastModified } );
+
+                cache.set( id, { output, lastModified } );
 
                 return output;
             } catch ( error: any ) {
