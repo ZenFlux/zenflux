@@ -58,12 +58,7 @@ describe( 'Scheduling UMD bundle', () => {
     // } );
 
     it( 'should define the same scheduling API', () => {
-        delete globalThis.__REACT_SCHEDULER_DEF__;
-
         const api = require( '../src/index' );
-
-        delete globalThis.__REACT_SCHEDULER_DEF__;
-
         const bundle = require( '@zenflux/react-scheduler' );
 
         validateForwardedAPIs( api, [

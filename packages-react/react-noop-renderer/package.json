@@ -1,0 +1,34 @@
+{
+    "name": "@zenflux/react-noop-renderer",
+    "version": "16.0.0",
+    "private": true,
+    "description": "React package for testing the Fiber, Fizz and Flight reconcilers.",
+    "license": "MIT",
+    "type": "module",
+    "exports": {
+        ".": {
+            "require": "./dist/zenflux-react-noop-renderer.cjs",
+            "types": "./dist/src/index.d.ts"
+        },
+        "./persistent":{
+            "require": "./dist/zenflux-react-noop-renderer.persistent.cjs",
+            "types": "./dist/src/react-noop-persistent.d.ts"
+        },
+        "./package.json": "./package.json",
+        "./src/*": "./src/*.ts"
+    },
+    "scripts": {
+        "@z-react-noop-renderer--build": "bun run @z-cli @build",
+        "@z-react-noop-renderer--build-dev": "bun run @z-cli @build --dev"
+    },
+    "dependencies": {
+        "@zenflux/react-reconciler": "workspace:*",
+        "@zenflux/react-shared": "workspace:*",
+        "@zenflux/react-x-env": "workspace:*"
+    },
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/zenflux/zenflux.git",
+        "directory": "packages-react/react-noop-renderer"
+    }
+}

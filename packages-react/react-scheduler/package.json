@@ -4,7 +4,6 @@
     "description": "Cooperative scheduler for the browser environment.",
     "license": "MIT",
     "type": "module",
-    "types": "./dist/zenflux-react-scheduler.d.ts",
     "exports": {
         ".": {
             "import": "./dist/zenflux-react-scheduler.mjs",

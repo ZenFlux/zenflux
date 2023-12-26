@@ -1,6 +1,6 @@
 'use strict';
 
-const JestReact = require( 'jest-react' );
+const { unstable_toMatchRenderedOutput } = require( '../react-utils/to-match-rendered-output' );
 
 // TODO: Move to ReactInternalTestUtils
 
@@ -39,7 +39,7 @@ function toMatchRenderedOutput( ReactNoop, expectedJSX ) {
             expect( ReactNoop.getChildrenAsJSX() ).toEqual( expectedJSX );
         } );
     }
-    return JestReact.unstable_toMatchRenderedOutput( ReactNoop, expectedJSX );
+    return unstable_toMatchRenderedOutput( ReactNoop, expectedJSX );
 }
 
 module.exports = {

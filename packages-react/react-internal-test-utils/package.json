@@ -1,0 +1,25 @@
+{
+    "private": true,
+    "name": "@zenflux/react-internal-test-utils",
+    "version": "0.0.0",
+    "type": "module",
+    "main": "./dist/zenflux-react-internal-test-utils.cjs",
+    "types": "./src/index.ts",
+    "dependencies": {
+        "@zenflux/react-noop-renderer": "workspace:*",
+        "@zenflux/react-scheduler": "workspace:*",
+        "@zenflux/react-shared": "workspace:*",
+        "jest-diff": "^29.7.0",
+        "jest-environment-jsdom": "^29.7.0"
+    },
+    "devDependencies": {
+        "@jest/globals": "^29.7.0"
+    },
+    "scripts": {
+        "@z-react-internals-test-utils--test": "bun run @z-jest --selectedProjects internal-test-utils",
+        "@z-react-internals-test-utils--build-dev": "bun run @z-cli @build --dev"
+    },
+    "peerDependencies": {
+        "react": "^18.2.0"
+    }
+}

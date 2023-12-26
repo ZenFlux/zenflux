@@ -28,8 +28,6 @@ describe( 'SchedulerNoDOM', () => {
 
         jest.unmock( '@zenflux/react-scheduler' );
 
-        delete globalThis.__REACT_SCHEDULER_DEF__;
-
         Scheduler = require( '@zenflux/react-scheduler' );
 
         scheduleCallback = Scheduler.unstable_scheduleCallback;

@@ -31,7 +31,6 @@ let shouldYield;
 describe( 'SchedulerPostTask', () => {
     beforeEach( () => {
         jest.resetModules();
-        delete globalThis.__REACT_SCHEDULER_DEF__;
 
         jest.mock( '@zenflux/react-scheduler', () =>
             jest.requireActual( '@zenflux/react-scheduler/post-task' ),

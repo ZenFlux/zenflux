@@ -2,8 +2,8 @@ import type { Config } from "@jest/types";
 
 const config: Config.InitialProjectOptions = {
     transform: {
-        "^.+\\.ts?$": "<rootDir>/../react-jest/ts-transform.js",
-        ".*$": "<rootDir>/../react-jest/jsx-transform.js",
+        "^.+\\.ts?$": "<rootDir>/../react-jest/transformers/ts-transform.js",
+        ".*$": "<rootDir>/../react-jest/transformers/react-transform.js",
     },
 
     setupFiles: [

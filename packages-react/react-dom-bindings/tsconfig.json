@@ -1,0 +1,16 @@
+{
+    "compilerOptions": {
+        "moduleResolution": "Bundler",
+        "baseUrl": "./src",
+        "typeRoots": [
+            "../../node_modules/@types",
+            "../../node_modules/"
+        ],
+        "types": [
+            "react"
+        ]
+    },
+    "include": [
+        "src/**/*.ts"
+    ],
+}

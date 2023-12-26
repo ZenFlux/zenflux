@@ -1,11 +1,13 @@
-/* Taken from packages/react */
-import "@zenflux/react-x-env/internals";
+// eslint-disable-next-line no-restricted-imports
+import "./react-internals";
 
-import type { Dispatcher } from "@zenflux/react-reconciler/src/react-internal-types";
+import type { Dispatcher } from "@zenflux/react-shared/src/react-internal-types";
 
 import type { ReactContext, StartTransitionOptions, Usable } from "@zenflux/react-shared/src/react-types";
 
 import type { DependencyList, Ref } from "@zenflux/react-reconciler/src/react-fiber-hooks-types";
+
+/* Taken from packages/react */
 
 const {
     ReactCurrentDispatcher,

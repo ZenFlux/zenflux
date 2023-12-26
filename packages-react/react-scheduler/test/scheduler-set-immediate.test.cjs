@@ -40,8 +40,6 @@ describe( 'SchedulerDOMSetImmediate', () => {
 
         performance = global.performance;
 
-        delete globalThis.__REACT_SCHEDULER_DEF__;
-
         Scheduler = require( '@zenflux/react-scheduler' );
 
         cancelCallback = Scheduler.unstable_cancelCallback;
