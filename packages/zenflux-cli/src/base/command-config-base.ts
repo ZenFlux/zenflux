@@ -28,7 +28,9 @@ export abstract class CommandConfigBase extends CommandBase {
             this.isWorkspaceSpecified = true;
 
             const result = zWorkspaceFindPackages(
-                this.args[ workspaceArgIndex + 1 ].split( "," ),
+                this.args[ workspaceArgIndex + 1 ]
+                    .split( "," )
+                    .map( i => i.trim() ),
                 this.initPathsArgs.workspacePath,
             );
 
@@ -103,8 +105,10 @@ export abstract class CommandConfigBase extends CommandBase {
             "--workspace": {
                 description: "Run for specific workspace",
                 examples: [
+                    "--workspace <company@package-name>",
                     "--workspace <package-name>",
                     "--workspace <package-name-a>, <package-name-b>",
+                    "--workspace \"prefix-*\", \"react-*\""
                 ]
             }
         } ) );

@@ -63,6 +63,24 @@ export function zWorkspaceFindRootPackageJson( options: {
     return "";
 }
 
+export function zWorkspaceExtractPackages( regex: string, rootPkg: Package, packages: TPackages ) {
+    const result: TPackages = {};
+
+    const regexPattern = new RegExp( regex );
+
+    Object.keys( packages ).forEach( ( key ) => {
+        const packageName = packages[ key ] ? key : `${ rootPkg.json.name.split( "/" )[ 0 ] }/${ key }`;
+
+        if ( regexPattern.test( packageName ) ) {
+            if ( packages[ packageName ] ) {
+                result[ packageName ] = packages[ packageName ];
+            }
+        }
+    } );
+
+    return result;
+}
+
 export function zWorkspaceExtractPackage( name: string, rootPkg: Package, packages: TPackages ) {
     name = name.trim();
     // eg: root package name is "@zenflux/zenflux".
@@ -118,19 +136,19 @@ export function zWorkspaceFindPackages(
         packages = zWorkspaceGetPackages( rootPkg );
 
     names.forEach( ( name ) => {
-        const currentPackage = zWorkspaceExtractPackage( name, rootPkg, packages );
+        const currentPackages = zWorkspaceExtractPackages( name, rootPkg, packages );
 
-        if ( ! currentPackage ) {
+        if ( ! currentPackages ) {
             if ( ! silent ) {
-                throw new Error( `Workspace package '${ name }' not found` );
+                throw new Error( `Workspace package(s) '${ name }' not found` );
             }
 
             return;
         }
 
-        if ( packages[ currentPackage.json.name ] ) {
-            result[ currentPackage.json.name ] = packages[ currentPackage.json.name ];
-        }
+        Object.values( currentPackages ).forEach( ( pkg ) => {
+            result[ pkg.json.name ] = pkg;
+        } );
     } );
 
     Object.assign( zWorkspaceFindPackagesCache[ workspacePath ] ??= {}, result );

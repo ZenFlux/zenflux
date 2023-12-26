@@ -36,8 +36,10 @@ The CLI tool provides a command for building projects. It utilizes technologies 
   - **--workspace:**
       - Description: Run for a specific workspace
       - Examples:
+          - `--workspace <company@package-name>`
           - `--workspace <package-name>`
           - `--workspace <package-name-a>, <package-name-b>`
+          - `--workspace "prefix-*", "react-*"`
 <br /><br />
 
   - **--dev:**
@@ -202,7 +204,7 @@ The CLI tool provides a command for building projects. It utilizes technologies 
   - **Debounce Function**: The `debounce` function ensures that the build process is not triggered more than once within a specified delay. This is useful to avoid triggering multiple builds for rapid successive changes. The debounce function works by delaying the execution of the build process until a certain amount of time has passed without any new changes being detected. This ensures that if multiple changes are made in quick succession, the build process will only be triggered once, after the last change.
     <br /><br />
 
-  
+
 ### Publishing Packages
 
 The tool supports publishing npm packages to a registry. It includes features for configuring and publishing packages, ensuring they are available for installation by other developers. Developers can manage and publish their packages with ease.
