@@ -210,9 +210,16 @@ export function zTSPreDiagnostics( tsConfig: ts.ParsedCommandLine, args: {
         return compilerHostGetSourceFile( fileName, languageVersion, onError, shouldCreateNewSourceFile );
     };
 
-    const program = ts.createProgram( tsConfig.fileNames, Object.assign( tsConfig.options, {
+    const program = ts.createProgram( tsConfig.fileNames, Object.assign( {}, tsConfig.options, {
         noEmit: true,
+
+        // In case `tsconfig.dev.json` is used, we don't want to generate source maps or declarations for diagnostic
+        inlineSourceMap: false,
+        sourceMap: false,
+        inlineSources: false,
+
         declaration: false,
+        declarationMap: false,
     } as ts.CompilerOptions ), compilerHost );
 
     const diagnostics = ts.getPreEmitDiagnostics( program );
