@@ -5,13 +5,23 @@
     "exports": {
         ".": {
             "types": "./dist/src/index.d.ts",
-            "import": "./dist/react-x-env.es",
+            "import": "./dist/react-x-env.mjs",
             "require": "./dist/react-x-env.cjs"
         },
         "./internals": {
             "types": "./dist/src/react-internals.d.ts",
-            "import": "./dist/react-x-env.internals.es",
+            "import": "./dist/react-x-env.internals.mjs",
             "require": "./dist/react-x-env.internals.cjs"
+        },
+        "./hooks": {
+            "types": "./dist/src/react-hooks.d.ts",
+            "import": "./dist/react-x-env.hooks.mjs",
+            "require": "./dist/react-x-env.hooks.cjs"
+        },
+        "./act": {
+            "types": "./dist/src/react-act.d.ts",
+            "import": "./dist/react-x-env.act.mjs",
+            "require": "./dist/react-x-env.act.cjs"
         }
     },
     "scripts": {

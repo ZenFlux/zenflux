@@ -1,0 +1,18 @@
+{
+    "compilerOptions": {
+        "esModuleInterop": true,
+        "target": "ESNext",
+        "module": "ESNext",
+        "moduleResolution": "bundler",
+        "baseUrl": "./",
+        "outDir": "dist",
+    },
+    "include": [
+        "src/**/*.ts",
+        "zenflux*.ts"
+    ],
+    "exclude": [
+        "node_modules",
+        "dist"
+    ]
+}

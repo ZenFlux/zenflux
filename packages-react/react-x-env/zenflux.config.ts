@@ -18,6 +18,14 @@ export const configs: IZConfigs = {
         inputPath: "src/react-internals.ts",
         outputFileName: "react-x-env.internals",
     },
+    "@zenflux/react-x-env.hooks": {
+        inputPath: "src/react-hooks.ts",
+        outputFileName: "react-x-env.hooks",
+    },
+    "@zenflux/react-x-env.act": {
+        inputPath: "src/react-act.ts",
+        outputFileName: "react-x-env.act",
+    },
 };
 
 export default configs;

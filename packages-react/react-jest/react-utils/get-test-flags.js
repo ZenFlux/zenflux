@@ -15,8 +15,7 @@ function getTestFlags() {
 
     // Return a proxy, so we can throw if you attempt to access a flag that
     // doesn't exist.
-    return new Proxy(
-        {
+    return new Proxy( {
             channel: releaseChannel,
             modern: releaseChannel === "modern",
             classic: releaseChannel === "classic",
@@ -35,7 +34,7 @@ function getTestFlags() {
             // the flags
             ...schedulerFeatureFlags,
             ...featureFlags,
-            ...environmentFlags,
+            ...__ENVIRONMENT_FLAGS__,
         },
         {
             get( flags, flagName ) {
@@ -53,3 +52,4 @@ function getTestFlags() {
 }
 
 exports.getTestFlags = getTestFlags;
+

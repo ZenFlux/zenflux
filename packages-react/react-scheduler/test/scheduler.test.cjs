@@ -37,7 +37,6 @@ describe( 'SchedulerBrowser', () => {
         runtime = installMockBrowserRuntime();
 
         jest.unmock( '@zenflux/react-scheduler' );
-        delete globalThis.__REACT_SCHEDULER_DEF__;
 
         performance = global.performance;
         Scheduler = require( '@zenflux/react-scheduler' );

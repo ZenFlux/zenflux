@@ -33,8 +33,6 @@ describe( 'SchedulerMock', () => {
         // TODO: This is should be done internally.
         globalThis.__Z_CUSTOM_LOADER_DATA__ = {};
 
-        delete globalThis.__REACT_SCHEDULER_DEF__;
-
         jest.mock( 'scheduler', () => require( '@zenflux/react-scheduler/mock' ) );
 
         Scheduler = require( '@zenflux/react-scheduler/mock' );

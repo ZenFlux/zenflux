@@ -1,0 +1,21 @@
+{
+    // Extends the configuration from "./tsconfig.paths.json"
+    "extends": "./tsconfig.paths.json",
+
+    // Compiler options
+    "compilerOptions": {
+        "types": [
+            "node"
+        ],
+
+        "typeRoots": [
+            "../../node_modules/@types"
+        ],
+
+        "moduleResolution": "bundler",
+
+        "strict": true,
+
+        "esModuleInterop": true
+    }
+}

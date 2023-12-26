@@ -4,14 +4,18 @@
     "version": "0.0.0",
     "type": "commonjs",
     "dependencies": {
-        "jest-react": "^0.14.0",
         "jest-diff": "^29.7.0",
-        "@swc/core":  "^1.3.99",
-        "@babel/core": "^7.14.6"
-    },
-    "devDependencies": {
+        "@swc/core":  "^1.3.101",
+        "@babel/core": "^7.14.6",
+        "@babel/helper-module-imports": "^7.22.15",
+        "@babel/plugin-syntax-jsx": "7.10.4",
+        "@babel/plugin-transform-react-jsx": "7.10.4",
+        "@babel/plugin-transform-react-jsx-source": "^7.10.15",
         "@jest/expect": "^29.7.0",
         "@jest/globals": "^29.7.0",
+        "abortcontroller-polyfill": "^1.7.5"
+    },
+    "devDependencies": {
         "@types/jest": "^29.5.9"
     }
 }

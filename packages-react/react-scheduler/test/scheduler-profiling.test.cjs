@@ -61,7 +61,6 @@ describe( 'SchedulerProfiling', () => {
     beforeEach( () => {
         jest.resetModules();
 
-        delete globalThis.__REACT_SCHEDULER_DEF__;
         globalThis.__Z_CUSTOM_LOADER_DATA__ = {};
 
         jest.mock( 'scheduler', () => require( '@zenflux/react-scheduler/mock' ) );

@@ -1,4 +1,4 @@
-const { format } = require( "node:util" );
+const util = require( "node:util" );
 
 const shouldIgnoreConsoleError = require( "./react-utils/should-ignore-console-error" );
 
@@ -18,7 +18,7 @@ const patchConsoleMethod = ( methodName, unexpectedConsoleCallStacks ) => {
         const stack = new Error().stack;
         unexpectedConsoleCallStacks.push( [
             stack.slice( stack.indexOf( '\n' ) + 1 ),
-            format( format, ...args ),
+            util.format( format, ...args ),
         ] );
     };
 
@@ -43,63 +43,61 @@ const flushUnexpectedConsoleCalls = (
     }
 
     if ( unexpectedConsoleCallStacks.length > 0 ) {
-        throw new Error( "unexpectedConsoleCallStacks not implemented" );
-    }
+        const messages = unexpectedConsoleCallStacks.map(
+            ( [ stack, message ] ) =>
+                `\x1b[31m${ message }\x1b[0m\n` +
+                `${ stack
+                    .split( '\n' )
+                    .map( line => `\x1b[90m${ line }\x1b[0m` )
+                    .join( '\n' ) }`
+        );
 
-    // if ( unexpectedConsoleCallStacks.length > 0 ) {
-    //     const messages = unexpectedConsoleCallStacks.map(
-    //         ( [ stack, message ] ) =>
-    //             `${ chalk.red( message ) }\n` +
-    //             `${ stack
-    //                 .split( '\n' )
-    //                 .map( line => chalk.gray( line ) )
-    //                 .join( '\n' ) }`
-    //     );
-    //
-    //     const message =
-    //         `Expected test not to call ${ chalk.bold(
-    //             `console.${ methodName }()`
-    //         ) }.\n\n` +
-    //         'If the warning is expected, test for it explicitly by:\n' +
-    //         `1. Using the ${ chalk.bold( '.' + expectedMatcher + '()' ) } ` +
-    //         `matcher, or...\n` +
-    //         `2. Mock it out using ${ chalk.bold(
-    //             'spyOnDev'
-    //         ) }(console, '${ methodName }') or ${ chalk.bold(
-    //             'spyOnProd'
-    //         ) }(console, '${ methodName }'), and test that the warning occurs.`;
-    //
-    //     throw new Error( `${ message }\n\n${ messages.join( '\n\n' ) }` );
-    // }
+        const message =
+            `Expected test not to call \x1b[1mconsole.${ methodName }()\x1b[0m.\n\n` +
+            'If the warning is expected, test for it explicitly by:\n' +
+            `1. Using the \x1b[1m.${ expectedMatcher }()\x1b[0m ` +
+            `matcher, or...\n` +
+            `2. Mock it out using \x1b[1mspyOnDev\x1b[0m(console, '${ methodName }') or \x1b[1mspyOnProd\x1b[0m(console, '${ methodName }'), and test that the warning occurs.`;
+
+        throw new Error( `${ message }\n\n${ messages.join( '\n\n' ) }` );
+    }
 };
 
-const unexpectedErrorCallStacks = [];
-const unexpectedWarnCallStacks = [];
+if ( "undefined" === typeof __UNEXPECTED_ERROR_CALL_STACKS__ ) {
+    global.__UNEXPECTED_ERROR_CALL_STACKS__ = [];
+}
 
-const errorMethod = patchConsoleMethod( 'error', unexpectedErrorCallStacks );
-const warnMethod = patchConsoleMethod( 'warn', unexpectedWarnCallStacks );
+if ( "undefined" === typeof __UNEXPECTED_WARN_CALL_STACKS__ ) {
+    global.__UNEXPECTED_WARN_CALL_STACKS__ = [];
+}
+
+const errorMethod = patchConsoleMethod( 'error', __UNEXPECTED_ERROR_CALL_STACKS__ );
+const warnMethod = patchConsoleMethod( 'warn', __UNEXPECTED_WARN_CALL_STACKS__ );
 
 const flushAllUnexpectedConsoleCalls = () => {
     flushUnexpectedConsoleCalls(
         errorMethod,
         'error',
         'toErrorDev',
-        unexpectedErrorCallStacks
+        __UNEXPECTED_ERROR_CALL_STACKS__
     );
     flushUnexpectedConsoleCalls(
         warnMethod,
         'warn',
         'toWarnDev',
-        unexpectedWarnCallStacks
+        __UNEXPECTED_WARN_CALL_STACKS__
     );
-    unexpectedErrorCallStacks.length = 0;
-    unexpectedWarnCallStacks.length = 0;
+    __UNEXPECTED_ERROR_CALL_STACKS__.length = 0;
+    __UNEXPECTED_WARN_CALL_STACKS__.length = 0;
 };
 
 const resetAllUnexpectedConsoleCalls = () => {
-    unexpectedErrorCallStacks.length = 0;
-    unexpectedWarnCallStacks.length = 0;
+    __UNEXPECTED_ERROR_CALL_STACKS__.length = 0;
+    __UNEXPECTED_WARN_CALL_STACKS__.length = 0;
 };
 
 beforeEach( resetAllUnexpectedConsoleCalls );
 afterEach( flushAllUnexpectedConsoleCalls );
+
+exports.flushAllUnexpectedConsoleCalls = flushAllUnexpectedConsoleCalls;
+exports.resetAllUnexpectedConsoleCalls = resetAllUnexpectedConsoleCalls;

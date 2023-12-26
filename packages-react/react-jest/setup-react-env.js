@@ -23,4 +23,21 @@ global.__EXPERIMENTAL__ =
 
 global.__VARIANT__ = !! process.env.VARIANT;
 
-global.React = require( 'react' );
+if ( typeof window !== 'undefined' ) {
+    global.requestIdleCallback = function ( callback ) {
+        return setTimeout( () => {
+            callback( {
+                timeRemaining() {
+                    return Infinity;
+                },
+            } );
+        } );
+    };
+
+    global.cancelIdleCallback = function ( callbackID ) {
+        clearTimeout( callbackID );
+    };
+} else {
+    global.AbortController =
+        require( 'abortcontroller-polyfill/dist/cjs-ponyfill' ).AbortController;
+}

@@ -1,0 +1,28 @@
+{
+    "name": "@zenflux/react-cache",
+    "version": "18.2.0",
+    "private": true,
+    "description": "React package for snapshot testing.",
+    "license": "MIT",
+    "type": "module",
+    "main": "dist/zenflux-react-cache.cjs",
+    "scripts": {
+        "@z-react-cache--build": "bun run @z-cli @build",
+        "@z-react-cache--build-dev": "bun run @z-cli @build --dev",
+        "@z-react-cache--dev": "bun run @z-cli @watch --dev"
+    },
+    "dependencies": {
+        "@zenflux/react-scheduler": "workspace:*",
+        "@zenflux/react-shared": "workspace:*"
+    },
+    "devDependencies": {
+    },
+    "peerDependencies": {
+        "react": "^18.2.0"
+    },
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/zenflux/zenflux.git",
+        "directory": "packages-react/react-cache"
+    }
+}

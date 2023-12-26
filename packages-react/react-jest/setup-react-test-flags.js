@@ -63,3 +63,7 @@ const environmentFlags = {
     enableUseJSStackToTrackPassiveDurations: false,
 };
 
+// Added by ZenFlux
+if ( ! global.__ENVIRONMENT_FLAGS__ ) {
+    global.__ENVIRONMENT_FLAGS__ = environmentFlags;
+}

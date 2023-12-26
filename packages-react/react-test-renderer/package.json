@@ -1,0 +1,33 @@
+{
+    "name": "@zenflux/react-test-renderer",
+    "version": "18.2.0",
+    "private": true,
+    "description": "React package for snapshot testing.",
+    "license": "MIT",
+    "type": "module",
+    "main": "dist/zenflux-react-test-renderer.cjs",
+    "scripts": {
+        "@z-react-test-renderer--build": "bun run @z-cli @build",
+        "@z-react-test-renderer--build-dev": "bun run @z-cli @build --dev",
+        "@z-react-test-renderer--dev": "bun run @z-cli @watch --dev"
+    },
+    "dependencies": {
+        "@zenflux/react-scheduler": "workspace:*",
+        "@zenflux/react-shared": "workspace:*",
+        "react-is": "^18.2.0",
+        "react-shallow-renderer": "^16.15.0"
+    },
+    "devDependencies": {
+        "@zenflux/react-cache": "workspace:*",
+        "pretty-format": "^20.0.3",
+        "react-dom": "^18.2.0"
+    },
+    "peerDependencies": {
+        "react": "^18.2.0"
+    },
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/zenflux/zenflux.git",
+        "directory": "packages-react/react-test-renderer"
+    }
+}
