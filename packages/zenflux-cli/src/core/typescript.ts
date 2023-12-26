@@ -243,12 +243,11 @@ export function zTSPreDiagnostics( tsConfig: ts.ParsedCommandLine, args: {
 }
 
 export function zTSCreateDeclaration( tsConfig: ts.ParsedCommandLine ) {
-    const program = ts.createProgram( tsConfig.fileNames, Object.assign( tsConfig.options, {
+    const program = ts.createProgram( tsConfig.fileNames, Object.assign( {}, tsConfig.options, {
         declaration: true,
         noEmit: false,
         emitDeclarationOnly: true,
         declarationDir: tsConfig.options.declarationDir || tsConfig.options.outDir,
-        noErrorTruncation: true,
     } as ts.CompilerOptions ) );
 
     // Remove old declaration .d.ts files
@@ -258,9 +257,18 @@ export function zTSCreateDeclaration( tsConfig: ts.ParsedCommandLine ) {
         throw new Error( `${ tsConfig.options.configFilePath }: 'declarationDir' or 'outDir' is required` );
     }
 
-    program.emit();
+    const result = program.emit();
 
-    console.verbose( () => `${ zTSCreateDeclaration.name }() -> Declaration created for '${ tsConfig.options.configFilePath }'` );
+    if ( result.diagnostics.length ) {
+        const error = new Error();
+
+        error.name = `\x1b[31mTypeScript declaration has ${ result.diagnostics.length } error(s)\x1b[0m config: ${ "file://" + tsConfig.options.configFilePath }`;
+        error.message = "\n" + result.diagnostics.map( error => zCustomizeDiagnostic( error ) ).join( "\n\n" );
+
+        console.error( error );
+    } else {
+        console.verbose( () => `${ zTSCreateDeclaration.name }() -> Declaration created for '${ tsConfig.options.configFilePath }'` );
+    }
 
     return program;
 }
