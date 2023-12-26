@@ -4,6 +4,7 @@
 import util from "node:util";
 import path from "node:path";
 import process from "node:process";
+import fs from "node:fs";
 
 import { fileURLToPath, pathToFileURL } from "node:url";
 
@@ -15,12 +16,29 @@ import { zRollupGetPlugins } from "@zenflux/cli/src/core/rollup";
 
 import { console } from "@zenflux/cli/src/modules/console";
 
-import type { OutputOptions, RollupOptions } from "rollup";
+import type { OutputOptions, RollupBuild, RollupOptions , RollupCache } from "rollup";
 
 import type { TZFormatType } from "@zenflux/cli/src/definitions/zenflux";
 import type { TZBuildOptions } from "@zenflux/cli/src/definitions/build";
 
 const workers = new Map<number, Worker>();
+
+const builders = new Map<string, RollupBuild>();
+
+function rollupCompareCaches( prevCache: RollupCache, currentCache: RollupCache ) {
+    // Check if the number of modules is the same
+    if ( prevCache.modules.length !== currentCache.modules.length ) {
+        return false;
+    }
+
+    function getZenFluxSwcPluginChecksum( cache: RollupCache ) {
+        return Object.values( cache.plugins![ "z-rollup-swc-plugin" ] ?? [] ).reduce( ( acc, record ) => {
+            return acc + ( record[ 1 ]?.lastModified || Math.random() );
+        }, 0 );
+    }
+
+    return getZenFluxSwcPluginChecksum( prevCache ) === getZenFluxSwcPluginChecksum( currentCache );
+}
 
 async function rollupBuildInternal( config: RollupOptions, options: TZBuildOptions ) {
     const output = config.output as OutputOptions;
@@ -29,19 +47,40 @@ async function rollupBuildInternal( config: RollupOptions, options: TZBuildOptio
         throw new Error( "Rollup output not found." );
     }
 
+    // TODO: This should be only once
     config.onLog = ( logLevel, message ) => {
         // @ts-ignore
         message.projectPath = options.config.path;
         console.log( `Rollup: ${ util.inspect( message ) }` );
     };
 
-    const bundle = await rollup( config ),
-        startTime = Date.now(),
+    let isBundleChanged = true;
+
+    const builderKey = `${ output.format }-${ output.file ?? output.entryFileNames }`;
+
+    const prevBuild = builders.get( builderKey ),
+        currentBuild = await rollup(  config );
+
+    if ( ! prevBuild ) {
+        builders.set( builderKey, currentBuild );
+    } else if ( ! rollupCompareCaches( prevBuild.cache!, currentBuild.cache! ) ) {
+        builders.set( builderKey, currentBuild );
+    } else {
+        isBundleChanged = false;
+    }
+
+    if ( ! isBundleChanged ) {
+        options.silent || console.log( `Writing - Skip ${ util.inspect( output.format ) } bundle of ${ util.inspect( output.file ?? output.entryFileNames ) }` );
+
+        return;
+    }
+
+    const startTime = Date.now(),
         file = output.file ?? output.entryFileNames;
 
     options.silent || console.log( `Writing - Start ${ util.inspect( output.format ) } bundle to ${ util.inspect( file ) }` );
 
-    await bundle.write( output );
+    await builders.get( builderKey )!.write( output );
 
     options.silent || console.log( `Writing - Done ${ util.inspect( output.format ) } bundle of ${ util.inspect( file ) } in ${ util.inspect( Date.now() - startTime ) + "ms" }` );
 
@@ -54,7 +93,8 @@ function zRollupBuildInWorker() {
     }
 
     const id = workerData.options.thread,
-        rollupOptions: RollupOptions[] = ! Array.isArray( workerData.rollupOptions ) ? [ workerData.rollupOptions ] : workerData.rollupOptions,
+        rollupOptions: RollupOptions[] = ! Array.isArray( workerData.rollupOptions ) ?
+            [ workerData.rollupOptions ] : workerData.rollupOptions,
         buildOptions = workerData.options as TZBuildOptions,
         config = buildOptions.config;
 
@@ -93,8 +133,8 @@ function zRollupBuildInWorker() {
                                 __ERROR_WORKER_INTERNAL__: true,
                                 error: {
                                     ... JSON.parse( JSON.stringify( error ) ),
-                                    message: (error as Error).message,
-                                    stack: (error as Error).stack
+                                    message: ( error as Error ).message,
+                                    stack: ( error as Error ).stack
                                 },
                                 config: config.path
                             } );
@@ -155,9 +195,6 @@ async function zRollupCreateBuildWorker( rollupOptions: RollupOptions[], options
         worker.once( "message", ( message ) => {
             switch ( message ) {
                 case "done":
-                    // Kill the worker.
-                    worker.terminate();
-
                     resolve( undefined );
                     break;
 
