@@ -14,10 +14,12 @@ import ts from "typescript";
 
 import { console } from "@zenflux/cli/src/modules/console";
 
-import type { TZPreDiagnosticsArgs } from "@zenflux/cli/src/definitions/typescript";
+import type { TZCreateDeclarationArgs, TZPreDiagnosticsArgs } from "@zenflux/cli/src/definitions/typescript";
 import type { TZFormatType } from "@zenflux/cli/src/definitions/zenflux";
 
-const workers = new Map<number, Worker>();
+// TODO: Avoid this, create threadPool with max threads = cpu cores.
+const diagnosticWorkers = new Map<number, Worker>(),
+    declarationWorkers = new Map<number, Worker>();
 
 const pathsCache: { [ key: string ]: string } = {},
     configCache: { [ key: string ]: ts.ParsedCommandLine } = {},
@@ -200,15 +202,15 @@ export function zTSConfigRead( format: TZFormatType | null, projectPath: string 
  * @param {ts.ParsedCommandLine} tsConfig - The TypeScript configuration.
  */
 export function zTSGetCompilerHost( tsConfig: ts.ParsedCommandLine ) {
-    const declarationPath = tsConfig.options.declarationDir || tsConfig.options.outDir;
+    const outPath = tsConfig.options.declarationDir || tsConfig.options.outDir;
 
-    if ( ! declarationPath ) {
+    if ( ! outPath ) {
         throw new Error( `${ tsConfig.options.configFilePath }: 'declarationDir' or 'outDir' is required` );
     }
 
     // Get from cache
-    if ( cacheCompilerHost[ tsConfig.options.configFilePath as string ] ) {
-        return cacheCompilerHost[ tsConfig.options.configFilePath as string ];
+    if ( cacheCompilerHost[ outPath ] ) {
+        return cacheCompilerHost[ outPath ];
     }
 
     const compilerHost = ts.createCompilerHost( tsConfig.options, true ),
@@ -216,8 +218,8 @@ export function zTSGetCompilerHost( tsConfig: ts.ParsedCommandLine ) {
 
     compilerHost.getSourceFile = ( fileName, languageVersion, onError, shouldCreateNewSourceFile ) => {
         // Exclude internal TypeScript files from validation
-        if ( fileName.startsWith( declarationPath ) ) {
-            console.verbose( () => `${ zTSPreDiagnostics.name }() -> Skipping validation for '${ fileName }', internal TypeScript file` );
+        if ( fileName.startsWith( outPath ) ) {
+            console.verbose( () => `${ zTSGetCompilerHost.name }::${ compilerHost.getSourceFile.name }() -> Skipping '${ fileName }', internal TypeScript file` );
             return;
         }
 
@@ -263,6 +265,7 @@ export function zTSPreDiagnostics( tsConfig: ts.ParsedCommandLine, args: TZPreDi
 
         declaration: false,
         declarationMap: false,
+        declarationDir: undefined,
     } as ts.CompilerOptions ), compilerHost, cacheProgram[ tsConfig.options.configFilePath as string ] );
 
     cacheProgram[ tsConfig.options.configFilePath as string ] = program;
@@ -287,13 +290,19 @@ export function zTSPreDiagnostics( tsConfig: ts.ParsedCommandLine, args: TZPreDi
     return diagnostics.length <= 0;
 }
 
-export function zTSCreateDeclaration( tsConfig: ts.ParsedCommandLine ) {
+export function zTSCreateDeclaration( tsConfig: ts.ParsedCommandLine, args: TZCreateDeclarationArgs = {} ) {
+    if ( args.thread || 0 === args.thread ) {
+        return zTSCreateDeclarationWorker( tsConfig, args );
+    }
+
+    const compilerHost = zTSGetCompilerHost( tsConfig );
+
     const program = ts.createProgram( tsConfig.fileNames, Object.assign( {}, tsConfig.options, {
         declaration: true,
         noEmit: false,
         emitDeclarationOnly: true,
         declarationDir: tsConfig.options.declarationDir || tsConfig.options.outDir,
-    } as ts.CompilerOptions ), zTSGetCompilerHost( tsConfig ), cacheProgram[ tsConfig.options.configFilePath as string ] );
+    } as ts.CompilerOptions ), compilerHost, cacheProgram[ tsConfig.options.configFilePath as string ] );
 
     cacheProgram[ tsConfig.options.configFilePath as string ] = program;
 
@@ -317,7 +326,7 @@ export function zTSCreateDeclaration( tsConfig: ts.ParsedCommandLine ) {
         console.verbose( () => `${ zTSCreateDeclaration.name }() -> Declaration created for '${ tsConfig.options.configFilePath }'` );
     }
 
-    return program;
+    return result.diagnostics.length <= 0;
 }
 
 function zTSDiagnosticInWorker() {
@@ -363,13 +372,56 @@ function zTSDiagnosticInWorker() {
     } );
 }
 
+function zTSDeclarationInWorker() {
+    if ( ! workerData.args.thread && 0 !== workerData.args.thread ) {
+        throw new Error( "Thread options not found." );
+    }
+
+    if ( ! workerData.tsConfigPath ) {
+        throw new Error( "tsConfigPath not found." );
+    }
+
+    if ( ! workerData.args ) {
+        throw new Error( "args not found." );
+    }
+
+    const id = workerData.args.thread as number,
+        tsConfig = zTSConfigRead( null, path.dirname( workerData.tsConfigPath ) );
+
+    // Waiting for the parent to send a message.
+    parentPort?.on( "message", async ( message ) => {
+        switch ( message ) {
+            case "run":
+                console.verbose( () => `Thread\t${ id }\tRun\t${ util.inspect( tsConfig.options.configFilePath ) }` );
+
+                const result = zTSCreateDeclaration( tsConfig, {
+                    ... workerData.args,
+                    thread: false,
+                } );
+
+                // Ensuring that console.log is flushed.
+                setTimeout( () => {
+                    parentPort?.postMessage( [
+                        "done",
+                        result,
+                    ] );
+                } );
+
+                break;
+
+            default:
+                throw new Error( `Unknown message: ${ message }` );
+        }
+    } );
+}
+
 export async function zTSCreateDiagnosticWorker( tsConfig: ts.ParsedCommandLine, args: TZPreDiagnosticsArgs = {} ) {
     // Since worker do not need to load it, it can't be in top level.
     const { zGlobalPathsGet } = ( await import( "@zenflux/cli/src/core/global" ) );
 
     // Await for the worker to finish.
     return new Promise( async ( resolve ) => {
-        if ( ! workers.has( args.thread as number ) ) {
+        if ( ! diagnosticWorkers.has( args.thread as number ) ) {
             console.verbose( () => `Diagnostic\t${ args.thread }\tStart\t${ util.inspect( tsConfig.options.configFilePath ) }` );
 
             const worker = new Worker( pathToFileURL( zGlobalPathsGet().cli ), {
@@ -386,10 +438,60 @@ export async function zTSCreateDiagnosticWorker( tsConfig: ts.ParsedCommandLine,
                 },
             } );
 
-            workers.set( args.thread as number, worker );
+            diagnosticWorkers.set( args.thread as number, worker );
         }
 
-        const worker = workers.get( args.thread as number ) as Worker;
+        const worker = diagnosticWorkers.get( args.thread as number ) as Worker;
+
+        worker.on( "exit", () => {
+            console.verbose( () => `Diagnostic\t${ args.thread }\tClose\t${ util.inspect( tsConfig.options.configFilePath ) }` );
+
+            diagnosticWorkers.delete( args.thread as number );
+
+            resolve( false );
+        } );
+
+        worker.once( "message", ( [ action, result ] ) => {
+            switch ( action ) {
+                case "done":
+                    resolve( result as boolean );
+                    break;
+
+                default:
+                    throw new Error( `Unknown action: ${ action }` );
+        } } );
+
+        worker.postMessage( "run" );
+    } );
+}
+
+export async function zTSCreateDeclarationWorker( tsConfig: ts.ParsedCommandLine, args: TZPreDiagnosticsArgs = {} ) {
+    // Since worker do not need to load it, it can't be in top level.
+    const { zGlobalPathsGet } = ( await import( "@zenflux/cli/src/core/global" ) );
+
+    // Await for the worker to finish.
+    return new Promise( async ( resolve ) => {
+        if ( ! declarationWorkers.has( args.thread as number ) ) {
+            console.verbose( () => `Declaration\t${ args.thread }\tStart\t${ util.inspect( tsConfig.options.configFilePath ) }` );
+
+            const worker = new Worker( pathToFileURL( zGlobalPathsGet().cli ), {
+                name: `zTSCreateDeclarationWorker-${ args.thread }`,
+                argv: process.argv,
+                workerData: {
+                    zCliWorkPath: fileURLToPath( import.meta.url ),
+
+                    args,
+
+                    tsConfigPath: tsConfig.options.configFilePath,
+
+                    action: "tsDeclaration",
+                },
+            } );
+
+            declarationWorkers.set( args.thread as number, worker );
+        }
+
+        const worker = declarationWorkers.get( args.thread as number ) as Worker;
 
         worker.once( "message", ( [ action, result ] ) => {
             switch ( action ) {
@@ -409,6 +511,10 @@ if ( workerData?.zCliWorkPath === fileURLToPath( import.meta.url ) ) {
     switch ( workerData.action ) {
         case "tsDiagnostic":
             zTSDiagnosticInWorker();
+            break;
+
+        case "tsDeclaration":
+            zTSDeclarationInWorker();
             break;
 
         default:

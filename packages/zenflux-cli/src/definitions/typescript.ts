@@ -3,3 +3,7 @@ export type TZPreDiagnosticsArgs = {
     haltOnError?: boolean,
     thread?: number,
 }
+
+export type TZCreateDeclarationArgs = {
+    thread?: number,
+}
