@@ -40,21 +40,27 @@ export class Loaders {
     /**
      * @param {string} path
      * @param {zVmModuleType} type
+     * @param {vm.Module} referencingModule
      * @param {vm.ModuleLinker} linkerCallback
      * @param {vm.ModuleLinker} [dynamicLinkerCallback]
      *
-     * @return {Promise<Module|vm.SyntheticModule>}
+     * @return {Promise<vm.Module|vm.SyntheticModule>}
      */
-    async loadModule( path, type, linkerCallback, dynamicLinkerCallback = linkerCallback ) {
+    async loadModule( path, type, referencingModule, linkerCallback, dynamicLinkerCallback = linkerCallback ) {
         // TODO: Enable options for all moduleProviders, currently its fine.
+        /**
+         * @type {zVmModuleLocalTextSourceOptions}
+         */
+        const options = {
+            referencingModule
+        };
+
         if ( "esm" === type ) {
-            return this.loadModuleWithOptions( path, type, {
-                moduleLinkerCallback: linkerCallback,
-                moduleImportDynamically: dynamicLinkerCallback,
-            } );
+            options.moduleLinkerCallback = linkerCallback;
+            options.moduleImportDynamically = dynamicLinkerCallback;
         }
 
-        return this.loadModuleWithOptions( path, type );
+        return this.loadModuleWithOptions( path, type, options );
     }
 
     /**
@@ -130,13 +136,13 @@ export class Loaders {
      * @param {zVmModuleSource} module
      * @param {string} path
      * @param {zVmModuleEvaluateOptions} options
-     *
+     *h
      * @return {Promise<zVmModule>}
      */
     async sanitizeModule( module, path, options ) {
         const vmModule = await this.evaluateModule( module, path, options );
 
-        if ( options.moduleLocalTextSourceOptions?.moduleLinkerCallback !== null ) {
+        if ( options.moduleLocalTextSourceOptions?.moduleLinkerCallback ) {
             await this.linkModule( vmModule, options );
         }
 
@@ -219,6 +225,7 @@ export class Loaders {
                 if ( ! sourceModuleOptions.initializeImportMeta ) {
                     sourceModuleOptions.initializeImportMeta = ( meta, module ) => {
                         meta.url = path;
+                        meta.refererUrl = options.moduleLocalTextSourceOptions.referencingModule.identifier
                     };
                 }
 
