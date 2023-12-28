@@ -7,21 +7,45 @@ import process from "node:process";
 
 import { rollup } from "rollup";
 
+import { createResolvablePromise } from "@zenflux/typescript-vm/utils";
+
 import { zRollupGetPlugins } from "@zenflux/cli/src/core/rollup";
 
 import { console } from "@zenflux/cli/src/modules/console";
+
+import { Package } from "@zenflux/cli/src/modules/npm/package";
 
 import type { OutputOptions, RollupBuild, RollupCache, RollupOptions } from "rollup";
 
 import type { Thread, ThreadHost } from "@zenflux/cli/src/modules/threading/thread";
 
 import type { TZFormatType } from "@zenflux/cli/src/definitions/zenflux";
-import type { TZBuildOptions } from "@zenflux/cli/src/definitions/build";
+import type { TZBuildOptions, TZBuildWorkerOptions } from "@zenflux/cli/src/definitions/build";
+import type { IZConfigInternal } from "@zenflux/cli/src/definitions/config";
+
+// TODO: Avoid unused imports/declarations when loading from worker.
 
 const threads = new Map<number, Thread>();
 
+const waitingThreads = new Map<number, {
+    promise: ReturnType<typeof createResolvablePromise>,
+    dependencies: Record<string, true>,
+}>();
+
+const packagesCache = new Map<string, Package>();
+
 const builders = new Map<string, RollupBuild>();
 
+// TODO: Move to a separate file.
+function getPackage( config: IZConfigInternal ) {
+    if ( ! packagesCache.has( config.path ) ) {
+        packagesCache.set( config.path, new Package( path.dirname( config.path ) ) );
+    }
+
+    return packagesCache.get( config.path )!;
+}
+
+// TODO: Move to a separate file.
 function rollupCompareCaches( prevCache: RollupCache, currentCache: RollupCache ) {
     // Check if the number of modules is the same
     if ( prevCache.modules.length !== currentCache.modules.length ) {
@@ -53,6 +77,7 @@ async function rollupBuildInternal( config: RollupOptions, options: TZBuildOptio
 
     let isBundleChanged = true;
 
+    // TODO: Save cache to disk.
     const builderKey = `${ output.format }-${ output.file ?? output.entryFileNames }`;
 
     const prevBuild = builders.get( builderKey ),
@@ -82,15 +107,75 @@ async function rollupBuildInternal( config: RollupOptions, options: TZBuildOptio
     options.config.onBuiltFormat?.( output.format as TZFormatType );
 }
 
+async function waitForDependencies( options: TZBuildOptions & {
+    thread: number;
+    otherConfigs: IZConfigInternal[]
+}, pkg: Package, config: IZConfigInternal ) {
+    const { zWorkspaceGetWorkspaceDependencies } = await import( "@zenflux/cli/src/core/workspace" );
+
+    if ( options.otherConfigs.length ) {
+        const packagesDependencies = zWorkspaceGetWorkspaceDependencies( {
+            [ pkg.json.name ]: pkg,
+        } );
+
+        if ( Object.keys( packagesDependencies[ pkg.json.name ].dependencies ).length ) {
+            const dependencies = packagesDependencies[ pkg.json.name ].dependencies;
+
+            const availableDependencies: Record<string, true> = {};
+
+            Object.values( options.otherConfigs ).forEach( ( config ) => {
+                const pkg = getPackage( config );
+
+                if ( dependencies[ pkg.json.name ] ) {
+                    availableDependencies[ config.outputName ] = true;
+                }
+            } );
+
+            // TODO: It should favor skipping external dependencies.
+            if ( Object.keys( availableDependencies ).length ) {
+                console.log( `Thread\t${ options.thread }\tPause\t${ util.inspect( config.outputName ) }` );
+
+                const promise = createResolvablePromise();
+
+                waitingThreads.set( options.thread, {
+                    promise,
+                    dependencies: availableDependencies,
+                } );
+
+                await promise.await;
+            }
+        }
+    }
+}
+
+function handleThreadResume( buildPromise: Promise<unknown>, config: IZConfigInternal ) {
+    buildPromise.then( () => {
+        if ( waitingThreads.size === 0 ) {
+            return;
+        }
+
+        waitingThreads.forEach( ( { promise, dependencies }, threadId ) => {
+            if ( dependencies[ config.outputName ] ) {
+                delete dependencies[ config.outputName ];
+            }
+
+            if ( 0 === Object.keys( dependencies ).length ) {
+                waitingThreads.delete( threadId );
+
+                console.verbose( () => `Thread\t${ threadId }\tResume\t${ util.inspect( config.outputName ) }` );
+
+                promise.resolve();
+            }
+        } );
+    } );
+}
+
 export async function zRollupBuildInWorker(
     rollupOptions: RollupOptions[] | RollupOptions,
-    options: TZBuildOptions,
+    config: IZConfigInternal,
     host: ThreadHost,
 ) {
     rollupOptions = ! Array.isArray( rollupOptions ) ? [ rollupOptions ] : rollupOptions;
-
-    const buildOptions = options as TZBuildOptions,
-        config = buildOptions.config;
 
     const linkedRollupOptions = rollupOptions.map( ( rollupOptions ) => {
         const output = rollupOptions.output as OutputOptions;
@@ -108,22 +193,38 @@ export async function zRollupBuildInWorker(
         return rollupOptions;
     } );
 
-    return Promise.all( linkedRollupOptions.map( async ( singleRollupOptions ) => {
+    await Promise.all( linkedRollupOptions.map( async ( singleRollupOptions ) => {
         const output = singleRollupOptions.output as OutputOptions;
+
+        console.verbose( () => `Thread\t${ host.id }\tPrepare\t${ util.inspect( config.outputName ) } format ${ util.inspect( output.format ) } bundle of ${ util.inspect( output.file ?? output.entryFileNames ) }` );
+
+        const promise = rollupBuildInternal( singleRollupOptions, {
+            silent: true,
+            config,
+        } ).catch( ( error ) => {
+            error.cause = config.path;
+
+            throw error;
+        } );
+
+        await promise;
 
         console.log( `Thread\t${ host.id }\tBuild\t${ util.inspect( config.outputName ) } format ${ util.inspect( output.format ) } bundle to ${ util.inspect( output.file ?? output.entryFileNames ) }` );
 
-        await rollupBuildInternal( singleRollupOptions, options );
-
-        console.verbose( () => `Thread\t${ host.id }\tReady\t${ util.inspect( config.outputName ) } format ${ util.inspect( output.format ) } bundle of ${ util.inspect( output.file ?? output.entryFileNames ) }` );
+        // This will ensure `console.log` is flushed.
+        return new Promise( ( resolve ) => {
+            setTimeout( resolve, 0 );
+        } );
     } ) );
 }
 
-async function zRollupCreateBuildWorker( rollupOptions: RollupOptions[], options: TZBuildOptions ) {
+export async function zRollupCreateBuildWorker( rollupOptions: RollupOptions[], options: TZBuildWorkerOptions ) {
     // Plugins cannot be transferred to worker threads, since they are "live" objects/function etc...
     rollupOptions.forEach( ( o ) => {
         delete o.plugins;
     } );
+
+    const { config } = options;
 
     if ( ! threads.has( options.thread as number ) ) {
         const { Thread } = ( await import( "@zenflux/cli/src/modules/threading/thread" ) );
@@ -132,15 +233,17 @@ async function zRollupCreateBuildWorker( rollupOptions: RollupOptions[], options
         const thread = new Thread(
             "Build",
             options.thread!,
-            options.config.outputName,
+            config.outputName,
             zRollupBuildInWorker, [
                 rollupOptions,
-                options
+                options.config,
             ],
         );
 
         threads.set( options.thread as number, thread );
     }
+
+    const pkg = getPackage( config );
 
     const thread = threads.get( options.thread as number );
 
@@ -148,7 +251,13 @@ async function zRollupCreateBuildWorker( rollupOptions: RollupOptions[], options
         throw new Error( "Thread not found." );
     }
 
-    return thread.run();
+    await waitForDependencies( options, pkg, config );
+
+    const buildPromise = thread.run();
+
+    handleThreadResume( buildPromise, config );
+
+    return buildPromise;
 }
 
 export async function zRollupBuild( rollupOptions: RollupOptions[] | RollupOptions, options: TZBuildOptions ) {
@@ -156,17 +265,9 @@ export async function zRollupBuild( rollupOptions: RollupOptions[] | RollupOptio
         rollupOptions = [ rollupOptions ];
     }
 
-    let buildPromise;
-
-    if ( ! options.thread && 0 !== options.thread ) {
-        // No threads.
-        buildPromise = Promise.all(
-            rollupOptions.map( ( rollupOptions ) => rollupBuildInternal( rollupOptions, options ) )
-        );
-    } else {
-        // With threads.
-        buildPromise = zRollupCreateBuildWorker( rollupOptions, options );
-    }
+    const buildPromise = Promise.all(
+        rollupOptions.map( ( rollupOptions ) => rollupBuildInternal( rollupOptions, options ) )
+    );
 
     buildPromise.then( () => {
         options.config.onBuilt?.();
