@@ -40,6 +40,11 @@ export class WorkspaceProvider extends ProviderBase {
     workspaceCache;
 
     /**
+     * @type {Map<string, any>}
+     */
+    packagesCache;
+
+    /**
      * @param {WorkspaceProviderArgs} args
      */
     constructor( args ) {
@@ -68,13 +73,61 @@ export class WorkspaceProvider extends ProviderBase {
         } );
 
         this.workspaceCache = new Map();
+        this.packagesCache = new Map();
 
         // Create paths that will be used later to resolve modules.
         projectsPaths.forEach( ( projectPath ) => {
             const pkg = require( path.resolve( projectPath, "package.json" ) );
 
             this.workspaceCache.set( pkg.name, projectPath );
+            this.packagesCache.set( pkg.name, pkg );
         } );
+    }
+
+    /**
+     * Try to resolve a module using the "exports" field in package.json
+     *
+     * @param {string} packageName - The name of the package
+     * @param {string} modulePath - The path of the module to resolve
+     * @returns {string|null} - The resolved path, or null if it could not be resolved
+     */
+    resolveUsingExports( packageName, modulePath ) {
+        const packagePath = this.workspaceCache.get( packageName );
+        if ( ! packagePath ) {
+            return null;
+        }
+
+        const packageJson = this.packagesCache.get( packageName );
+        if ( ! packageJson?.exports ) {
+            return null;
+        }
+
+        let resolvedPath = null;
+
+        modulePath = modulePath.replace( packageName, "" );
+
+        // If the exports field is an object, we need to find the correct export
+        if ( typeof packageJson.exports === 'object' ) {
+            const keys = Object.keys( packageJson.exports );
+            for ( const key of keys ) {
+                if ( key === modulePath || key === `.${ modulePath }` ) {
+                    resolvedPath = path.join( packagePath,
+                        typeof packageJson.exports[ key ] === 'string' ?
+                            packageJson.exports[ key ] :
+                        packageJson.exports[ key ].default ??
+                        packageJson.exports[ key ].import ??
+                        packageJson.exports[ key ].require
+                    );
+                    break;
+                }
+            }
+        }
+        // If the exports field is a string, it's a catch-all export
+        else if ( typeof packageJson.exports === 'string' ) {
+            return path.join( packagePath, packageJson.exports, modulePath );
+        }
+
+        return this.fileExistsSync( resolvedPath );
     }
 
     async resolve( modulePath, referencingModule, middleware ) {
@@ -92,6 +145,12 @@ export class WorkspaceProvider extends ProviderBase {
             return null;
         }
 
+        // Try to resolve using exports from package.json
+        const resolvedPath = this.resolveUsingExports( packageName, modulePath );
+        if ( resolvedPath ) {
+            return resolvedPath;
+        }
+
         modulePath = modulePath.replace( packageName, this.workspaceCache.get( packageName ) );
 
         /**
@@ -105,7 +164,7 @@ export class WorkspaceProvider extends ProviderBase {
             return this.fileExistsSync( workspaceModulePath );
         }
 
-        for( const ext of this.extensions ) {
+        for ( const ext of this.extensions ) {
             const workspaceModulePath = checkWorkspaceModuleExists.call(
                 this,
                 this.workspacePath,
