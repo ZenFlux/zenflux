@@ -18,9 +18,12 @@ function verbose( id: string, action: string, display: string, message: string )
 export interface ThreadHost {
     name: string;
     id: number;
+    display: string;
 }
 
 export class Thread {
+    private state: "created" | "running" | "idle" | "terminated" | "killed" = "created";
+
     private worker: Worker;
     private errorCallback: Function | undefined;
 
@@ -45,6 +48,7 @@ export class Thread {
 
                 name: this.name,
                 id: this.id,
+                display: this.display,
 
                 args: this.args
             }
@@ -64,12 +68,14 @@ export class Thread {
     }
 
     public async run() {
+        this.state = "running";
         this.worker.postMessage( "run" );
 
         return new Promise( ( resolve ) => {
             this.worker.once( "message", ( [ message, result ] ) => {
                 switch ( message ) {
                     case "done":
+                        this.state = "idle";
                         resolve( result );
                         break;
 
@@ -85,13 +91,20 @@ export class Thread {
 
         return new Promise( ( resolve ) => {
             this.worker.once( "exit", () => {
+                this.state = "terminated";
                 resolve( undefined );
             } );
         } );
     }
 
     public async kill() {
-        return await this.worker.terminate();
+        return await this.worker.terminate().then( () => {
+            this.state = "killed";
+        } );
+    }
+
+    public isIdle() {
+        return this.state === "idle";
     }
 }
 
@@ -104,13 +117,14 @@ if ( workData?.zCliWorkPath === fileURLToPath( import.meta.url ) ) {
 
     const parent = parentPort!;
 
-    const { zCliWork, zCliWorkFunction, name, id } = workData;
+    const { zCliWork, zCliWorkFunction, name, id, display } = workData;
 
     const work = ( await import( zCliWork ) )[ zCliWorkFunction ];
 
     const threadHost: ThreadHost = {
         name,
-        id
+        id,
+        display,
     };
 
     let isWorking = false,

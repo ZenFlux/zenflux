@@ -73,7 +73,9 @@ export abstract class CommandConfigBase extends CommandBase {
             }
         } );
 
-        return Promise.all( promises );
+        await Promise.all( promises );
+
+        return this.configs;
     }
 
     protected getConfigs() {

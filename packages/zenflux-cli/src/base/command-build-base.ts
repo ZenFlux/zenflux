@@ -15,8 +15,6 @@ import { console } from "@zenflux/cli/src/modules/console";
 
 import { Z_CONFIG_DEFAULTS } from "@zenflux/cli/src/definitions/config";
 
-import { zTSConfigRead, zTSPreDiagnostics } from "@zenflux/cli/src/core/typescript";
-
 import type { RollupOptions } from "rollup";
 
 import type { IZConfigInternal } from "@zenflux/cli/src/definitions/config";

@@ -87,9 +87,9 @@ export function zApiExporter( projectPath: string, inputPath: string, outputPath
     } );
 
     if ( logDiagnosticsFile ) {
-        fs.writeFile( logDiagnosticsFile, devDiagnostics.join( "\n" ), () => {
-            console.log( `Api-Extractor diagnostics file: ${ logDiagnosticsFile } is created.` );
-        } );
+        fs.writeFileSync( logDiagnosticsFile, devDiagnostics.join( "\n" ) );
+
+        console.log( `Api-Extractor diagnostics file: ${ logDiagnosticsFile } is created.` );
     }
 
     return result;
