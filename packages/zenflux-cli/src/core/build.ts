@@ -4,11 +4,6 @@
 import util from "node:util";
 import path from "node:path";
 import process from "node:process";
-import fs from "node:fs";
-
-import { fileURLToPath, pathToFileURL } from "node:url";
-
-import { parentPort, Worker, workerData } from "node:worker_threads";
 
 import { rollup } from "rollup";
 
@@ -16,12 +11,14 @@ import { zRollupGetPlugins } from "@zenflux/cli/src/core/rollup";
 
 import { console } from "@zenflux/cli/src/modules/console";
 
-import type { OutputOptions, RollupBuild, RollupOptions , RollupCache } from "rollup";
+import type { OutputOptions, RollupBuild, RollupCache, RollupOptions } from "rollup";
+
+import type { Thread, ThreadHost } from "@zenflux/cli/src/modules/threading/thread";
 
 import type { TZFormatType } from "@zenflux/cli/src/definitions/zenflux";
 import type { TZBuildOptions } from "@zenflux/cli/src/definitions/build";
 
-const workers = new Map<number, Worker>();
+const threads = new Map<number, Thread>();
 
 const builders = new Map<string, RollupBuild>();
 
@@ -59,7 +56,7 @@ async function rollupBuildInternal( config: RollupOptions, options: TZBuildOptio
     const builderKey = `${ output.format }-${ output.file ?? output.entryFileNames }`;
 
     const prevBuild = builders.get( builderKey ),
-        currentBuild = await rollup(  config );
+        currentBuild = await rollup( config );
 
     if ( ! prevBuild ) {
         builders.set( builderKey, currentBuild );
@@ -69,10 +66,8 @@ async function rollupBuildInternal( config: RollupOptions, options: TZBuildOptio
         isBundleChanged = false;
     }
 
-    if ( ! isBundleChanged ) {
-        options.silent || console.log( `Writing - Skip ${ util.inspect( output.format ) } bundle of ${ util.inspect( output.file ?? output.entryFileNames ) }` );
-
-        return;
+    if ( ! options.silent && ! isBundleChanged ) {
+        console.log( `Writing - Skip ${ util.inspect( output.format ) } bundle of ${ util.inspect( output.file ?? output.entryFileNames ) }` );
     }
 
     const startTime = Date.now(),
@@ -87,15 +82,14 @@ async function rollupBuildInternal( config: RollupOptions, options: TZBuildOptio
     options.config.onBuiltFormat?.( output.format as TZFormatType );
 }
 
-function zRollupBuildInWorker() {
-    if ( ! workerData.options.thread && 0 !== workerData.options.thread ) {
-        throw new Error( "Thread options not found." );
-    }
+export async function zRollupBuildInWorker(
+    rollupOptions: RollupOptions[] | RollupOptions,
+    options: TZBuildOptions,
+    host: ThreadHost,
+) {
+    rollupOptions = ! Array.isArray( rollupOptions ) ? [ rollupOptions ] : rollupOptions;
 
-    const id = workerData.options.thread,
-        rollupOptions: RollupOptions[] = ! Array.isArray( workerData.rollupOptions ) ?
-            [ workerData.rollupOptions ] : workerData.rollupOptions,
-        buildOptions = workerData.options as TZBuildOptions,
+    const buildOptions = options as TZBuildOptions,
         config = buildOptions.config;
 
     const linkedRollupOptions = rollupOptions.map( ( rollupOptions ) => {
@@ -114,106 +108,47 @@ function zRollupBuildInWorker() {
         return rollupOptions;
     } );
 
-    // Waiting for the parent to send a message.
-    parentPort?.on( "message", async ( message ) => {
-        switch ( message ) {
-            case "run":
-                const buildRequest = async () => {
-                    console.verbose( () => `Thread\t${ id }\tRun\t${ util.inspect( config.outputName ) }` );
+    return Promise.all( linkedRollupOptions.map( async ( singleRollupOptions ) => {
+        const output = singleRollupOptions.output as OutputOptions;
 
-                    return Promise.all( linkedRollupOptions.map( async ( singleRollupOptions ) => {
-                        const output = singleRollupOptions.output as OutputOptions;
+        console.log( `Thread\t${ host.id }\tBuild\t${ util.inspect( config.outputName ) } format ${ util.inspect( output.format ) } bundle to ${ util.inspect( output.file ?? output.entryFileNames ) }` );
 
-                        console.log( `Thread\t${ id }\tBuild\t${ util.inspect( config.outputName ) } format ${ util.inspect( output.format ) } bundle to ${ util.inspect( output.file ?? output.entryFileNames ) }` );
+        await rollupBuildInternal( singleRollupOptions, options );
 
-                        try {
-                            await rollupBuildInternal( singleRollupOptions, workerData.options );
-                        } catch ( error ) {
-                            parentPort?.postMessage( {
-                                __ERROR_WORKER_INTERNAL__: true,
-                                error: {
-                                    ... JSON.parse( JSON.stringify( error ) ),
-                                    message: ( error as Error ).message,
-                                    stack: ( error as Error ).stack
-                                },
-                                config: config.path
-                            } );
-                        }
-
-                        console.verbose( () => `Thread\t${ id }\tReady\t${ util.inspect( config.outputName ) } format ${ util.inspect( output.format ) } bundle of ${ util.inspect( output.file ?? output.entryFileNames ) }` );
-                    } ) );
-                };
-
-                await buildRequest();
-
-                console.verbose( () => `Thread\t${ id }\tDone\t${ util.inspect( config.outputName ) }` );
-
-                // Ensuring that console.log is flushed.
-                setTimeout( () => {
-                    parentPort?.postMessage( "done" );
-                } );
-
-                break;
-
-            default:
-                throw new Error( `Unknown message: ${ message }` );
-        }
-    } );
+        console.verbose( () => `Thread\t${ host.id }\tReady\t${ util.inspect( config.outputName ) } format ${ util.inspect( output.format ) } bundle of ${ util.inspect( output.file ?? output.entryFileNames ) }` );
+    } ) );
 }
 
 async function zRollupCreateBuildWorker( rollupOptions: RollupOptions[], options: TZBuildOptions ) {
-    // Since worker do not need to load it, it can't be in top level.
-    const { zGlobalPathsGet } = ( await import( "@zenflux/cli/src/core/global" ) );
-
     // Plugins cannot be transferred to worker threads, since they are "live" objects/function etc...
     rollupOptions.forEach( ( o ) => {
         delete o.plugins;
     } );
 
-    // Await for the worker to finish.
-    return new Promise( ( resolve ) => {
-        // Run zenflux `tsnode-vm` in the worker thread.
-        if ( ! workers.has( options.thread as number ) ) {
-            console.verbose( () => `Thread\t${ options.thread }\tStart\t${ util.inspect( options.config.outputName ) }` );
+    if ( ! threads.has( options.thread as number ) ) {
+        const { Thread } = ( await import( "@zenflux/cli/src/modules/threading/thread" ) );
 
-            const worker = new Worker( pathToFileURL( zGlobalPathsGet().cli ), {
-                argv: process.argv,
-                workerData: {
-                    zCliWorkPath: fileURLToPath( import.meta.url ),
+        // Create a new thread.
+        const thread = new Thread(
+            "Build",
+            options.thread!,
+            options.config.outputName,
+            zRollupBuildInWorker, [
+                rollupOptions,
+                options
+            ],
+        );
 
-                    rollupOptions: rollupOptions,
+        threads.set( options.thread as number, thread );
+    }
 
-                    options
-                },
-            } );
+    const thread = threads.get( options.thread as number );
 
-            workers.set( options.thread as number, worker );
-        }
+    if ( ! thread ) {
+        throw new Error( "Thread not found." );
+    }
 
-        const worker = workers.get( options.thread as number ) as Worker;
-
-        worker.once( "message", ( message ) => {
-            switch ( message ) {
-                case "done":
-                    resolve( undefined );
-                    break;
-
-                default:
-                    if ( message.__ERROR_WORKER_INTERNAL__ ) {
-                        const { error } = message;
-
-                        error.cause = message.config;
-
-                        console.error( "\n" + util.inspect( error ) );
-                        process.exit( 1 );
-                    }
-
-                    throw new Error( `Unknown message: ${ message }` );
-            }
-        } );
-
-        worker.postMessage( "run" );
-    } );
+    return thread.run();
 }
 
 export async function zRollupBuild( rollupOptions: RollupOptions[] | RollupOptions, options: TZBuildOptions ) {
@@ -238,8 +173,4 @@ export async function zRollupBuild( rollupOptions: RollupOptions[] | RollupOptio
     } );
 
     return buildPromise;
-}
-
-if ( workerData?.zCliWorkPath ) {
-    zRollupBuildInWorker();
 }
