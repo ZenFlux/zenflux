@@ -27,6 +27,14 @@ export function getAbsoluteOrRelativePath(path: string, relative?: string): stri
  */
 export function createResolvablePromise(): {
     promise: Promise<any>;
+    await: Promise<any>;
+
+    isPending: boolean;
+    isRejected: boolean;
+    isFulfilled: boolean;
+
+    resolve: (value?: any) => void;
+    reject: (reason?: any) => void;
 };
 
 /**

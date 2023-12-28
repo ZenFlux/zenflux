@@ -11,6 +11,7 @@ declare global {
     type zVmModule = SyntheticModule | SourceTextModule;
 
     interface zVmModuleLocalTextSourceOptions {
+        referencingModule: Module;refererUrl
         moduleImportMeta?: ReturnType<SourceTextModuleOptions["initializeImportMeta"]>
         moduleImportDynamically?: ReturnType<SourceTextModuleOptions["importModuleDynamically"]>
         moduleLinkerCallback?: ModuleLinker | null;
@@ -29,5 +30,6 @@ declare global {
     }
 
     function zVmResolverMiddlewareCallback( request: zVmResolverRequest ): void;
-}
 
+
+}

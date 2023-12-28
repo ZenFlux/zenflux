@@ -1,0 +1,8 @@
+{
+    "compilerOptions": {
+        "baseUrl": "."
+    },
+    "files": [
+        "./types/import-meta.d.ts"
+    ]
+}

@@ -26,14 +26,19 @@ const runInjection = {
     code: "",
 };
 
-const injectedChunks = new Map<string, boolean>();
-
 function isNodeTopLevelAwait( ast: Program, node: Statement | ModuleDeclaration ) {
     if ( node.type === "VariableDeclaration" && node.kind === "var" ) {
         // Check if the variable declaration contains an await expression and is not inside a function
         return node.declarations.some( ( declaration ) => {
             return declaration.init && declaration.init.type === "AwaitExpression";
         } );
+    } else if ( node.type === "ExportNamedDeclaration" ) {
+        if ( node.declaration && node.declaration.type === "VariableDeclaration" && node.declaration.kind === "const" ) {
+            // Check if the variable declaration contains an await expression and is not inside a function
+            return node.declaration.declarations.some( ( declaration ) => {
+                return declaration.init && declaration.init.type === "AwaitExpression";
+            } );
+        }
     }
 
     return false;
@@ -47,6 +52,16 @@ function hasTopLevelAwait( ast: Program ) {
     }
 
     return false;
+}
+
+function generateRandomString( length = 10 ) {
+    let result = "";
+    let characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
+    let charactersLength = characters.length;
+    for (let i = 0; i < length; i++) {
+        result += characters.charAt(Math.floor(Math.random() * charactersLength));
+    }
+    return result;
 }
 
 export default function zRollupCjsAsyncWrapPlugin( args: IPluginArgs ): Plugin {
@@ -79,7 +94,10 @@ export default function zRollupCjsAsyncWrapPlugin( args: IPluginArgs ): Plugin {
             if ( hasTopLevelAwait( ast ) ) {
                 const magicString: MagicStringType = new MagicString( code );
 
+                magicString.prependLeft( ast.body[0].start, "\n" );
+
                 ast.body.forEach( ( node ) => {
+                    // TODO: Remove `isNodeTopLevelAwait`
                     if ( isNodeTopLevelAwait( ast, node ) ) {
                         // Declare variable contains an await expression
                         if ( node.type === "VariableDeclaration" ) {
@@ -92,13 +110,32 @@ export default function zRollupCjsAsyncWrapPlugin( args: IPluginArgs ): Plugin {
                                 magicString.snip( node.start, node.end ).toString().replace("var", "") + "\n" +
                                 `}, ${ node.start } );`
                             );
+                        } else if ( node.type === "ExportNamedDeclaration" ) {
+                            if ( node.declaration && node.declaration.type === "VariableDeclaration" ) {
+                                const originalCode = magicString.snip( node.start, node.end ).toString();
+
+                                const refName = generateRandomString() + "_tempTopLevelAwait",
+                                    vars = node.declaration.declarations[0].id.properties.map( p => p.key.name );
+
+                                magicString.prependLeft( node.start - 1, "\n" );
+                                magicString.prependLeft( node.start, `const ${ refName } = { ${ vars.join( ": undefined, ") }: undefined };\n\n` );
+
+                                magicString.overwrite( node.start, node.end,
+                                    "globalThis.__Z_CJS_WARP__.zRollupCjsAsyncWrap( async() => {\n" +
+                                    originalCode.replace( "export", "    ") + "\n" +
+                                    `${ vars.map( v => `    ${ "exports" }.${ v } = ${ v };`).join("\n") }\n` +
+                                    `}, ${ node.start } );\n`
+                                );
+
+                                magicString.append( `export const { ${ vars.join( ", " ) } } = ${ refName };` );
+                            }
                         }
                     }
                 } );
 
                 return {
                     code: magicString.toString(),
-                    map: args.sourcemap ? magicString.generateMap() : null,
+                    map: args.sourcemap ? magicString.generateMap( { hires: true } ) : null,
                 };
             }
 
@@ -115,7 +152,7 @@ export default function zRollupCjsAsyncWrapPlugin( args: IPluginArgs ): Plugin {
 
                 return {
                     code: magicString.toString(),
-                    map: args.sourcemap ? magicString.generateMap() : null,
+                    map: args.sourcemap ? magicString.generateMap( { hires: true } ) : null,
                 };
             }
         }

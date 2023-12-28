@@ -214,13 +214,13 @@ const initialize = async () => {
                         }
 
 
-                        return loaders.loadModule( modulePath, type, linker );
+                        return loaders.loadModule( modulePath, type, referencingModule,linker );
                     }
 
                     throw new Error( `Module not found: ${ util.inspect( modulePath ) } referer ${ util.inspect( referencingModule.identifier ) }` );
                 }
 
-                loaders.loadModule( entrypointPath, "esm", linker )
+                loaders.loadModule( entrypointPath, "esm", import.meta.url, linker )
                     .then( resolve )
                     .catch( reject );
             } );

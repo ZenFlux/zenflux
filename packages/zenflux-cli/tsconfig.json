@@ -1,16 +1,23 @@
 {
     // Extends the configuration from "./tsconfig.paths.json"
-    "extends": "./tsconfig.paths.json",
+    "extends": [
+        "./tsconfig.paths.json",
+        // Extends `import.meta`
+        "@zenflux/typescript-vm/tsconfig.import-meta.json"
+    ],
 
     // Compiler options
     "compilerOptions": {
         "lib": [
             "ESNext"
         ],
-
+        "typeRoots": [
+            "../../node_modules/@types",
+            "../../node_modules"
+        ],
         "types": [
             "node",
-            "bun-types"
+            "bun-types",
         ],
 
         // Specifies the ECMAScript version to transpile to (e.g., ESNext)
@@ -22,6 +29,7 @@
         // Defines how TypeScript resolves module import paths (Node.js style)
         "moduleResolution": "bundler",
 
+        // Enable JSON file import
         "resolveJsonModule": true,
 
         // Generates declaration files (.d.ts) without emitting JavaScript files

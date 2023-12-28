@@ -51,7 +51,7 @@ interface IConfigArgsGeneral {
         };
     }
 
-    // Dts probably built once, since it's not format dependent
+    // Dts probably built once, since it's not format dependent - TODO: Use tsconfig.json
     inputDtsPath?: string;
     outputDtsPath?: string;
 

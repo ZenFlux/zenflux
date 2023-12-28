@@ -2,6 +2,10 @@ import type { IZConfigInternal } from "@zenflux/cli/src/definitions/config";
 
 export type TZBuildOptions = {
     silent?: boolean;
-    thread?: number,
-    config: IZConfigInternal
+    config: IZConfigInternal,
+}
+
+export type TZBuildWorkerOptions = TZBuildOptions & {
+    thread: number,
+    otherConfigs: IZConfigInternal[],
 }

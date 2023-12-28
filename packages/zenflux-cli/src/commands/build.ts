@@ -11,7 +11,7 @@ import { CommandBuildBase } from "@zenflux/cli/src/base/command-build-base";
 
 import { console } from "@zenflux/cli/src/modules/console";
 
-import { zRollupBuild } from "@zenflux/cli/src/core/build";
+import { zRollupBuild, zRollupCreateBuildWorker } from "@zenflux/cli/src/core/build";
 
 import type { TZBuildOptions } from "@zenflux/cli/src/definitions/build";
 
@@ -23,6 +23,8 @@ const DEFAULT_MIN_SINGLE_BUILD_CONFIGS = 3;
 export default class Build extends CommandBuildBase {
 
     public async run() {
+        let threadsBeingUsed = false;
+
         const configs = this.getConfigs(),
             configsPaths = this.getConfigsPaths();
 
@@ -35,23 +37,35 @@ export default class Build extends CommandBuildBase {
             } );
         } );
 
+        const promises: Promise<any>[] = [];
+
         for ( const config of configs ) {
             console.log( `Building - '${ config.path }'` );
 
             const rollupConfig = this.getRollupConfig( config );
 
-            const options: TZBuildOptions = {
-                config,
-            };
+            const options: TZBuildOptions = { config };
+
+            let promise;
 
             if ( configs.length > DEFAULT_MIN_SINGLE_BUILD_CONFIGS ) {
-                options.thread = configs.indexOf( config );
+                threadsBeingUsed = true;
+
+                promise = zRollupCreateBuildWorker( rollupConfig, {
+                    ... options,
+                    thread: configs.indexOf( config ),
+                    otherConfigs: configs.filter( ( c ) => c !== config ),
+                } );
+            } else {
+                promise = zRollupBuild( rollupConfig, options );
             }
 
-            await zRollupBuild( rollupConfig, options );
+            promise.then( () => config.onBuilt?.() );
 
-            config.onBuilt?.();
+            promises.push( promise );
         }
+
+        await Promise.all( promises );
 
         configsPaths.forEach( ( configPath ) => {
             console.log( `Creating declaration files for '${ configPath }'` );
@@ -64,6 +78,13 @@ export default class Build extends CommandBuildBase {
 
             this.tryUseApiExtractor( config );
         } );
+
+        console.log( "Done" );
+
+        // Since we are using threads, they are not exiting automatically.
+        if ( threadsBeingUsed ) {
+            process.exit( 0 );
+        }
     }
 
     public showHelp( name: string ) {

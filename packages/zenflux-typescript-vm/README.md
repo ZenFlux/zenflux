@@ -78,9 +78,7 @@ vm.tap( async ( vm ) => {
         loaders = new Loaders( vm );
 
     await vm.auto( vm.config.paths.project + "/src/boot.ts", loaders, resolvers ).catch( ( err, f ) => {
-        // Find better way to handle this.
-        console.error( `Error:`, err );
-        process.exit( 1 );
+        throw err;
     } );
 } );
 ```
