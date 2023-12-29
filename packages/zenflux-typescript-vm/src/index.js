@@ -220,7 +220,7 @@ const initialize = async () => {
                     throw new Error( `Module not found: ${ util.inspect( modulePath ) } referer ${ util.inspect( referencingModule.identifier ) }` );
                 }
 
-                loaders.loadModule( entrypointPath, "esm", import.meta.url, linker )
+                loaders.loadModule( entrypointPath, "esm", null , linker )
                     .then( resolve )
                     .catch( reject );
             } );
@@ -256,3 +256,4 @@ export const vm = {
 initialize()
     .then( vmLoaded => Object.assign( vm, vmLoaded ) )
     .then( initializePromise.resolve );
+

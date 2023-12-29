@@ -17,6 +17,7 @@ export class Loaders {
     constructor( vm ) {
         this.vm = vm;
 
+        this.moduleRefererCache = new Map();
         this.moduleCache = new Map();
         this.modulePrepareCache = new Map();
 
@@ -73,7 +74,7 @@ export class Loaders {
     async loadModuleWithOptions( path, type, options ) {
         let module;
 
-        const id = this.getModuleId( path, type );
+        const id = this.getModuleId( path, type, options );
 
         /**
          * TODO: Find better solution for this
@@ -107,8 +108,6 @@ export class Loaders {
                 break;
 
             case "esm":
-                const url = path.startsWith( "file://" ) ? path : "file://" + path;
-
                 /**
                  * @type {zVmModuleEvaluateOptions}
                  */
@@ -120,7 +119,7 @@ export class Loaders {
                     evalOptions.moduleLocalTextSourceOptions = options;
                 }
 
-                module = await this.sanitizeModule( module, url, evalOptions );
+                module = await this.sanitizeModule( module, path, evalOptions );
                 break;
 
             default:
@@ -224,8 +223,15 @@ export class Loaders {
 
                 if ( ! sourceModuleOptions.initializeImportMeta ) {
                     sourceModuleOptions.initializeImportMeta = ( meta, module ) => {
-                        meta.url = path;
-                        meta.refererUrl = options.moduleLocalTextSourceOptions.referencingModule.identifier
+                        meta.url = path.startsWith( "file://" ) ? path : "file://" + path;
+
+                        const referer = options.moduleLocalTextSourceOptions?.referencingModule?.identifier;
+
+                        if ( referer ) {
+                            meta.refererUrl = referer.startsWith( "file://" ) ? referer : "file://" + referer;
+
+                            this.moduleRefererCache.set( meta.url, meta.refererUrl );
+                        }
                     };
                 }
 
@@ -342,9 +348,23 @@ export class Loaders {
         return result;
     }
 
-    getModuleId( path, type ) {
-        const factor = "node" === type && ! isAbsolute( path ) ?
+    /**
+     * Calculates the module ID using the given path and type.
+     *
+     * @param {string} path - The path of the file or module.
+     * @param {string} type - The type of the module.
+     * @param {zVmModuleLocalTextSourceOptions} options
+     *
+     * @return {string} The calculated module ID.
+     */
+    getModuleId( path, type, options ) {
+        let factor = "node" === type && ! isAbsolute( path ) ?
             path : fs.readFileSync( path );
+
+        // To generate new import.meta
+        if ( "esm" === type && this.moduleRefererCache.has( "file://" + path ) ) {
+            factor += checksum( this.moduleRefererCache.get( "file://" + path ) );
+        }
 
         return checksum( factor );
     }
