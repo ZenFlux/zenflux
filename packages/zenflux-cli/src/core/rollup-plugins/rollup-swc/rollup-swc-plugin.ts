@@ -1,13 +1,13 @@
 import util from "node:util";
 import fs from "node:fs";
 
-import { convertTsConfig } from "@zenflux/tsconfig-to-swc";
-
 import swc from "@swc/core";
 
-import type { IPluginArgs } from "@zenflux/cli/src/definitions/rollup";
+import { convertTsConfig } from "@zenflux/tsconfig-to-swc";
 
-import type { Plugin } from "rollup";
+import type { Plugin, RollupCache } from "rollup";
+
+import type { IPluginArgs } from "@zenflux/cli/src/definitions/rollup";
 
 export default function zRollupSwcPlugin( args: Required<IPluginArgs> ): Plugin {
     const swcOptions = convertTsConfig( args.tsConfig, {
@@ -80,3 +80,18 @@ export default function zRollupSwcPlugin( args: Required<IPluginArgs> ): Plugin 
         },
     };
 };
+
+export function zRollupSwcCompareCaches( prevCache: RollupCache, currentCache: RollupCache ) {
+    // Check if the number of modules is the same
+    if ( prevCache.modules.length !== currentCache.modules.length ) {
+        return false;
+    }
+
+    function getZenFluxSwcPluginChecksum( cache: RollupCache ) {
+        return Object.values( cache.plugins![ "z-rollup-swc-plugin" ] ?? [] ).reduce( ( acc, record ) => {
+            return acc + ( record[ 1 ]?.lastModified || Math.random() );
+        }, 0 );
+    }
+
+    return getZenFluxSwcPluginChecksum( prevCache ) === getZenFluxSwcPluginChecksum( currentCache );
+}

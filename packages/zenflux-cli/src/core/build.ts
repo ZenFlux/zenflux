@@ -11,19 +11,20 @@ import { createResolvablePromise } from "@zenflux/typescript-vm/utils";
 
 import { zRollupGetPlugins } from "@zenflux/cli/src/core/rollup";
 
+import { zRollupSwcCompareCaches } from "@zenflux/cli/src/core/rollup-plugins/rollup-swc/rollup-swc-plugin";
+
+import { zGetPackageByConfig } from "@zenflux/cli/src/utils/common";
+
 import { console } from "@zenflux/cli/src/modules/console";
 
-import { Package } from "@zenflux/cli/src/modules/npm/package";
+import type { OutputOptions, RollupBuild, RollupOptions } from "rollup";
 
-import type { OutputOptions, RollupBuild, RollupCache, RollupOptions } from "rollup";
-
+import type { Package } from "@zenflux/cli/src/modules/npm/package";
 import type { Thread, ThreadHost } from "@zenflux/cli/src/modules/threading/thread";
 
 import type { TZFormatType } from "@zenflux/cli/src/definitions/zenflux";
 import type { TZBuildOptions, TZBuildWorkerOptions } from "@zenflux/cli/src/definitions/build";
 import type { IZConfigInternal } from "@zenflux/cli/src/definitions/config";
-
-// TODO: Avoid unused imports/declarations when loading from worker.
 
 const threads = new Map<number, Thread>();
 
@@ -32,34 +33,7 @@ const waitingThreads = new Map<number, {
     dependencies: Record<string, true>,
 }>();
 
-const packagesCache = new Map<string, Package>();
-
 const builders = new Map<string, RollupBuild>();
-
-// TODO: Move to a separate file.
-function getPackage( config: IZConfigInternal ) {
-    if ( ! packagesCache.has( config.path ) ) {
-        packagesCache.set( config.path, new Package( path.dirname( config.path ) ) );
-    }
-
-    return packagesCache.get( config.path )!;
-}
-
-// TODO: Move to a separate file.
-function rollupCompareCaches( prevCache: RollupCache, currentCache: RollupCache ) {
-    // Check if the number of modules is the same
-    if ( prevCache.modules.length !== currentCache.modules.length ) {
-        return false;
-    }
-
-    function getZenFluxSwcPluginChecksum( cache: RollupCache ) {
-        return Object.values( cache.plugins![ "z-rollup-swc-plugin" ] ?? [] ).reduce( ( acc, record ) => {
-            return acc + ( record[ 1 ]?.lastModified || Math.random() );
-        }, 0 );
-    }
-
-    return getZenFluxSwcPluginChecksum( prevCache ) === getZenFluxSwcPluginChecksum( currentCache );
-}
 
 async function rollupBuildInternal( config: RollupOptions, options: TZBuildOptions ) {
     const output = config.output as OutputOptions;
@@ -85,7 +59,7 @@ async function rollupBuildInternal( config: RollupOptions, options: TZBuildOptio
 
     if ( ! prevBuild ) {
         builders.set( builderKey, currentBuild );
-    } else if ( ! rollupCompareCaches( prevBuild.cache!, currentBuild.cache! ) ) {
+    } else if ( ! zRollupSwcCompareCaches( prevBuild.cache!, currentBuild.cache! ) ) {
         builders.set( builderKey, currentBuild );
     } else {
         isBundleChanged = false;
@@ -107,10 +81,7 @@ async function rollupBuildInternal( config: RollupOptions, options: TZBuildOptio
     options.config.onBuiltFormat?.( output.format as TZFormatType );
 }
 
-async function waitForDependencies( options: TZBuildOptions & {
-    thread: number;
-    otherConfigs: IZConfigInternal[]
-}, pkg: Package, config: IZConfigInternal ) {
+async function waitForDependencies( options: TZBuildWorkerOptions, pkg: Package, config: IZConfigInternal ) {
     const { zWorkspaceGetWorkspaceDependencies } = await import( "@zenflux/cli/src/core/workspace" );
 
     if ( options.otherConfigs.length ) {
@@ -124,7 +95,7 @@ async function waitForDependencies( options: TZBuildOptions & {
             const availableDependencies: Record<string, true> = {};
 
             Object.values( options.otherConfigs ).forEach( ( config ) => {
-                const pkg = getPackage( config );
+                const pkg = zGetPackageByConfig( config );
 
                 if ( dependencies[ pkg.json.name ] ) {
                     availableDependencies[ config.outputName ] = true;
@@ -243,7 +214,7 @@ export async function zRollupCreateBuildWorker( rollupOptions: RollupOptions[], 
         threads.set( options.thread as number, thread );
     }
 
-    const pkg = getPackage( config );
+    const pkg = zGetPackageByConfig( config );
 
     const thread = threads.get( options.thread as number );
 

@@ -6,11 +6,11 @@ import path from "node:path";
 import fs from "node:fs";
 import util from "node:util";
 
+import { getMatchingPathsRecursive } from "@zenflux/typescript-vm/utils";
+
 import { console } from "@zenflux/cli/src/modules/console";
 
 import { Package } from "@zenflux/cli/src/modules/npm/package";
-
-import { getMatchingPathsRecursive } from "@zenflux/cli/src/utils/path";
 
 import type { TNewPackageOptions, TPackageDependencies, TPackages } from "@zenflux/cli/src/modules/npm/package";
 
