@@ -12,15 +12,19 @@ import path from "node:path";
 
 import chokidar from "chokidar";
 
-import { zTSConfigRead, zTSPreDiagnostics } from "@zenflux/cli/src/core/typescript";
+import {
+    zTSConfigRead,
+    zTSCreateDeclarationWorker,
+    zTSCreateDiagnosticWorker,
+} from "@zenflux/cli/src/core/typescript";
+
+import { zRollupCreateBuildWorker } from "@zenflux/cli/src/core/build";
+
+import { zGlobalPathsGet } from "@zenflux/cli/src/core/global";
 
 import { CommandBuildBase } from "@zenflux/cli/src/base/command-build-base";
 
 import { console } from "@zenflux/cli/src/modules/console";
-
-import { zGlobalPathsGet } from "@zenflux/cli/src/core/global";
-
-import { zRollupBuild } from "@zenflux/cli/src/core/build";
 
 import type { RollupOptions } from "rollup";
 
@@ -51,6 +55,7 @@ export default class Watch extends CommandBuildBase {
             ignored: [
                 "**/node_modules/**",
                 "**/dist/**",
+                "**/*.log",
                 ( s ) => s.split( "/" ).some( ( i ) => i.startsWith( "." ) ),
             ],
             persistent: true
@@ -62,6 +67,8 @@ export default class Watch extends CommandBuildBase {
 
         let totalBuildTime = 0,
             builtOnce = false;
+
+        console.log("Starting watcher ..." );
 
         // Create build request with thread per config.
         for ( const config of configs ) {
@@ -100,10 +107,45 @@ export default class Watch extends CommandBuildBase {
         }
     }
 
-    protected onBuiltAll( configs: IZConfigInternal[] ) {
-        configs.forEach( ( config ) => {
-            zTSPreDiagnostics(zTSConfigRead( null, path.dirname( config.path ) ), {
+    protected async onBuiltAll( configs: IZConfigInternal[] ) {
+        const uniqueConfigs = configs.filter( ( config, index, self ) => {
+            // Should filter duplicate config.paths.
+            return index === self.findIndex( ( c ) => {
+                return c.path === config.path;
+            } );
+        } );
+
+        const passedConfigs: Record<number, IZConfigInternal> = {};
+
+        await Promise.all( uniqueConfigs.map( async ( config ) => {
+            const id = uniqueConfigs.indexOf( config );
+
+            console.log( `Diagnostic\t${ id }\tSend\t${ util.inspect( config.outputName ) }` );
+
+            const promise = zTSCreateDiagnosticWorker( zTSConfigRead( null, path.dirname( config.path ) ), {
                 useCache: false,
+                thread: id
+            } );
+
+            await ( promise as Promise<any> ).then( ( result ) => {
+                if ( result ) {
+                    passedConfigs[ id ] = config;
+                }
+                console.log( `Diagnostic\t${ id }\tRecv\t${ util.inspect( config.outputName ) }` );
+            } );
+        } ) );
+
+        Object.entries( passedConfigs ).forEach( ( [ id, config ] ) => {
+            console.log( `Declaration\t${ id }\tSend\t${ util.inspect( config.outputName ) }` );
+
+            const result = zTSCreateDeclarationWorker( zTSConfigRead( null, path.dirname( config.path ) ), {
+                thread: Number( id )
+            } );
+
+            ( result as Promise<any> ).then( () => {
+                console.log( `Declaration\t${ id }\tRecv\t${ util.inspect( config.outputName ) }` );
+
+                this.tryUseApiExtractor( config );
             } );
         } );
     }
@@ -130,7 +172,12 @@ export default class Watch extends CommandBuildBase {
             }
         };
 
-        const build = zRollupBuild.bind( null, rollupOptions, { silent: true, config, thread: id } );
+        const build = zRollupCreateBuildWorker.bind( null, rollupOptions, {
+            silent: true,
+            config,
+            thread: id,
+            otherConfigs: this.getConfigs().filter( ( c ) => c !== config )
+        } );
 
         const buildCallback = async () => {
             callbacks.onWorkerStart( id );

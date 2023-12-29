@@ -1,9 +1,12 @@
-export type TZPreDiagnosticsArgs = {
+export type TZPreDiagnosticsOptions = {
     useCache?: boolean,
     haltOnError?: boolean,
-    thread?: number,
 }
 
-export type TZCreateDeclarationArgs = {
-    thread?: number,
+export type TZPreDiagnosticsWorkerOptions = TZPreDiagnosticsOptions & {
+    thread: number,
+}
+
+export type TZCreateDeclarationWorkerOptions = {
+    thread: number,
 }

@@ -203,7 +203,7 @@ export async function zRollupCreateBuildWorker( rollupOptions: RollupOptions[], 
         // Create a new thread.
         const thread = new Thread(
             "Build",
-            options.thread!,
+            options.thread,
             config.outputName,
             zRollupBuildInWorker, [
                 rollupOptions,

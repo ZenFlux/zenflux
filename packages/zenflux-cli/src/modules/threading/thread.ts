@@ -119,7 +119,16 @@ if ( workData?.zCliWorkPath === fileURLToPath( import.meta.url ) ) {
 
     const { zCliWork, zCliWorkFunction, name, id, display } = workData;
 
-    const work = ( await import( zCliWork ) )[ zCliWorkFunction ];
+    const workModule = ( await import( zCliWork ) );
+
+    if ( ! workModule[ zCliWorkFunction ] ) {
+        throw new Error( `Function ${ util.inspect( zCliWorkFunction ) } ` +
+            `not found in ${ util.inspect( zCliWork ) } ` +
+            `thread ${ util.inspect( name ) }: ${ util.inspect( id ) }`
+        );
+    }
+
+    const workFunction = workModule[ zCliWorkFunction ];
 
     const threadHost: ThreadHost = {
         name,
@@ -131,6 +140,8 @@ if ( workData?.zCliWorkPath === fileURLToPath( import.meta.url ) ) {
         isRequestedToTerminate = false;
 
     function terminate() {
+        verbose( id.toString(), "Exit", display,"" );
+
         process.exit( 0 );
     }
 
@@ -138,7 +149,7 @@ if ( workData?.zCliWorkPath === fileURLToPath( import.meta.url ) ) {
         switch ( message ) {
             case "run":
                 isWorking = true;
-                const result = work.call( null, ... workData.args, threadHost );
+                const result = workFunction.call( null, ... workData.args, threadHost );
                 isWorking = false;
 
                 if ( result instanceof Promise ) {
