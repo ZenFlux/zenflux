@@ -12,6 +12,8 @@ import path from "node:path";
 
 import chokidar from "chokidar";
 
+import { zDebounce } from "@zenflux/cli/src/utils/timers";
+
 import {
     zTSConfigRead,
     zTSCreateDeclarationWorker,
@@ -31,16 +33,6 @@ import type { RollupOptions } from "rollup";
 import type { IZConfigInternal } from "@zenflux/cli/src/definitions/config";
 
 const DEFAULT_ON_CHANGE_DELAY = 2000;
-
-const timers: {
-    [ key: string ]: NodeJS.Timeout
-} = {};
-
-const debounce = ( id: string, fn: () => void, delay: number ) => {
-    clearTimeout( timers[ id ] );
-
-    timers[ id ] = setTimeout( () => fn(), delay );
-};
 
 const buildTimePerThread = new Map();
 
@@ -195,7 +187,7 @@ export default class Watch extends CommandBuildBase {
             watcher.on( "change", function ( path ) {
                 console.verbose( () => `Watcher\t${ id }\tChanges\t${ util.inspect( config.outputName ) } at ${ util.inspect( path ) }` );
 
-                debounce( `__WATCHER__${ id }__`, () => {
+                zDebounce( `__WATCHER__${ id }__`, () => {
                     buildCallback();
                 }, DEFAULT_ON_CHANGE_DELAY );
             } );
