@@ -1,4 +1,4 @@
-#!/usr/bin/env node --unhandled-rejections=strict --experimental-vm-modules --trace-uncaught --no-warnings
+#!/usr/bin/env DEV=true node --unhandled-rejections=strict --experimental-vm-modules --trace-uncaught --no-warnings
 import path from "node:path";
 
 import { fileURLToPath } from "node:url";
@@ -24,7 +24,9 @@ const vmContext = {
 
     fetch,
     setTimeout,
+    setInterval,
     clearTimeout,
+    clearInterval
 };
 
 Object.defineProperty( vmContext, "console", {
@@ -44,7 +46,7 @@ vm.defineConfig( {
 
     vmContext,
 
-    extensions: [ ".ts", ".json" ],
+    extensions: [ ".ts", ".tsx", ".json" ],
 
     useSwc: true,
 

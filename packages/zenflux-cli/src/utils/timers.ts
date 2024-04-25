@@ -8,5 +8,9 @@ const zDebounceTimers: {
 export function zDebounce( id: string, fn: () => void, delay: number ) {
     clearTimeout( zDebounceTimers[ id ] );
 
-    zDebounceTimers[ id ] = setTimeout( () => fn(), delay );
+    zDebounceTimers[ id ] = setTimeout( () => {
+        delete zDebounceTimers[ id ];
+
+        fn();
+    }, delay );
 };
