@@ -4,9 +4,9 @@
 import util from "node:util";
 import process from "node:process";
 
-import { CommandConfigBase } from "@zenflux/cli/src/base/command-config-base";
+import { ConsoleManager } from "@zenflux/cli/src/managers/console-manager";
 
-import { console } from "@zenflux/cli/src/modules/console";
+import { CommandConfigBase } from "@zenflux/cli/src/base/command-config-base";
 
 export default async function boot( args = process.argv.slice( 2 ) ) {
     const commands = {
@@ -25,17 +25,21 @@ export default async function boot( args = process.argv.slice( 2 ) ) {
         "@registry": {
             module: async () => ( await import( "@zenflux/cli/src/commands/registry" ) ).default,
         },
+
+        "@clean": {
+            module: async () => ( await import( "@zenflux/cli/src/commands/clean" ) ).default,
+        },
     };
 
     const runner = commands[ args[ 0 ] as keyof typeof commands ];
 
     if ( ! runner ) {
-        console.log( "available commands:" );
-        console.log( util.inspect( Object.keys( commands ).map(
+        ConsoleManager.$.log( "available commands:" );
+        ConsoleManager.$.log( util.inspect( Object.keys( commands ).map(
             ( name ) => ( `@z-cli ${ name } --help` )
         ) ) );
 
-        console.log( "global options",  util.inspect( {
+        ConsoleManager.$.log( "global options",  util.inspect( {
             "--zvm-verbose":"Log tsnode-vm verbose, shows modules resolution",
             "--verbose": "Log verbose",
             "--help": "Show help",

@@ -3,29 +3,28 @@
 import * as util from "node:util";
 import * as process from "node:process";
 
-import { parentPort, Worker, workerData } from "node:worker_threads";
-
 import { fileURLToPath } from "node:url";
 
+import { parentPort, Worker, workerData } from "node:worker_threads";
+
 import { zGlobalPathsGet } from "@zenflux/cli/src/core/global";
-
-import { console } from "@zenflux/cli/src/modules/console";
-
-function verbose( id: string, action: string, display: string, message: string ) {
-    console.verbose( () => `Thread\t${ id }\t${ action }\t${ util.inspect( display ) }\t${ message }` );
-}
 
 export interface ThreadHost {
     name: string;
     id: number;
     display: string;
+
+    sendMessage( type: string, ... args: any[] ): void;
 }
 
 export class Thread {
     private state: "created" | "running" | "idle" | "terminated" | "killed" = "created";
 
     private worker: Worker;
-    private errorCallback: Function | undefined;
+    private errorCallbacks: Function[] | undefined;
+    private messageCallbacks: Function[] | undefined;
+    private verboseCallbacks: Function[] | undefined;
+    private debugCallbacks: Function[] | undefined;
 
     public constructor(
         private readonly name: string,
@@ -34,8 +33,6 @@ export class Thread {
         private readonly work: Function,
         private readonly args: any[],
     ) {
-        verbose( id.toString(), "Create", display,"" );
-
         this.worker = new Worker( zGlobalPathsGet().cli, {
             name: `z-thread-${ this.name }-${ this.id }`,
 
@@ -55,16 +52,80 @@ export class Thread {
         } );
 
         this.worker.on( "error", ( error ) => {
-            if ( this.errorCallback ) {
-                this.errorCallback( error );
+            if ( this.errorCallbacks ) {
+                this.errorCallbacks.forEach( c => c.call( null, ... [ this.id, error ] ) );
             } else {
-                console.error( error );
+                throw error;
+            }
+        } );
+
+        this.worker.on( "message", ( [ message, ... args ]: any [] ) => {
+            switch ( message ) {
+                case "message":
+                    if ( this.messageCallbacks ) {
+                        this.messageCallbacks.forEach( c => c.call( null, ... [ this.id, ... args ] ) );
+                    } else {
+                        throw new Error( `Unhandled message: ${ message }` );
+                    }
+                    break;
+
+                case "error":
+                    if ( this.errorCallbacks ) {
+                        this.errorCallbacks.forEach( c => c.call( null, ... [ this.id, ... args ] ) );
+                    } else {
+                        throw new Error( `Unhandled error: ${ message }` );
+                    }
+                    break;
+
+                case "verbose":
+                    if ( this.verboseCallbacks ) {
+                        this.verboseCallbacks.forEach( c => c.call( null, () => [ this.id, ... args ] ) );
+                    } else {
+                        throw new Error( `Unhandled verbose: ${ message }` );
+                    }
+                    break;
+
+                case "debug":
+                    if ( this.debugCallbacks ) {
+                        this.debugCallbacks.forEach( c => c.call( null, () => [ this.id, ... args ] ) );
+                    } else {
+                        throw new Error( `Unhandled debug: ${ message }` );
+                    }
+                    break;
             }
         } );
     }
 
     public onError( callback: Function ) {
-        this.errorCallback = callback;
+        if ( ! this.errorCallbacks ) {
+            this.errorCallbacks = [];
+        }
+
+        this.errorCallbacks.push( callback );
+    }
+
+    public onMessage( callback: Function ) {
+        if ( ! this.messageCallbacks ) {
+            this.messageCallbacks = [];
+        }
+
+        this.messageCallbacks.push( callback );
+    }
+
+    public onVerbose( callback: Function ) {
+        if ( ! this.verboseCallbacks ) {
+            this.verboseCallbacks = [];
+        }
+
+        this.verboseCallbacks.push( callback );
+    }
+
+    public onDebug( callback: Function ) {
+        if ( ! this.debugCallbacks ) {
+            this.debugCallbacks = [];
+        }
+
+        this.debugCallbacks.push( callback );
     }
 
     public async run() {
@@ -72,17 +133,17 @@ export class Thread {
         this.worker.postMessage( "run" );
 
         return new Promise( ( resolve ) => {
-            this.worker.once( "message", ( [ message, result ] ) => {
-                switch ( message ) {
-                    case "done":
-                        this.state = "idle";
-                        resolve( result );
-                        break;
+            const onMessageCallback = ( [ message, ... args ]: any [] ) => {
+                if ( message === "done" ) {
+                    this.state = "idle";
 
-                    default:
-                        throw new Error( `Unknown message: ${ message }` );
+                    resolve( args[ 0 ] );
+
+                    this.worker.off( "message", onMessageCallback );
                 }
-            } );
+            };
+
+            this.worker.on( "message", onMessageCallback );
         } );
     }
 
@@ -111,6 +172,7 @@ export class Thread {
 const workData = workerData;
 
 if ( workData?.zCliWorkPath === fileURLToPath( import.meta.url ) ) {
+
     if ( null === parentPort ) {
         throw new Error( "Parent port is not defined" );
     }
@@ -134,14 +196,16 @@ if ( workData?.zCliWorkPath === fileURLToPath( import.meta.url ) ) {
         name,
         id,
         display,
+
+        sendMessage( type: string, ... args: any[] ) {
+            parent.postMessage( [ type, ... args ] );
+        }
     };
 
     let isWorking = false,
         isRequestedToTerminate = false;
 
     function terminate() {
-        verbose( id.toString(), "Exit", display,"" );
-
         process.exit( 0 );
     }
 

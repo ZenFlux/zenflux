@@ -12,6 +12,8 @@ import path from "node:path";
 
 import chokidar from "chokidar";
 
+import { ConsoleManager } from "@zenflux/cli/src/managers/console-manager";
+
 import { zDebounce } from "@zenflux/cli/src/utils/timers";
 
 import {
@@ -26,7 +28,7 @@ import { zGlobalPathsGet } from "@zenflux/cli/src/core/global";
 
 import { CommandBuildBase } from "@zenflux/cli/src/base/command-build-base";
 
-import { console } from "@zenflux/cli/src/modules/console";
+import { rollupConsole, tsDeclarationConsole, tsDiagnosticConsole } from "@zenflux/cli/src/console/watch-console";
 
 import type { RollupOptions } from "rollup";
 
@@ -37,6 +39,16 @@ const DEFAULT_ON_CHANGE_DELAY = 2000;
 const buildTimePerThread = new Map();
 
 export default class Watch extends CommandBuildBase {
+    private passedConfigs: Record<number, IZConfigInternal> = {};
+    private uniqueConfigs: Record<number, IZConfigInternal> = {};
+
+    public initialize() {
+        // Set global console instance as rollupConsole.
+        ConsoleManager.setInstance( rollupConsole );
+
+        super.initialize();
+    }
+
     public async run() {
         const configs = this.getConfigs();
 
@@ -57,10 +69,7 @@ export default class Watch extends CommandBuildBase {
             watcher.close();
         } );
 
-        let totalBuildTime = 0,
-            builtOnce = false;
-
-        console.log("Starting watcher ..." );
+        let totalBuildTime = 0;
 
         // Create build request with thread per config.
         for ( const config of configs ) {
@@ -70,81 +79,88 @@ export default class Watch extends CommandBuildBase {
             this.watch( rollupConfig, config, watcher, configs.indexOf( config ) )
                 .onWorkerStart( ( id ) => {
                     if ( buildTimePerThread.size === 0 ) {
-                        if ( builtOnce ) {
-                            console.clear();
-                        }
-
                         totalBuildTime = Date.now();
-                        builtOnce = true;
+                        this.onBuilt( config );
                     }
 
                     buildTimePerThread.set( id, Date.now() );
 
-                    console.log( `Watcher\t${ id }\tSend\t${ util.inspect( config.outputName ) }` );
+                    rollupConsole.log( id, "Watcher", "Send", [ config.outputName ] );
                 } )
                 .onWorkerEnd( ( id ) => {
                     const time = buildTimePerThread.get( id );
 
-                    console.log( `Watcher\t${ id }\tRecv\t${ util.inspect( config.outputName ) }` +
-                        " in " + util.inspect( ( Date.now() - time ) + "ms" ) );
+                    rollupConsole.log( id, "Watcher", "Recv", config.outputName, `in {#0000ff-fg}${ Date.now() - time }{#ff0000-fg}ms{/}` );
 
                     buildTimePerThread.delete( id );
 
                     if ( buildTimePerThread.size === 0 ) {
-                        console.log( `Watcher\tT\tTotal\t${ util.inspect( configs.map( c => c.outputFileName ), { breakLength: Infinity } ) } toke: ${ util.inspect( ( Date.now() - totalBuildTime ) + "ms" ) }` );
+                        rollupConsole.log( "M", "Watcher" , "Total",
+                            "{colspan}" + configs.map( c => `{red-fg}'{/}{blue-fg}${ c.outputFileName }{/}{red-fg}'{/}` ).join( ", " ) +
+                            ` toke {#0000ff-fg}${ Date.now() - totalBuildTime }{#ff0000-fg}ms{/}` );
 
-                        this.onBuiltAll( configs );
+                        this.onBuiltAll();
                     }
                 } );
         }
     }
 
-    protected async onBuiltAll( configs: IZConfigInternal[] ) {
-        const uniqueConfigs = configs.filter( ( config, index, self ) => {
-            // Should filter duplicate config.paths.
-            return index === self.findIndex( ( c ) => {
-                return c.path === config.path;
-            } );
+    protected async onBuilt( _config: IZConfigInternal ) {
+        // TODO: Use it to gain performance.
+    }
+
+    protected async onBuiltAll() {
+        const configs = this.getConfigs();
+
+        // Trigger TypeScript diagnostics for all configs.
+        for ( const config of configs ) {
+            await this.handleTSDiagnostics( config );
+        }
+
+        this.getUniqueConfigs( configs ).forEach( ( config ) => {
+            this.handleTypeScript( config );
         } );
+    }
 
-        const passedConfigs: Record<number, IZConfigInternal> = {};
+    private async handleTSDiagnostics( config: IZConfigInternal ) {
+        const id = this.getConfigs().indexOf( config );
 
-        await Promise.all( uniqueConfigs.map( async ( config ) => {
-            const id = uniqueConfigs.indexOf( config );
+        tsDiagnosticConsole.log( id, "Send", util.inspect( config.outputName ) );
 
-            console.log( `Diagnostic\t${ id }\tSend\t${ util.inspect( config.outputName ) }` );
+        // logTypeScript( `Diagnostic{tab}${ id }{tab}Send{tab}${ util.inspect( config.outputName ) }` );
 
-            const promise = zTSCreateDiagnosticWorker( zTSConfigRead( null, path.dirname( config.path ) ), {
-                useCache: false,
-                thread: id
-            } );
+        const promise = zTSCreateDiagnosticWorker( zTSConfigRead( null, path.dirname( config.path ) ), {
+            useCache: false,
+            thread: id
+        }, tsDiagnosticConsole );
 
-            await ( promise as Promise<any> ).then( ( result ) => {
-                if ( result ) {
-                    passedConfigs[ id ] = config;
-                }
-                console.log( `Diagnostic\t${ id }\tRecv\t${ util.inspect( config.outputName ) }` );
-            } );
-        } ) );
+        return await ( promise as Promise<any> ).then( () => {
+            // logTypeScript( `Diagnostic\t${ id }\tRecv\t${ util.inspect( config.outputName ) }` );
+            tsDiagnosticConsole.log( id, "Recv", util.inspect( config.outputName ) );
+        } );
+    }
 
-        Object.entries( passedConfigs ).forEach( ( [ id, config ] ) => {
-            console.log( `Declaration\t${ id }\tSend\t${ util.inspect( config.outputName ) }` );
+    private async handleTypeScript( config: IZConfigInternal ) {
+        const id = this.getIdByConfig( config );
 
-            const result = zTSCreateDeclarationWorker( zTSConfigRead( null, path.dirname( config.path ) ), {
-                thread: Number( id )
-            } );
+        // logTypeScript( `Declaration{tab}${ id }{tab}Send{tab}${ util.inspect( config.outputName ) }` );
+        tsDeclarationConsole.log( id, "Send", util.inspect( config.outputName ) );
 
-            ( result as Promise<any> ).then( () => {
-                console.log( `Declaration\t${ id }\tRecv\t${ util.inspect( config.outputName ) }` );
+        const result = zTSCreateDeclarationWorker( zTSConfigRead( null, path.dirname( config.path ) ), {
+            thread: Number( id )
+        }, tsDeclarationConsole );
 
-                this.tryUseApiExtractor( config );
-            } );
+        ( result as Promise<any> ).then( () => {
+            // logTypeScript( `Declaration{tab}${ id }{tab}Recv{tab}${ util.inspect( config.outputName ) }` );
+            tsDeclarationConsole.log( id, "Recv", util.inspect( config.outputName ) );
+
+            this.tryUseApiExtractor( config, tsDeclarationConsole );
         } );
     }
 
     private watch( rollupOptions: RollupOptions[], config: IZConfigInternal, watcher: ReturnType<typeof chokidar.watch>, id: number = 0 ) {
         const callbacks = {
-            onWorkerStart:( _id: number ) => {},
+            onWorkerStart: ( _id: number ) => {},
             onWorkerEnd: ( _id: number ) => {}
         };
 
@@ -169,7 +185,7 @@ export default class Watch extends CommandBuildBase {
             config,
             thread: id,
             otherConfigs: this.getConfigs().filter( ( c ) => c !== config )
-        } );
+        }, rollupConsole );
 
         const buildCallback = async () => {
             callbacks.onWorkerStart( id );
@@ -180,12 +196,17 @@ export default class Watch extends CommandBuildBase {
         };
 
         watcher.on( "ready", async () => {
-            console.verbose( () => `Watcher\t${ id }\tReady\t${ util.inspect( config.outputName ) }` );
+            rollupConsole.verbose( () => [ id, "Watcher", "Ready", util.inspect( config.outputName ) ] );
 
             await buildCallback();
 
             watcher.on( "change", function ( path ) {
-                console.verbose( () => `Watcher\t${ id }\tChanges\t${ util.inspect( config.outputName ) } at ${ util.inspect( path ) }` );
+                rollupConsole.verbose( () => [
+                    id,
+                    "Watcher",
+                    "Changes",
+                    `${ util.inspect( config.outputName ) } at ${ util.inspect( path ) }`
+                ] );
 
                 zDebounce( `__WATCHER__${ id }__`, () => {
                     buildCallback();
@@ -194,5 +215,18 @@ export default class Watch extends CommandBuildBase {
         } );
 
         return callbacksSetter;
+    }
+
+    private getUniqueConfigs( configs: IZConfigInternal[] ) {
+        return configs.filter( ( config, index, self ) => {
+            // Should filter duplicate config.paths.
+            return index === self.findIndex( ( c ) => {
+                return c.path === config.path;
+            } );
+        } );
+    }
+
+    private getIdByConfig( config: IZConfigInternal ) {
+        return this.getUniqueConfigs( this.getConfigs() ).indexOf( config );
     }
 }

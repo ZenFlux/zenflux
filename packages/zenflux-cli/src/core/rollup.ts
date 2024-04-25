@@ -7,6 +7,8 @@ import util from "node:util";
 
 import nodeResolve from "@rollup/plugin-node-resolve";
 
+import { ConsoleManager}  from "@zenflux/cli/src/managers/console-manager";
+
 import { zGlobalPathsGet } from "@zenflux/cli/src/core/global";
 import { zWorkspaceGetPackages } from "@zenflux/cli/src/core/workspace";
 
@@ -19,8 +21,6 @@ import zRollupSwcPlugin from "@zenflux/cli/src/core/rollup-plugins/rollup-swc/ro
 import { zTSConfigRead } from "@zenflux/cli/src/core/typescript";
 
 import packageJSON from "@zenflux/cli/package.json";
-
-import { console } from "@zenflux/cli/src/modules/console";
 
 import type { OutputOptions, OutputPlugin, Plugin, ResolveIdResult, RollupOptions } from "rollup";
 
@@ -36,7 +36,7 @@ export function zRollupPluginModuleResolve( args: Required<IPluginArgs> ): Plugi
         baseSrcPath = tsConfig?.options.baseUrl ?? function useDefaultSrcPath () {
             const srcPath = path.join( projectPath, DEFAULT_BASE_SRC_PATH );
 
-            console.verbose( () => `${ zRollupPluginModuleResolve.name }::${ useDefaultSrcPath.name }() -> ${ util.inspect( srcPath ) }` );
+            ConsoleManager.$.debug( () => `${ zRollupPluginModuleResolve.name }::${ useDefaultSrcPath.name }() -> ${ util.inspect( srcPath ) }` );
 
             return srcPath;
         }(),
@@ -95,7 +95,7 @@ export function zRollupPluginModuleResolve( args: Required<IPluginArgs> ): Plugi
             if ( packageName === modulePathParts[ 0 ] || packageName === modulePathParts[ 0 ]  + "/" + modulePathParts[ 1 ] ) {
                 const tryPath = path.join( packageObj.getPath(), modulePathRest );
 
-                console.verbose( () => `${ resolveWorkspace.name }::${ resolveRelative.name }() -> ${ util.inspect( tryPath ) }` );
+                ConsoleManager.$.debug( () => `${ resolveWorkspace.name }::${ resolveRelative.name }() -> ${ util.inspect( tryPath ) }` );
 
                 const tryResolve = resolveExt( tryPath );
 
@@ -132,7 +132,7 @@ export function zRollupPluginModuleResolve( args: Required<IPluginArgs> ): Plugi
                 const tryResolve = resolveRelative( source );
 
                 if ( tryResolve ) {
-                    console.verbose( () => `${ zRollupPluginModuleResolve.name }::${ resolveRelative.name }() -> ${ util.inspect( tryResolve ) }` );
+                    ConsoleManager.$.debug( () => `${ zRollupPluginModuleResolve.name }::${ resolveRelative.name }() -> ${ util.inspect( tryResolve ) }` );
 
                     return {
                         id: tryResolve,
@@ -147,7 +147,7 @@ export function zRollupPluginModuleResolve( args: Required<IPluginArgs> ): Plugi
                 const tryResolve = resolveWorkspace( source );
 
                 if ( tryResolve ) {
-                    console.verbose( () => `${ zRollupPluginModuleResolve.name }::${ resolveWorkspace.name }() -> ${ util.inspect( tryResolve ) }` );
+                    ConsoleManager.$.debug( () => `${ zRollupPluginModuleResolve.name }::${ resolveWorkspace.name }() -> ${ util.inspect( tryResolve ) }` );
 
                     return {
                         id: tryResolve,
@@ -162,7 +162,7 @@ export function zRollupPluginModuleResolve( args: Required<IPluginArgs> ): Plugi
                 const tryResolve = resolveAbsolute( source );
 
                 if ( tryResolve ) {
-                    console.verbose( () => `${ zRollupPluginModuleResolve.name }::${ resolveAbsolute.name }() -> ${ util.inspect( tryResolve ) }` );
+                    ConsoleManager.$.debug( () => `${ zRollupPluginModuleResolve.name }::${ resolveAbsolute.name }() -> ${ util.inspect( tryResolve ) }` );
 
                     return {
                         id: tryResolve,
@@ -199,7 +199,7 @@ export const zRollupGetPlugins = ( args: IPluginArgs ): OutputPlugin[] => {
     } );
 
     nodeResolvePlugin.onLog = ( logLevel, message ) => {
-        console.log( `nodeResolvePlugin: ${ util.inspect( {
+        ConsoleManager.$.log( `nodeResolvePlugin: ${ util.inspect( {
             ... message,
             projectPath: args.projectPath,
         } ) }` );

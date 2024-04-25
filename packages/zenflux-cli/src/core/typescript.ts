@@ -8,15 +8,19 @@ import util from "node:util";
 
 import ts from "typescript";
 
-import { console } from "@zenflux/cli/src/modules/console";
+import { ConsoleManager } from "@zenflux/cli/src/managers/console-manager";
+
+import { ensureInWorker } from "@zenflux/cli/src/modules/threading/utils";
+
+import { ThreadConsole } from "@zenflux/cli/src/console/thread-console";
+
+import type { TZFormatType } from "@zenflux/cli/src/definitions/zenflux";
 
 import type {
     TZCreateDeclarationWorkerOptions,
     TZPreDiagnosticsOptions,
     TZPreDiagnosticsWorkerOptions
 } from "@zenflux/cli/src/definitions/typescript";
-
-import type { TZFormatType } from "@zenflux/cli/src/definitions/zenflux";
 
 import type { Thread, ThreadHost } from "@zenflux/cli/src/modules/threading/thread";
 
@@ -78,7 +82,7 @@ export function zTSConfigGetPath( format: TZFormatType | null, targetPath: strin
     };
 
     function logVerbose( message: string ) {
-        console.verbose( () => `${ zTSConfigGetPath.name }() -> ${ message }` );
+        ConsoleManager.$.verbose( () => [ `${ zTSConfigGetPath.name }()`, "->", message ] );
     };
 
     function fileExists( filePath: string ) {
@@ -129,15 +133,12 @@ export function zTSConfigGetPath( format: TZFormatType | null, targetPath: strin
     }
 
     if ( showErrors ) {
-        console.error( "tsconfig.json not found" );
+        ConsoleManager.$.error( "tsconfig.json not found" );
     }
 }
 
 /**
  * Function zTSConfigRead() - Read and parse TypeScript configuration from tsconfig.json file.
- *
- * @param {TZFormatType|null} format - Format will add a suffix(`tsconfig.es.json`) to the file name, null is default(`tsconfig.json`).
- * @param {string} projectPath - The project's root directory path.
  */
 export function zTSConfigRead( format: TZFormatType | null, projectPath: string ) {
     const cacheKey = projectPath + "_" + format;
@@ -152,7 +153,7 @@ export function zTSConfigRead( format: TZFormatType | null, projectPath: string 
         throw new Error( "tsconfig.json not found" );
     }
 
-    console.verbose( () => `${ zTSConfigRead.name }() -> Reading and parsing '${ tsConfigPath }' of project '${ projectPath }'` );
+    ConsoleManager.$.verbose( () => [ `${ zTSConfigRead.name }()`, "->", `Reading and parsing '${ tsConfigPath }' of project '${ projectPath }'` ] );
 
     const data = ts.readConfigFile( tsConfigPath, ts.sys.readFile );
 
@@ -180,7 +181,7 @@ export function zTSConfigRead( format: TZFormatType | null, projectPath: string 
         error.message = "\n" + content.errors.map( error => zCustomizeDiagnostic( error ) )
             .join( "\n\n" );
 
-        console.error( error );
+        ConsoleManager.$.error( error );
 
         if ( content.options.noEmitOnError ) {
             process.exit( 1 );
@@ -199,10 +200,8 @@ export function zTSConfigRead( format: TZFormatType | null, projectPath: string 
  * Function zTSGetCompilerHost() - Retrieves the compiler host for a given TypeScript configuration.
  *
  * Retrieves the compiler host for a given TypeScript configuration.
- *
- * @param {ts.ParsedCommandLine} tsConfig - The TypeScript configuration.
  */
-export function zTSGetCompilerHost( tsConfig: ts.ParsedCommandLine ) {
+export function zTSGetCompilerHost( tsConfig: ts.ParsedCommandLine, activeConsole = ConsoleManager.$ ) {
     const outPath = tsConfig.options.declarationDir || tsConfig.options.outDir;
 
     if ( ! outPath ) {
@@ -220,7 +219,11 @@ export function zTSGetCompilerHost( tsConfig: ts.ParsedCommandLine ) {
     compilerHost.getSourceFile = ( fileName, languageVersion, onError, shouldCreateNewSourceFile ) => {
         // Exclude internal TypeScript files from validation
         if ( fileName.startsWith( outPath ) ) {
-            console.verbose( () => `${ zTSGetCompilerHost.name }::${ compilerHost.getSourceFile.name }() -> Skipping '${ fileName }', internal TypeScript file` );
+            activeConsole.verbose( () => [
+                `${ zTSGetCompilerHost.name }::${ compilerHost.getSourceFile.name }()`,
+                "->",
+                `Skipping '${ fileName }', internal TypeScript file`
+            ] );
             return;
         }
 
@@ -235,7 +238,7 @@ export function zTSGetCompilerHost( tsConfig: ts.ParsedCommandLine ) {
 /**
  * Function zTSPreDiagnostics() - Runs pre-diagnostics for specific TypeScript configuration.
  */
-export function zTSPreDiagnostics( tsConfig: ts.ParsedCommandLine, args: TZPreDiagnosticsOptions = {} ) {
+export function zTSPreDiagnostics( tsConfig: ts.ParsedCommandLine, args: TZPreDiagnosticsOptions = {}, activeConsole = ConsoleManager.$ ) {
     // ---
     const {
         useCache = true,
@@ -247,7 +250,11 @@ export function zTSPreDiagnostics( tsConfig: ts.ParsedCommandLine, args: TZPreDi
      * should be based on main `tsconfig.json` file, not on `tsconfig.es.json` or `tsconfig.es.dev.json`, etc.
      */
     if ( useCache && configValidationCache[ tsConfig.options.configFilePath as string ] ) {
-        console.verbose( () => `${ zTSPreDiagnostics.name }() -> Skipping validation for '${ tsConfig.options.configFilePath }', already validated` );
+        activeConsole.verbose( () => [
+            `${ zTSPreDiagnostics.name }()`,
+            "->",
+            `Skipping validation for '${ tsConfig.options.configFilePath }', already validated`
+        ] );
         return;
     }
 
@@ -278,7 +285,7 @@ export function zTSPreDiagnostics( tsConfig: ts.ParsedCommandLine, args: TZPreDi
         error.name = `\x1b[31mTypeScript validation has ${ diagnostics.length } error(s)\x1b[0m config: ${ "file://" + tsConfig.options.configFilePath }`;
         error.message = "\n" + diagnostics.map( error => zCustomizeDiagnostic( error ) ).join( "\n\n" );
 
-        console.error( error );
+        activeConsole.error( error );
 
         if ( haltOnError || tsConfig.options.noEmitOnError ) {
             process.exit( 1 );
@@ -288,7 +295,7 @@ export function zTSPreDiagnostics( tsConfig: ts.ParsedCommandLine, args: TZPreDi
     return diagnostics.length <= 0;
 }
 
-export function zTSCreateDeclaration( tsConfig: ts.ParsedCommandLine ) {
+export function zTSCreateDeclaration( tsConfig: ts.ParsedCommandLine, activeConsole = ConsoleManager.$ ) {
     const compilerHost = zTSGetCompilerHost( tsConfig );
 
     const program = ts.createProgram( tsConfig.fileNames, Object.assign( {}, tsConfig.options, {
@@ -315,33 +322,48 @@ export function zTSCreateDeclaration( tsConfig: ts.ParsedCommandLine ) {
         error.name = `\x1b[31mTypeScript declaration has ${ result.diagnostics.length } error(s)\x1b[0m config: ${ "file://" + tsConfig.options.configFilePath }`;
         error.message = "\n" + result.diagnostics.map( error => zCustomizeDiagnostic( error ) ).join( "\n\n" );
 
-        console.error( error );
+        activeConsole.error( error );
     } else {
-        console.verbose( () => `${ zTSCreateDeclaration.name }() -> Declaration created for '${ tsConfig.options.configFilePath }'` );
+        activeConsole.verbose( () => [
+            `${ zTSCreateDeclaration.name }()`,
+            "->", `Declaration created for '${ tsConfig.options.configFilePath }'`
+        ] );
     }
 
     return result.diagnostics.length <= 0;
 }
 
 export function zTSDiagnosticInWorker( tsConfigFilePath: string, options: TZPreDiagnosticsWorkerOptions, host: ThreadHost ) {
-    const id = host.id,
-        tsConfig = zTSConfigRead( null, path.dirname( tsConfigFilePath ) );
+    ensureInWorker();
 
-    console.verbose( () => `Thread\t${ id }\tRun\t${ util.inspect( tsConfig.options.configFilePath ) }` );
+    // Hook console logs to thread messages.
+    ConsoleManager.setInstance( new ThreadConsole( host ) );
+
+    const tsConfig = zTSConfigRead( null, path.dirname( tsConfigFilePath ) );
+
+    host.sendMessage( "message", "run", tsConfig.options.configFilePath );
 
     return zTSPreDiagnostics( tsConfig, options );
 }
 
 export function zTSDeclarationInWorker( tsConfigFilePath: string, host: ThreadHost ) {
-    const id = host.id,
-        tsConfig = zTSConfigRead( null, path.dirname( tsConfigFilePath ) );
+    ensureInWorker();
 
-    console.verbose( () => `Thread\t${ id }\tRun\t${ util.inspect( tsConfig.options.configFilePath ) }` );
+    // Hook console logs to thread messages.
+    ConsoleManager.setInstance( new ThreadConsole( host ) );
+
+    const tsConfig = zTSConfigRead( null, path.dirname( tsConfigFilePath ) );
+
+    host.sendMessage( "message", "run", tsConfig.options.configFilePath );
 
     return zTSCreateDeclaration( tsConfig );
 }
 
-export async function zTSCreateDiagnosticWorker( tsConfig: ts.ParsedCommandLine, options: TZPreDiagnosticsWorkerOptions ) {
+export async function zTSCreateDiagnosticWorker(
+    tsConfig: ts.ParsedCommandLine,
+    options: TZPreDiagnosticsWorkerOptions,
+    activeConsole = ConsoleManager.$,
+) {
     if ( ! diagnosticThreads.has( options.thread ) ) {
         const { Thread } = ( await import( "@zenflux/cli/src/modules/threading/thread" ) );
 
@@ -356,6 +378,11 @@ export async function zTSCreateDiagnosticWorker( tsConfig: ts.ParsedCommandLine,
             ],
         );
 
+        thread.onMessage( activeConsole.message.bind( activeConsole ) );
+        thread.onVerbose( activeConsole.verbose.bind( activeConsole ) );
+        thread.onDebug( activeConsole.debug.bind( activeConsole ) );
+        thread.onError( activeConsole.error.bind( activeConsole ) );
+
         diagnosticThreads.set( options.thread, thread );
     }
 
@@ -368,7 +395,11 @@ export async function zTSCreateDiagnosticWorker( tsConfig: ts.ParsedCommandLine,
     return thread.run();
 }
 
-export async function zTSCreateDeclarationWorker( tsConfig: ts.ParsedCommandLine, options: TZCreateDeclarationWorkerOptions ) {
+export async function zTSCreateDeclarationWorker(
+    tsConfig: ts.ParsedCommandLine,
+    options: TZCreateDeclarationWorkerOptions,
+    activeConsole = ConsoleManager.$
+) {
     if ( ! declarationThreads.has( options.thread ) ) {
         const { Thread } = ( await import( "@zenflux/cli/src/modules/threading/thread" ) );
 
@@ -379,6 +410,11 @@ export async function zTSCreateDeclarationWorker( tsConfig: ts.ParsedCommandLine
             tsConfig.options.configFilePath as string,
             zTSDeclarationInWorker, [ tsConfig.options.configFilePath ],
         );
+
+        thread.onMessage( activeConsole.message.bind( activeConsole ) );
+        thread.onVerbose( activeConsole.verbose.bind( activeConsole ) );
+        thread.onDebug( activeConsole.debug.bind( activeConsole ) );
+        thread.onError( activeConsole.error.bind( activeConsole ) );
 
         declarationThreads.set( options.thread, thread );
     }

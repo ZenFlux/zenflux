@@ -15,7 +15,10 @@ import { zRollupSwcCompareCaches } from "@zenflux/cli/src/core/rollup-plugins/ro
 
 import { zGetPackageByConfig } from "@zenflux/cli/src/utils/common";
 
-import { console } from "@zenflux/cli/src/modules/console";
+import { ensureInWorker } from "@zenflux/cli/src/modules/threading/utils";
+
+import { ConsoleManager } from "@zenflux/cli/src/managers/console-manager";
+import { ThreadConsole } from "@zenflux/cli/src/console/thread-console";
 
 import type { OutputOptions, RollupBuild, RollupOptions } from "rollup";
 
@@ -46,7 +49,7 @@ async function rollupBuildInternal( config: RollupOptions, options: TZBuildOptio
     config.onLog = ( logLevel, message ) => {
         // @ts-ignore
         message.projectPath = options.config.path;
-        console.log( `Rollup: ${ util.inspect( message ) }` );
+        ConsoleManager.$.log( `Rollup: ${ util.inspect( message ) }` );
     };
 
     let isBundleChanged = true;
@@ -66,22 +69,24 @@ async function rollupBuildInternal( config: RollupOptions, options: TZBuildOptio
     }
 
     if ( ! options.silent && ! isBundleChanged ) {
-        console.log( `Writing - Skip ${ util.inspect( output.format ) } bundle of ${ util.inspect( output.file ?? output.entryFileNames ) }` );
+        ConsoleManager.$.log( `Writing - Skip ${ util.inspect( output.format ) } bundle of ${ util.inspect( output.file ?? output.entryFileNames ) }` );
     }
 
     const startTime = Date.now(),
         file = output.file ?? output.entryFileNames;
 
-    options.silent || console.log( `Writing - Start ${ util.inspect( output.format ) } bundle to ${ util.inspect( file ) }` );
+    options.silent ||
+    ConsoleManager.$.log( `Writing - Start ${ util.inspect( output.format ) } bundle to ${ util.inspect( file ) }` );
 
     await builders.get( builderKey )!.write( output );
 
-    options.silent || console.log( `Writing - Done ${ util.inspect( output.format ) } bundle of ${ util.inspect( file ) } in ${ util.inspect( Date.now() - startTime ) + "ms" }` );
+    options.silent ||
+    ConsoleManager.$.log( `Writing - Done ${ util.inspect( output.format ) } bundle of ${ util.inspect( file ) } in ${ util.inspect( Date.now() - startTime ) + "ms" }` );
 
     options.config.onBuiltFormat?.( output.format as TZFormatType );
 }
 
-async function waitForDependencies( options: TZBuildWorkerOptions, pkg: Package, config: IZConfigInternal ) {
+async function threadWaitForDependencies( options: TZBuildWorkerOptions, pkg: Package, config: IZConfigInternal ) {
     const { zWorkspaceGetWorkspaceDependencies } = await import( "@zenflux/cli/src/core/workspace" );
 
     if ( options.otherConfigs.length ) {
@@ -104,7 +109,12 @@ async function waitForDependencies( options: TZBuildWorkerOptions, pkg: Package,
 
             // TODO: It should favor skipping external dependencies.
             if ( Object.keys( availableDependencies ).length ) {
-                console.log( `Thread\t${ options.thread }\tPause\t${ util.inspect( config.outputName ) }` );
+                ConsoleManager.$.verbose( () => [
+                    options.thread,
+                    threadWaitForDependencies.name,
+                    "Pause",
+                    util.inspect( config.outputName ) ]
+                );
 
                 const promise = createResolvablePromise();
 
@@ -114,12 +124,19 @@ async function waitForDependencies( options: TZBuildWorkerOptions, pkg: Package,
                 } );
 
                 await promise.await;
+
+                ConsoleManager.$.verbose( () => [
+                    options.thread,
+                    threadWaitForDependencies.name,
+                    "Resume",
+                    util.inspect( config.outputName )
+                ] );
             }
         }
     }
 }
 
-function handleThreadResume( buildPromise: Promise<unknown>, config: IZConfigInternal ) {
+function threadHandleResume( buildPromise: Promise<unknown>, config: IZConfigInternal ) {
     buildPromise.then( () => {
         if ( waitingThreads.size === 0 ) {
             return;
@@ -133,8 +150,6 @@ function handleThreadResume( buildPromise: Promise<unknown>, config: IZConfigInt
             if ( 0 === Object.keys( dependencies ).length ) {
                 waitingThreads.delete( threadId );
 
-                console.verbose( () => `Thread\t${ threadId }\tResume\t${ util.inspect( config.outputName ) }` );
-
                 promise.resolve();
             }
         } );
@@ -146,6 +161,11 @@ export async function zRollupBuildInWorker(
     config: IZConfigInternal,
     host: ThreadHost,
 ) {
+    ensureInWorker();
+
+    // Hook console logs to thread messages.
+    ConsoleManager.setInstance( new ThreadConsole( host ) );
+
     rollupOptions = ! Array.isArray( rollupOptions ) ? [ rollupOptions ] : rollupOptions;
 
     const linkedRollupOptions = rollupOptions.map( ( rollupOptions ) => {
@@ -165,9 +185,15 @@ export async function zRollupBuildInWorker(
     } );
 
     await Promise.all( linkedRollupOptions.map( async ( singleRollupOptions ) => {
-        const output = singleRollupOptions.output as OutputOptions;
+        const output = singleRollupOptions.output as OutputOptions,
+            outputFile = output.file ?? output.entryFileNames;
 
-        console.verbose( () => `Thread\t${ host.id }\tPrepare\t${ util.inspect( config.outputName ) } format ${ util.inspect( output.format ) } bundle of ${ util.inspect( output.file ?? output.entryFileNames ) }` );
+        // TODO: Prefer `sendVerbose` or `sendMessage` instead of passing `type`.
+
+        host.sendMessage( "message", "build", "prepare",
+            config.outputName,
+            outputFile,
+        );
 
         const promise = rollupBuildInternal( singleRollupOptions, {
             silent: true,
@@ -180,16 +206,19 @@ export async function zRollupBuildInWorker(
 
         await promise;
 
-        console.log( `Thread\t${ host.id }\tBuild\t${ util.inspect( config.outputName ) } format ${ util.inspect( output.format ) } bundle to ${ util.inspect( output.file ?? output.entryFileNames ) }` );
+        host.sendMessage( "message", "build", "done",
+            config.outputName,
+            outputFile,
+        );
 
-        // This will ensure `console.log` is flushed.
+        // This will ensure `console.$.log` is flushed.
         return new Promise( ( resolve ) => {
             setTimeout( resolve, 0 );
         } );
     } ) );
 }
 
-export async function zRollupCreateBuildWorker( rollupOptions: RollupOptions[], options: TZBuildWorkerOptions ) {
+export async function zRollupCreateBuildWorker( rollupOptions: RollupOptions[], options: TZBuildWorkerOptions, activeConsole = ConsoleManager.$ ) {
     // Plugins cannot be transferred to worker threads, since they are "live" objects/function etc...
     rollupOptions.forEach( ( o ) => {
         delete o.plugins;
@@ -211,6 +240,11 @@ export async function zRollupCreateBuildWorker( rollupOptions: RollupOptions[], 
             ],
         );
 
+        thread.onMessage( activeConsole.message.bind( activeConsole ) );
+        thread.onVerbose( activeConsole.verbose.bind( activeConsole ) );
+        thread.onDebug( activeConsole.debug.bind( activeConsole ) );
+        thread.onError( activeConsole.error.bind( activeConsole ) );
+
         threads.set( options.thread as number, thread );
     }
 
@@ -222,11 +256,11 @@ export async function zRollupCreateBuildWorker( rollupOptions: RollupOptions[], 
         throw new Error( "Thread not found." );
     }
 
-    await waitForDependencies( options, pkg, config );
+    await threadWaitForDependencies( options, pkg, config );
 
     const buildPromise = thread.run();
 
-    handleThreadResume( buildPromise, config );
+    threadHandleResume( buildPromise, config );
 
     return buildPromise;
 }

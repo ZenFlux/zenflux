@@ -8,7 +8,7 @@ import util from "node:util";
 
 import { getMatchingPathsRecursive } from "@zenflux/typescript-vm/utils";
 
-import { console } from "@zenflux/cli/src/modules/console";
+import { ConsoleManager } from "@zenflux/cli/src/managers/console-manager";
 
 import { Package } from "@zenflux/cli/src/modules/npm/package";
 
@@ -213,7 +213,7 @@ export function zWorkspaceGetPackagesPaths( rootPkg: Package, options = { useCac
         };
     } );
 
-    console.verbose( () => [ `${ zWorkspaceGetPackagesPaths.name }() -> workspaces from package: ${ util.inspect( rootPkg.getPath() ) }`, util.inspect(
+    ConsoleManager.$.verbose( () => [ `${ zWorkspaceGetPackagesPaths.name }() -> workspaces from package: ${ util.inspect( rootPkg.getPath() ) }`, util.inspect(
         {
             workspaces: rootPkg.json.workspaces,
             paths: Object.values( result.map( ( i ) => i.packages ).flat() ),

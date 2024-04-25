@@ -11,7 +11,7 @@ import { CommandBase } from "@zenflux/cli/src/base/command-base";
 
 import { Package } from "@zenflux/cli/src/modules/npm/package";
 
-import { console } from "@zenflux/cli/src/modules/console";
+import { ConsoleManager } from "@zenflux/cli/src/managers/console-manager";
 
 import type { IZConfigInternal } from "@zenflux/cli/src/definitions/config";
 
@@ -95,7 +95,7 @@ export abstract class CommandConfigBase extends CommandBase {
     protected showHelp( name: string ) {
         super.showHelp( name );
 
-        console.log( util.inspect( {
+        ConsoleManager.$.log( util.inspect( {
             "--config": {
                 description: "Specify a custom config file",
                 // aliases: [ "-c" ],

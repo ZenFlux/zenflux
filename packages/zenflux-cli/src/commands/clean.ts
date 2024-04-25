@@ -1,9 +1,9 @@
 import path from "node:path";
 import fs from "node:fs";
 
-import { CommandConfigBase } from "@zenflux/cli/src/base/command-config-base";
+import { ConsoleManager } from "@zenflux/cli/src/managers/console-manager";
 
-import { console } from "@zenflux/cli/src/modules/console";
+import { CommandConfigBase } from "@zenflux/cli/src/base/command-config-base";
 
 export default class Clean extends CommandConfigBase {
 
@@ -25,13 +25,13 @@ export default class Clean extends CommandConfigBase {
         for ( const distPath of Object.keys( obj ) ) {
             const distPathObj = obj[ distPath ];
 
-            console.log( "cleaning", distPath );
+            ConsoleManager.$.log( "cleaning", distPath );
 
             // unlink all folders
             try {
                 fs.rmdirSync( distPath, { recursive: true } );
             } catch ( e ) {
-                console.error( e );
+                ConsoleManager.$.error( e );
             }
         }
     }

@@ -3,7 +3,7 @@
  */
 import fs from "fs";
 
-import { console } from "@zenflux/cli/src/modules/console";
+import { ConsoleManager } from "@zenflux/cli/src/managers/console-manager";
 
 import { Z_CONFIG_REQUIRED_KEYS } from "@zenflux/cli/src/definitions/config";
 
@@ -41,7 +41,7 @@ function configEnsureInternals( config: IZConfigInternal, args: {
 }
 export async function zConfigLoad( path: string, silent = false ) {
     // Check if target config exists.
-    console.verbose( () => `${ zConfigLoad.name }() -> Checking if exists: '${ path }'` );
+    ConsoleManager.$.verbose( () => `${ zConfigLoad.name }() -> Checking if exists: '${ path }'` );
 
     if ( ! fs.existsSync( path ) ) {
         const message = `File not found: '${ path }'`;
@@ -50,7 +50,7 @@ export async function zConfigLoad( path: string, silent = false ) {
             throw new Error( message );
         }
 
-        console.verbose( () => `${ zConfigLoad.name }() -> ${ message }` );
+        ConsoleManager.$.verbose( () => `${ zConfigLoad.name }() -> ${ message }` );
 
         return;
     }
