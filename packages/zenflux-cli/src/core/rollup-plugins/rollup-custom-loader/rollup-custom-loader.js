@@ -1,7 +1,9 @@
 if ( "undefined" === typeof globalThis.__Z_CUSTOM_LOADER__ ) {
     function zCustomLoaderData( data, sourceId ) {
         if ( globalThis.__Z_CUSTOM_LOADER_DATA__[ sourceId ] ) {
-            throw new Error( 'zCustomLoaderData: Duplicate source' + sourceId, data );
+            throw new Error( 'zCustomLoaderData: Duplicate source' + sourceId + " " +
+                JSON.stringify( data, null, 4 )
+            );
         }
 
         globalThis.__Z_CUSTOM_LOADER_DATA__[ sourceId ] = data;
@@ -12,8 +14,17 @@ if ( "undefined" === typeof globalThis.__Z_CUSTOM_LOADER__ ) {
             globalThis.__Z_CUSTOM_LOADER_MODULE_FORWARDING__[ forModule ] = {};
         }
 
-        if ( globalThis.__Z_CUSTOM_LOADER_MODULE_FORWARDING__[ forModule ][ source ] ) {
-            throw new Error( 'zCustomLoaderModuleForwarding: Duplicate forwarding', forModule, source, target );
+        if (
+            ! globalThis.__Z_CUSTOM_LOADER_MODULE_FORWARDING_EXPECT_DUPLICATE__[ forModule ] &&
+            globalThis.__Z_CUSTOM_LOADER_MODULE_FORWARDING__[ forModule ][ source ]
+        ) {
+            throw new Error( 'zCustomLoaderModuleForwarding: Duplicate forwarding ' +
+                JSON.stringify( {
+                    forModule,
+                    source,
+                    target
+                }, null, 4 )
+            );
         }
 
         globalThis.__Z_CUSTOM_LOADER_MODULE_FORWARDING__[ forModule ][ source ] = target;
@@ -62,6 +73,7 @@ if ( "undefined" === typeof globalThis.__Z_CUSTOM_LOADER__ ) {
 
     globalThis.__Z_CUSTOM_LOADER_DATA__ = {};
     globalThis.__Z_CUSTOM_LOADER_MODULE_FORWARDING__ = {};
+    globalThis.__Z_CUSTOM_LOADER_MODULE_FORWARDING_EXPECT_DUPLICATE__ = {};
 
     globalThis.__Z_CUSTOM_LOADER__ = {
         zCustomLoaderData: zCustomLoaderData,

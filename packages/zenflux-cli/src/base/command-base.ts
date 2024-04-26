@@ -5,7 +5,7 @@ import process from "node:process";
 import path from "node:path";
 import util from "node:util";
 
-import { console } from "@zenflux/cli/src/modules/console";
+import { ConsoleManager } from "@zenflux/cli/src/managers/console-manager";
 
 import { zGlobalInitPaths } from "@zenflux/cli/src/core/global";
 import { zWorkspaceFindRootPackageJson } from "@zenflux/cli/src/core/workspace";
@@ -36,6 +36,6 @@ export abstract class CommandBase {
     protected abstract run(): Promise<void>;
 
     protected showHelp( name = this.options.name, optionsText = "options" ): void {
-        console.log( `Usage: ${ util.inspect( name ) } ${ optionsText }:` );
+        ConsoleManager.$.log( `Usage: ${ util.inspect( name ) } ${ optionsText }:` );
     };
 }

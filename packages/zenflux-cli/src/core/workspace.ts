@@ -6,11 +6,11 @@ import path from "node:path";
 import fs from "node:fs";
 import util from "node:util";
 
-import { console } from "@zenflux/cli/src/modules/console";
+import { getMatchingPathsRecursive } from "@zenflux/typescript-vm/utils";
+
+import { ConsoleManager } from "@zenflux/cli/src/managers/console-manager";
 
 import { Package } from "@zenflux/cli/src/modules/npm/package";
-
-import { getMatchingPathsRecursive } from "@zenflux/cli/src/utils/path";
 
 import type { TNewPackageOptions, TPackageDependencies, TPackages } from "@zenflux/cli/src/modules/npm/package";
 
@@ -61,6 +61,24 @@ export function zWorkspaceFindRootPackageJson( options: {
     }
 
     return "";
+}
+
+export function zWorkspaceExtractPackages( regex: string, rootPkg: Package, packages: TPackages ) {
+    const result: TPackages = {};
+
+    const regexPattern = new RegExp( regex );
+
+    Object.keys( packages ).forEach( ( key ) => {
+        const packageName = packages[ key ] ? key : `${ rootPkg.json.name.split( "/" )[ 0 ] }/${ key }`;
+
+        if ( regexPattern.test( packageName ) ) {
+            if ( packages[ packageName ] ) {
+                result[ packageName ] = packages[ packageName ];
+            }
+        }
+    } );
+
+    return result;
 }
 
 export function zWorkspaceExtractPackage( name: string, rootPkg: Package, packages: TPackages ) {
@@ -118,19 +136,19 @@ export function zWorkspaceFindPackages(
         packages = zWorkspaceGetPackages( rootPkg );
 
     names.forEach( ( name ) => {
-        const currentPackage = zWorkspaceExtractPackage( name, rootPkg, packages );
+        const currentPackages = zWorkspaceExtractPackages( name, rootPkg, packages );
 
-        if ( ! currentPackage ) {
+        if ( ! currentPackages ) {
             if ( ! silent ) {
-                throw new Error( `Workspace package '${ name }' not found` );
+                throw new Error( `Workspace package(s) '${ name }' not found` );
             }
 
             return;
         }
 
-        if ( packages[ currentPackage.json.name ] ) {
-            result[ currentPackage.json.name ] = packages[ currentPackage.json.name ];
-        }
+        Object.values( currentPackages ).forEach( ( pkg ) => {
+            result[ pkg.json.name ] = pkg;
+        } );
     } );
 
     Object.assign( zWorkspaceFindPackagesCache[ workspacePath ] ??= {}, result );
@@ -195,7 +213,7 @@ export function zWorkspaceGetPackagesPaths( rootPkg: Package, options = { useCac
         };
     } );
 
-    console.verbose( () => [ `${ zWorkspaceGetPackagesPaths.name }() -> workspaces from package: ${ util.inspect( rootPkg.getPath() ) }`, util.inspect(
+    ConsoleManager.$.verbose( () => [ `${ zWorkspaceGetPackagesPaths.name }() -> workspaces from package: ${ util.inspect( rootPkg.getPath() ) }`, util.inspect(
         {
             workspaces: rootPkg.json.workspaces,
             paths: Object.values( result.map( ( i ) => i.packages ).flat() ),

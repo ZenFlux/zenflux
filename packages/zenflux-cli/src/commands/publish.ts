@@ -7,6 +7,8 @@ import fs from "fs";
 import path from "path";
 import process from "process";
 
+import { ConsoleManager } from "@zenflux/cli/src/managers/console-manager";
+
 import { CommandBase } from "@zenflux/cli/src/base/command-base";
 
 import { zWorkspaceGetPackages, zWorkspaceGetWorkspaceDependencies } from "@zenflux/cli/src/core/workspace";
@@ -14,7 +16,6 @@ import { zWorkspaceGetPackages, zWorkspaceGetWorkspaceDependencies } from "@zenf
 import { Package } from "@zenflux/cli/src/modules/npm/package";
 
 import { ConsoleMenuCheckbox } from "@zenflux/cli/src/modules/console/console-menu-checkbox";
-import { console } from "@zenflux/cli/src/modules/console";
 
 import { DEFAULT_Z_REGISTRY_URL } from "@zenflux/cli/src/definitions/zenflux";
 import { DEFAULT_NPM_RC_PATH, DEFAULT_NPM_REMOTE_REGISTRY_URL } from "@zenflux/cli/src/modules/npm/definitions";
@@ -34,19 +35,19 @@ export default class Publish extends CommandBase {
             packages = zWorkspaceGetPackages( workspacePackage, this.newPackageOptions );
 
         if ( ! Object.keys( packages ).length ) {
-            console.log( "No workspaces found" );
+            ConsoleManager.$.log( "No workspaces found" );
             return;
         }
 
         // Use local registry?
         if ( fs.existsSync( this.paths.npmRc ) &&
-            await console.confirm( `Local registry found: ${ util.inspect( DEFAULT_Z_REGISTRY_URL ) }', Do you want to use local npm registry?` ) ) {
+            await ConsoleManager.$.confirm( `Local registry found: ${ util.inspect( DEFAULT_Z_REGISTRY_URL ) }', Do you want to use local npm registry?` ) ) {
 
             // Check if local registry is running by fetching the registry url
             try {
                 await fetch( DEFAULT_Z_REGISTRY_URL );
             } catch ( e ) {
-                console.error( `Local registry is not running, please run: ${ util.inspect( "@z-cli @registry server" ) }` );
+                ConsoleManager.$.error( `Local registry is not running, please run: ${ util.inspect( "@z-cli @registry server" ) }` );
 
                 return;
             }
@@ -55,20 +56,20 @@ export default class Publish extends CommandBase {
             this.newPackageOptions.npmRcPath = this.paths.npmRc;
         }
 
-        console.log( `Used NPM registry: ${ util.inspect( this.newPackageOptions.registryUrl ) }` );
+        ConsoleManager.$.log( `Used NPM registry: ${ util.inspect( this.newPackageOptions.registryUrl ) }` );
 
         // Ensure that packages that meet the publishing requirements
         const publishAblePackages = await this.ensurePublishAblePackages( packages );
 
         if ( ! Object.keys( publishAblePackages ).length ) {
-            return console.log( "No publishable packages found" );
+            return ConsoleManager.$.log( "No publishable packages found" );
         }
 
-        console.log( util.inspect(
+        ConsoleManager.$.log( util.inspect(
             Object.values( publishAblePackages ).map( p => p.getDisplayName() )
         ), "\n" );
 
-        console.log( "Analyzing workspace dependencies\ny" );
+        ConsoleManager.$.log( "Analyzing workspace dependencies\ny" );
 
         const updatedPackages = await this.ensurePackagesWorkspaceDependencies(
             publishAblePackages,
@@ -90,10 +91,10 @@ export default class Publish extends CommandBase {
         const result: TPackages = {};
 
         // Display publish files.
-        console.log( "Files that will be published:" );
+        ConsoleManager.$.log( "Files that will be published:" );
 
         for ( const [ , pkg ] of Object.entries( packages ) ) {
-            console.log( pkg.getDisplayName() + " =>", await pkg.getPublishFiles() );
+            ConsoleManager.$.log( pkg.getDisplayName() + " =>", await pkg.getPublishFiles() );
         }
 
         const prepublishPath = path.join( this.paths.etc, "prepublish" );
@@ -121,7 +122,7 @@ export default class Publish extends CommandBase {
         } );
 
         // Display to user the prepublish directory path and ask if he wants to continue
-        if ( ! await console.confirm( `Please review the contents of the 'Prepublish' directory, which can be found at ${ util.inspect( "file://" + prepublishPath ) }, are you ready to proceed?` ) ) {
+        if ( ! await ConsoleManager.$.confirm( `Please review the contents of the 'Prepublish' directory, which can be found at ${ util.inspect( "file://" + prepublishPath ) }, are you ready to proceed?` ) ) {
             return null;
         }
 
@@ -131,16 +132,16 @@ export default class Publish extends CommandBase {
     private async publishPackages( packages: TPackages ) {
         const promises = [];
 
-        console.log( `Publishing package: ${ util.inspect( Object.values( packages ).map( pkg => pkg.getDisplayName() ) ) }` );
+        ConsoleManager.$.log( `Publishing package: ${ util.inspect( Object.values( packages ).map( pkg => pkg.getDisplayName() ) ) }` );
 
         for ( const pkg of Object.values( packages ) ) {
             promises.push(
                 pkg.publish()
                     .then( () => {
-                        console.log( util.inspect( pkg.getDisplayName() ) +  " Package published successfully" );
+                        ConsoleManager.$.log( util.inspect( pkg.getDisplayName() ) +  " Package published successfully" );
                     } )
                     .catch( e => {
-                        console.error( "Error while publishing => " + ( e.stack ) );
+                        ConsoleManager.$.error( "Error while publishing => " + ( e.stack ) );
                     } )
 
             );
@@ -185,19 +186,19 @@ export default class Publish extends CommandBase {
         } ) );
 
         if ( restrictedPackages.length ) {
-            console.log( "Packages that not meet the publish requirements:" );
+            ConsoleManager.$.log( "Packages that not meet the publish requirements:" );
 
             restrictedPackages
                 .sort( ( a, b ) => a.pkg.json.name.localeCompare( b.pkg.json.name ) )
                 .forEach( ( i ) => {
-                    console.log( `  - ${ util.inspect( i.pkg.getDisplayName() ) }` );
+                    ConsoleManager.$.log( `  - ${ util.inspect( i.pkg.getDisplayName() ) }` );
 
                     const missing = i.terms.missing;
 
                     if ( Object.keys( missing ).length ) {
-                        console.log( "    - Package missing:", util.inspect( missing, { breakLength: Infinity } ) );
+                        ConsoleManager.$.log( "    - Package missing:", util.inspect( missing, { breakLength: Infinity } ) );
                     } else if ( i.terms.isVersionExists ) {
-                        console.log( `    - Package version: ${ util.inspect( i.pkg.json.version ) } already exists` );
+                        ConsoleManager.$.log( `    - Package version: ${ util.inspect( i.pkg.json.version ) } already exists` );
                     }
                 } );
 
@@ -207,7 +208,7 @@ export default class Publish extends CommandBase {
         const resultValues = Object.values( result );
 
         if ( Object.keys( resultValues ).length ) {
-            console.log( "Packages that meet the publish requirements:" );
+            ConsoleManager.$.log( "Packages that meet the publish requirements:" );
 
             const selectedPackages = await ( new ConsoleMenuCheckbox(
                 Object.values( resultValues ).map( ( pkg ) => {
@@ -249,25 +250,25 @@ export default class Publish extends CommandBase {
                 latestVersion = isRegistryExists ? npmRegistry.getLastVersion() : null,
                 localVersion = dependencyPackage?.json.version;
 
-            console.log( `  - ${ dependencyName }@${ dependencyValue }` );
+            ConsoleManager.$.log( `  - ${ dependencyName }@${ dependencyValue }` );
 
             // Print details about the dependency
-            console.log( `    - Package in registry (npm): ${ isRegistryExists ? "exists" : "not exists" }` );
-            console.log( `    - Latest version (npm): ${ latestVersion ?? "not exists" }` );
-            console.log( `    - Local version: ${ localVersion ?? "not exists" }` );
+            ConsoleManager.$.log( `    - Package in registry (npm): ${ isRegistryExists ? "exists" : "not exists" }` );
+            ConsoleManager.$.log( `    - Latest version (npm): ${ latestVersion ?? "not exists" }` );
+            ConsoleManager.$.log( `    - Local version: ${ localVersion ?? "not exists" }` );
 
             let selectedVersion: string | null = null;
 
             // If only local version exists, ask if it should be used as the version for the package.
             if (
                 localVersion &&
-                await console.confirm( `    - > Do you want to use local version: '${ localVersion }' for ${ util.inspect( dependencyName ) } ?` )
+                await ConsoleManager.$.confirm( `    - > Do you want to use local version: '${ localVersion }' for ${ util.inspect( dependencyName ) } ?` )
             ) {
                 selectedVersion = localVersion;
             }
 
             if ( null === selectedVersion ) {
-                selectedVersion = await console.prompt( `    - > Please type the version you want use for ${ util.inspect( dependencyName ) }` );
+                selectedVersion = await ConsoleManager.$.prompt( `    - > Please type the version you want use for ${ util.inspect( dependencyName ) }` );
 
                 if ( ! selectedVersion.length ) {
                     throw new Error( `Invalid version: ${ util.inspect( selectedVersion ) }` );
@@ -307,12 +308,12 @@ export default class Publish extends CommandBase {
 
         // Print packages and their dependencies
         for ( const [ , { pkg, dependencies } ] of Object.entries( packagesDependencies ) ) {
-            console.log( util.inspect( pkg.getDisplayName() ) );
+            ConsoleManager.$.log( util.inspect( pkg.getDisplayName() ) );
 
             const dependenciesEntries = Object.entries( dependencies || {} );
 
             if ( ! dependenciesEntries.length ) {
-                console.log( "  - No workspace dependencies" );
+                ConsoleManager.$.log( "  - No workspace dependencies" );
                 process.stdout.write( "\n" );
                 continue;
             }
@@ -326,13 +327,13 @@ export default class Publish extends CommandBase {
         }
 
         // Print updated packages and their dependencies
-        console.log( "Updated packages and their workspace dependencies:" );
+        ConsoleManager.$.log( "Updated packages and their workspace dependencies:" );
 
         Object.entries( updatedPackagesAndTheirDependencies ).forEach( ( [ packageName, dependencies ] ) => {
-            console.log( util.inspect( packageName ) );
+            ConsoleManager.$.log( util.inspect( packageName ) );
 
             Object.entries( dependencies ).forEach( ( [ dependencyName, dependencyValue ] ) => {
-                console.log( `  -  '${ dependencyName }@${ dependencyValue.oldVersion }' => '${ dependencyName }@${ dependencyValue.newVersion }'` );
+                ConsoleManager.$.log( `  -  '${ dependencyName }@${ dependencyValue.oldVersion }' => '${ dependencyName }@${ dependencyValue.newVersion }'` );
             } );
         } );
 

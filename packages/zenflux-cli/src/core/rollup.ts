@@ -3,10 +3,11 @@
  */
 import path from "node:path";
 import process from "node:process";
-
 import util from "node:util";
 
 import nodeResolve from "@rollup/plugin-node-resolve";
+
+import { ConsoleManager}  from "@zenflux/cli/src/managers/console-manager";
 
 import { zGlobalPathsGet } from "@zenflux/cli/src/core/global";
 import { zWorkspaceGetPackages } from "@zenflux/cli/src/core/workspace";
@@ -20,8 +21,6 @@ import zRollupSwcPlugin from "@zenflux/cli/src/core/rollup-plugins/rollup-swc/ro
 import { zTSConfigRead } from "@zenflux/cli/src/core/typescript";
 
 import packageJSON from "@zenflux/cli/package.json";
-
-import { console } from "@zenflux/cli/src/modules/console";
 
 import type { OutputOptions, OutputPlugin, Plugin, ResolveIdResult, RollupOptions } from "rollup";
 
@@ -37,7 +36,7 @@ export function zRollupPluginModuleResolve( args: Required<IPluginArgs> ): Plugi
         baseSrcPath = tsConfig?.options.baseUrl ?? function useDefaultSrcPath () {
             const srcPath = path.join( projectPath, DEFAULT_BASE_SRC_PATH );
 
-            console.verbose( () => `${ zRollupPluginModuleResolve.name }::${ useDefaultSrcPath.name }() -> ${ util.inspect( srcPath ) }` );
+            ConsoleManager.$.debug( () => `${ zRollupPluginModuleResolve.name }::${ useDefaultSrcPath.name }() -> ${ util.inspect( srcPath ) }` );
 
             return srcPath;
         }(),
@@ -46,15 +45,10 @@ export function zRollupPluginModuleResolve( args: Required<IPluginArgs> ): Plugi
     const workspacePackages = zWorkspaceGetPackages( "auto" );
 
     const relativeCache = new Map<string, string>(),
-        workspaceCache = new Map<string, string>();
+        workspaceCache = new Map<string, string>(),
+        absoluteCache = new Map<string, string>();
 
-    function resolveRelative( modulePath: string ) {
-        if ( relativeCache.has( modulePath ) ) {
-            return relativeCache.get( modulePath );
-        }
-
-        const tryResolvePath = path.resolve( baseSrcPath, modulePath );
-
+    function resolveExt( tryResolvePath: string ) {
         // If resolved path has no extension
         if ( ! path.extname( tryResolvePath ) ) {
             // Try to resolve with each extension
@@ -63,14 +57,26 @@ export function zRollupPluginModuleResolve( args: Required<IPluginArgs> ): Plugi
 
                 // Check if tryPath exist in args.tsConfig.fileNames
                 if ( tsConfig.fileNames.includes( tryPath ) ) {
-                    console.verbose( () => `${ zRollupPluginModuleResolve.name }::${ resolveRelative.name }() -> ${ util.inspect( tryPath ) }` );
-
-                    relativeCache.set( modulePath, tryPath );
-
                     return tryPath;
                 }
             }
         }
+
+        return null;
+    }
+
+    function resolveRelative( modulePath: string ) {
+        if ( relativeCache.has( modulePath ) ) {
+            return relativeCache.get( modulePath );
+        }
+
+        if ( tsConfig.fileNames.includes( modulePath ) ) {
+            return modulePath;
+        }
+
+        const tryResolvePath = path.resolve( baseSrcPath, modulePath );
+
+        return resolveExt( tryResolvePath );
     }
 
     function resolveWorkspace( modulePath: string ) {
@@ -89,9 +95,9 @@ export function zRollupPluginModuleResolve( args: Required<IPluginArgs> ): Plugi
             if ( packageName === modulePathParts[ 0 ] || packageName === modulePathParts[ 0 ]  + "/" + modulePathParts[ 1 ] ) {
                 const tryPath = path.join( packageObj.getPath(), modulePathRest );
 
-                console.verbose( () => `${ resolveWorkspace.name }::${ resolveRelative.name }() -> ${ util.inspect( tryPath ) }` );
+                ConsoleManager.$.debug( () => `${ resolveWorkspace.name }::${ resolveRelative.name }() -> ${ util.inspect( tryPath ) }` );
 
-                const tryResolve = resolveRelative( tryPath );
+                const tryResolve = resolveExt( tryPath );
 
                 if ( tryResolve ) {
                     workspaceCache.set( modulePath, tryResolve );
@@ -102,8 +108,22 @@ export function zRollupPluginModuleResolve( args: Required<IPluginArgs> ): Plugi
         }
     }
 
+    function resolveAbsolute( modulePath: string ) {
+        if ( absoluteCache.has( modulePath ) ) {
+            return absoluteCache.get( modulePath );
+        }
+
+        // Check if modulePath exist in args.tsConfig.fileNames
+        if ( tsConfig.fileNames.includes( modulePath ) ) {
+            return modulePath;
+        }
+
+        return resolveExt( modulePath );
+    }
+
     return {
         name: "z-rollup-plugin-resolve",
+
         resolveId( source ): ResolveIdResult {
             const isAbsolute = path.isAbsolute( source );
 
@@ -112,7 +132,13 @@ export function zRollupPluginModuleResolve( args: Required<IPluginArgs> ): Plugi
                 const tryResolve = resolveRelative( source );
 
                 if ( tryResolve ) {
-                    return tryResolve;
+                    ConsoleManager.$.debug( () => `${ zRollupPluginModuleResolve.name }::${ resolveRelative.name }() -> ${ util.inspect( tryResolve ) }` );
+
+                    return {
+                        id: tryResolve,
+                        external: false,
+                        resolvedBy: zRollupPluginModuleResolve.name,
+                    };
                 }
             }
 
@@ -121,10 +147,29 @@ export function zRollupPluginModuleResolve( args: Required<IPluginArgs> ): Plugi
                 const tryResolve = resolveWorkspace( source );
 
                 if ( tryResolve ) {
-                    return tryResolve;
-                }
+                    ConsoleManager.$.debug( () => `${ zRollupPluginModuleResolve.name }::${ resolveWorkspace.name }() -> ${ util.inspect( tryResolve ) }` );
 
-                return null;
+                    return {
+                        id: tryResolve,
+                        external: false,
+                        resolvedBy: zRollupPluginModuleResolve.name,
+                    };
+                }
+            }
+
+            if ( isAbsolute ) {
+                // Try absolute path
+                const tryResolve = resolveAbsolute( source );
+
+                if ( tryResolve ) {
+                    ConsoleManager.$.debug( () => `${ zRollupPluginModuleResolve.name }::${ resolveAbsolute.name }() -> ${ util.inspect( tryResolve ) }` );
+
+                    return {
+                        id: tryResolve,
+                        external: false,
+                        resolvedBy: zRollupPluginModuleResolve.name,
+                    };
+                }
             }
         },
     };
@@ -154,7 +199,7 @@ export const zRollupGetPlugins = ( args: IPluginArgs ): OutputPlugin[] => {
     } );
 
     nodeResolvePlugin.onLog = ( logLevel, message ) => {
-        console.log( `nodeResolvePlugin: ${ util.inspect( {
+        ConsoleManager.$.log( `nodeResolvePlugin: ${ util.inspect( {
             ... message,
             projectPath: args.projectPath,
         } ) }` );
@@ -189,13 +234,23 @@ export const zRollupGetOutput = ( args: IOutputArgs, projectPath: string ): Outp
 
     const outDir = `${ tsConfig.options.outDir || projectPath + "/dist" }`;
 
+    let outputExt = "js";
+    switch ( format ) {
+        case "cjs":
+            outputExt = "cjs";
+            break;
+        case "es":
+            outputExt = "mjs";
+            break;
+    }
+
     const result: OutputOptions = {
         // TODO: Should be configurable, eg: `{tsConfigOutDir}/{outputFileName}.{format}.{ext}`
         // file: `${ outDir }/${ outputFileName }.${ format }.${ ext }`,
 
         dir: outDir,
-        entryFileNames: `${ outputFileName }.${ format }`,
-        chunkFileNames: `${ outputFileName }-[name].${ format }`,
+        entryFileNames: `${ outputFileName }.${ outputExt }`,
+        chunkFileNames: `${ outputFileName }-[name].${ outputExt }`,
 
         sourcemap: tsConfig.options.sourceMap,
 
@@ -207,9 +262,8 @@ export const zRollupGetOutput = ( args: IOutputArgs, projectPath: string ): Outp
         banner: "" +
             "/**\n" +
             ` * Bundled with love using the help of ${ packageJSON.name } toolkit v${ packageJSON.version }\n` +
-            ` * Bundle name: ${ outputName } fileName: ${ outputFileName }, built at ${ new Date() }\n` +
+            ` * Bundle name: ${ outputName } fileName: '${ outputFileName }', built at ${ new Date() }\n` +
             " */\n",
-
     };
 
     if ( outputName ) {
@@ -236,6 +290,9 @@ export const zRollupGetConfig = ( args: TZConfigInternalArgs, projectPath: strin
     const result: RollupOptions = {
         input: path.isAbsolute( inputPath ) ? inputPath : path.resolve( projectPath, inputPath ),
         external,
+
+        // Rollup is not trushworthy enough to do treeshaking, assuming swc will do it better
+        treeshake: false,
     };
 
     const outputArgs: IOutputArgs = {

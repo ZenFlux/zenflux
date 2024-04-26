@@ -5,13 +5,13 @@ import path from "node:path";
 import util from "node:util";
 import process from "node:process";
 
+import { ConsoleManager } from "@zenflux/cli/src/managers/console-manager";
+
 import { zTSConfigRead, zTSCreateDeclaration, zTSPreDiagnostics } from "@zenflux/cli/src/core/typescript";
 
 import { CommandBuildBase } from "@zenflux/cli/src/base/command-build-base";
 
-import { console } from "@zenflux/cli/src/modules/console";
-
-import { zRollupBuild } from "@zenflux/cli/src/core/build";
+import { zRollupBuild, zRollupCreateBuildWorker } from "@zenflux/cli/src/core/build";
 
 import type { TZBuildOptions } from "@zenflux/cli/src/definitions/build";
 
@@ -23,6 +23,10 @@ const DEFAULT_MIN_SINGLE_BUILD_CONFIGS = 3;
 export default class Build extends CommandBuildBase {
 
     public async run() {
+        const startTime = Date.now();
+
+        let threadsBeingUsed = false;
+
         const configs = this.getConfigs(),
             configsPaths = this.getConfigsPaths();
 
@@ -35,41 +39,61 @@ export default class Build extends CommandBuildBase {
             } );
         } );
 
-        for ( const config of configs ) {
-            console.log( `Building - '${ config.path }'` );
+        const promises: Promise<any>[] = [];
 
+        for ( const config of configs ) {
             const rollupConfig = this.getRollupConfig( config );
 
-            const options: TZBuildOptions = {
-                config,
-            };
+            const options: TZBuildOptions = { config };
+
+            let promise;
 
             if ( configs.length > DEFAULT_MIN_SINGLE_BUILD_CONFIGS ) {
-                options.thread = configs.indexOf( config );
+                threadsBeingUsed = true;
+
+                promise = zRollupCreateBuildWorker( rollupConfig, {
+                    ... options,
+                    thread: configs.indexOf( config ),
+                    otherConfigs: configs.filter( ( c ) => c !== config ),
+                } );
+            } else {
+                promise = zRollupBuild( rollupConfig, options );
             }
 
-            await zRollupBuild( rollupConfig, options );
+            promise.then( () => config.onBuilt?.() );
 
-            config.onBuilt?.();
+            promises.push( promise );
         }
 
+        await Promise.all( promises );
+
+        ConsoleManager.$.log( "Build -> Done", `(${ Date.now() - startTime }ms)` );
+
         configsPaths.forEach( ( configPath ) => {
-            console.log( `Creating declaration files for '${ configPath }'` );
+            ConsoleManager.$.log( "Creating declaration files for ", `'${ configPath }'` );
 
             zTSCreateDeclaration( zTSConfigRead( null, path.dirname( configPath ) ) );
         } );
 
         configs.forEach( config => {
-            console.log( `Trying to use api-extractor for '${ config.path }'` );
+            ConsoleManager.$.log( "Trying to use api-extractor for", `'${ config.path }'` );
 
-            this.tryUseApiExtractor( config );
+            this.tryUseApiExtractor( config, ConsoleManager.$ );
         } );
+
+        ConsoleManager.$.log( "Total -> Done", `(${ Date.now() - startTime }ms)` );
+
+        // TODO: Remove use of process.exit(), use safe exit for the threads
+        // Since we are using threads, they are not exiting automatically.
+        if ( threadsBeingUsed ) {
+            process.exit( 0 );
+        }
     }
 
     public showHelp( name: string ) {
         super.showHelp( name );
 
-        console.log( util.inspect( {
+        ConsoleManager.$.log( util.inspect( {
             "--haltOnDiagnosticError": {
                 description: "Halt on typescript diagnostic error",
                 behaviors: "Kill the process if typescript diagnostic error occurred"

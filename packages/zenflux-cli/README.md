@@ -24,8 +24,10 @@ The CLI tool provides a command for building projects. It utilizes technologies 
     - Current working directory is **package**: Build the current package
 <br /><br />
 - **@Multi-threading**
-    Both `@build` and `@watch` are multi-threaded:
+    Both `@build` and `@watch` are multithreaded:
 ![image](https://github.com/iNewLegend/zenflux/assets/10234691/fb367066-040d-41a9-9697-5fb54971252e)
+  `@watch` + `--verbose`
+![image](https://github.com/iNewLegend/zenflux/assets/10234691/bf6581ec-4faa-4cd8-9f56-4d698d985b27)
 - **Options**
     - **--config:**
         - Description: Specify a custom config file
@@ -36,8 +38,10 @@ The CLI tool provides a command for building projects. It utilizes technologies 
   - **--workspace:**
       - Description: Run for a specific workspace
       - Examples:
+          - `--workspace <company@package-name>`
           - `--workspace <package-name>`
           - `--workspace <package-name-a>, <package-name-b>`
+          - `--workspace "prefix-*", "react-*"`
 <br /><br />
 
   - **--dev:**
@@ -187,7 +191,9 @@ The CLI tool provides a command for building projects. It utilizes technologies 
     - After building all configurations, for each configuration path, it logs the start of the declaration files creation process and creates the declaration files using the `zTSCreateDeclaration` method.
     - After the build process, it calls the onBuilt method of the current configuration if it exists (from `zenflux.config.ts`).
     - Rollup `d.ts` files to single `d.ts` file - Runs `zApiExporter` for each package, if `inputDtsPath` and `outputDtsPath` are provided (from `zenflux.config.ts`)
-      <br /><br />
+    - Api-Extractor - The `zApiExporter` method is responsible for running the Api-Extractor tool on the declaration files of a package. it bundles the declaration files into a single declaration file for the package. This is useful for creating a single declaration file that can be used by consumers of the package.
+      - In development mode, it generates diagnostics log for each package, path: `${ projectPath }/log/api-extractor-diagnostics.${ buildOutputFileName }.log`
+        <br /><br />
 
 - **@watch**
   - **Initialization**: The `@watch` command starts by retrieving the configurations for each package in your workspace. These configurations are defined in the `zenflux.config.ts` file of each package.
@@ -202,7 +208,7 @@ The CLI tool provides a command for building projects. It utilizes technologies 
   - **Debounce Function**: The `debounce` function ensures that the build process is not triggered more than once within a specified delay. This is useful to avoid triggering multiple builds for rapid successive changes. The debounce function works by delaying the execution of the build process until a certain amount of time has passed without any new changes being detected. This ensures that if multiple changes are made in quick succession, the build process will only be triggered once, after the last change.
     <br /><br />
 
-  
+
 ### Publishing Packages
 
 The tool supports publishing npm packages to a registry. It includes features for configuring and publishing packages, ensuring they are available for installation by other developers. Developers can manage and publish their packages with ease.
@@ -254,3 +260,4 @@ The tool handles interactions with npm registries, creating a local npm registry
 - [ ] Publish should handle all input questions with cli arguments - Run without input blocking
 - [ ] Workspace publish/build configuration, should conditionally test & build packages
 - [ ] Make native support for npm workspaces
+- [ ] `readme.md` should explain how create and manage monorepo workspaces

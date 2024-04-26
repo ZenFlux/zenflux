@@ -8,17 +8,27 @@ import path from "node:path";
 
 import { Extractor, ExtractorConfig } from "@microsoft/api-extractor";
 
-import console from "@zenflux/cli/src/modules/console";
+import { ConsoleManager } from "@zenflux/cli/src/managers/console-manager";
 
-export function zApiExporter( projectPath: string, inputPath: string, outputPath: string ) {
+export function zApiExporter( projectPath: string, inputPath: string, outputPath: string, activeConsole = ConsoleManager.$ ) {
     const logDiagnosticsFile = process.env.NODE_ENV === "development" ?
-        path.resolve( projectPath, `api-extractor-diagnostics.${ path.basename( inputPath ) }.log` ) : undefined;
+        path.resolve( projectPath, `log/api-extractor-diagnostics.${ path.basename( inputPath ) }.log` ) : undefined;
 
-    console.verbose( () => `${ zApiExporter.name }() -> ${ util.inspect( {
+    // TODO, Make it configurable
+    if ( logDiagnosticsFile ) {
+        const logFolder = path.dirname( logDiagnosticsFile );
+
+        // Ensure folder exists
+        if ( !fs.existsSync( logFolder ) ) {
+            fs.mkdirSync( logFolder, { recursive: true } );
+        }
+    }
+
+    activeConsole.verbose( () => [`${ zApiExporter.name }()`, "->", `${ util.inspect( {
         projectPath,
         inputPath,
         outputPath,
-    } ) }` );
+    } ) }` ] );
 
     const extractorConfig: ExtractorConfig = ExtractorConfig.prepare( {
         configObject: {
@@ -38,7 +48,7 @@ export function zApiExporter( projectPath: string, inputPath: string, outputPath
     } );
 
     if ( logDiagnosticsFile && fs.existsSync( logDiagnosticsFile ) ) {
-        console.verbose( () => `${ zApiExporter.name }() -> Removing old diagnostics file: ${ logDiagnosticsFile }` );
+        activeConsole.verbose( () => [ `${ zApiExporter.name }()`,  "->", `Removing old diagnostics file: ${ logDiagnosticsFile }` ] );
         fs.unlinkSync( logDiagnosticsFile );
     }
 
@@ -57,13 +67,13 @@ export function zApiExporter( projectPath: string, inputPath: string, outputPath
             } else {
                 switch ( message.logLevel ) {
                     case "error":
-                        console.error( message.text );
+                        activeConsole.error( message.text );
                         break;
                     case "warning":
-                        console.warn( message.text );
+                        activeConsole.warn( message.text );
                         break;
                     case "verbose":
-                        console.verbose( () => `${ zApiExporter.name }() -> ${ message.text }` );
+                        activeConsole.verbose( () => [ `${ zApiExporter.name }()`, "->", message.text ] );
                         break;
 
                     default:
@@ -77,9 +87,9 @@ export function zApiExporter( projectPath: string, inputPath: string, outputPath
     } );
 
     if ( logDiagnosticsFile ) {
-        fs.writeFile( logDiagnosticsFile, devDiagnostics.join( "\n" ), () => {
-            console.log( `Api-Extractor diagnostics file: ${ logDiagnosticsFile } is created.` );
-        } );
+        fs.writeFileSync( logDiagnosticsFile, devDiagnostics.join( "\n" ) );
+
+        activeConsole.log( "Api-Extractor", "diagnostics file is created: ", `'${ logDiagnosticsFile }'` );
     }
 
     return result;

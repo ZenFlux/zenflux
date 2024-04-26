@@ -6,20 +6,18 @@ import process from "node:process";
 
 import util from "node:util";
 
+import { ConsoleManager } from "@zenflux/cli/src/managers/console-manager";
+
 import { CommandConfigBase } from "@zenflux/cli/src/base/command-config-base";
 
 import { zRollupGetConfig } from "@zenflux/cli/src/core/rollup";
 import { zApiExporter } from "@zenflux/cli/src/core/api-extractor";
 
-import { console } from "@zenflux/cli/src/modules/console";
-
 import { Z_CONFIG_DEFAULTS } from "@zenflux/cli/src/definitions/config";
 
-import { zTSConfigRead, zTSPreDiagnostics } from "@zenflux/cli/src/core/typescript";
+import type { IZConfigInternal } from "@zenflux/cli/src/definitions/config";
 
 import type { RollupOptions } from "rollup";
-
-import type { IZConfigInternal } from "@zenflux/cli/src/definitions/config";
 
 export abstract class CommandBuildBase extends CommandConfigBase {
     private rollupConfig: {
@@ -40,7 +38,7 @@ export abstract class CommandBuildBase extends CommandConfigBase {
 
         await result.then( () => {
             this.getConfigs().forEach( config => {
-                console.verbose( () => `${ CommandBuildBase.name }::${ this.loadConfigs.name }() -> Start building rollup config for: ${ util.inspect( config.outputName ) } config path: ${ util.inspect( config.path ) }` );
+                ConsoleManager.$.verbose( () => `${ CommandBuildBase.name }::${ this.loadConfigs.name }() -> Start building rollup config for: ${ util.inspect( config.outputName ) } config path: ${ util.inspect( config.path ) }` );
 
                 this.rollupConfig[ config.path + "-" + config.outputName ] = this.getConfigForEachFormat( config );
             } );
@@ -49,7 +47,7 @@ export abstract class CommandBuildBase extends CommandConfigBase {
         return result;
     }
 
-    protected tryUseApiExtractor( config: IZConfigInternal ) {
+    protected tryUseApiExtractor( config: IZConfigInternal, activeConsole = ConsoleManager.$ ) {
         const projectPath = path.dirname( config.path );
 
         // Check if we need to generate dts file.
@@ -58,7 +56,11 @@ export abstract class CommandBuildBase extends CommandConfigBase {
                 projectPath,
                 config.inputDtsPath as string,
                 config.outputDtsPath as string,
-            )?.succeeded && console.log( `Writing - done '${ path.isAbsolute( config.outputDtsPath as string ) ? config.outputDtsPath : path.join( projectPath, config.outputDtsPath as string ) }'` );
+                activeConsole
+            )?.succeeded &&
+            activeConsole.log( "Api-Extractor", "Writing - done",
+                `'${ path.isAbsolute( config.outputDtsPath as string ) ? config.outputDtsPath : path.join( projectPath, config.outputDtsPath as string ) }'`
+            );
         }
     }
 
@@ -79,7 +81,7 @@ export abstract class CommandBuildBase extends CommandConfigBase {
         super.showHelp( name );
 
         // Describe what the `--dev` option does for the command
-        console.log( util.inspect( {
+        ConsoleManager.$.log( util.inspect( {
             "--dev": {
                 description: "Run in development mode",
                 behaviors: [

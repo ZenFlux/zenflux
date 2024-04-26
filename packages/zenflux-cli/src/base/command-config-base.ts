@@ -11,7 +11,7 @@ import { CommandBase } from "@zenflux/cli/src/base/command-base";
 
 import { Package } from "@zenflux/cli/src/modules/npm/package";
 
-import { console } from "@zenflux/cli/src/modules/console";
+import { ConsoleManager } from "@zenflux/cli/src/managers/console-manager";
 
 import type { IZConfigInternal } from "@zenflux/cli/src/definitions/config";
 
@@ -28,7 +28,9 @@ export abstract class CommandConfigBase extends CommandBase {
             this.isWorkspaceSpecified = true;
 
             const result = zWorkspaceFindPackages(
-                this.args[ workspaceArgIndex + 1 ].split( "," ),
+                this.args[ workspaceArgIndex + 1 ]
+                    .split( "," )
+                    .map( i => i.trim() ),
                 this.initPathsArgs.workspacePath,
             );
 
@@ -71,7 +73,9 @@ export abstract class CommandConfigBase extends CommandBase {
             }
         } );
 
-        return Promise.all( promises );
+        await Promise.all( promises );
+
+        return this.configs;
     }
 
     protected getConfigs() {
@@ -91,7 +95,7 @@ export abstract class CommandConfigBase extends CommandBase {
     protected showHelp( name: string ) {
         super.showHelp( name );
 
-        console.log( util.inspect( {
+        ConsoleManager.$.log( util.inspect( {
             "--config": {
                 description: "Specify a custom config file",
                 // aliases: [ "-c" ],
@@ -103,8 +107,10 @@ export abstract class CommandConfigBase extends CommandBase {
             "--workspace": {
                 description: "Run for specific workspace",
                 examples: [
+                    "--workspace <company@package-name>",
                     "--workspace <package-name>",
                     "--workspace <package-name-a>, <package-name-b>",
+                    "--workspace \"prefix-*\", \"react-*\""
                 ]
             }
         } ) );

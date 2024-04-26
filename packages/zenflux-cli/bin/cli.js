@@ -24,7 +24,9 @@ const vmContext = {
 
     fetch,
     setTimeout,
+    setInterval,
     clearTimeout,
+    clearInterval
 };
 
 Object.defineProperty( vmContext, "console", {

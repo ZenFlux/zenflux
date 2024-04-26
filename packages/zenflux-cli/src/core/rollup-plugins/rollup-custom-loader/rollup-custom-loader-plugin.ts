@@ -153,7 +153,7 @@ export default function zRollupCustomLoaderPlugin( args: IPluginArgs ): Plugin {
 
                 return {
                     code: magicString.toString(),
-                    map: args.sourcemap ? magicString.generateMap() : null,
+                    map: args.sourcemap ? magicString.generateMap( { hires: true }) : null,
                 };
             }
         },

@@ -1,7 +1,7 @@
-(async function zCjsAsyncTopLevelEntry() {
-    var callbacks = [ ... Object.entries( globalThis.__Z_CJS_WARP__.callbacks ) ];
+( async function zCjsAsyncTopLevelEntry() {
+    var callbacks = [ ...Object.entries( globalThis.__Z_CJS_WARP__.callbacks ) ];
 
-    for( var i = 0; i < callbacks.length; i++ ) {
+    for ( var i = 0; i < callbacks.length; i++ ) {
         var [ name, callback ] = callbacks[ i ];
 
         await callback();
@@ -9,11 +9,11 @@
         delete globalThis.__Z_CJS_WARP__.callbacks[ name ];
     }
 
-    if( Object.keys( globalThis.__Z_CJS_WARP__.callbacks ).length > 0 ) {
+    // Check if new callbacks were added while we were running
+    if ( Object.keys( globalThis.__Z_CJS_WARP__.callbacks ).length > 0 ) {
         await zCjsAsyncTopLevelEntry();
     }
 
-})().catch( function( error ) {
+} )().catch( function ( error ) {
     throw error;
-} ).then( function() {
-} );
+} ).then( function () {} );
