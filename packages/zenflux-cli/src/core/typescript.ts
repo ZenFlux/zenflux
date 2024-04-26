@@ -392,6 +392,12 @@ export async function zTSCreateDiagnosticWorker(
         throw new Error( "Thread not found." );
     }
 
+    if ( ! thread.isAlive() ) {
+        diagnosticThreads.delete( options.thread as number );
+
+        return zTSCreateDiagnosticWorker( tsConfig, options, activeConsole );
+    }
+
     return thread.run();
 }
 
@@ -423,6 +429,12 @@ export async function zTSCreateDeclarationWorker(
 
     if ( ! thread ) {
         throw new Error( "Thread not found." );
+    }
+
+    if ( ! thread.isAlive() ) {
+        declarationThreads.delete( options.thread as number );
+
+        return zTSCreateDeclarationWorker( tsConfig, options, activeConsole );
     }
 
     return thread.run();
