@@ -86,7 +86,7 @@ async function rollupBuildInternal( config: RollupOptions, options: TZBuildOptio
     options.config.onBuiltFormat?.( output.format as TZFormatType );
 }
 
-async function threadWaitForDependencies( options: TZBuildWorkerOptions, pkg: Package, config: IZConfigInternal ) {
+async function threadWaitForDependencies( options: TZBuildWorkerOptions, pkg: Package, config: IZConfigInternal, activeConsole = ConsoleManager.$ ) {
     const { zWorkspaceGetWorkspaceDependencies } = await import( "@zenflux/cli/src/core/workspace" );
 
     if ( options.otherConfigs.length ) {
@@ -109,7 +109,7 @@ async function threadWaitForDependencies( options: TZBuildWorkerOptions, pkg: Pa
 
             // TODO: It should favor skipping external dependencies.
             if ( Object.keys( availableDependencies ).length ) {
-                ConsoleManager.$.verbose( () => [
+                activeConsole.verbose( () => [
                     options.thread,
                     threadWaitForDependencies.name,
                     "Pause",
@@ -125,7 +125,7 @@ async function threadWaitForDependencies( options: TZBuildWorkerOptions, pkg: Pa
 
                 await promise.await;
 
-                ConsoleManager.$.verbose( () => [
+                activeConsole.verbose( () => [
                     options.thread,
                     threadWaitForDependencies.name,
                     "Resume",
@@ -256,7 +256,7 @@ export async function zRollupCreateBuildWorker( rollupOptions: RollupOptions[], 
         throw new Error( "Thread not found." );
     }
 
-    await threadWaitForDependencies( options, pkg, config );
+    await threadWaitForDependencies( options, pkg, config, activeConsole );
 
     const buildPromise = thread.run();
 

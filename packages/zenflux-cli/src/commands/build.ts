@@ -83,6 +83,7 @@ export default class Build extends CommandBuildBase {
 
         ConsoleManager.$.log( "Total -> Done", `(${ Date.now() - startTime }ms)` );
 
+        // TODO: Remove use of process.exit(), use safe exit for the threads
         // Since we are using threads, they are not exiting automatically.
         if ( threadsBeingUsed ) {
             process.exit( 0 );
