@@ -191,7 +191,9 @@ The CLI tool provides a command for building projects. It utilizes technologies 
     - After building all configurations, for each configuration path, it logs the start of the declaration files creation process and creates the declaration files using the `zTSCreateDeclaration` method.
     - After the build process, it calls the onBuilt method of the current configuration if it exists (from `zenflux.config.ts`).
     - Rollup `d.ts` files to single `d.ts` file - Runs `zApiExporter` for each package, if `inputDtsPath` and `outputDtsPath` are provided (from `zenflux.config.ts`)
-      <br /><br />
+    - Api-Extractor - The `zApiExporter` method is responsible for running the Api-Extractor tool on the declaration files of a package. it bundles the declaration files into a single declaration file for the package. This is useful for creating a single declaration file that can be used by consumers of the package.
+      - In development mode, it generates diagnostics log for each package, path: `${ projectPath }/log/api-extractor-diagnostics.${ buildOutputFileName }.log`
+        <br /><br />
 
 - **@watch**
   - **Initialization**: The `@watch` command starts by retrieving the configurations for each package in your workspace. These configurations are defined in the `zenflux.config.ts` file of each package.
