@@ -39,9 +39,6 @@ const DEFAULT_ON_CHANGE_DELAY = 2000;
 const buildTimePerThread = new Map();
 
 export default class Watch extends CommandBuildBase {
-    private passedConfigs: Record<number, IZConfigInternal> = {};
-    private uniqueConfigs: Record<number, IZConfigInternal> = {};
-
     public initialize() {
         // Set global console instance as rollupConsole.
         ConsoleManager.setInstance( rollupConsole );
@@ -127,15 +124,12 @@ export default class Watch extends CommandBuildBase {
 
         tsDiagnosticConsole.log( id, "Send", util.inspect( config.outputName ) );
 
-        // logTypeScript( `Diagnostic{tab}${ id }{tab}Send{tab}${ util.inspect( config.outputName ) }` );
-
         const promise = zTSCreateDiagnosticWorker( zTSConfigRead( null, path.dirname( config.path ) ), {
             useCache: false,
             thread: id
         }, tsDiagnosticConsole );
 
         return await ( promise as Promise<any> ).then( () => {
-            // logTypeScript( `Diagnostic\t${ id }\tRecv\t${ util.inspect( config.outputName ) }` );
             tsDiagnosticConsole.log( id, "Recv", util.inspect( config.outputName ) );
         } );
     }
@@ -143,7 +137,6 @@ export default class Watch extends CommandBuildBase {
     private async handleTypeScript( config: IZConfigInternal ) {
         const id = this.getIdByConfig( config );
 
-        // logTypeScript( `Declaration{tab}${ id }{tab}Send{tab}${ util.inspect( config.outputName ) }` );
         tsDeclarationConsole.log( id, "Send", util.inspect( config.outputName ) );
 
         const result = zTSCreateDeclarationWorker( zTSConfigRead( null, path.dirname( config.path ) ), {
@@ -151,7 +144,6 @@ export default class Watch extends CommandBuildBase {
         }, tsDeclarationConsole );
 
         ( result as Promise<any> ).then( () => {
-            // logTypeScript( `Declaration{tab}${ id }{tab}Recv{tab}${ util.inspect( config.outputName ) }` );
             tsDeclarationConsole.log( id, "Recv", util.inspect( config.outputName ) );
 
             this.tryUseApiExtractor( config, tsDeclarationConsole );

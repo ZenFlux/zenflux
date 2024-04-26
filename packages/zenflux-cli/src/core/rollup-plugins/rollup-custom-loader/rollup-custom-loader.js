@@ -31,16 +31,12 @@ if ( "undefined" === typeof globalThis.__Z_CUSTOM_LOADER__ ) {
     }
 
     function zCustomLoader( path, args ) {
-        // console.log( 'zCustomLoader', path, args );
-
         const moduleForwarding = globalThis.__Z_CUSTOM_LOADER_MODULE_FORWARDING__[ args.moduleName ];
 
         if ( moduleForwarding ) {
             const forwardedModuleName = moduleForwarding[ path ];
 
             if ( forwardedModuleName ) {
-                // console.log( 'zCustomLoader', path, '->', forwardedModuleName );
-
                 path = forwardedModuleName;
             }
         }

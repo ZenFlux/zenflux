@@ -1,3 +1,6 @@
+/**
+ * @author: Leonid Vinikov <leonidvinikov@gmail.com>
+ */
 import process from "node:process";
 
 import { ConsoleManager } from "@zenflux/cli/src/managers/console-manager";
