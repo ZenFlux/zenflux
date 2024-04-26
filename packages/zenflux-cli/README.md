@@ -24,8 +24,10 @@ The CLI tool provides a command for building projects. It utilizes technologies 
     - Current working directory is **package**: Build the current package
 <br /><br />
 - **@Multi-threading**
-    Both `@build` and `@watch` are multi-threaded:
+    Both `@build` and `@watch` are multithreaded:
 ![image](https://github.com/iNewLegend/zenflux/assets/10234691/fb367066-040d-41a9-9697-5fb54971252e)
+  `@watch` + `--verbose`
+![image](https://github.com/iNewLegend/zenflux/assets/10234691/bf6581ec-4faa-4cd8-9f56-4d698d985b27)
 - **Options**
     - **--config:**
         - Description: Specify a custom config file
