@@ -1,4 +1,4 @@
-#!/usr/bin/env DEV=true node --unhandled-rejections=strict --experimental-vm-modules --trace-uncaught --no-warnings
+#!/usr/bin/env node --unhandled-rejections=strict --experimental-vm-modules --trace-uncaught --no-warnings
 import path from "node:path";
 
 import { fileURLToPath } from "node:url";
@@ -46,7 +46,7 @@ vm.defineConfig( {
 
     vmContext,
 
-    extensions: [ ".ts", ".tsx", ".json" ],
+    extensions: [ ".ts", ".json" ],
 
     useSwc: true,
 
