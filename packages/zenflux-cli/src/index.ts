@@ -25,10 +25,6 @@ export default async function boot( args = process.argv.slice( 2 ) ) {
         "@registry": {
             module: async () => ( await import( "@zenflux/cli/src/commands/registry" ) ).default,
         },
-
-        "@clean": {
-            module: async () => ( await import( "@zenflux/cli/src/commands/clean" ) ).default,
-        },
     };
 
     const runner = commands[ args[ 0 ] as keyof typeof commands ];
