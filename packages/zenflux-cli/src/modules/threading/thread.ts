@@ -52,11 +52,13 @@ export class Thread {
         } );
 
         this.worker.on( "error", ( error ) => {
-            if ( this.errorCallbacks ) {
-                this.errorCallbacks.forEach( c => c.call( null, ... [ this.id, error ] ) );
-            } else {
-                throw error;
-            }
+            this.terminate().then( () => {
+                if ( this.errorCallbacks ) {
+                    this.errorCallbacks.forEach( c => c.call( null, ... [ this.id, error ] ) );
+                } else {
+                    throw error;
+                }
+            } );
         } );
 
         this.worker.on( "message", ( [ message, ... args ]: any [] ) => {
@@ -166,6 +168,10 @@ export class Thread {
 
     public isIdle() {
         return this.state === "idle";
+    }
+
+    public isAlive() {
+        return this.state !== "terminated" && this.state !== "killed";
     }
 }
 
