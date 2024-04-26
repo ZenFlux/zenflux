@@ -240,6 +240,8 @@ export async function zRollupCreateBuildWorker( rollupOptions: RollupOptions[], 
             ],
         );
 
+        // TODO: `thread.hookConsole( activeConsole )` instead of `onMessage`, `onVerbose`, `onDebug`, `onError`.
+
         thread.onMessage( activeConsole.message.bind( activeConsole ) );
         thread.onVerbose( activeConsole.verbose.bind( activeConsole ) );
         thread.onDebug( activeConsole.debug.bind( activeConsole ) );
