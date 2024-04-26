@@ -23,6 +23,8 @@ const DEFAULT_MIN_SINGLE_BUILD_CONFIGS = 3;
 export default class Build extends CommandBuildBase {
 
     public async run() {
+        const startTime = Date.now();
+
         let threadsBeingUsed = false;
 
         const configs = this.getConfigs(),
@@ -65,6 +67,8 @@ export default class Build extends CommandBuildBase {
 
         await Promise.all( promises );
 
+        ConsoleManager.$.log( "Build -> Done", `(${ Date.now() - startTime }ms)` );
+
         configsPaths.forEach( ( configPath ) => {
             ConsoleManager.$.log( "Creating declaration files for ", `'${ configPath }'` );
 
@@ -77,7 +81,7 @@ export default class Build extends CommandBuildBase {
             this.tryUseApiExtractor( config, ConsoleManager.$ );
         } );
 
-        ConsoleManager.$.log( "Build -> Done" );
+        ConsoleManager.$.log( "Total -> Done", `(${ Date.now() - startTime }ms)` );
 
         // Since we are using threads, they are not exiting automatically.
         if ( threadsBeingUsed ) {
