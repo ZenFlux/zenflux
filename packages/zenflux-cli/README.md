@@ -260,3 +260,4 @@ The tool handles interactions with npm registries, creating a local npm registry
 - [ ] Publish should handle all input questions with cli arguments - Run without input blocking
 - [ ] Workspace publish/build configuration, should conditionally test & build packages
 - [ ] Make native support for npm workspaces
+- [ ] `readme.md` should explain how create and manage monorepo workspaces
