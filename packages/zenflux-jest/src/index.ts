@@ -6,10 +6,11 @@ import util from "node:util";
 
 import { fileURLToPath } from "node:url";
 
+import { ConsoleManager } from "@zenflux/cli/src/managers/console-manager";
+
 import { zWorkspaceFindRootPackageJson, zWorkspaceGetPackages } from "@zenflux/cli/src/core/workspace";
 
 import { Package } from "@zenflux/cli/src/modules/npm/package";
-import  { console } from "@zenflux/cli/src/modules/console";
 
 import { normalize } from "jest-config";
 
@@ -24,7 +25,7 @@ const rootPkg = new Package( path.dirname( zWorkspaceFindRootPackageJson() ) );
 const filterProjects: string[] = [];
 
 if ( process.argv.includes( "--help" ) || process.argv.includes( "-h" ) ) {
-    console.log( "Use jest --help" );
+    ConsoleManager.$.log( "Use jest --help" );
     process.exit( 0 );
 }
 
@@ -33,7 +34,7 @@ if ( process.argv.includes( "--selectedProjects" ) ) {
     const selectedProjects = process.argv[ selectedProjectsKey + 1 ];
 
     if ( ! selectedProjects ) {
-        console.log( "Use @z-jest --selectedProjects <project1, project2>" );
+        ConsoleManager.$.log( "Use @z-jest --selectedProjects <project1, project2>" );
         process.exit( 1 );
     }
 
@@ -50,7 +51,7 @@ if ( process.argv.includes( "--runTestsByPath" ) ) {
     const runTestsByPath = process.argv[ runTestsByPathKey + 1 ];
 
     if ( ! runTestsByPath ) {
-        console.log( "Use @z-jest --runTestsByPath <path>" );
+        ConsoleManager.$.log( "Use @z-jest --runTestsByPath <path>" );
         process.exit( 1 );
     }
 
@@ -113,7 +114,8 @@ const rootConfig: Partial<Config.Argv> = {
     verbose: true,
 
     // Detect debug mode...
-    cache: !! inspector.url(),
+    cache: ! inspector.url(),
+    testTimeout: inspector.url() ? 30000 : 5000,
 };
 
 const eachProjectConfig: Partial<Config.ProjectConfig> = {};
@@ -161,7 +163,7 @@ for ( const arg of process.argv.slice( 2 ) ) {
     }
 }
 
-const originalWarn = console.warn;
+const originalWarn = ConsoleManager.$.warn;
 
 let didCatch = false;
 
@@ -179,9 +181,9 @@ const normalizers = projects.map( async ( project, index ) => {
     } as any;
 
     // Since jest does not give simple flexibility without adding custom code,
-    console.warn = ( ... args ) => {
+    ConsoleManager.$.warn = ( ... args ) => {
         args.push( "\n" + "cause: file://" + configPath + "\n" );
-        console.error( ... args );
+        ConsoleManager.$.error( ... args );
     };
 
     const promise = normalize(
@@ -194,7 +196,7 @@ const normalizers = projects.map( async ( project, index ) => {
 
     promise.catch( ( error ) => {
         didCatch = true;
-        console.error( error.message, "\n" +
+        ConsoleManager.$.error( error.message, "\n" +
             "cause: file://" + configPath + "\n"
         );
     } );
@@ -208,7 +210,7 @@ await Promise.all( normalizers ).catch( () => {
     didCatch = true;
 } );
 
-console.warn = originalWarn;
+ConsoleManager.$.warn = originalWarn;
 
 let jestProjects = projects.map( ( p => {
         if ( ! p.config.setupFiles ) {
@@ -233,6 +235,14 @@ if ( jestProjects.length === 1 ) {
 
 if ( "string" === typeof initialArgv.reporters ) {
     initialArgv.reporters = [ initialArgv.reporters ];
+}
+
+// This will allow to run test by exact name in case gate pragma is not specified, see `setup-react-test-gates`
+if ( initialArgv.testNamePattern?.length && ! initialArgv.testNamePattern.includes( "[" ) ) {
+    const patternStart = initialArgv.testNamePattern.split( " ", 1 ) [ 0 ];
+
+    initialArgv.testNamePattern = patternStart + "( \\[.*\\])?" +
+        initialArgv.testNamePattern.substring( patternStart.length );
 }
 
 if ( ! didCatch ) {
