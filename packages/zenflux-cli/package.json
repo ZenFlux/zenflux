@@ -1,7 +1,7 @@
 {
     "$schema": "https://json.schemastore.org/package",
     "name": "@zenflux/cli",
-    "version": "0.0.1-dev",
+    "version": "0.0.2-dev",
     "type": "module",
     "types": "./types/index.d.ts",
     "bin": {
