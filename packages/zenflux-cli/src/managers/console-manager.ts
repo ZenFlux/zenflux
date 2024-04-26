@@ -36,4 +36,14 @@ export class ConsoleManager extends Console {
     protected setPrefix( prefix: string ) {
         this.prefix = `[${ packageJSON.name }@${ packageJSON.version }]:` + prefix;
     }
+
+    public message( id: number | string, subject: string, action: string, ... args: any[] ) {
+        const paddedArgs = args.map( arg => String( arg ).padEnd( 50 ) ).join( "\t" );
+
+        // Capitalize subject and Action
+        subject = subject.charAt( 0 ).toUpperCase() + subject.slice( 1 );
+        action = action.charAt( 0 ).toUpperCase() + action.slice( 1 );
+
+        super.log( [ "Thread", id, subject, action, "\t", paddedArgs ].join( "\t" ) );
+    }
 }

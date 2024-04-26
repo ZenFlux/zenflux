@@ -9,7 +9,7 @@ import process from "process";
 
 import type { ConsoleConstructorOptions } from "node:console";
 
-type TLoggerMethod = typeof Console.prototype.log |
+export type TConsoleLoggerMethod = typeof Console.prototype.log |
     typeof Console.prototype.error |
     typeof Console.prototype.warn |
     typeof Console.prototype.info |
@@ -20,7 +20,7 @@ type TLoggerMethod = typeof Console.prototype.log |
 export class Console extends NodeConsole {
     protected prefix: string;
 
-    protected currentLoggerMethod: null | TLoggerMethod = null;
+    protected currentLoggerMethod: null | TConsoleLoggerMethod = null;
 
     public constructor( options: ConsoleConstructorOptions ) {
         super( options );
@@ -42,13 +42,15 @@ export class Console extends NodeConsole {
         this.prefix = prefix;
     }
 
-    protected output( method: TLoggerMethod, args: any[] ) {
+    protected output( method: TConsoleLoggerMethod, args: any[] ) {
+        args.unshift( this.prefix );
+
         method.apply( this, args );
     }
 
     public prompt( message: string ): Promise<string> {
         return new Promise( ( resolve ) => {
-            console.log( message );
+            this.log( message );
 
             process.stdin.resume();
             process.stdin.once( "data", ( data ) => {
@@ -72,7 +74,7 @@ export class Console extends NodeConsole {
             this.currentLoggerMethod = this.log;
         }
 
-        this.output( this.log, args );
+        this.output( super.log, args );
 
         this.currentLoggerMethod = null;
     }
@@ -80,7 +82,7 @@ export class Console extends NodeConsole {
     public error( ... args: any[] ) {
         this.currentLoggerMethod = this.error;
 
-        this.output( this.error, args );
+        this.output( super.error, args );
 
         this.currentLoggerMethod = null;
     }
@@ -88,7 +90,7 @@ export class Console extends NodeConsole {
     public warn( ... args: any[] ) {
         this.currentLoggerMethod = this.warn;
 
-        this.output( this.warn, args );
+        this.output( super.warn, args );
 
         this.currentLoggerMethod = null;
     }
@@ -96,7 +98,7 @@ export class Console extends NodeConsole {
     public info( ... args: any[] ) {
         this.currentLoggerMethod = this.info;
 
-        this.output( this.info, args );
+        this.output( super.info, args );
 
         this.currentLoggerMethod = null;
     }
@@ -154,14 +156,15 @@ export class Console extends NodeConsole {
     }
 
     public message( id: number | string, subject: string, action: string, ... args: any[] ) {
-        const paddedArgs = args.map( arg => String( arg ).padEnd( 50 ) ).join( "\t" );
-
-        // Capitalize subject and Action
-        subject = subject.charAt( 0 ).toUpperCase() + subject.slice( 1 );
-        action = action.charAt( 0 ).toUpperCase() + action.slice( 1 );
-
         this.currentLoggerMethod = this.message;
 
-        this.log( id, subject, action, paddedArgs );
+        this.output( super.log, [
+            id,
+            subject,
+            action,
+            ... args
+        ] );
+
+        this.currentLoggerMethod = null;
     }
 }

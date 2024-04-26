@@ -71,6 +71,16 @@ abstract class BaseCustomConsole extends ConsoleManager.module() {
         }, 300 );
     }
 
+    public message( id: number | string, subject: string, action: string, ... args: any[] ) {
+        const paddedArgs = args.map( arg => String( arg ).padEnd( 50 ) ).join( "\t" );
+
+        // Capitalize subject and Action
+        subject = subject.charAt( 0 ).toUpperCase() + subject.slice( 1 );
+        action = action.charAt( 0 ).toUpperCase() + action.slice( 1 );
+
+        super.message( id, subject, action, paddedArgs );
+    }
+
     protected abstract getCustomLogger(): ReturnType<typeof zConsoleCreateLogBox>;
 
     protected getBaseFormat( args: any[] ): string {
