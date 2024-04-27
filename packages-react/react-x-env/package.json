@@ -22,14 +22,16 @@
             "types": "./dist/src/react-act.d.ts",
             "import": "./dist/react-x-env.act.mjs",
             "require": "./dist/react-x-env.act.cjs"
-        }
+        },
+
+        "./src/react-internals": "./src/react-internals.ts"
     },
     "scripts": {
         "@z-react-x-env--build": "bun run @z-cli @build",
         "@z-react-x-env--build-dev": "bun run @z-react-x-env--build --dev",
         "@z-react-x-env--dev": "bun run @z-cli @watch --dev"
     },
-    "dependencies": {
+    "peerDependencies": {
         "react": "^18.2.0"
     }
 }

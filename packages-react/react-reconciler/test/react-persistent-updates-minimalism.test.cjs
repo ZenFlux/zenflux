@@ -17,6 +17,7 @@ let act;
 describe( 'ReactPersistentUpdatesMinimalism', () => {
     beforeEach( () => {
         jest.resetModules();
+
         if ( globalThis.globalThis.__Z_CUSTOM_LOADER__ !== undefined ) {
             delete global.React;
 

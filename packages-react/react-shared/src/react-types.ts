@@ -117,7 +117,7 @@ interface ThenableImpl<T> {
 }
 
 interface UntrackedThenable<T> extends ThenableImpl<T> {
-    status?: void;
+    status?: string;
 }
 
 export interface PendingThenable<T> extends ThenableImpl<T> {

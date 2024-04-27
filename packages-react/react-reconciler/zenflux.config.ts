@@ -1,5 +1,3 @@
-import * as process from "node:process";
-
 import type { IZConfigs } from "@zenflux/cli";
 
 const configs: IZConfigs = {
@@ -10,8 +8,6 @@ const configs: IZConfigs = {
 
         external: [
             "react",
-            "@zenflux/react-x-env",
-            "@zenflux/react-x-env/internals",
             "@zenflux/react-scheduler"
         ],
     },

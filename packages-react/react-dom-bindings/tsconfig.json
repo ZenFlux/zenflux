@@ -8,7 +8,9 @@
         ],
         "types": [
             "react"
-        ]
+        ],
+        // Skip lib check
+        "skipLibCheck": true
     },
     "include": [
         "src/**/*.ts"

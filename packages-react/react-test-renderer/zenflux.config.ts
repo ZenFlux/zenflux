@@ -11,9 +11,9 @@ const config: IZConfig = {
     outputFileName: "zenflux-react-test-renderer",
 
     external: [
-        "react",
-        "@zenflux/react-x-env/internals",
         "@zenflux/react-x-env",
+        "@zenflux/react-x-env/internals",
+        "@zenflux/react-x-env/hooks",
         "@zenflux/react-scheduler",
         "@zenflux/react-scheduler/mock",
         "@zenflux/react-reconciler",

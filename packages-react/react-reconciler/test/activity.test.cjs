@@ -1839,7 +1839,6 @@ describe( 'Activity', () => {
         function Child() {
             spanRef = useRef( null );
             useEffect( () => {
-                debugger
                 Scheduler.log( 'Mount Child' );
                 return () => {
                     Scheduler.log( 'Unmount Child' );

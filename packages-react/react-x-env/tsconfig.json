@@ -1,6 +1,6 @@
 {
     "compilerOptions": {
-        "outDir": "./dist/",
+        "outDir": "dist",
         // Specifies the ECMAScript version to transpile to (e.g., ESNext)
         "target": "ESNext",
         // Specifies the module system used in the code (e.g., ESNext)
@@ -9,11 +9,25 @@
         "moduleResolution": "bundler",
         // Enable default imports from modules with no default export
         "esModuleInterop": true,
-        // Emit a declaration
-        "declaration": true
+        // Skip lib check
+        "skipLibCheck": true,
+
+        "allowJs": false,
+
+        "types": [
+            "node",
+            "react"
+        ],
+        "typeRoots": [
+            "../../node_modules/@types",
+            "../../node_modules"
+        ]
     },
     "include": [
         "zenflux.config.ts",
         "src/**/*.ts"
     ],
+    "exclude": [
+        "dist/**/*",
+    ]
 }

@@ -31,7 +31,7 @@ const config: IZConfigs = {
     },
 
     "@zenflux/react-noop-renderer/persistent": {
-        inputPath: "src/react-noop-persistent.ts",
+        inputPath: "src/index.persistent.ts",
         outputFileName: "zenflux-react-noop-renderer.persistent",
     }
 

@@ -5,17 +5,20 @@
     // Compiler options
     "compilerOptions": {
         "types": [
-            "node"
+            "node",
         ],
 
         "typeRoots": [
-            "../../node_modules/@types"
+            "../../node_modules/@types",
         ],
 
         "moduleResolution": "bundler",
 
         "strict": true,
 
-        "esModuleInterop": true
+        "esModuleInterop": true,
+
+        // Skip lib check
+        "skipLibCheck": true
     }
 }

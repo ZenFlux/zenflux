@@ -16,6 +16,8 @@
         // Enables compatibility with modules that use CommonJS or AMD
         "esModuleInterop": true,
         // Skips type checking of declaration files from external libraries
-        "noImplicitAny": false
+        "noImplicitAny": false,
+        // Skip lib check
+        "skipLibCheck": true
     }
 }

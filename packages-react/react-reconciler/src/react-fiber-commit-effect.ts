@@ -1,5 +1,3 @@
-import "@zenflux/react-x-env";
-
 import {
     alwaysThrottleRetries,
     enableCreateEventHandleAPI,

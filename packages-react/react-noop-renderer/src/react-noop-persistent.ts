@@ -3,8 +3,6 @@
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
- *
- * @flow
  */
 
 /**
@@ -19,44 +17,43 @@ import { reactReconciler } from "@zenflux/react-reconciler";
 import createReactNoop from "@zenflux/react-noop-renderer/src/create-react-noop";
 
 export const {
-  _Scheduler,
-  getChildren,
-  dangerouslyGetChildren,
-  getPendingChildren,
-  dangerouslyGetPendingChildren,
-  getOrCreateRootContainer,
-  createRoot,
-  createLegacyRoot,
-  getChildrenAsJSX,
-  getPendingChildrenAsJSX,
-  getSuspenseyThingStatus,
-  resolveSuspenseyThing,
-  resetSuspenseyThingCache,
-  createPortal,
-  render,
-  renderLegacySyncRoot,
-  renderToRootWithID,
-  unmountRootWithID,
-  findInstance,
-  flushNextYield,
-  startTrackingHostCounters,
-  stopTrackingHostCounters,
-  expire,
-  flushExpired,
-  batchedUpdates,
-  deferredUpdates,
-  discreteUpdates,
-  idleUpdates,
-  // flushDiscreteUpdates,
-  flushSync,
-  flushPassiveEffects,
-  // act,
-  dumpTree,
-  getRoot,
-  // TODO: Remove this once callers migrate to alternatives.
-  // This should only be used by React internals.
-  unstable_runWithPriority,
-} = await createReactNoop(
-    reactReconciler, // reconciler
-  false, // useMutation
+    _Scheduler,
+    getChildren,
+    dangerouslyGetChildren,
+    getPendingChildren,
+    dangerouslyGetPendingChildren,
+    getOrCreateRootContainer,
+    createRoot,
+    createLegacyRoot,
+    getChildrenAsJSX,
+    getPendingChildrenAsJSX,
+    getSuspenseyThingStatus,
+    resolveSuspenseyThing,
+    resetSuspenseyThingCache,
+    createPortal,
+    render,
+    renderLegacySyncRoot,
+    renderToRootWithID,
+    unmountRootWithID,
+    findInstance,
+    flushNextYield,
+    startTrackingHostCounters,
+    stopTrackingHostCounters,
+    expire,
+    flushExpired,
+    batchedUpdates,
+    deferredUpdates,
+    discreteUpdates,
+    idleUpdates,
+    // flushDiscreteUpdates,
+    flushSync,
+    flushPassiveEffects,
+    // act,
+    dumpTree,
+    getRoot,
+    // TODO: Remove this once callers migrate to alternatives.
+    // This should only be used by React internals.
+    unstable_runWithPriority,
+} = await createReactNoop( reactReconciler, // reconciler
+    false, // useMutation
 );

@@ -72,11 +72,11 @@ export function trackUsedThenable<T>( thenableState: ThenableState, thenable: Th
     // a listener that will update its status and result when it resolves.
     switch ( thenable.status ) {
         case "fulfilled": {
-            return thenable.value;
+            return ( thenable as FulfilledThenable<T> ).value;
         }
 
         case "rejected": {
-            const rejectedError = thenable.reason;
+            const rejectedError = ( thenable as RejectedThenable<T> ).reason;
             checkIfUseWrappedInAsyncCatch( rejectedError );
             throw rejectedError;
         }
@@ -114,14 +114,16 @@ export function trackUsedThenable<T>( thenableState: ThenableState, thenable: Th
                 const pendingThenable: PendingThenable<T> = ( thenable as any );
                 pendingThenable.status = "pending";
                 pendingThenable.then( fulfilledValue => {
-                    if ( thenable.status === "pending" ) {
+                    if ( ( thenable as PendingThenable<T> ).status === "pending" ) {
                         const fulfilledThenable: FulfilledThenable<T> = ( thenable as any );
+
                         fulfilledThenable.status = "fulfilled";
                         fulfilledThenable.value = fulfilledValue;
                     }
                 }, ( error: unknown ) => {
-                    if ( thenable.status === "pending" ) {
+                    if ( ( thenable as PendingThenable<T> ).status === "pending" ) {
                         const rejectedThenable: RejectedThenable<T> = ( thenable as any );
+
                         rejectedThenable.status = "rejected";
                         rejectedThenable.reason = error;
                     }

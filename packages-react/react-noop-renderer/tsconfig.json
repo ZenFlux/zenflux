@@ -6,6 +6,8 @@
         "moduleResolution": "bundler",
         "baseUrl": "./",
         "outDir": "dist",
+        // Skip lib check
+        "skipLibCheck": true
     },
     "include": [
         "src/**/*.ts",

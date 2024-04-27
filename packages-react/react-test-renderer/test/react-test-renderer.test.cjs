@@ -19,18 +19,18 @@ let waitForAll;
 describe( 'ReactTestRenderer', () => {
     beforeEach( () => {
         jest.resetModules();
-        ReactDOM = require( 'react-dom' );
-
-        // Isolate test renderer.
-        jest.resetModules();
-        React = require( 'react' );
-        ReactCache = require( '@zenflux/react-cache' );
 
         if ( globalThis.globalThis.__Z_CUSTOM_LOADER__ !== undefined ) {
+            delete globalThis.React;
+
             globalThis.__Z_CUSTOM_LOADER_DATA__ = {};
             globalThis.__Z_CUSTOM_LOADER_MODULE_FORWARDING_EXPECT_DUPLICATE__[ "@zenflux/react-test-renderer"] = true;
         }
 
+        ReactDOM = require( 'react-dom' );
+
+        React = require( 'react' );
+        ReactCache = require( '@zenflux/react-cache' );
         ReactTestRenderer = require( '@zenflux/react-test-renderer' );
         const InternalTestUtils = require( '@zenflux/react-internal-test-utils' );
         waitForAll = InternalTestUtils.waitForAll;
@@ -48,10 +48,14 @@ describe( 'ReactTestRenderer', () => {
             // After the update throws, a subsequent render is scheduled to
             // unmount the whole tree. This update also causes an error, so React
             // throws an AggregateError.
-            expect( error.message.includes( 'indexOf is not a function' ) ).toBe(
+            const errors = error.errors;
+            expect( errors.length ).toBe( 2 );
+            expect( errors[ 0 ].message.includes( 'indexOf is not a function' ) ).toBe(
                 true,
             );
-
+            expect( errors[ 1 ].message.includes( 'indexOf is not a function' ) ).toBe(
+                true,
+            );
         } ).toErrorDev( 'An invalid container has been provided.', {
             withoutStack: true,
         } );

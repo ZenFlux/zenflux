@@ -1114,7 +1114,7 @@ async function createReactNoop( reconciler: typeof reactReconciler, useMutation:
             return undefined as any;
         },
 
-        flushSync: NoopRenderer.flushSync.bind( NoopRenderer ),
+        flushSync,
         flushPassiveEffects: NoopRenderer.flushPassiveEffects.bind( NoopRenderer ),
 
         // Logs the current state of the tree.
