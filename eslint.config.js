@@ -1,9 +1,38 @@
-import { defaults, tests } from "@zenflux/eslint";
+import { zLintGetDefaultConfig } from "@zenflux/eslint";
+
+/** @type {import('eslint').Linter.FlatConfig[]} */
+export const tests = [
+    {
+        ignores: [
+            "**/eslint.config.*",
+            "**/*jest.config.ts",
+        ],
+    },
+    {
+        files: [
+            "packages/*/test/**/*.{ts,tsx}",
+        ],
+        rules: {
+            "no-restricted-imports": [
+                "error",
+                {
+                    "patterns": [ {
+                        group: [
+                            "@",
+                        ],
+                        message: "Please use relative imports",
+                    } ]
+                }
+            ],
+        },
+    },
+];
 
 /** @type {import("eslint").Linter.FlatConfig[]} */
 const config = [
-    ...defaults,
+    ...zLintGetDefaultConfig(),
     ...tests,
 ];
+
 
 export default config;
