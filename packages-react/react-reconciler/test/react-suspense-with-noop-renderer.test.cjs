@@ -18,6 +18,14 @@ describe( 'react-suspense-with-noop-renderer', () => {
     beforeEach( () => {
         jest.resetModules();
 
+        if ( globalThis.globalThis.__Z_CUSTOM_LOADER__ !== undefined ) {
+            delete global.React;
+
+            globalThis.__Z_CUSTOM_LOADER_DATA__ = {};
+            globalThis.__Z_CUSTOM_LOADER_MODULE_FORWARDING_EXPECT_DUPLICATE__[ "@zenflux/react-reconciler"] = true;
+            globalThis.__Z_CUSTOM_LOADER_MODULE_FORWARDING_EXPECT_DUPLICATE__[ "@zenflux/react-noop-renderer"] = true;
+        }
+
         React = require( 'react' );
 
         Fragment = React.Fragment;

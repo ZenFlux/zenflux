@@ -18,6 +18,10 @@ describe( 'Activity Suspense', () => {
     beforeEach( () => {
         jest.resetModules();
 
+        if ( globalThis.globalThis.__Z_CUSTOM_LOADER__ !== undefined ) {
+            delete global.React;
+        }
+
         globalThis.__Z_CUSTOM_LOADER_DATA__ = {};
         globalThis.__Z_CUSTOM_LOADER_MODULE_FORWARDING__ = {};
 

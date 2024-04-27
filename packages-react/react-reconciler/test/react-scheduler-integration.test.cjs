@@ -211,8 +211,16 @@ describe(
         beforeEach( () => {
             jest.resetModules();
 
-            jest.mock( 'scheduler', () => {
-                const actual = jest.requireActual( 'scheduler/unstable_mock' );
+            if ( globalThis.globalThis.__Z_CUSTOM_LOADER__ !== undefined ) {
+                delete global.React;
+
+                globalThis.__Z_CUSTOM_LOADER_DATA__ = {};
+                globalThis.__Z_CUSTOM_LOADER_MODULE_FORWARDING_EXPECT_DUPLICATE__[ "@zenflux/react-noop-renderer"] = true;
+                globalThis.__Z_CUSTOM_LOADER_MODULE_FORWARDING_EXPECT_DUPLICATE__[ "@zenflux/react-reconciler"] = true;
+            }
+
+            jest.mock( '@zenflux/react-scheduler/mock', () => {
+                const actual = jest.requireActual( '@zenflux/react-scheduler/mock' );
                 return {
                     ...actual,
                     unstable_shouldYield() {
@@ -225,11 +233,11 @@ describe(
             } );
 
             React = require( 'react' );
-            ReactNoop = require( 'react-noop-renderer' );
-            Scheduler = require( 'scheduler' );
+            ReactNoop = require( '@zenflux/react-noop-renderer' );
+            Scheduler = require( '@zenflux/react-scheduler/mock' );
             startTransition = React.startTransition;
 
-            const InternalTestUtils = require( 'internal-test-utils' );
+            const InternalTestUtils = require( '@zenflux/react-internal-test-utils' );
             waitForAll = InternalTestUtils.waitForAll;
             waitForPaint = InternalTestUtils.waitForPaint;
             assertLog = InternalTestUtils.assertLog;
@@ -237,11 +245,11 @@ describe(
             act = InternalTestUtils.act;
         } );
 
-        afterEach( () => {
-            jest.mock( 'scheduler', () =>
-                jest.requireActual( 'scheduler/unstable_mock' ),
+        afterEach(() => {
+            jest.mock('@zenflux/react-scheduler', () =>
+                jest.requireActual('@zenflux/react-scheduler/mock'),
             );
-        } );
+        });
 
         it( 'using public APIs to trigger real world scenario', async () => {
             // This test reproduces a case where React's Scheduler task timed out but
@@ -342,10 +350,18 @@ describe( '`act` bypasses Scheduler methods completely,', () => {
     beforeEach( () => {
         jest.resetModules();
 
+        if ( globalThis.globalThis.__Z_CUSTOM_LOADER__ !== undefined ) {
+            delete global.React;
+
+            globalThis.__Z_CUSTOM_LOADER_DATA__ = {};
+            globalThis.__Z_CUSTOM_LOADER_MODULE_FORWARDING_EXPECT_DUPLICATE__[ "@zenflux/react-noop-renderer"] = true;
+            globalThis.__Z_CUSTOM_LOADER_MODULE_FORWARDING_EXPECT_DUPLICATE__[ "@zenflux/react-reconciler"] = true;
+        }
+
         infiniteLoopGuard = 0;
 
-        jest.mock( 'scheduler', () => {
-            const actual = jest.requireActual( 'scheduler/unstable_mock' );
+        jest.mock( '@zenflux/react-scheduler', () => {
+            const actual = jest.requireActual( '@zenflux/react-scheduler/mock' );
             return {
                 ...actual,
                 unstable_shouldYield() {
@@ -363,12 +379,12 @@ describe( '`act` bypasses Scheduler methods completely,', () => {
         } );
 
         React = require( 'react' );
-        ReactNoop = require( 'react-noop-renderer' );
+        ReactNoop = require( '@zenflux/react-noop-renderer' );
         startTransition = React.startTransition;
     } );
 
     afterEach( () => {
-        jest.mock( 'scheduler', () => jest.requireActual( 'scheduler/unstable_mock' ) );
+        jest.mock( '@zenflux/react-scheduler', () => jest.requireActual( '@zenflux/react-scheduler/mock' ) );
     } );
 
     // @gate __DEV__

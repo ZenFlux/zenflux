@@ -27,6 +27,10 @@ describe( 'ReactCache', () => {
     beforeEach( () => {
         jest.resetModules();
 
+        global.__REACT_FEATURE_FLAGS__ = {
+            replayFailedUnitOfWorkWithInvokeGuardedCallback: false,
+        };
+
         if ( globalThis.globalThis.__Z_CUSTOM_LOADER__ !== undefined ) {
             delete global.React;
 
@@ -35,15 +39,11 @@ describe( 'ReactCache', () => {
         }
 
         React = require( 'react' );
-        ReactTestRenderer = require( '@zenflux/react-test-renderer' );
-
-        React = require( 'react' );
+        Suspense = React.Suspense;
         ReactCache = require( '@zenflux/react-cache' );
         createResource = ReactCache.unstable_createResource;
         ReactTestRenderer = require( '@zenflux/react-test-renderer' );
         Scheduler = require( '@zenflux/react-scheduler/mock' );
-
-        Suspense = React.Suspense;
 
         const InternalTestUtils = require( '@zenflux/react-internal-test-utils' );
         waitForAll = InternalTestUtils.waitForAll;

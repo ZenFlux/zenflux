@@ -9,7 +9,8 @@
     "scripts": {
         "@z-react-cache--build": "bun run @z-cli @build",
         "@z-react-cache--build-dev": "bun run @z-cli @build --dev",
-        "@z-react-cache--dev": "bun run @z-cli @watch --dev"
+        "@z-react-cache--dev": "bun run @z-cli @watch --dev",
+        "@z-react-cache--test": "bun run @z-jest --selectedProjects react-cache"
     },
     "dependencies": {
         "@zenflux/react-scheduler": "workspace:*",

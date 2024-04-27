@@ -7,8 +7,6 @@
  *
  * Sync with: https://github.com/facebook/react/blob/ce2bc58a9f6f3b0bfc8c738a0d8e2a5f3a332ff5/packages/shared/ReactComponentStackFrame.js
  */
-import "@zenflux/react-x-env";
-
 import { disableLogs, reenableLogs } from "@zenflux/react-shared/src/console-patching-dev";
 
 import { enableComponentStackLocations } from "@zenflux/react-shared/src/react-feature-flags";

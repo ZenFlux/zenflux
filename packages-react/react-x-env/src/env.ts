@@ -1,7 +1,5 @@
 import process from "node:process";
 
-export {};
-
 declare global {
     var __DEV__: boolean;
     var __EXPERIMENTAL__: boolean;

@@ -18,6 +18,10 @@ describe( 'ReactScope', () => {
     beforeEach( () => {
         jest.resetModules();
 
+        const util = require( 'util' );
+
+        global.TextEncoder = util.TextEncoder;
+
         global.__REACT_FEATURE_FLAGS__ = {
             enableScopeAPI: true,
         };

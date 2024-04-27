@@ -31,8 +31,7 @@
     },
     "dependencies": {
         "loose-envify": "^1.1.0",
-        "@zenflux/react-scheduler": "workspace:*",
-        "@zenflux/react-x-env": "workspace:*"
+        "@zenflux/react-scheduler": "workspace:*"
     },
     "devDependencies": {
         "@babel/plugin-transform-react-jsx": "^7.22.15",

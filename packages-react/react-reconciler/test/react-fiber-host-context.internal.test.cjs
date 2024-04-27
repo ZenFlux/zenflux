@@ -20,6 +20,8 @@ describe( 'ReactFiberHostContext', () => {
     beforeEach( () => {
         jest.resetModules();
 
+        global.IS_REACT_ACT_ENVIRONMENT = true;
+
         if ( globalThis.globalThis.__Z_CUSTOM_LOADER__ !== undefined ) {
             delete global.React;
 
@@ -27,6 +29,8 @@ describe( 'ReactFiberHostContext', () => {
         }
 
         React = require( 'react' );
+
+        require( "@zenflux/react-x-env/internals" );
 
         act = React.unstable_act;
 
@@ -38,7 +42,6 @@ describe( 'ReactFiberHostContext', () => {
             require( '@zenflux/react-reconciler/src/react-event-priorities' ).DefaultEventPriority;
     } );
 
-    global.IS_REACT_ACT_ENVIRONMENT = true;
 
     // @gate __DEV__
     it( 'should send the context to prepareForCommit and resetAfterCommit', async () => {

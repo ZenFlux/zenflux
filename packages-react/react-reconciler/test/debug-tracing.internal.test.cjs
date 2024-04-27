@@ -31,8 +31,6 @@ describe( 'DebugTracing', () => {
     beforeEach( () => {
         jest.resetModules();
 
-
-
         waitForPaint = InternalTestUtils.waitForPaint;
         waitForAll = InternalTestUtils.waitForAll;
 

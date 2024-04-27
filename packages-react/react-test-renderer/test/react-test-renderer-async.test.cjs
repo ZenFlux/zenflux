@@ -12,6 +12,7 @@
 
 let React;
 let ReactTestRenderer;
+let ReactXEnvHooks;
 let Scheduler;
 let waitForAll;
 let waitFor;
@@ -21,6 +22,8 @@ describe( 'ReactTestRendererAsync', () => {
         jest.resetModules();
 
         if ( globalThis.globalThis.__Z_CUSTOM_LOADER__ !== undefined ) {
+            delete globalThis.React;
+
             globalThis.__Z_CUSTOM_LOADER_DATA__ = {};
             globalThis.__Z_CUSTOM_LOADER_MODULE_FORWARDING_EXPECT_DUPLICATE__[ "@zenflux/react-test-renderer" ] = true;
         }
@@ -32,6 +35,8 @@ describe( 'ReactTestRendererAsync', () => {
         const InternalTestUtils = require( '@zenflux/react-internal-test-utils' );
         waitForAll = InternalTestUtils.waitForAll;
         waitFor = InternalTestUtils.waitFor;
+
+        ReactXEnvHooks = require( '@zenflux/react-x-env/hooks' );
     } );
 
     it( 'flushAll flushes all work', async () => {

@@ -54,12 +54,14 @@ describe( 'ReactHooksWithNoopRenderer', () => {
             globalThis.__Z_CUSTOM_LOADER_MODULE_FORWARDING_EXPECT_DUPLICATE__[ "@zenflux/react-noop-renderer"] = true;
         }
 
-        React = require( 'react' );
+        jest.mock( '@zenflux/react-scheduler', () => require( '@zenflux/react-scheduler/mock' ) );
+
+        require( "@zenflux/react-x-env/hooks");
+        React = globalThis.React;
         ReactNoop = require( '@zenflux/react-noop-renderer' );
-        Scheduler = require( '@zenflux/react-scheduler/mock' );
+        Scheduler = require( '@zenflux/react-scheduler' );
 
         const InternalTestUtils = require( '@zenflux/react-internal-test-utils' );
-
 
         useState = React.useState;
         useReducer = React.useReducer;
@@ -74,6 +76,7 @@ describe( 'ReactHooksWithNoopRenderer', () => {
         memo = React.memo;
         useTransition = React.useTransition;
         useDeferredValue = React.useDeferredValue;
+
         Suspense = React.Suspense;
         ContinuousEventPriority = require( '@zenflux/react-reconciler/constants' ).ContinuousEventPriority;
 

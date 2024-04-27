@@ -1,7 +1,6 @@
 /* eslint-disable */
 
 // @ts-nocheck
-
 import "./env";
 
 import {
@@ -214,5 +213,9 @@ if ( global.React ) {
 }
 
 const _React = global.React;
+
+export type {
+    _React as ReactType,
+}
 
 export default _React;

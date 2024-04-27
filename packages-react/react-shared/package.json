@@ -1,9 +1,8 @@
 {
     "name": "@zenflux/react-shared",
     "version": "0.0.0",
-    "dependencies": {
-        "@zenflux/react-x-env": "workspace:*",
-        "react": "^18.2.0"
-    },
-    "private": true
+    "private": true,
+    "devDependencies": {
+        "@zenflux/react-x-env": "workspace:*"
+    }
 }

@@ -22,6 +22,6 @@
         // Enforces additional constraints on function types
         "strictFunctionTypes": true,
         // Disables strict checking of property initialization in classes
-        "strictPropertyInitialization": false
+        "strictPropertyInitialization": false,
     }
 }

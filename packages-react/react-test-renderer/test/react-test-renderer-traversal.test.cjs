@@ -17,16 +17,14 @@ let Context;
 const RCTView = 'RCTView';
 const View = props => <RCTView { ...props } />;
 
+ReactTestRenderer = require( '@zenflux/react-test-renderer' );
+
 describe( 'ReactTestRendererTraversal', () => {
     beforeEach( () => {
         jest.resetModules();
 
-        if ( globalThis.globalThis.__Z_CUSTOM_LOADER__ !== undefined ) {
-            globalThis.__Z_CUSTOM_LOADER_DATA__ = {};
-            globalThis.__Z_CUSTOM_LOADER_MODULE_FORWARDING_EXPECT_DUPLICATE__[ "@zenflux/react-test-renderer" ] = true;
-        }
 
-        ReactTestRenderer = require( '@zenflux/react-test-renderer' );
+
         Context = React.createContext( null );
     } );
 

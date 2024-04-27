@@ -16,6 +16,7 @@ describe( 'ReactTestRenderer.act()', () => {
         }
 
         React = require( 'react' );
+        ReactXEnvHooks = require( '@zenflux/react-x-env/hooks' );
         ReactTestRenderer = require( '@zenflux/react-test-renderer' );
         Scheduler = require( '@zenflux/react-scheduler/mock' );
         act = ReactTestRenderer.act;
@@ -27,7 +28,7 @@ describe( 'ReactTestRenderer.act()', () => {
     // @gate __DEV__
     it( 'can use .act() to flush effects', () => {
         function App( props ) {
-            const [ ctr, setCtr ] = React.useState( 0 );
+            const [ ctr, setCtr ] = ReactXEnvHooks.useState( 0 );
             React.useEffect( () => {
                 props.callback();
                 setCtr( 1 );
@@ -61,9 +62,9 @@ describe( 'ReactTestRenderer.act()', () => {
             }
 
             function App() {
-                const [ details, setDetails ] = React.useState( 0 );
+                const [ details, setDetails ] = ReactXEnvHooks.useState( 0 );
 
-                React.useEffect( () => {
+                ReactXEnvHooks.useEffect( () => {
                     async function fetchDetails() {
                         const response = await fetch();
                         setDetails( response.details );
@@ -85,7 +86,7 @@ describe( 'ReactTestRenderer.act()', () => {
 
         // @gate __DEV__
         it( 'should not flush effects without also flushing microtasks', async () => {
-            const { useEffect, useReducer } = React;
+            const { useEffect, useReducer } = ReactXEnvHooks;
 
             const alreadyResolvedPromise = Promise.resolve();
 

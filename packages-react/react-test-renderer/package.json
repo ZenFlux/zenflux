@@ -9,7 +9,8 @@
     "scripts": {
         "@z-react-test-renderer--build": "bun run @z-cli @build",
         "@z-react-test-renderer--build-dev": "bun run @z-cli @build --dev",
-        "@z-react-test-renderer--dev": "bun run @z-cli @watch --dev"
+        "@z-react-test-renderer--dev": "bun run @z-cli @watch --dev",
+        "@z-react-test-renderer--test": "@z-jest --selectedProjects react-test-renderer"
     },
     "dependencies": {
         "@zenflux/react-scheduler": "workspace:*",
@@ -20,10 +21,10 @@
     "devDependencies": {
         "@zenflux/react-cache": "workspace:*",
         "pretty-format": "^20.0.3",
-        "react-dom": "^18.2.0"
+        "react-dom": "18.2.0"
     },
     "peerDependencies": {
-        "react": "^18.2.0"
+        "react": "18.2.0"
     },
     "repository": {
         "type": "git",

@@ -13,7 +13,6 @@
 'use strict';
 
 let React;
-let ReactFeatureFlags;
 let ReactTestRenderer;
 let Scheduler;
 let ReactDOMServer;
@@ -26,7 +25,6 @@ describe( 'ReactHooks', () => {
     beforeEach( () => {
         jest.resetModules();
 
-        ReactFeatureFlags = require( '@zenflux/react-shared/src/react-feature-flags' );
 
         if ( globalThis.globalThis.__Z_CUSTOM_LOADER__ !== undefined ) {
             delete global.React;
@@ -37,7 +35,7 @@ describe( 'ReactHooks', () => {
         }
 
         React = require( 'react' );
-        ReactTestRenderer = require( '@zenflux/react-test-renderer' );
+
         Scheduler = require( '@zenflux/react-scheduler/mock' );
 
         ReactDOMServer = require( 'react-dom/server' );
@@ -48,6 +46,9 @@ describe( 'ReactHooks', () => {
         assertLog = InternalTestUtils.assertLog;
         waitForAll = InternalTestUtils.waitForAll;
         waitForThrow = InternalTestUtils.waitForThrow;
+
+        ReactTestRenderer = require( '@zenflux/react-test-renderer' );
+
     } );
 
     if ( __DEV__ ) {

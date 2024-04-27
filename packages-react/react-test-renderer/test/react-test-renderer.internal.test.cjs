@@ -10,16 +10,15 @@
 
 'use strict';
 
+global.__REACT_FEATURE_FLAGS__ = {
+    replayFailedUnitOfWorkWithInvokeGuardedCallback: false,
+};
+
 const React = require( 'react' );
 const ReactTestRenderer = require( '@zenflux/react-test-renderer' );
-const ReactFeatureFlags = require( '@zenflux/react-shared/src/react-feature-flags' );
 
 const prettyFormat = require( 'pretty-format' );
 
-globalThis.__Z_CUSTOM_LOADER_DATA__ = {};
-
-// Isolate noop renderer
-jest.resetModules();
 const ReactNoop = require( '@zenflux/react-noop-renderer' );
 
 const InternalTestUtils = require( '@zenflux/react-internal-test-utils' );
