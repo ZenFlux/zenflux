@@ -219,6 +219,7 @@ export function zLintGetDefaultConfig( workspaces = zLintGetWorkspaces() ) {
 
                 "**/dist/**",
                 "**/bin/**",
+                "**/zenflux.config.ts",
                 "**/node_modules/**",
                 "**/.backups/**",
             ],
