@@ -1,9 +1,15 @@
 {
     "$schema": "https://json.schemastore.org/package",
     "name": "@zenflux/eslint",
+    "author": "Leonid Vinikov <leonidvinikov@gmail.com> (https://github.com/iNewLegend)",
     "type": "module",
-    "version": "0.0.2-dev",
+    "version": "0.0.3-dev",
     "main": ".eslintrc.js",
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/zenflux/zenflux.git",
+        "directory": "packages/eslint"
+    },
     "publishConfig": {
         "access": "public"
     },
@@ -12,7 +18,7 @@
         "@types/eslint": "^8.44.7",
         "@typescript-eslint/eslint-plugin": "^6.7.3",
         "@typescript-eslint/parser": "^6.7.3",
-        "eslint": "^8.54.0",
+        "eslint": "8.54.0",
         "eslint-import-resolver-typescript": "^3.6.1",
         "eslint-plugin-import": "^2.28.1"
     },
