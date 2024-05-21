@@ -3,7 +3,7 @@ name: React Package Build and Test
 on: [push, pull_request]
 
 jobs:
-  build-and-test:
+  react-build-and-test:
     runs-on: ubuntu-latest
 
     steps:
@@ -14,7 +14,7 @@ jobs:
         run: bun install
 
       - name: Build
-        run: bun run @z-flux:build:react
+        run: bun run @z-cli @build --workspace "react-*" --haltOnDiagnosticError
 
       - name: Run Tests
         run: bun run @z-flux:jest:react
