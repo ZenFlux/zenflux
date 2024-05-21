@@ -53,11 +53,17 @@ abstract class ConsoleBuildBase extends ConsoleThreadFormat {
 
         return args.join( "\t" );
     }
-
-    public output( method: TConsoleLoggerMethod, args: any[] ) {
-       super.output( method, args, this.prepareFormat.bind( this ) );
-    }
 }
+
+class RollupConsole extends ConsoleBuildBase {
+    public getThreadCode() {
+        return "RO";
+    }
+
+    public getName(): string {
+        return "Rollup";
+    }
+};
 
 abstract class TypescriptConsoleBase extends ConsoleBuildBase {
     public getName() {
@@ -75,16 +81,6 @@ abstract class TypescriptConsoleBase extends ConsoleBuildBase {
         return args;
     }
 }
-
-class RollupConsole extends ConsoleBuildBase {
-    public getThreadCode() {
-        return "RO";
-    }
-
-    public getName(): string {
-        return "Rollup";
-    }
-};
 
 class TsDiagnosticConsole extends TypescriptConsoleBase {
     public getSubName() {

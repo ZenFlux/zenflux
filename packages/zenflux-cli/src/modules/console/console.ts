@@ -74,7 +74,7 @@ export class Console extends NodeConsole {
     protected prepareFormat( args: any[], method: ( ( ... args: any[] ) => void ) | ( ( callback: () => any ) => void ) ) {
         args = this.getArgs( method, args );
 
-        if ( this.prefix.length ) {
+        if ( this.prefix?.length ) {
             args.unshift( this.prefix );
         }
 
@@ -104,7 +104,7 @@ export class Console extends NodeConsole {
         return args;
     }
 
-    public output( method: TConsoleLoggerMethod, args: any[], prepareFormat = this.prepareFormat ) {
+    public output( method: TConsoleLoggerMethod, args: any[], prepareFormat = this.prepareFormat.bind( this ) ) {
         args = prepareFormat( args, method );
 
         switch ( method.name ) {

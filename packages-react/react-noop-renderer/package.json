@@ -24,7 +24,8 @@
     "dependencies": {
         "@zenflux/react-reconciler": "workspace:*",
         "@zenflux/react-shared": "workspace:*",
-        "@zenflux/react-x-env": "workspace:*"
+        "@zenflux/react-x-env": "workspace:*",
+        "@zenflux/react-scheduler": "workspace:*"
     },
     "repository": {
         "type": "git",
