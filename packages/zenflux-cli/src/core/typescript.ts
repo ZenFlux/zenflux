@@ -10,9 +10,14 @@ import ts from "typescript";
 
 import { createResolvablePromise } from "@zenflux/typescript-vm/utils";
 
+import { zTSGetPackageByTSConfig } from "@zenflux/cli/src/utils/typescript";
+
 import { ConsoleThreadSend } from "@zenflux/cli/src/console/console-thread-send";
 import { ConsoleThreadReceive } from "@zenflux/cli/src/console/console-thread-receive";
 
+import { zApiExporter } from "@zenflux/cli/src/core/api-extractor";
+
+import { zWorkspaceGetWorkspaceDependencies } from "@zenflux/cli/src/core/workspace";
 import { ensureInWorker } from "@zenflux/cli/src/modules/threading/utils";
 
 import { ConsoleManager } from "@zenflux/cli/src/managers/console-manager";
@@ -28,10 +33,16 @@ import type {
 } from "@zenflux/cli/src/definitions/typescript";
 
 import type { Worker } from "@zenflux/cli/src/modules/threading/worker";
+import type { IZConfigInternal } from "@zenflux/cli/src/definitions/config";
 
 // TODO: Avoid this, create threadPool with max threads = cpu cores.
 const diagnosticWorkers = new Map<number, Worker>(),
     declarationWorkers = new Map<number, Worker>();
+
+const waitingTSConfigs = new Map<string, {
+    promise: ReturnType<typeof createResolvablePromise>,
+    dependencies: Record<string, true>,
+}>();
 
 const pathsCache: { [ key: string ]: string } = {},
     configCache: { [ key: string ]: ts.ParsedCommandLine } = {},
@@ -247,13 +258,19 @@ export function zTSGetCompilerHost( tsConfig: ts.ParsedCommandLine, activeConsol
 
 /**
  * Function zTSPreDiagnostics() - Runs pre-diagnostics for specific TypeScript configuration.
+ *
+ * This function runs TypeScript's pre-emit diagnostics on the provided TypeScript configuration.
+ *
+ * This means it checks for errors in your TypeScript code before it gets compiled to JavaScript.
+ *
+ * Catching errors at this stage can save time during the development process.
  */
-export function zTSPreDiagnostics( tsConfig: ts.ParsedCommandLine, args: TZPreDiagnosticsOptions = {}, activeConsole = ConsoleManager.$ ) {
+export function zTSPreDiagnostics( tsConfig: ts.ParsedCommandLine, options: TZPreDiagnosticsOptions, activeConsole = ConsoleManager.$ ) {
     // ---
     const {
         useCache = true,
         haltOnError = false,
-    } = args;
+    } = options;
 
     /**
      * Validation should run only once per tsconfig.json file, validation and declaration generation
@@ -301,7 +318,7 @@ export function zTSPreDiagnostics( tsConfig: ts.ParsedCommandLine, args: TZPreDi
         }
     }
 
-    return diagnostics.length <= 0;
+    return diagnostics;
 }
 
 export function zTSCreateDeclaration( tsConfig: ts.ParsedCommandLine, config: IZConfigInternal, activeConsole = ConsoleManager.$ ) {
@@ -338,6 +355,21 @@ export function zTSCreateDeclaration( tsConfig: ts.ParsedCommandLine, config: IZ
             `Declaration created for '${ tsConfig.options.configFilePath }'`
         ] );
 
+        const projectPath = path.dirname( config.path );
+
+        // Check if we need to generate dts file.
+        if ( config.inputDtsPath ) {
+            const result = zApiExporter(
+                projectPath,
+                config.inputDtsPath as string,
+                config.outputDtsPath as string,
+                activeConsole
+            );
+
+            result?.succeeded && activeConsole.log( zApiExporter.name, "Writing - done",
+                `'${ path.isAbsolute( config.outputDtsPath as string ) ? config.outputDtsPath : path.join( projectPath, config.outputDtsPath as string ) }'`
+            );
+        }
     }
 
     return result.diagnostics.length <= 0;
@@ -366,7 +398,7 @@ export function zTSDeclarationInWorker( tsConfigFilePath: string, config: IZConf
 
     host.sendLog( "run", util.inspect( config.outputName ) );
 
-    return zTSCreateDeclaration( tsConfig );
+    return zTSCreateDeclaration( tsConfig, config );
 }
 
 export async function zTSCreateDiagnosticWorker(
@@ -405,7 +437,34 @@ export async function zTSCreateDiagnosticWorker(
         return zTSCreateDiagnosticWorker( tsConfig, options, activeConsole );
     }
 
-    return thread.run();
+    return new Promise( async ( resolve, reject ) => {
+        // Main thread will wait for dependencies before starting the worker.
+        await zTSWaitForDependencies( tsConfig, options.otherTSConfigs, activeConsole );
+
+        const buildPromise = thread.run();
+
+        buildPromise.catch( ( error ) => {
+            activeConsole.error( "error", "from DI-" + options.id, "\n ->", error );
+
+            if ( options.haltOnError ) {
+                throw error;
+            }
+
+            // Skip declaration worker if diagnostic worker errors.
+            const declarationThread = declarationWorkers.get( options.id as number );
+
+            if ( declarationThread ) {
+                activeConsole.verbose( () => [
+                    zTSCreateDiagnosticWorker.name,
+                    `Skipping declaration worker DI${ options.id }`
+                ] );
+
+                declarationThread.skipNextRun();//
+            }
+        } );
+
+        buildPromise.then( resolve ).catch( reject );
+    } );
 }
 
 export async function zTSCreateDeclarationWorker(
@@ -444,5 +503,159 @@ export async function zTSCreateDeclarationWorker(
         return zTSCreateDeclarationWorker( tsConfig, options, activeConsole );
     }
 
-    return thread.run();
+    const promise = new Promise( async ( resolve, reject ) => {
+        // Main thread will wait for dependencies before starting the worker.
+        await zTSWaitForDependencies( tsConfig, options.otherTSConfigs, activeConsole );
+
+        // Get corresponding diagnostics worker.
+        const diagnosticThread = diagnosticWorkers.get( options.id as number );
+
+        if ( ! diagnosticThread ) {
+            reject( `Diagnostic worker DI${ options.id } not found` );
+        }
+
+        activeConsole.verbose( () => [
+            zTSCreateDeclarationWorker.name,
+            `Waiting for diagnostic worker DI${ options.id } to finish`
+        ] );
+
+        // Wait for diagnostics to finish before starting declaration worker.
+        const shouldRun = await diagnosticThread?.waitForDone().catch( reject );
+
+        activeConsole.verbose( () => [
+            zTSCreateDeclarationWorker.name,
+            `Done waiting for diagnostic worker DI${ options.id }`
+        ] );
+
+        if ( ! shouldRun ) {
+            return;
+        }
+
+        const buildPromise = thread.run();
+
+        buildPromise.catch( ( error: { message: string | string[]; } ) => {
+            if ( error.message.includes( "Killed by diagnostic worker" ) ) {
+                activeConsole.verbose( () => [
+                    zTSCreateDeclarationWorker.name,
+                    error.message
+                ] );
+            } else {
+                activeConsole.error( "error", "from DI-" + options.id, "\n ->", error );
+            }
+
+            reject( error );
+        } );
+
+        buildPromise.then( resolve );
+    } );
+
+    promise.catch( () => {} ).finally( () => zTSResumeDependencies( tsConfig, activeConsole ) );
+
+    return promise;
+}
+
+async function zTSWaitForDependencies(
+    tsConfig: ts.ParsedCommandLine,
+    otherTSConfigs: ts.ParsedCommandLine[],
+    activeConsole = ConsoleManager.$
+) {
+    // If promise is already exist then await it.
+    if ( waitingTSConfigs.has( tsConfig.options.configFilePath as string ) ) {
+        const promise = waitingTSConfigs.get( tsConfig.options.configFilePath as string )?.promise;
+
+        if ( promise?.isPending ) {
+            return promise.await;
+        }
+
+        return;
+    }
+
+    const pkg = zTSGetPackageByTSConfig( tsConfig ),
+        pkgDependencies = zWorkspaceGetWorkspaceDependencies( {
+            [ pkg.json.name ]: pkg,
+        } ),
+        dependencies = pkgDependencies[ pkg.json.name ].dependencies;
+
+    // If the package has dependencies
+    if ( Object.keys( dependencies ).length ) {
+        // If one of the dependencies is in other projects that are building at the same time.
+        const availableDependencies: Record<string, true> = {};
+
+        otherTSConfigs.forEach( ( c ) => {
+            const pkg = zTSGetPackageByTSConfig( c );
+
+            if ( dependencies[ pkg.json.name ] ) {
+                availableDependencies[ pkg.json.name ] = true;
+            }
+        } );
+
+        if ( Object.keys( availableDependencies ).length ) {
+            activeConsole.verbose( () => [
+                zTSWaitForDependencies.name,
+                "Package:",
+                util.inspect( pkg.json.name ),
+                "Available dependencies:",
+                util.inspect( Object.keys( availableDependencies ), { breakLength: Infinity } ),
+            ] );
+
+            const promise = createResolvablePromise();
+
+            // Insert current config to the waiting list.
+            waitingTSConfigs.set( tsConfig.options.configFilePath as string, {
+                promise,
+                dependencies: availableDependencies
+            } );
+
+            await promise.await;
+
+            activeConsole.verbose( () => [
+                zTSWaitForDependencies.name,
+                "Resume",
+                "Package:",
+                util.inspect( pkg.json.name ),
+            ] );
+        }
+    }
+}
+
+async function zTSResumeDependencies(
+    tsConfig: ts.ParsedCommandLine,
+    activeConsole = ConsoleManager.$
+) {
+    if ( ! waitingTSConfigs.size ) {
+        return;
+    }
+
+    const pkg = zTSGetPackageByTSConfig( tsConfig );
+
+    // Loop through all waiting TSConfigs
+    for ( const [ configFilePath, { promise, dependencies } ] of waitingTSConfigs ) {
+        // If current resumed TSConfig is in the dependencies list then remove it from the dependencies list.
+        if ( dependencies[ pkg.json.name ] ) {
+            activeConsole.verbose( () => [
+                zTSResumeDependencies.name,
+                "Package:",
+                util.inspect( zTSGetPackageByTSConfig( tsConfig ).json.name ),
+                "Removing dependency:",
+                util.inspect( pkg.json.name ),
+            ] );
+
+            delete dependencies[ pkg.json.name ];
+        }
+
+        // If no left dependencies then resolve the promise.
+        if ( ! Object.keys( dependencies ).length ) {
+            activeConsole.verbose( () => [
+                zTSResumeDependencies.name,
+                "Package:",
+                util.inspect( pkg.json.name ),
+                "Resuming",
+            ] );
+
+            // Remove the TSConfig from the waiting list.
+            waitingTSConfigs.delete( configFilePath );
+
+            promise.resolve();
+        }
+    }
 }
