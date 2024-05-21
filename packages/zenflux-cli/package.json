@@ -40,6 +40,5 @@
     },
     "publishConfig": {
         "access": "public"
-    },
-    "packageManager": "bun@1.0.11"
+    }
 }
