@@ -8,25 +8,30 @@ import util from "node:util";
 
 import ts from "typescript";
 
-import { ConsoleManager } from "@zenflux/cli/src/managers/console-manager";
+import { createResolvablePromise } from "@zenflux/typescript-vm/utils";
+
+import { ConsoleThreadSend } from "@zenflux/cli/src/console/console-thread-send";
+import { ConsoleThreadReceive } from "@zenflux/cli/src/console/console-thread-receive";
 
 import { ensureInWorker } from "@zenflux/cli/src/modules/threading/utils";
 
-import { ThreadConsole } from "@zenflux/cli/src/console/thread-console";
+import { ConsoleManager } from "@zenflux/cli/src/managers/console-manager";
 
+import type { ConsoleThreadFormat } from "@zenflux/cli/src/console/console-thread-format";
+
+import type { ThreadHost } from "@zenflux/cli/src/modules/threading/definitions";
 import type { TZFormatType } from "@zenflux/cli/src/definitions/zenflux";
-
 import type {
     TZCreateDeclarationWorkerOptions,
     TZPreDiagnosticsOptions,
     TZPreDiagnosticsWorkerOptions
 } from "@zenflux/cli/src/definitions/typescript";
 
-import type { Thread, ThreadHost } from "@zenflux/cli/src/modules/threading/thread";
+import type { Worker } from "@zenflux/cli/src/modules/threading/worker";
 
 // TODO: Avoid this, create threadPool with max threads = cpu cores.
-const diagnosticThreads = new Map<number, Thread>(),
-    declarationThreads = new Map<number, Thread>();
+const diagnosticWorkers = new Map<number, Worker>(),
+    declarationWorkers = new Map<number, Worker>();
 
 const pathsCache: { [ key: string ]: string } = {},
     configCache: { [ key: string ]: ts.ParsedCommandLine } = {},
@@ -81,14 +86,14 @@ export function zTSConfigGetPath( format: TZFormatType | null, targetPath: strin
         return `${ targetPath }_${ format }`;
     };
 
-    function logVerbose( message: string ) {
-        ConsoleManager.$.verbose( () => [ `${ zTSConfigGetPath.name }()`, "->", message ] );
+    function logDebug( message: string ) {
+        ConsoleManager.$.debug( () => [ "typescript", zTSConfigGetPath.name, message ] );
     };
 
     function fileExists( filePath: string ) {
-        logVerbose( `'${ filePath }' file exists check` );
+        logDebug( `${ util.inspect( filePath) } file exists check` );
         const exists = fs.existsSync( filePath );
-        logVerbose( `'${ filePath }' ${ exists ? "found" : "not found" }` );
+        logDebug( `${ util.inspect( filePath) } ${ exists ? "found" : "not found" }` );
         return exists;
     };
 
@@ -153,7 +158,13 @@ export function zTSConfigRead( format: TZFormatType | null, projectPath: string 
         throw new Error( "tsconfig.json not found" );
     }
 
-    ConsoleManager.$.verbose( () => [ `${ zTSConfigRead.name }()`, "->", `Reading and parsing '${ tsConfigPath }' of project '${ projectPath }'` ] );
+    ConsoleManager.$.debug(
+        () => [
+            "Ts-Config",
+            zTSConfigRead.name,
+            `Reading and parsing ${ util.inspect( tsConfigPath ) } of project ${ util.inspect( projectPath ) }`
+        ]
+    );
 
     const data = ts.readConfigFile( tsConfigPath, ts.sys.readFile );
 
@@ -220,8 +231,7 @@ export function zTSGetCompilerHost( tsConfig: ts.ParsedCommandLine, activeConsol
         // Exclude internal TypeScript files from validation
         if ( fileName.startsWith( outPath ) ) {
             activeConsole.verbose( () => [
-                `${ zTSGetCompilerHost.name }::${ compilerHost.getSourceFile.name }()`,
-                "->",
+                `${ zTSGetCompilerHost.name }::${ compilerHost.getSourceFile.name }`,
                 `Skipping '${ fileName }', internal TypeScript file`
             ] );
             return;
@@ -251,8 +261,7 @@ export function zTSPreDiagnostics( tsConfig: ts.ParsedCommandLine, args: TZPreDi
      */
     if ( useCache && configValidationCache[ tsConfig.options.configFilePath as string ] ) {
         activeConsole.verbose( () => [
-            `${ zTSPreDiagnostics.name }()`,
-            "->",
+            zTSPreDiagnostics.name,
             `Skipping validation for '${ tsConfig.options.configFilePath }', already validated`
         ] );
         return;
@@ -295,7 +304,7 @@ export function zTSPreDiagnostics( tsConfig: ts.ParsedCommandLine, args: TZPreDi
     return diagnostics.length <= 0;
 }
 
-export function zTSCreateDeclaration( tsConfig: ts.ParsedCommandLine, activeConsole = ConsoleManager.$ ) {
+export function zTSCreateDeclaration( tsConfig: ts.ParsedCommandLine, config: IZConfigInternal, activeConsole = ConsoleManager.$ ) {
     const compilerHost = zTSGetCompilerHost( tsConfig );
 
     const program = ts.createProgram( tsConfig.fileNames, Object.assign( {}, tsConfig.options, {
@@ -325,9 +334,10 @@ export function zTSCreateDeclaration( tsConfig: ts.ParsedCommandLine, activeCons
         activeConsole.error( error );
     } else {
         activeConsole.verbose( () => [
-            `${ zTSCreateDeclaration.name }()`,
-            "->", `Declaration created for '${ tsConfig.options.configFilePath }'`
+            zTSCreateDeclaration.name,
+            `Declaration created for '${ tsConfig.options.configFilePath }'`
         ] );
+
     }
 
     return result.diagnostics.length <= 0;
@@ -337,24 +347,24 @@ export function zTSDiagnosticInWorker( tsConfigFilePath: string, options: TZPreD
     ensureInWorker();
 
     // Hook console logs to thread messages.
-    ConsoleManager.setInstance( new ThreadConsole( host ) );
+    ConsoleManager.setInstance( new ConsoleThreadSend( host ) );
 
     const tsConfig = zTSConfigRead( null, path.dirname( tsConfigFilePath ) );
 
-    host.sendMessage( "message", "run", tsConfig.options.configFilePath );
+    host.sendLog( "run", util.inspect( options.config.outputName ) );
 
     return zTSPreDiagnostics( tsConfig, options );
 }
 
-export function zTSDeclarationInWorker( tsConfigFilePath: string, host: ThreadHost ) {
+export function zTSDeclarationInWorker( tsConfigFilePath: string, config: IZConfigInternal, host: ThreadHost ) {
     ensureInWorker();
 
     // Hook console logs to thread messages.
-    ConsoleManager.setInstance( new ThreadConsole( host ) );
+    ConsoleManager.setInstance( new ConsoleThreadSend( host ) );
 
     const tsConfig = zTSConfigRead( null, path.dirname( tsConfigFilePath ) );
 
-    host.sendMessage( "message", "run", tsConfig.options.configFilePath );
+    host.sendLog( "run", util.inspect( config.outputName ) );
 
     return zTSCreateDeclaration( tsConfig );
 }
@@ -362,15 +372,15 @@ export function zTSDeclarationInWorker( tsConfigFilePath: string, host: ThreadHo
 export async function zTSCreateDiagnosticWorker(
     tsConfig: ts.ParsedCommandLine,
     options: TZPreDiagnosticsWorkerOptions,
-    activeConsole = ConsoleManager.$,
+    activeConsole: ConsoleThreadFormat
 ) {
-    if ( ! diagnosticThreads.has( options.thread ) ) {
-        const { Thread } = ( await import( "@zenflux/cli/src/modules/threading/thread" ) );
+    if ( ! diagnosticWorkers.has( options.id ) ) {
+        const { Worker } = ( await import( "@zenflux/cli/src/modules/threading/worker" ) );
 
         // Create a new thread.
-        const thread = new Thread(
+        const worker = new Worker(
             "Diagnostic",
-            options.thread,
+            options.id,
             tsConfig.options.configFilePath as string,
             zTSDiagnosticInWorker, [
                 tsConfig.options.configFilePath,
@@ -378,22 +388,19 @@ export async function zTSCreateDiagnosticWorker(
             ],
         );
 
-        thread.onMessage( activeConsole.message.bind( activeConsole ) );
-        thread.onVerbose( activeConsole.verbose.bind( activeConsole ) );
-        thread.onDebug( activeConsole.debug.bind( activeConsole ) );
-        thread.onError( activeConsole.error.bind( activeConsole ) );
+        ConsoleThreadReceive.connect( worker, activeConsole );
 
-        diagnosticThreads.set( options.thread, thread );
+        diagnosticWorkers.set( options.id, worker );
     }
 
-    const thread = diagnosticThreads.get( options.thread as number );
+    const thread = diagnosticWorkers.get( options.id as number );
 
     if ( ! thread ) {
         throw new Error( "Thread not found." );
     }
 
     if ( ! thread.isAlive() ) {
-        diagnosticThreads.delete( options.thread as number );
+        diagnosticWorkers.delete( options.id as number );
 
         return zTSCreateDiagnosticWorker( tsConfig, options, activeConsole );
     }
@@ -404,35 +411,35 @@ export async function zTSCreateDiagnosticWorker(
 export async function zTSCreateDeclarationWorker(
     tsConfig: ts.ParsedCommandLine,
     options: TZCreateDeclarationWorkerOptions,
-    activeConsole = ConsoleManager.$
+    activeConsole: ConsoleThreadFormat,
 ) {
-    if ( ! declarationThreads.has( options.thread ) ) {
-        const { Thread } = ( await import( "@zenflux/cli/src/modules/threading/thread" ) );
+    if ( ! declarationWorkers.has( options.id ) ) {
+        const { Worker } = ( await import( "@zenflux/cli/src/modules/threading/worker" ) );
 
         // Create a new thread.
-        const thread = new Thread(
+        const worker = new Worker(
             "Declaration",
-            options.thread,
+            options.id,
             tsConfig.options.configFilePath as string,
-            zTSDeclarationInWorker, [ tsConfig.options.configFilePath ],
+            zTSDeclarationInWorker, [
+                tsConfig.options.configFilePath,
+                options.config,
+            ],
         );
 
-        thread.onMessage( activeConsole.message.bind( activeConsole ) );
-        thread.onVerbose( activeConsole.verbose.bind( activeConsole ) );
-        thread.onDebug( activeConsole.debug.bind( activeConsole ) );
-        thread.onError( activeConsole.error.bind( activeConsole ) );
+        ConsoleThreadReceive.connect( worker, activeConsole );
 
-        declarationThreads.set( options.thread, thread );
+        declarationWorkers.set( options.id, worker );
     }
 
-    const thread = declarationThreads.get( options.thread as number );
+    const thread = declarationWorkers.get( options.id as number );
 
     if ( ! thread ) {
         throw new Error( "Thread not found." );
     }
 
     if ( ! thread.isAlive() ) {
-        declarationThreads.delete( options.thread as number );
+        declarationWorkers.delete( options.id as number );
 
         return zTSCreateDeclarationWorker( tsConfig, options, activeConsole );
     }

@@ -1,12 +1,18 @@
+import type ts from "typescript";
+
+import type { IZConfigInternal } from "@zenflux/cli/src/definitions/config";
+
+type TZWorkerOptions = {
+    id: number,
+    config: IZConfigInternal;
+    otherTSConfigs: ts.ParsedCommandLine[],
+}
+
 export type TZPreDiagnosticsOptions = {
     useCache?: boolean,
     haltOnError?: boolean,
 }
 
-export type TZPreDiagnosticsWorkerOptions = TZPreDiagnosticsOptions & {
-    thread: number,
-}
+export type TZPreDiagnosticsWorkerOptions = TZPreDiagnosticsOptions & TZWorkerOptions;
 
-export type TZCreateDeclarationWorkerOptions = {
-    thread: number,
-}
+export type TZCreateDeclarationWorkerOptions = TZWorkerOptions;

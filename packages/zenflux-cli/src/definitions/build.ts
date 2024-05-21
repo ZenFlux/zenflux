@@ -6,6 +6,6 @@ export type TZBuildOptions = {
 }
 
 export type TZBuildWorkerOptions = TZBuildOptions & {
-    thread: number,
+    threadId: number,
     otherConfigs: IZConfigInternal[],
 }

@@ -213,12 +213,18 @@ export function zWorkspaceGetPackagesPaths( rootPkg: Package, options = { useCac
         };
     } );
 
-    ConsoleManager.$.verbose( () => [ `${ zWorkspaceGetPackagesPaths.name }() -> workspaces from package: ${ util.inspect( rootPkg.getPath() ) }`, util.inspect(
-        {
-            workspaces: rootPkg.json.workspaces,
-            paths: Object.values( result.map( ( i ) => i.packages ).flat() ),
-        }
-    ) ] );
+    ConsoleManager.$.debug(
+        () => [
+            "workspace",
+            zWorkspaceGetPackagesPaths.name,
+            `workspaces from package: ${ util.inspect( rootPkg.getPath() ) }`,
+            util.inspect(
+            {
+                workspaces: rootPkg.json.workspaces,
+                paths: Object.values( result.map( ( i ) => i.packages ).flat() ),
+            }
+        ) ]
+    );
 
     zWorkspaceGetPackagesPathsCache[ rootPkg.getPath() ] = result;
 

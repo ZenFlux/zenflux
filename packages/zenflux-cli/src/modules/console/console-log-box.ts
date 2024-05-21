@@ -9,7 +9,8 @@ const DEFAULT_TAB_WIDTH = 4;
 
 let screen: ReturnType<typeof blessed.screen>,
     container: ReturnType<typeof blessed.box>,
-    allLogs: ReturnType<typeof blessed.log>[] = [];
+    allLogs: ReturnType<typeof blessed.log>[] = [],
+    allStickyBoxes: ReturnType<typeof blessed.box>[] = [];
 
 let autoScrollTimeout: NodeJS.Timeout,
     resizeTimeout: NodeJS.Timeout;
@@ -153,6 +154,33 @@ function zConsoleEnsureScreen() {
     }
 }
 
+export function zConsoleCreateStickyBox( label: string, position: "top" | "bottom" ) {
+    zConsoleEnsureScreen();
+
+    const options: any = {};
+
+    if ( position === "top" ) {
+        options.top = 0;
+    } else if ( position === "bottom" ) {
+        options.bottom = 1;
+    }
+
+    const box = blessed.box( {
+        ... options,
+        label,
+        width: "shrink",
+        height: "shrink",
+        right: 0,
+        border: {
+            type: "line",
+        },
+    } );
+
+    allStickyBoxes.push( box );
+
+    return box;
+}
+
 function zConsoleCreateLogBox( label: string ) {
     zConsoleEnsureScreen();
 
@@ -211,7 +239,7 @@ function zConsoleCreateLogBox( label: string ) {
     return log;
 }
 
-function zConsoleLogsRender( logs = allLogs, options = {
+function zConsoleRender( logs = allLogs, options = {
     autoScrollPauseInterval: 1000,
 } ) {
     zConsoleEnsureScreen();
@@ -256,6 +284,10 @@ function zConsoleLogsRender( logs = allLogs, options = {
         container.append( log.parent );
     } );
 
+    allStickyBoxes.forEach( ( box ) => {
+        container.append( box );
+    } );
+
     screen.append( container );
 
     setTimeout( () => {
@@ -266,5 +298,5 @@ function zConsoleLogsRender( logs = allLogs, options = {
 
 export {
     zConsoleCreateLogBox,
-    zConsoleLogsRender,
+    zConsoleRender,
 };
