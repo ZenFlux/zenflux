@@ -1,0 +1,14 @@
+name: Main github-hosted workflow
+
+on:
+  workflow_dispatch:
+
+jobs:
+  github-hosted:
+    needs: github-hosted
+    if: ${{ needs.github-hosted.result == 'failure' }}
+    uses: ./.github/workflows/react-packages.yml
+    with:
+      runs-on: ubuntu-latest
+    secrets:
+      token: ${{ secrets.GITHUB_TOKEN }}

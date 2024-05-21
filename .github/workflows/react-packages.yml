@@ -1,10 +1,18 @@
 name: React packages
 
-on: [push, pull_request]
+on:
+  workflow_call:
+    inputs:
+      runs-on:
+        type: string
+        required: true
+    secrets:
+      token:
+        required: true
 
 jobs:
   react-build-and-test:
-    runs-on: [self-hosted, ubuntu-latest]
+    runs-on: ${{ inputs.runs-on }}
     timeout-minutes: 10
 
     steps:
@@ -19,3 +27,4 @@ jobs:
 
       - name: Run tests
         run: bun run @z-flux:ci:jest:react
+
