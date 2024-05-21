@@ -21,7 +21,7 @@ import { CommandBuildBase } from "@zenflux/cli/src/base/command-build-base";
 
 import { rollupConsole, tsDeclarationConsole, tsDiagnosticConsole } from "@zenflux/cli/src/console/console-watch";
 
-import type { ConsoleBuildBase } from "@zenflux/cli/src/console/console-build-base";
+import type { ConsoleThreadFormat } from "@zenflux/cli/src/console/console-thread-format";
 
 import type { RollupOptions } from "rollup";
 import type { IZConfigInternal } from "@zenflux/cli/src/definitions/config";
@@ -31,15 +31,15 @@ const DEFAULT_ON_CHANGE_DELAY = 2000;
 const buildTimePerThread = new Map();
 
 export default class Watch extends CommandBuildBase {
-    protected getRollupConsole(): ConsoleBuildBase {
+    protected getRollupConsole(): ConsoleThreadFormat {
         return rollupConsole;
     }
 
-    protected getTSDiagnosticsConsole(): ConsoleBuildBase {
+    protected getTSDiagnosticsConsole(): ConsoleThreadFormat {
         return tsDiagnosticConsole;
     }
 
-    protected getTSDeclarationConsole(): ConsoleBuildBase {
+    protected getTSDeclarationConsole(): ConsoleThreadFormat {
         return tsDeclarationConsole;
     }
 

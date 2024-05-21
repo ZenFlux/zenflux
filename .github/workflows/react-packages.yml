@@ -1,4 +1,4 @@
-name: React Package Build and Test
+name: React packages
 
 on: [push, pull_request]
 

@@ -2,6 +2,7 @@
  * @author: Leonid Vinikov <leonidvinikov@gmail.com>
  */
 import util from "node:util";
+import process from "node:process";
 
 import { CommandBuildBase } from "@zenflux/cli/src/base/command-build-base";
 
@@ -50,6 +51,8 @@ export default class Build extends CommandBuildBase {
         ConsoleManager.$.log( "Build", "done", `in (${ Date.now() - startTime }ms)` );
 
         this.onBuiltAll();
+
+        process.exit( 0 );
     }
 
     public showHelp( name: string ) {
