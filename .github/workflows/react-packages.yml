@@ -4,7 +4,7 @@ on: [push, pull_request]
 
 jobs:
   react-build-and-test:
-    runs-on: ubuntu-latest
+    runs-on: [self-hosted, ubuntu-latest]
     timeout-minutes: 10
 
     steps:
