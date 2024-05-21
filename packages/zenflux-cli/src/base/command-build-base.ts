@@ -152,7 +152,7 @@ export abstract class CommandBuildBase extends CommandConfigBase {
             promises.push( promise );
         } );
 
-        Promise.all( promises ).finally( () => {
+        return Promise.all( promises ).finally( () => {
             this.getTSDeclarationConsole().log(
                 "Total",
                 ... this.getTotalDiagnosticMessage( passed, failed, startTimestamp )

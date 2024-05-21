@@ -50,9 +50,9 @@ export default class Build extends CommandBuildBase {
 
         ConsoleManager.$.log( "Build", "done", `in (${ Date.now() - startTime }ms)` );
 
-        this.onBuiltAll();
-
-        process.exit( 0 );
+        this.onBuiltAll().finally( () => {
+            process.exit( 0 );
+        } );
     }
 
     public showHelp( name: string ) {
