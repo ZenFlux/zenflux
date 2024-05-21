@@ -1,43 +1,25 @@
 /**
  * @author: Leonid Vinikov <leonidvinikov@gmail.com>
  */
-import path from "node:path";
 import util from "node:util";
-import process from "node:process";
-
-import { ConsoleManager } from "@zenflux/cli/src/managers/console-manager";
-
-import { zTSConfigRead, zTSCreateDeclaration, zTSPreDiagnostics } from "@zenflux/cli/src/core/typescript";
 
 import { CommandBuildBase } from "@zenflux/cli/src/base/command-build-base";
 
 import { zRollupBuild, zRollupCreateBuildWorker } from "@zenflux/cli/src/core/build";
 
+import { ConsoleManager } from "@zenflux/cli/src/managers/console-manager";
+
 import type { TZBuildOptions } from "@zenflux/cli/src/definitions/build";
 
-// TODO:
-//  - add --thread flag
-//  - add DEFAULT_MIN_SINGLE_BUILD_CONFIGS configuration
-const DEFAULT_MIN_SINGLE_BUILD_CONFIGS = 3;
+const DEFAULT_MIN_SINGLE_BUILD_CONFIGS = 1;
 
 export default class Build extends CommandBuildBase {
 
     public async run() {
-        const startTime = Date.now();
-
-        let threadsBeingUsed = false;
-
-        const configs = this.getConfigs(),
-            configsPaths = this.getConfigsPaths();
-
-        configsPaths.forEach( ( configPath ) => {
-            const tsConfig = zTSConfigRead( null, path.dirname( configPath ) );
-
-            zTSPreDiagnostics( tsConfig, {
-                // TODO: Avoid usage of `process.argv` use CommandBase instead.
-                haltOnError: process.argv.includes( "--haltOnDiagnosticError" ),
-            } );
-        } );
+        const startTime = Date.now(),
+            configs = this.getConfigs(),
+            configsPaths = this.getConfigsPaths(),
+            isMultiThreaded = configsPaths.length > DEFAULT_MIN_SINGLE_BUILD_CONFIGS;
 
         const promises: Promise<any>[] = [];
 
@@ -48,14 +30,12 @@ export default class Build extends CommandBuildBase {
 
             let promise;
 
-            if ( configs.length > DEFAULT_MIN_SINGLE_BUILD_CONFIGS ) {
-                threadsBeingUsed = true;
-
+            if ( isMultiThreaded ) {
                 promise = zRollupCreateBuildWorker( rollupConfig, {
                     ... options,
-                    thread: configs.indexOf( config ),
+                    threadId: configs.indexOf( config ),
                     otherConfigs: configs.filter( ( c ) => c !== config ),
-                } );
+                }, this.getRollupConsole() );
             } else {
                 promise = zRollupBuild( rollupConfig, options );
             }
@@ -67,27 +47,9 @@ export default class Build extends CommandBuildBase {
 
         await Promise.all( promises );
 
-        ConsoleManager.$.log( "Build -> Done", `(${ Date.now() - startTime }ms)` );
+        ConsoleManager.$.log( "Build", "done", `in (${ Date.now() - startTime }ms)` );
 
-        configsPaths.forEach( ( configPath ) => {
-            ConsoleManager.$.log( "Creating declaration files for ", `'${ configPath }'` );
-
-            zTSCreateDeclaration( zTSConfigRead( null, path.dirname( configPath ) ) );
-        } );
-
-        configs.forEach( config => {
-            ConsoleManager.$.log( "Trying to use api-extractor for", `'${ config.path }'` );
-
-            this.tryUseApiExtractor( config, ConsoleManager.$ );
-        } );
-
-        ConsoleManager.$.log( "Total -> Done", `(${ Date.now() - startTime }ms)` );
-
-        // TODO: Remove use of process.exit(), use safe exit for the threads
-        // Since we are using threads, they are not exiting automatically.
-        if ( threadsBeingUsed ) {
-            process.exit( 0 );
-        }
+        this.onBuiltAll();
     }
 
     public showHelp( name: string ) {

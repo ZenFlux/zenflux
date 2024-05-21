@@ -17,7 +17,6 @@
         ],
         "types": [
             "node",
-            "bun-types",
         ],
 
         // Specifies the ECMAScript version to transpile to (e.g., ESNext)

@@ -19,16 +19,16 @@ export function zApiExporter( projectPath: string, inputPath: string, outputPath
         const logFolder = path.dirname( logDiagnosticsFile );
 
         // Ensure folder exists
-        if ( !fs.existsSync( logFolder ) ) {
+        if ( ! fs.existsSync( logFolder ) ) {
             fs.mkdirSync( logFolder, { recursive: true } );
         }
     }
 
-    activeConsole.verbose( () => [`${ zApiExporter.name }()`, "->", `${ util.inspect( {
+    activeConsole.verbose( () => [ zApiExporter.name, util.inspect( {
         projectPath,
         inputPath,
         outputPath,
-    } ) }` ] );
+    } ) ] );
 
     const extractorConfig: ExtractorConfig = ExtractorConfig.prepare( {
         configObject: {
@@ -48,7 +48,7 @@ export function zApiExporter( projectPath: string, inputPath: string, outputPath
     } );
 
     if ( logDiagnosticsFile && fs.existsSync( logDiagnosticsFile ) ) {
-        activeConsole.verbose( () => [ `${ zApiExporter.name }()`,  "->", `Removing old diagnostics file: ${ logDiagnosticsFile }` ] );
+        activeConsole.verbose( () => [ zApiExporter.name, `Removing old diagnostics file: ${ logDiagnosticsFile }` ] );
         fs.unlinkSync( logDiagnosticsFile );
     }
 
@@ -70,10 +70,14 @@ export function zApiExporter( projectPath: string, inputPath: string, outputPath
                         activeConsole.error( message.text );
                         break;
                     case "warning":
-                        activeConsole.warn( message.text );
+                        activeConsole.warn( `${ zApiExporter.name }`, "warning", message.text );
                         break;
                     case "verbose":
-                        activeConsole.verbose( () => [ `${ zApiExporter.name }()`, "->", message.text ] );
+                        activeConsole.verbose( () => [ zApiExporter.name, message.text ] );
+                        break;
+
+                    case "info":
+                        activeConsole.info( `${ zApiExporter.name }`, "info", message.text );
                         break;
 
                     default:

@@ -14,40 +14,138 @@ export type TConsoleLoggerMethod = typeof Console.prototype.log |
     typeof Console.prototype.warn |
     typeof Console.prototype.info |
     typeof Console.prototype.debug |
-    typeof Console.prototype.message |
     typeof Console.prototype.verbose;
+
+const DEFAULT_LOG_FLAGS = {
+    log: 0b00000001,
+    error: 0b00000010,
+    warn: 0b00000100,
+    info: 0b00001000,
+    verbose: 0b00010000,
+    debug: 0b00100000,
+    inspectorDebug: 0b01000000,
+};
+
+// Currently default log flag are all except verbose and debug
+let logFlags = DEFAULT_LOG_FLAGS.log |
+    DEFAULT_LOG_FLAGS.error |
+    DEFAULT_LOG_FLAGS.warn |
+    DEFAULT_LOG_FLAGS.info;
+
+if ( process.argv.includes( "--verbose" ) ) {
+    logFlags |= DEFAULT_LOG_FLAGS.verbose;
+}
+
+if ( process.argv.includes( "--debug" ) ) {
+    logFlags |= DEFAULT_LOG_FLAGS.debug;
+}
+
+if ( inspector.url() ) {
+    logFlags |= DEFAULT_LOG_FLAGS.inspectorDebug;
+}
 
 export class Console extends NodeConsole {
     protected prefix: string;
 
-    protected currentLoggerMethod: null | TConsoleLoggerMethod = null;
+    public static isFlagEnabled( flag: keyof typeof DEFAULT_LOG_FLAGS ) {
+        return ( logFlags & DEFAULT_LOG_FLAGS[ flag ] ) !== 0;
+    }
 
     public constructor( options: ConsoleConstructorOptions ) {
         super( options );
 
-        if ( ! process.argv.includes( "--verbose" ) ) {
+        setTimeout( this.initialize.bind( this ) );
+    }
+
+    protected initialize() {
+        if ( ! Console.isFlagEnabled( "verbose" ) ) {
             this.verbose = () => {};
         }
 
         // TODO: Its probably better to send debug directly to inspector instead of sending it via main-thread.
         // Enable debug only when debugger connected
-        if ( ! inspector.url() ) {
+        if ( ! Console.isFlagEnabled( "debug" ) && ! Console.isFlagEnabled( "inspectorDebug" ) ) {
             this.debug = () => {};
         }
 
-        this.setPrefix( "" );
+        this.prefix = this.getPrefix();
     }
 
-    protected setPrefix( prefix: string ) {
-        this.prefix = prefix;
+    protected prepareFormat( args: any[], method: ( ( ... args: any[] ) => void ) | ( ( callback: () => any ) => void ) ) {
+        args = this.getArgs( method, args );
+
+        if ( this.prefix.length ) {
+            args.unshift( this.prefix );
+        }
+
+        if ( this.getFormat ) {
+            args = [ this.getFormat( method, args ) ];
+        }
+
+        return args;
     }
 
-    protected output( method: TConsoleLoggerMethod, args: any[] ) {
-        args.unshift( this.prefix );
-
-        method.apply( this, args );
+    public getPrefix() {
+        return "";
     }
 
+    public getFormat?( method: TConsoleLoggerMethod, args: any[] ): string;
+
+    public getArgs( method: TConsoleLoggerMethod, args: any[] ) {
+        switch ( method.name ) {
+            case this.verbose.name:
+            case this.debug.name:
+                const result = args[ 0 ]();
+
+                args = Array.isArray( result ) ? result : [ result ];
+                break;
+        }
+
+        return args;
+    }
+
+    public output( method: TConsoleLoggerMethod, args: any[], prepareFormat = this.prepareFormat ) {
+        args = prepareFormat( args, method );
+
+        switch ( method.name ) {
+            case this.verbose.name:
+                super.log( ... args );
+                break;
+
+            case this.debug.name:
+                if ( inspector.url() ) {
+                    // @ts-ignore
+                    inspector.console.log( ... args );
+                }
+
+                if ( process.argv.includes( "--debug" ) ) {
+                    super.log( ... args );
+                }
+                break;
+
+            case this.log.name:
+                super.log( ... args );
+                break;
+
+            case this.error.name:
+                super.error( ... args );
+                break;
+
+            case this.warn.name:
+                super.warn( ... args );
+                break;
+
+            case this.info.name:
+                super.info( ... args );
+                break;
+
+            default:
+                throw new Error( `Unknown method: ${ method.name }` );
+
+        }
+    }
+
+    // TODO: Move out
     public prompt( message: string ): Promise<string> {
         return new Promise( ( resolve ) => {
             this.log( message );
@@ -61,6 +159,7 @@ export class Console extends NodeConsole {
         } );
     }
 
+    // TODO: Move out
     public confirm( message: string ): Promise<boolean> {
         return new Promise( async ( resolve ) => {
             const answer = await this.prompt( `${ message } (y/n)` );
@@ -70,101 +169,26 @@ export class Console extends NodeConsole {
     }
 
     public log( ... args: any[] ) {
-        if ( ! this.currentLoggerMethod ) {
-            this.currentLoggerMethod = this.log;
-        }
-
-        this.output( super.log, args );
-
-        this.currentLoggerMethod = null;
+        this.output( this.log, args );
     }
 
     public error( ... args: any[] ) {
-        this.currentLoggerMethod = this.error;
-
-        this.output( super.error, args );
-
-        this.currentLoggerMethod = null;
+        this.output( this.error, args );
     }
 
     public warn( ... args: any[] ) {
-        this.currentLoggerMethod = this.warn;
-
-        this.output( super.warn, args );
-
-        this.currentLoggerMethod = null;
+        this.output( this.warn, args );
     }
 
     public info( ... args: any[] ) {
-        this.currentLoggerMethod = this.info;
-
-        this.output( super.info, args );
-
-        this.currentLoggerMethod = null;
+        this.output( this.info, args );
     }
 
-    public verbose( id: number | string, subject: string, action: string, ... args: any[] ): void;
-    public verbose( callback: () => any ): void;
-
-    public verbose( context: any ): void {
-        if ( typeof context === "function" ) {
-            this.currentLoggerMethod = this.verbose;
-
-            let result = context();
-
-            result = Array.isArray( result ) ? result : [ result ];
-
-            super.log.apply( this, [
-                this.prefix,
-                ... result
-            ] );
-
-            this.currentLoggerMethod = null;
-
-            return;
-        }
-
-        const [ id, subject, action, ... args ] = context;
-
-        this.verbose( () => [ id, subject, action, ... args ] );
+    public verbose( callback: () => any ): void {
+        this.output( this.verbose, [ callback ] );
     }
 
-    public debug( id: number | string, subject: string, action: string, ... args: any[] ): void;
-    public debug( callback: () => any ): void;
-
-    public debug( context: any ): void {
-        if ( typeof context === "function" ) {
-            this.currentLoggerMethod = this.debug;
-
-            let result = context();
-
-            result = Array.isArray( result ) ? result : [ result ];
-
-            if ( inspector.url() ) {
-                // @ts-ignore
-                inspector.console.log( ... result );
-            }
-
-            this.currentLoggerMethod = null;
-
-            return;
-        }
-
-        const [ id, subject, action, ... args ] = context;
-
-        this.debug( () => [ id, subject, action, ... args ] );
-    }
-
-    public message( id: number | string, subject: string, action: string, ... args: any[] ) {
-        this.currentLoggerMethod = this.message;
-
-        this.output( super.log, [
-            id,
-            subject,
-            action,
-            ... args
-        ] );
-
-        this.currentLoggerMethod = null;
+    public debug( callback: () => any ): void {
+        this.output( this.debug, [ callback ] );
     }
 }

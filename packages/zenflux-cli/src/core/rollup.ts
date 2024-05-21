@@ -36,7 +36,9 @@ export function zRollupPluginModuleResolve( args: Required<IPluginArgs> ): Plugi
         baseSrcPath = tsConfig?.options.baseUrl ?? function useDefaultSrcPath () {
             const srcPath = path.join( projectPath, DEFAULT_BASE_SRC_PATH );
 
-            ConsoleManager.$.debug( () => `${ zRollupPluginModuleResolve.name }::${ useDefaultSrcPath.name }() -> ${ util.inspect( srcPath ) }` );
+            ConsoleManager.$.debug(
+                () => [ "path-resolve", useDefaultSrcPath.name, util.inspect( srcPath ) ]
+            );
 
             return srcPath;
         }(),
@@ -95,7 +97,9 @@ export function zRollupPluginModuleResolve( args: Required<IPluginArgs> ): Plugi
             if ( packageName === modulePathParts[ 0 ] || packageName === modulePathParts[ 0 ]  + "/" + modulePathParts[ 1 ] ) {
                 const tryPath = path.join( packageObj.getPath(), modulePathRest );
 
-                ConsoleManager.$.debug( () => `${ resolveWorkspace.name }::${ resolveRelative.name }() -> ${ util.inspect( tryPath ) }` );
+                ConsoleManager.$.debug(
+                    () => [ "path-resolve" , resolveRelative.name,  util.inspect( tryPath ) ]
+                );
 
                 const tryResolve = resolveExt( tryPath );
 
@@ -132,7 +136,9 @@ export function zRollupPluginModuleResolve( args: Required<IPluginArgs> ): Plugi
                 const tryResolve = resolveRelative( source );
 
                 if ( tryResolve ) {
-                    ConsoleManager.$.debug( () => `${ zRollupPluginModuleResolve.name }::${ resolveRelative.name }() -> ${ util.inspect( tryResolve ) }` );
+                    ConsoleManager.$.debug(
+                        () => [ "path-resolve", resolveRelative.name,  util.inspect( tryResolve ) ]
+                    );
 
                     return {
                         id: tryResolve,
@@ -147,7 +153,9 @@ export function zRollupPluginModuleResolve( args: Required<IPluginArgs> ): Plugi
                 const tryResolve = resolveWorkspace( source );
 
                 if ( tryResolve ) {
-                    ConsoleManager.$.debug( () => `${ zRollupPluginModuleResolve.name }::${ resolveWorkspace.name }() -> ${ util.inspect( tryResolve ) }` );
+                    ConsoleManager.$.debug(
+                        () => [ "path-resolve", resolveWorkspace.name,  util.inspect( tryResolve ) ]
+                    );
 
                     return {
                         id: tryResolve,
@@ -162,7 +170,9 @@ export function zRollupPluginModuleResolve( args: Required<IPluginArgs> ): Plugi
                 const tryResolve = resolveAbsolute( source );
 
                 if ( tryResolve ) {
-                    ConsoleManager.$.debug( () => `${ zRollupPluginModuleResolve.name }::${ resolveAbsolute.name }() -> ${ util.inspect( tryResolve ) }` );
+                    ConsoleManager.$.debug(
+                        () => [ "path-resolve", resolveAbsolute.name,  util.inspect( tryResolve ) ]
+                    );
 
                     return {
                         id: tryResolve,

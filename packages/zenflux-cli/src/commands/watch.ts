@@ -8,19 +8,10 @@
  */
 import util from "node:util";
 import process from "node:process";
-import path from "node:path";
 
 import chokidar from "chokidar";
 
-import { ConsoleManager } from "@zenflux/cli/src/managers/console-manager";
-
 import { zDebounce } from "@zenflux/cli/src/utils/timers";
-
-import {
-    zTSConfigRead,
-    zTSCreateDeclarationWorker,
-    zTSCreateDiagnosticWorker,
-} from "@zenflux/cli/src/core/typescript";
 
 import { zRollupCreateBuildWorker } from "@zenflux/cli/src/core/build";
 
@@ -28,10 +19,11 @@ import { zGlobalPathsGet } from "@zenflux/cli/src/core/global";
 
 import { CommandBuildBase } from "@zenflux/cli/src/base/command-build-base";
 
-import { rollupConsole, tsDeclarationConsole, tsDiagnosticConsole } from "@zenflux/cli/src/console/watch-console";
+import { rollupConsole, tsDeclarationConsole, tsDiagnosticConsole } from "@zenflux/cli/src/console/console-watch";
+
+import type { ConsoleBuildBase } from "@zenflux/cli/src/console/console-build-base";
 
 import type { RollupOptions } from "rollup";
-
 import type { IZConfigInternal } from "@zenflux/cli/src/definitions/config";
 
 const DEFAULT_ON_CHANGE_DELAY = 2000;
@@ -39,14 +31,26 @@ const DEFAULT_ON_CHANGE_DELAY = 2000;
 const buildTimePerThread = new Map();
 
 export default class Watch extends CommandBuildBase {
-    public initialize() {
-        // Set global console instance as rollupConsole.
-        ConsoleManager.setInstance( rollupConsole );
-
-        super.initialize();
+    protected getRollupConsole(): ConsoleBuildBase {
+        return rollupConsole;
     }
 
-    public async run() {
+    protected getTSDiagnosticsConsole(): ConsoleBuildBase {
+        return tsDiagnosticConsole;
+    }
+
+    protected getTSDeclarationConsole(): ConsoleBuildBase {
+        return tsDeclarationConsole;
+    }
+
+    protected getTotalDiagnosticMessage( passed: number, failed: number, startTimestamp: number ) {
+        return [
+            `Passed: {#00ff00-fg}${ passed }{/}, Failed: {#ff0000-fg}${ failed }{/}`,
+            `Toke {#0000ff-fg}${ Date.now() - startTimestamp }{#ff0000-fg}ms{/}`
+        ];
+    }
+
+    protected async run() {
         const configs = this.getConfigs();
 
         const globalPaths = zGlobalPathsGet();
@@ -82,17 +86,17 @@ export default class Watch extends CommandBuildBase {
 
                     buildTimePerThread.set( id, Date.now() );
 
-                    rollupConsole.log( id, "Watcher", "Send", [ config.outputName ] );
+                    rollupConsole.verbose( () => [ "watcher", "send", "to RO-" + id, util.inspect( config.outputName ) ] );
                 } )
                 .onWorkerEnd( ( id ) => {
                     const time = buildTimePerThread.get( id );
 
-                    rollupConsole.log( id, "Watcher", "Recv", config.outputName, `in {#0000ff-fg}${ Date.now() - time }{#ff0000-fg}ms{/}` );
+                    rollupConsole.log( "watcher", "recv", "from RO-" + id, util.inspect( config.outputName ), `in {#0000ff-fg}${ Date.now() - time }{#ff0000-fg}ms{/}` );
 
                     buildTimePerThread.delete( id );
 
                     if ( buildTimePerThread.size === 0 ) {
-                        rollupConsole.log( "M", "Watcher" , "Total",
+                        rollupConsole.log( "watcher", "Total",
                             "{colspan}" + configs.map( c => `{red-fg}'{/}{blue-fg}${ c.outputFileName }{/}{red-fg}'{/}` ).join( ", " ) +
                             ` toke {#0000ff-fg}${ Date.now() - totalBuildTime }{#ff0000-fg}ms{/}` );
 
@@ -104,50 +108,6 @@ export default class Watch extends CommandBuildBase {
 
     protected async onBuilt( _config: IZConfigInternal ) {
         // TODO: Use it to gain performance.
-    }
-
-    protected async onBuiltAll() {
-        const configs = this.getConfigs();
-
-        // Trigger TypeScript diagnostics for all configs.
-        for ( const config of configs ) {
-            await this.handleTSDiagnostics( config );
-        }
-
-        this.getUniqueConfigs( configs ).forEach( ( config ) => {
-            this.handleTypeScript( config );
-        } );
-    }
-
-    private async handleTSDiagnostics( config: IZConfigInternal ) {
-        const id = this.getConfigs().indexOf( config );
-
-        tsDiagnosticConsole.log( id, "Send", util.inspect( config.outputName ) );
-
-        const promise = zTSCreateDiagnosticWorker( zTSConfigRead( null, path.dirname( config.path ) ), {
-            useCache: false,
-            thread: id
-        }, tsDiagnosticConsole );
-
-        return await ( promise as Promise<any> ).then( () => {
-            tsDiagnosticConsole.log( id, "Recv", util.inspect( config.outputName ) );
-        } );
-    }
-
-    private async handleTypeScript( config: IZConfigInternal ) {
-        const id = this.getIdByConfig( config );
-
-        tsDeclarationConsole.log( id, "Send", util.inspect( config.outputName ) );
-
-        const result = zTSCreateDeclarationWorker( zTSConfigRead( null, path.dirname( config.path ) ), {
-            thread: Number( id )
-        }, tsDeclarationConsole );
-
-        ( result as Promise<any> ).then( () => {
-            tsDeclarationConsole.log( id, "Recv", util.inspect( config.outputName ) );
-
-            this.tryUseApiExtractor( config, tsDeclarationConsole );
-        } );
     }
 
     private watch( rollupOptions: RollupOptions[], config: IZConfigInternal, watcher: ReturnType<typeof chokidar.watch>, id: number = 0 ) {
@@ -175,7 +135,7 @@ export default class Watch extends CommandBuildBase {
         const build = zRollupCreateBuildWorker.bind( null, rollupOptions, {
             silent: true,
             config,
-            thread: id,
+            threadId: id,
             otherConfigs: this.getConfigs().filter( ( c ) => c !== config )
         }, rollupConsole );
 
@@ -188,15 +148,13 @@ export default class Watch extends CommandBuildBase {
         };
 
         watcher.on( "ready", async () => {
-            rollupConsole.verbose( () => [ id, "Watcher", "Ready", util.inspect( config.outputName ) ] );
-
             await buildCallback();
 
             watcher.on( "change", function ( path ) {
                 rollupConsole.verbose( () => [
-                    id,
-                    "Watcher",
+                    "watcher",
                     "Changes",
+                    "in RO-" + id,
                     `${ util.inspect( config.outputName ) } at ${ util.inspect( path ) }`
                 ] );
 
@@ -207,18 +165,5 @@ export default class Watch extends CommandBuildBase {
         } );
 
         return callbacksSetter;
-    }
-
-    private getUniqueConfigs( configs: IZConfigInternal[] ) {
-        return configs.filter( ( config, index, self ) => {
-            // Should filter duplicate config.paths.
-            return index === self.findIndex( ( c ) => {
-                return c.path === config.path;
-            } );
-        } );
-    }
-
-    private getIdByConfig( config: IZConfigInternal ) {
-        return this.getUniqueConfigs( this.getConfigs() ).indexOf( config );
     }
 }

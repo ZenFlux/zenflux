@@ -5,7 +5,7 @@
     "type": "module",
     "types": "./types/index.d.ts",
     "bin": {
-        "@z-cli": "bin/cli"
+        "@z-cli": "bin/cli.js"
     },
     "files": [
         "bin",
@@ -41,5 +41,5 @@
     "publishConfig": {
         "access": "public"
     },
-    "packageManager": "bun@1.0.11"
+    "packageManager": "bun@1.1.5"
 }
