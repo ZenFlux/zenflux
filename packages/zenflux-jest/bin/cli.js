@@ -13,6 +13,7 @@ Error.stackTraceLimit = Infinity;
 const vmContext = {
     process,
     global,
+    setTimeout,
 };
 
 vm.defineConfig( {
