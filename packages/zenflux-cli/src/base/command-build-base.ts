@@ -87,6 +87,10 @@ export abstract class CommandBuildBase extends CommandConfigBase {
         useCache: false,
         haltOnError: process.argv.includes( "--haltOnDiagnosticError" ),
     } ) {
+        if ( process.argv.includes( "--no-diagnostic" ) ) {
+            return;
+        }
+
         const tsDiagnosticConsole = this.getTSDiagnosticsConsole(),
             id = this.getIdByConfig( config ),
             otherConfigs = this.getConfigs().filter( ( c ) => c !== config );
@@ -111,6 +115,10 @@ export abstract class CommandBuildBase extends CommandConfigBase {
     }
 
     protected async handleTSDeclaration( config: IZConfigInternal ) {
+        if ( process.argv.includes( "--no-declaration" ) ) {
+            return;
+        }
+
         const tsDeclarationConsole = this.getTSDeclarationConsole(),
             id = this.getIdByConfig( config ),
             otherConfigs = this.getConfigs().filter( ( c ) => c !== config ),
@@ -131,7 +139,7 @@ export abstract class CommandBuildBase extends CommandConfigBase {
         return result;
     }
 
-    protected onBuiltAll() {
+    protected async onBuiltAll() {
         const configs = this.getConfigs(),
             uniqueConfigs = this.getUniqueConfigs( configs ),
             startTimestamp = Date.now(),
@@ -152,12 +160,14 @@ export abstract class CommandBuildBase extends CommandConfigBase {
             promises.push( promise );
         } );
 
-        return Promise.all( promises ).finally( () => {
-            this.getTSDeclarationConsole().log(
-                "Total",
-                ... this.getTotalDiagnosticMessage( passed, failed, startTimestamp )
-            );
-        } );
+        if ( ! process.argv.includes( "--no-declaration" ) ) {
+            return Promise.all( promises ).finally( () => {
+                this.getTSDeclarationConsole().log(
+                    "Total",
+                    ... this.getTotalDiagnosticMessage( passed, failed, startTimestamp )
+                );
+            } );
+        }
     }
 
     protected getRollupConfig( config: IZConfigInternal ) {
@@ -199,7 +209,19 @@ export abstract class CommandBuildBase extends CommandConfigBase {
                     "Loading different tsconfig file: tsconfig.{format}.dev.json",
                     "Sets process.env.NODE_ENV to 'development'"
                 ]
-            }
+            },
+            "--no-diagnostic": {
+                description: "Disable TypeScript diagnostics",
+                behaviors: [
+                    "No TypeScript diagnostics will be shown"
+                ]
+            },
+            "--no-declaration": {
+                description: "Disable TypeScript declaration",
+                behaviors: [
+                    "No TypeScript declaration will be created"
+                ]
+            },
         } ) );
     }
 }
