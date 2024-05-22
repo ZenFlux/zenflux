@@ -1,4 +1,4 @@
-#!/usr/bin/env node --unhandled-rejections=strict --experimental-vm-modules --trace-uncaught --no-warnings --trace-exit
+#!/usr/bin/env -S node --unhandled-rejections=strict --experimental-vm-modules --trace-uncaught --no-warnings --trace-exit
 import path from "node:path";
 
 import { fileURLToPath } from "node:url";
