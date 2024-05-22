@@ -1,6 +1,15 @@
+# This workflow waits for the `self-hosted` workflow to complete and continues running only if it is cancelled.
+# to trigger `github-hosted` workflow, in case it is cancelled.
+
 name: Main github-hosted workflow
 
 on: [ push, pull_request ]
+
+env:
+  WORKFLOW_NAME: 0-main-self-hosted.yml
+  WORKFLOW_STATUS_CANCELLED: cancelled
+  SLEEP_DURATION: 60
+  LOOP_ITERATIONS: 2
 
 jobs:
   github-hosted:
@@ -11,16 +20,16 @@ jobs:
       - name: Wait for self-hosted workflow to complete
         id: wait-for-status
         run: |
-          for i in 1 2; do
+          for ((i = 1; i <= ${{ env.LOOP_ITERATIONS }}; i++)); do
             STATUS=$(curl -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
-              https://api.github.com/repos/${{ github.repository }}/actions/workflows/0-main-self-hosted.yml/runs | \
+              https://api.github.com/repos/${{ github.repository }}/actions/workflows/${{ env.WORKFLOW_NAME }}/runs | \
               jq -r '.workflow_runs[0].conclusion')
-            if [ "$STATUS" == "cancelled" ]; then
+            if [ "$STATUS" == "{$env.WORKFLOW_STATUS_CANCELLED}" ]; then
               echo "::set-output name=status::cancelled"
               break
             else
               echo "Waiting for self-hosted workflow to complete..."
-              sleep 60
+              sleep ${{ env.SLEEP_DURATION }}
             fi
           done
 
