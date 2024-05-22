@@ -59,19 +59,3 @@ jobs:
             }
 
             cancelWorkflow();
-      - name: Trigger Main github-hosted workflow
-        if: ${{ cancelled() }}
-        uses: actions/github-script@v6
-        with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          script: |
-            const workflow_file_path = ".github/workflows/1-main-github-hosted.yml"; // replace with your workflow file path
-            const owner = context.repo.owner;
-            const repo = context.repo.repo;
-
-            await github.rest.actions.createWorkflowDispatch({
-              owner,
-              repo,
-              workflow_id: workflow_file_path,
-              ref: 'main'
-            });
