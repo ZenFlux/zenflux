@@ -16,7 +16,7 @@ Via package manager, `bun install @zenflux/cli`
 
 ## 📦 Features
 
-The CLI tool provides several features, they called commands, and they start with `@` symbol.
+The CLI provides several commands, each starting with the `@` symbol.
 
 ### Building Projects
 
