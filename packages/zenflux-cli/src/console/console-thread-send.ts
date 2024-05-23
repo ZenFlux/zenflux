@@ -11,6 +11,10 @@ import type { TConsoleLoggerMethod } from "@zenflux/cli/src/modules/console/cons
 const stdout = process.stdout,
     stderr = process.stderr;
 
+/**
+ * `ConsoleThreadSend` is a specialized class for managing sending operations in a multithreaded console environment,
+ * leveraging the functionalities provided by ConsoleManager.
+ */
 export class ConsoleThreadSend extends ConsoleManager.module() {
     public constructor( private host: ThreadHost ) {
         super( { stdout, stderr } );

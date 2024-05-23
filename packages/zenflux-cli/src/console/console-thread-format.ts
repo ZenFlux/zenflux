@@ -11,7 +11,7 @@ const stdout = process.stdout,
     stderr = process.stderr;
 
 /**
- * ConsoleThreadFormat is an abstract class that provides a structure for formatting console threads.
+ * `ConsoleThreadFormat` is an abstract class that provides a structure for formatting console threads.
  * It also provides the ability to switch formatting based on logging level.
  */
 export abstract class ConsoleThreadFormat extends ConsoleManager.module() {
