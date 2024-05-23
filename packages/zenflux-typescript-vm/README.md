@@ -53,6 +53,14 @@ vm.defineConfig( {
     workspacePath: path.resolve( currentDir, "../../../" ),
 
     /**
+     * Enable support for resolving workspace packages, by manually add the paths.
+     */
+    workspacePackagesPaths: [
+        path.resolve( currentDir, "../packages-A/" ),
+        path.resolve( currentDir, "../packages-B/" ),   
+    ],
+
+    /**
      * Determines whether to use ts-node compiler or not.
      */
     useTsNode: false,
