@@ -1,0 +1,44 @@
+# This workflow waits for the `self-hosted` workflow to complete and continues running only if it is cancelled.
+# to trigger `github-hosted` workflow, in case it is cancelled.
+
+name: Main github-hosted workflow
+
+on: [ push, pull_request ]
+
+env:
+  SELF_HOSTED_WORKFLOW_NAME: 0-main-self-hosted.yml
+  SELF_HOSTED_WORKFLOW_STATUS_SEEK: cancelled
+  SELF_HOSTED_WAIT_SECONDS: 60
+  SELF_HOSTED_TRY_COUNT: 2
+
+jobs:
+  github-hosted:
+    runs-on: ubuntu-latest
+    outputs:
+      status: ${{ steps.wait-for-status.outputs.status }}
+      workflow_status_seek: ${{ env.SELF_HOSTED_WORKFLOW_STATUS_SEEK }}
+    steps:
+      - name: Wait for self-hosted workflow to complete
+        id: wait-for-status
+        run: |
+          for ((i = 1; i <= ${{ env.SELF_HOSTED_TRY_COUNT }}; i++)); do
+            STATUS=$(curl -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+              https://api.github.com/repos/${{ github.repository }}/actions/workflows/${{ env.SELF_HOSTED_WORKFLOW_NAME }}/runs | \
+              jq -r '.workflow_runs[0].conclusion')
+            if [ "$STATUS" == "${{ env.SELF_HOSTED_WORKFLOW_STATUS_SEEK }}" ]; then
+              echo "::set-output name=status::${{ env.SELF_HOSTED_WORKFLOW_STATUS_SEEK }}"
+              break
+            else
+              echo "Waiting for self-hosted workflow to complete..."
+              sleep ${{ env.SELF_HOSTED_WAIT_SECONDS }}
+            fi
+          done
+
+  github-hosted-continue:
+    needs: github-hosted
+    if: ${{ needs.github-hosted.outputs.status == needs.github-hosted.outputs.workflow_status_seek }}
+    uses: ./.github/workflows/react-packages.yml
+    with:
+      runs-on: ubuntu-latest
+    secrets:
+      token: ${{ secrets.GITHUB_TOKEN }}

@@ -12,9 +12,14 @@ import ImportPlugin from "eslint-plugin-import";
 
 import { fileURLToPath } from "node:url";
 
+const workingPath = path.dirname( fileURLToPath( import.meta.url ) );
+
 globalThis.__Z_ESLINT_CONFIG__ = globalThis.__Z_ESLINT_CONFIG__ ?? {
-    zRootPackagePath: path.resolve( path.dirname( fileURLToPath( import.meta.url ) ), "../../package.json" ),
+    zRootPackagePath: path.resolve( workingPath , "../../package.json" ),
+    zPackagePath: path.resolve( workingPath, "./package.json" ),
 };
+
+const ZenFluxPlugin = ( await import( "@zenflux/eslint/plugin.js" ) ).default;
 
 /**
  * Sets the root package path.
@@ -45,7 +50,7 @@ export function zLintGetWorkspaces( rootPkgPath = __Z_ESLINT_CONFIG__.zRootPacka
  *
  * @param {Array<String>} [workspaces=zLintGetWorkspaces()] - The list of workspaces to include in the configuration.
  *
- * @return {{import('eslint').Linter.FlatConfig[]} The default configuration for zLint.
+ * @return {import('eslint').Linter.FlatConfig[]} The default configuration for zLint.
  */
 export function zLintGetDefaultConfig( workspaces = zLintGetWorkspaces() ) {
     return [
@@ -68,6 +73,7 @@ export function zLintGetDefaultConfig( workspaces = zLintGetWorkspaces() ) {
             plugins: {
                 "@typescript-eslint": TypeScriptPlugin,
                 "import": ImportPlugin,
+                "@zenflux": ZenFluxPlugin,
             },
 
             // Configuration settings for import plugin and TypeScript
@@ -114,6 +120,24 @@ export function zLintGetDefaultConfig( workspaces = zLintGetWorkspaces() ) {
                 ],
                 // Enforce explicit member accessibility
                 "@typescript-eslint/explicit-member-accessibility": "error",
+
+                "import/default": "off",
+                // Custom rules
+                "@zenflux/no-relative-imports": "error",
+
+                "no-restricted-imports": [
+                    "error",
+                    {
+                        "patterns": [ {
+                            "group": [
+                                "./*",
+                                "../*",
+                                "!*../package.json"
+                            ],
+                            "message": "Please use path aliases import e.g. import { foo } from '@/foo';",
+                        } ],
+                    },
+                ],
 
                 // https://typescript-eslint.io/blog/consistent-type-imports-and-exports-why-and-how
                 // It also helps to avoid circular dependencies
@@ -192,22 +216,6 @@ export function zLintGetDefaultConfig( workspaces = zLintGetWorkspaces() ) {
                         max: 1,
                     },
                 ],
-                // Custom rule: no-restricted-imports
-                "no-restricted-imports": [
-                    "error",
-                    {
-                        "patterns": [ {
-                            "group": [
-                                "./*",
-                                "../*",
-                                "!*../package.json"
-                            ],
-                            "message": "Please use path aliases import e.g. import { foo } from '@/foo';",
-                        } ],
-                    },
-                ],
-                // "import/default" rule
-                "import/default": "off",
             },
         },
         {

@@ -1,0 +1,30 @@
+name: React packages
+
+on:
+  workflow_call:
+    inputs:
+      runs-on:
+        type: string
+        required: true
+    secrets:
+      token:
+        required: true
+
+jobs:
+  react-build-and-test:
+    runs-on: ${{ inputs.runs-on }}
+    timeout-minutes: 10
+
+    steps:
+      - uses: actions/checkout@v4
+      - uses: oven-sh/setup-bun@v1
+
+      - name: Install dependencies
+        run: bun install
+
+      - name: Build
+        run: bun run @z-flux-ci:build:react
+
+      - name: Run tests
+        run: bun run @z-flux:ci:jest:react
+

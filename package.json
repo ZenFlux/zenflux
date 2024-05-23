@@ -4,6 +4,7 @@
     "author": "Leonid Vinikov <leonidvinikov@gmail.com> (https://github.com/iNewLegend)",
     "license": "MIT",
     "type": "module",
+    "version": "0.0.1",
     "keywords": [
         "zenflux",
         "commands",
@@ -27,10 +28,11 @@
         "@z-flux:registry-server": "@z-cli @registry server",
         "@z-flux:build:core": "@z-cli @build --workspace core",
         "@z-flux:build:react": "@z-cli @build --workspace react-* --dev",
+        "@z-flux:dev": "@z-cli @watch --dev",
         "@z-flux:dev:react": "@z-cli @watch --workspace react-* --dev",
         "@z-flux:dev:react-reconciler": "@z-cli @watch --workspace react-reconciler-* --dev",
-        "@z-flux:dev": "@z-cli @watch --dev",
-        "@z-flux:jest:react": "@z-jest --selectedProjects react-test-renderer,react-cache,react-scheduler,internal-test-utils,react-reconciler"
+        "@z-flux-ci:build:react": "@z-cli @build --workspace \"react-*\" --haltOnDiagnosticError --no-diagnostic --no-declaration",
+        "@z-flux:ci:jest:react": "@z-jest --selectedProjects react-test-renderer,react-cache,react-scheduler,internal-test-utils,react-reconciler"
     },
-    "packageManager": "bun@1.0.11"
+    "packageManager": "bun@1.1.5"
 }

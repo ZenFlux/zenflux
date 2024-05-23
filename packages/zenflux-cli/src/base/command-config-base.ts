@@ -20,7 +20,7 @@ export abstract class CommandConfigBase extends CommandBase {
 
     protected isWorkspaceSpecified = false;
 
-    public initialize() {
+    protected initialize() {
         const workspaceArgIndex = this.args.indexOf( "--workspace" );
 
         // Determine if the workspace is specified

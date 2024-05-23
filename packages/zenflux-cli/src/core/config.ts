@@ -2,6 +2,7 @@
  * @author: Leonid Vinikov <leonidvinikov@gmail.com>
  */
 import fs from "fs";
+import util from "node:util";
 
 import { ConsoleManager } from "@zenflux/cli/src/managers/console-manager";
 
@@ -41,7 +42,7 @@ function configEnsureInternals( config: IZConfigInternal, args: {
 }
 export async function zConfigLoad( path: string, silent = false ) {
     // Check if target config exists.
-    ConsoleManager.$.verbose( () => `${ zConfigLoad.name }() -> Checking if exists: '${ path }'` );
+    ConsoleManager.$.verbose( () => [ "config", zConfigLoad.name,`Checking if exists: ${ util.inspect( path ) }` ] );
 
     if ( ! fs.existsSync( path ) ) {
         const message = `File not found: '${ path }'`;
@@ -50,7 +51,7 @@ export async function zConfigLoad( path: string, silent = false ) {
             throw new Error( message );
         }
 
-        ConsoleManager.$.verbose( () => `${ zConfigLoad.name }() -> ${ message }` );
+        ConsoleManager.$.verbose( () => [ "config", zConfigLoad.name, message ] );
 
         return;
     }
