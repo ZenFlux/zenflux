@@ -290,6 +290,4 @@ The tool handles interactions with npm registries, creating a local npm registry
 
 ![image](https://github.com/ZenFlux/zenflux/assets/10234691/47dce715-f1a3-4309-a924-4e704894a35f)
 *Verbose mode for watching all React packages.*
----
-
 
