@@ -38,6 +38,14 @@ class SimpleOutputStrategy implements OutputStrategy {
     }
 }
 
+/**
+ * `DebugOutputStrategy` is a strategy for outputting log messages.
+ * It has a special handling for debug messages: they are buffered and logged in a batch.
+ * This is done to prevent too many logs appearing at once.
+ * The buffer is flushed either when it reaches a certain size (LOG_MAX_BUFFER_SIZE)
+ * or after a certain delay (LOG_DEBUG_DEBOUNCE_DELAY), whichever comes first.
+ * This strategy is used when the debug flag is enabled.
+ */
 class DebugOutputStrategy implements OutputStrategy {
     private $: ConsoleWatchBase;
 
