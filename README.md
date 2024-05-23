@@ -46,7 +46,7 @@ This repository is a monorepo that contains the following packages:
 - [`zenflux-typescript-vm`](https://github.com/ZenFlux/zenflux/tree/main/packages/zenflux-typescript-vm): A TypeScript virtual machine used by ZenFlux ecosystem.
 
 ### React packages
-- [`react-packages`](https://github.com/ZenFlux/zenflux/tree/main/packages-react): A TypeScript port of React mainly used to test the ZenFlux ecosystem.
+- [`react-packages`](https://github.com/ZenFlux/zenflux/tree/main/packages/react-packages): A TypeScript port of React mainly used to test the ZenFlux ecosystem.
 
 
 Please visit each package for more detailed information.
