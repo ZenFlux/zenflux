@@ -276,14 +276,17 @@ The tool handles interactions with npm registries, creating a local npm registry
 `@z-cli @build --workspace "react-*" --no-diagnostic --no-declaration`
 
 ![image](https://github.com/ZenFlux/zenflux/assets/10234691/9b074d4f-d2cd-4d4e-ae8e-aab0a8802faa)
+*Building all React packages without diagnostics and declaration files.*
 
 `@z-cli @watch --workspace "react-*" --no-diagnostic --no-declaration`
 
 ![image](https://github.com/ZenFlux/zenflux/assets/10234691/7443dfde-dc1b-47dd-b735-a509393125e9)
+*Watching all React packages without diagnostics and declaration files.*
 
 `@z-cli @watch --workspace "react-*" --verbose`
 
 ![image](https://github.com/ZenFlux/zenflux/assets/10234691/47dce715-f1a3-4309-a924-4e704894a35f)
+*Verbose mode for watching all React packages.*
 ---
 
 ## 🎯 Roadmap / Todo
