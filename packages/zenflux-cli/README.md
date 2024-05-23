@@ -201,13 +201,13 @@ The CLI tool provides several features, they called commands, and they start wit
 - **Flow**
 
   - **@build**
-      - **Initialization**: The run method begins by retrieving the configurations using the `getConfigs` method and the configuration paths using the `getConfigsPaths` method.
-      - **Configuration Retrieval**: It loads the `zenflux.config.ts` for each package and creates a `TZBuildOptions` object. It assigns the index of the current configuration to the thread property of the `TZBuildOptions` object if the number of configurations is greater than `DEFAULT_MIN_SINGLE_BUILD_CONFIGS`.
-      - **Configuration Loop**: For each configuration path, it reads the TypeScript configuration using the `zTSConfigRead` method, performs pre-diagnostics using the `zTSPreDiagnostics` method, and loads the relevant `tsconfig.{format}.json`.
-      - **Package Build**: For each package format, it builds the package and fires the `onBuiltFormat` callback if provided in `zenflux.config.ts`.
-      - **Post-Build**: After building all configurations, for each configuration path, it begins the creation of declaration files and creates them using the `zTSCreateDeclaration` method.
-      - **Declaration File Consolidation**: It then merges all the declaration files into a single declaration file per package using the `zApiExporter` method, if `inputDtsPath` and `outputDtsPath` are provided in `zenflux.config.ts`.
-      - **Api-Extractor**: The `zApiExporter` method bundles multiple declaration files into a single declaration file. This operation eases usage for the package consumers. If operating in development mode, it also generates a diagnostics log for each package with paths like: `${ projectPath }/log/api-extractor-diagnostics.${ buildOutputFileName }.log`
+      1. **Initialization**: The run method begins by retrieving the configurations using the `getConfigs` method and the configuration paths using the `getConfigsPaths` method.
+      2. **Configuration Retrieval**: It loads the `zenflux.config.ts` for each package and creates a `TZBuildOptions` object. It assigns the index of the current configuration to the thread property of the `TZBuildOptions` object if the number of configurations is greater than `DEFAULT_MIN_SINGLE_BUILD_CONFIGS`.
+      3. **Configuration Loop**: For each configuration path, it reads the TypeScript configuration using the `zTSConfigRead` method, performs pre-diagnostics using the `zTSPreDiagnostics` method, and loads the relevant `tsconfig.{format}.json`.
+      4. **Package Build**: For each package format, it builds the package and fires the `onBuiltFormat` callback if provided in `zenflux.config.ts`.
+      5. **Post-Build**: After building all configurations, for each configuration path, it begins the creation of declaration files and creates them using the `zTSCreateDeclaration` method.
+      6. **Declaration File Consolidation**: It then merges all the declaration files into a single declaration file per package using the `zApiExporter` method, if `inputDtsPath` and `outputDtsPath` are provided in `zenflux.config.ts`.
+      7. **Api-Extractor**: The `zApiExporter` method bundles multiple declaration files into a single declaration file. This operation eases usage for the package consumers. If operating in development mode, it also generates a diagnostics log for each package with paths like: `${ projectPath }/log/api-extractor-diagnostics.${ buildOutputFileName }.log`
   <br /><br />
   - **@watch**
     - **Initialization**: The `@watch` command starts by retrieving the configurations for each package in your workspace. These configurations are defined in the `zenflux.config.ts` file of each package.
