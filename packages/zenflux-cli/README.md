@@ -3,9 +3,8 @@
 ## 📍 Overview
 
 The repository contains a CLI tool called `@z-cli` that offers functionalities related to building, publishing, and watching **monorepo** workspaces. It utilizes technologies like `Babel`, `Rollup`, `TypeScript`, and `Verdaccio`.
-<br />
 The tool is designed to simplify the development process by providing a command-line interface with various commands for managing and building projects.
-<br />
+
 It includes modules for handling npm registry operations. The tool's value proposition lies in its ability to automate repetitive tasks and streamline project workflows, ultimately enhancing developer productivity.
 
 ---
