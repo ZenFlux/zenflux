@@ -2,10 +2,13 @@
 
 ## 📍 Overview
 
-The repository contains a CLI tool called `@z-cli` that offers functionalities related to building, publishing, and watching **monorepo** workspaces. It utilizes technologies like `Babel`, `Rollup`, `TypeScript`, and `Verdaccio`.
-The tool is designed to simplify the development process by providing a command-line interface with various commands for managing and building projects.
+The repository contains a CLI tool called `@z-cli` that offers functionalities related to building, publishing, and watching **monorepo** workspaces.
 
-It includes modules for handling npm registry operations. The tool's value proposition lies in its ability to automate repetitive tasks and streamline project workflows, ultimately enhancing developer productivity.
+It utilizes technologies like `Babel`, `Rollup`, `TypeScript`, and `Verdaccio`.
+
+The tool is designed to simplify the development process by providing a command-line interface with various commands for managing and building projects. It includes modules for handling npm registry operations.
+
+The tool's value proposition lies in its ability to automate repetitive tasks and streamline project workflows, ultimately enhancing developer productivity.
 
 ---
 
@@ -16,7 +19,9 @@ Via package manager, `bun install @zenflux/cli`
 
 ## 📦 Features
 
-The CLI provides several commands, each starting with the `@` symbol.
+The CLI provides several commands, each starting with the `@` symbol. 
+
+These commands are designed to help you manage and build your projects efficiently.
 
 ### Building Projects
 
@@ -200,14 +205,13 @@ The CLI provides several commands, each starting with the `@` symbol.
 <br /><br />
 - **Flow**
 
-  - **@build**
-      1. **Initialization**: The run method begins by retrieving the configurations using the `getConfigs` method and the configuration paths using the `getConfigsPaths` method.
-      2. **Configuration Retrieval**: It loads the `zenflux.config.ts` for each package and creates a `TZBuildOptions` object. It assigns the index of the current configuration to the thread property of the `TZBuildOptions` object if the number of configurations is greater than `DEFAULT_MIN_SINGLE_BUILD_CONFIGS`.
-      3. **Configuration Loop**: For each configuration path, it reads the TypeScript configuration using the `zTSConfigRead` method, performs pre-diagnostics using the `zTSPreDiagnostics` method, and loads the relevant `tsconfig.{format}.json`.
-      4. **Package Build**: For each package format, it builds the package and fires the `onBuiltFormat` callback if provided in `zenflux.config.ts`.
-      5. **Post-Build**: After building all configurations, for each configuration path, it begins the creation of declaration files and creates them using the `zTSCreateDeclaration` method.
-      6. **Declaration File Consolidation**: It then merges all the declaration files into a single declaration file per package using the `zApiExporter` method, if `inputDtsPath` and `outputDtsPath` are provided in `zenflux.config.ts`.
-      7. **Api-Extractor**: The `zApiExporter` method bundles multiple declaration files into a single declaration file. This operation eases usage for the package consumers. If operating in development mode, it also generates a diagnostics log for each package with paths like: `${ projectPath }/log/api-extractor-diagnostics.${ buildOutputFileName }.log`
+  - **Initialization**: The run method begins by retrieving the configurations using the `getConfigs` method and the configuration paths using the `getConfigsPaths` method.
+  - **Configuration Retrieval**: It loads the `zenflux.config.ts` for each package and creates a `TZBuildOptions` object. It assigns the index of the current configuration to the thread property of the `TZBuildOptions` object if the number of configurations is greater than `DEFAULT_MIN_SINGLE_BUILD_CONFIGS`.
+  - **Configuration Loop**: For each configuration path, it reads the TypeScript configuration using the `zTSConfigRead` method, performs pre-diagnostics using the `zTSPreDiagnostics` method, and loads the relevant `tsconfig.{format}.json`.
+  - **Package Build**: For each package format, it builds the package and fires the `onBuiltFormat` callback if provided in `zenflux.config.ts`.
+  - **Post-Build**: After building all configurations, for each configuration path, it begins the creation of declaration files and creates them using the `zTSCreateDeclaration` method.
+  - **Declaration File Consolidation**: It then merges all the declaration files into a single declaration file per package using the `zApiExporter` method, if `inputDtsPath` and `outputDtsPath` are provided in `zenflux.config.ts`.
+  - **Api-Extractor**: The `zApiExporter` method bundles multiple declaration files into a single declaration file. This operation eases usage for the package consumers. If operating in development mode, it also generates a diagnostics log for each package with paths like: `${ projectPath }/log/api-extractor-diagnostics.${ buildOutputFileName }.log`
   <br /><br />
   - **@watch**
     - **Initialization**: The `@watch` command starts by retrieving the configurations for each package in your workspace. These configurations are defined in the `zenflux.config.ts` file of each package.
@@ -217,7 +221,6 @@ The CLI provides several commands, each starting with the `@` symbol.
     - **Watcher Setup**: It sets up a watcher for each package. When the watcher detects a change in a package, it triggers the build process for that package. To avoid triggering multiple builds for rapid successive changes, the build process is debounced using the `debounce` function.
     - **Change Detection**: Whenever a file in a package changes, the watcher triggers the build process for that package. The build process is triggered after a delay to ensure that multiple rapid changes do not trigger multiple builds.
     - **Post-Build**: After each build process, it performs TypeScript pre-diagnostics for all configurations. This helps to catch and report any TypeScript errors that might have been introduced during the changes.
-    - **TypeScript Pre-Diagnostics**: After each build process, it performs TypeScript pre-diagnostics for all configurations. This helps to catch and report any TypeScript errors that might have been introduced during the changes.
     - **Watch Method**: The `watch` method is used to set up a watcher for a specific package. It triggers a build process whenever a change is detected in the package. The build process is debounced to avoid triggering multiple builds for rapid successive changes.
     - **Debounce Function**: The `debounce` function ensures that the build process is not triggered more than once within a specified delay.
       <br />&nbsp;&nbsp;&nbsp;This is useful to avoid triggering multiple builds for rapid successive changes.
