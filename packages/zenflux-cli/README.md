@@ -57,6 +57,17 @@ The CLI tool provides a command for building projects. It utilizes technologies 
     - Behaviors:
         - Kill the process if typescript diagnostic error occurred
     <br /><br />
+  - **--no-diagnostic:**
+      - Description: Disable typescript diagnostics
+      - Behaviors:
+          - No typescript diagnostics
+    <br /><br />
+   - **--no-declaration:**
+       - Description: Disable declaration file generation
+       - Behaviors:
+           - No declaration file generation
+           - No api-exporter will be used
+    <br /><br />
 
 - **Configuration**;
     - `format`:

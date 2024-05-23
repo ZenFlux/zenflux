@@ -211,15 +211,16 @@ export abstract class CommandBuildBase extends CommandConfigBase {
                 ]
             },
             "--no-diagnostic": {
-                description: "Disable TypeScript diagnostics",
+                description: "Disable typescript diagnostics",
                 behaviors: [
-                    "No TypeScript diagnostics will be shown"
+                    "No typescript diagnostics"
                 ]
             },
             "--no-declaration": {
-                description: "Disable TypeScript declaration",
+                description: "Disable typescript declaration",
                 behaviors: [
-                    "No TypeScript declaration will be created"
+                    "No declaration file generation",
+                    "No api-exporter will be used"
                 ]
             },
         } ) );
