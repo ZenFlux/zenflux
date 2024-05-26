@@ -40,6 +40,7 @@ export default class Publish extends CommandBase {
         }
 
         // Use local registry?
+        // TODO: The command should store all running registry servers, then it should suggest of using them
         if ( fs.existsSync( this.paths.npmRc ) &&
             await ConsoleManager.$.confirm( `Local registry found: ${ util.inspect( DEFAULT_Z_REGISTRY_URL ) }', Do you want to use local npm registry?` ) ) {
 
