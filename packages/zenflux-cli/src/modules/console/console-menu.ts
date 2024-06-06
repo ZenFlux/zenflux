@@ -17,7 +17,7 @@ export interface IConsoleMenuItem {
 export type TConsoleMenuSelectedItem = IConsoleMenuItem | undefined;
 export type TConsoleMenuKey = { str: string, name: string; ctrl: boolean };
 
-export class ConsoleMenu<TReturn = TConsoleMenuSelectedItem> {
+export class ConsoleMenu<TReturn = TConsoleMenuSelectedItem & { readonly index: number }> {
     public static readonly DEFAULT_SELECT_CURSOR = "\x1b[1m⟶  \x1b[0m";
 
     private scrollOffset: number;
@@ -196,7 +196,10 @@ export class ConsoleMenu<TReturn = TConsoleMenuSelectedItem> {
 
     protected getSelection( { name }: TConsoleMenuKey ): TReturn {
         if ( name === "return" ) {
-            return this.items[ this.selected.index ] as TReturn;
+            return {
+                ... this.items[ this.selected.index ],
+                index: this.selected.index,
+            } as TReturn;
         }
 
         return undefined as TReturn;
