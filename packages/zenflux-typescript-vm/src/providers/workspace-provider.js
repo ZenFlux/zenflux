@@ -55,22 +55,16 @@ export class WorkspaceProvider extends ProviderBase {
     }
 
     initialize() {
-        // Read root `package.json`
-        const rootPath = this.workspacePath,
-            rootPkgPath = path.resolve( rootPath, "package.json" ),
-            rootPkg = require( rootPkgPath );
+        const projectsPaths = [];
 
-        // Get all projects from `package.json` workspaces.
-        const projectsPaths = ( rootPkg.workspaces ).flatMap( ( workspace ) => {
-            const workspaces = getMatchingPathsRecursive( rootPath, new RegExp( workspace ) );
+        if ( this.workspacePath ) {
+            // Read root `package.json`
+            const rootPkgPath = path.resolve( this.workspacePath, "package.json" ),
+                rootPkg = require( rootPkgPath );
 
-            // Filter packages that contains package.json
-            return workspaces.filter( ( workspace ) => {
-                const files = fs.readdirSync( workspace );
-
-                return files.find( ( file ) => file.endsWith( "package.json" ) );
-            } );
-        } );
+            // Get all projects from `package.json` workspaces.
+            projectsPaths.push( ...this.findPackageDirectories( rootPkg.workspaces, this.workspacePath ) );
+        }
 
         this.workspaceCache = new Map();
         this.packagesCache = new Map();
@@ -81,6 +75,24 @@ export class WorkspaceProvider extends ProviderBase {
 
             this.workspaceCache.set( pkg.name, projectPath );
             this.packagesCache.set( pkg.name, pkg );
+        } );
+    }
+
+    findPackageDirectories( packagesPaths, rootPath ) {
+        return ( packagesPaths ).flatMap( ( packagesPathPattern ) => {
+            if ( ! rootPath ) {
+                rootPath = path.dirname( packagesPathPattern );
+            }
+
+            const workspacesPackageJsons = getMatchingPathsRecursive(
+                rootPath,
+                new RegExp( packagesPathPattern.replace( "*", ".*" ) + "/package.json" ),
+                2, {
+                    ignoreStartsWith: [ ".", "#" ]
+                }
+            );
+
+            return workspacesPackageJsons.map( ( packageJsonPath ) => path.dirname( packageJsonPath ) );
         } );
     }
 
