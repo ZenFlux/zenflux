@@ -1,7 +1,8 @@
 /**
  * @author: Leonid Vinikov <leonidvinikov@gmail.com>
  */
-import path from "path";
+import path from "node:path";
+import os from "node:os";
 
 import { DEFAULT_NPM_RC_FILE } from "@zenflux/cli/src/modules/npm/definitions";
 
@@ -22,6 +23,7 @@ const shared: {
         projects: string[];
         verdaccio: string;
         etc: string;
+        workspaceEtc: string;
         verdaccioStorage: string;
         verdaccioHtpasswd: string;
         npmRc: string
@@ -33,7 +35,9 @@ const shared: {
 
         workspace: "",
         projects: [] as string[],
+
         etc: "",
+        workspaceEtc: "",
 
         verdaccio: "",
         verdaccioConfig: "",
@@ -46,12 +50,13 @@ const shared: {
 
 export function zGlobalInitPaths( args: {
     cwd: string,
+    workspaceName: string,
     workspacePath: string,
     projectsPaths?: string[],
 } ) {
-    const workingPath = args.workspacePath || args.cwd,
-        etcPath = path.resolve( workingPath, DEFAULT_Z_ETC_FOLDER ),
-        verdaccioPath = path.resolve( etcPath, DEFAULT_Z_VERDACCIO_FOLDER );
+    const etcPath = path.resolve( os.homedir(), DEFAULT_Z_ETC_FOLDER ),
+        workspaceEtcPath = path.resolve( etcPath, args.workspaceName ),
+        verdaccioPath = path.resolve( workspaceEtcPath, DEFAULT_Z_VERDACCIO_FOLDER );
 
     if ( ! args.projectsPaths ) {
         args.projectsPaths = [ args.cwd ];
@@ -65,6 +70,7 @@ export function zGlobalInitPaths( args: {
         projects: args.projectsPaths,
 
         etc: etcPath,
+        workspaceEtc: workspaceEtcPath,
 
         verdaccio: verdaccioPath,
 
@@ -72,7 +78,7 @@ export function zGlobalInitPaths( args: {
         verdaccioStorage: path.resolve( verdaccioPath, DEFAULT_Z_VERDACCIO_STORAGE_FOLDER ),
         verdaccioHtpasswd: path.resolve( verdaccioPath, DEFAULT_Z_VERDACCIO_HTPASSWD_FILE ),
 
-        npmRc: path.resolve( etcPath, DEFAULT_NPM_RC_FILE ),
+        npmRc: path.resolve( workspaceEtcPath, DEFAULT_NPM_RC_FILE ),
     } );
 
     return global.__ZENFLUX_CLI__.paths;

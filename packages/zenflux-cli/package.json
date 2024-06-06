@@ -11,7 +11,9 @@
         "bin",
         "scripts",
         "dist",
-        "src"
+        "src",
+        "tsconfig.json",
+        "tsconfig.paths.json"
     ],
     "dependencies": {
         "@microsoft/api-extractor": "^7.38.0",

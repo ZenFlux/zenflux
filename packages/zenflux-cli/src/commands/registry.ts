@@ -1,25 +1,32 @@
 /**
  * @author: Leonid Vinikov <leonidvinikov@gmail.com>
  */
-import fs from "fs";
-import util from "util";
-import child_process from "child_process";
+import child_process from "node:child_process";
+import util from "node:util";
+import fs from "node:fs";
 
-import { runServer } from "@verdaccio/node-api";
+import process from "node:process";
+
 import { fromJStoYAML, parseConfigFile } from "@verdaccio/config";
 
-import { ConsoleManager } from "@zenflux/cli/src/managers/console-manager";
+import { runServer } from "@verdaccio/node-api";
+
+import { zRegistryGetAllNpmRcs, zRegistryGetAllOnlineNpmRcs, zRegistryGetNpmRc } from "@zenflux/cli/src/core/registry";
 
 import { CommandBase } from "@zenflux/cli/src/base/command-base";
-
-import { Package } from "@zenflux/cli/src/modules/npm/package";
 
 import {
     DEFAULT_Z_REGISTRY_HOST,
     DEFAULT_Z_REGISTRY_PASSWORD,
-    DEFAULT_Z_REGISTRY_URL,
+    DEFAULT_Z_REGISTRY_PORT_RANGE,
     DEFAULT_Z_REGISTRY_USER
 } from "@zenflux/cli/src/definitions/zenflux";
+
+import { ConsoleManager } from "@zenflux/cli/src/managers/console-manager";
+
+import { Package } from "@zenflux/cli/src/modules/npm/package";
+
+import { zNetCheckPortOnline, zNetFindFreePort } from "@zenflux/cli/src/utils/net";
 
 export default class Registry extends CommandBase {
 
@@ -27,23 +34,33 @@ export default class Registry extends CommandBase {
         const args = this.args,
             paths = this.paths;
 
+        const current = zRegistryGetNpmRc( paths.npmRc );
+
         switch ( args[ 0 ] ) {
             case "@server":
+                if ( current && await zNetCheckPortOnline( current.port ) ) {
+                    ConsoleManager.$.error( `Verdaccio server is already running on port '${ current.host }:${ current.port }' for workspace '${ paths.workspace }'` );
+                    return;
+                }
+
+                const port = await zNetFindFreePort( DEFAULT_Z_REGISTRY_PORT_RANGE, DEFAULT_Z_REGISTRY_HOST );
+
                 this.serverEnsureVerdaccioConfig();
 
-                const server = await runServer( paths.verdaccioConfig );
+                const server = await runServer( paths.verdaccioConfig ),
+                    url = `http://${ DEFAULT_Z_REGISTRY_HOST }:${ port }`;
 
-                server.listen( 4873, async () => {
-                    ConsoleManager.$.log( "Server running on port 4873" );
-                    ConsoleManager.$.log( `You can access the registry at ${ util.inspect( DEFAULT_Z_REGISTRY_URL ) } ` );
+                server.listen( port, async () => {
+                    ConsoleManager.$.log( `Server running on port ${ port }` );
+                    ConsoleManager.$.log( `You can access the registry at ${ util.inspect( url ) }` );
                     ConsoleManager.$.log( `Username: ${ util.inspect( DEFAULT_Z_REGISTRY_USER ) }` );
                     ConsoleManager.$.log( `Password: ${ util.inspect( DEFAULT_Z_REGISTRY_PASSWORD ) }` );
                     ConsoleManager.$.log( "To close the server, press CTRL + C" );
 
                     // Check if .htpasswd file exists
-                    if ( ! fs.existsSync( paths.verdaccioHtpasswd ) ) {
+                    if ( ! current ) {
                         // Add new user
-                        const response = await fetch( `${ DEFAULT_Z_REGISTRY_URL }/-/user/org.couchdb.user:${ DEFAULT_Z_REGISTRY_USER }`, {
+                        const response = await fetch( `${ url }/-/user/org.couchdb.user:${ DEFAULT_Z_REGISTRY_USER }`, {
                             method: "PUT",
                             headers: {
                                 "Accept": "application/json",
@@ -56,22 +73,87 @@ export default class Registry extends CommandBase {
                         } );
 
                         const result = await response.json() as { token: string },
-                            data = `//${ DEFAULT_Z_REGISTRY_HOST }/:_authToken=${ result.token }`;
+                            data = `//${ DEFAULT_Z_REGISTRY_HOST }:${ port }/:_authToken=${ result.token }`;
 
                         // Save token to `.z/verdaccio/.npmrc`
                         fs.writeFileSync( paths.npmRc, data );
                     }
                 } );
+
+                process.on( "SIGINT", () => {
+                    ConsoleManager.$.log( "Shutting down server..." );
+                    server.close( () => {
+                        ConsoleManager.$.log( "Server closed" );
+                        process.exit( 0 );
+                    } );
+                } );
+                break;
+
+            case "@list":
+                const onlineHosts = await zRegistryGetAllOnlineNpmRcs();
+
+                if ( onlineHosts.length === 0 ) {
+                    ConsoleManager.$.log( "No online registry hosts found" );
+                    return;
+                }
+
+                // Print hosts
+                ConsoleManager.$.log( "Online registry hosts:" );
+
+                onlineHosts.forEach( host =>
+                    ConsoleManager.$.log( `Use command: ${ util.inspect( `${ this.options.name } @use ${ host.id }` ) } - host: ${ host.host }:${ host.port }` )
+                );
+
                 break;
 
             // What about bun? or other package managers?
             case "@use":
+                // If no arguments then showHelp.
+                if ( args.length === 1 ) {
+                    return this.showHelp();
+                }
+
+                // Get registry host
+                const hostId = args[ 1 ],
+                    npmRc = zRegistryGetAllNpmRcs().find( ( host => host.id === hostId ) );
+
+                if ( ! npmRc ) {
+                    ConsoleManager.$.error( `No registry host found with id '${ hostId }'` );
+                    return;
+                }
+
+                // Check if host is online
+                if ( ! await zNetCheckPortOnline( npmRc.port ) ) {
+                    ConsoleManager.$.error( `Registry host '${ npmRc.host }:${ npmRc.port }' is not online` );
+                    return;
+                }
+
                 // Use npm with custom .npmrc, should be forwarded to npm
                 // eg: `z-cli registry use npm install` to `npm --userconfig .z/verdaccio/.npmrc install
                 child_process.execSync( [
-                    `npm --userconfig ${ paths.npmRc } --registry ${ DEFAULT_Z_REGISTRY_URL } `,
-                    ... args.slice( 1 ),
+                    `npm --userconfig ${ npmRc.path } --registry http://${ npmRc.host }:${ npmRc.port }`,
+                    ... args.slice( 2 ),
                 ].join( " " ), { stdio: "inherit" } );
+
+                break;
+
+            case "@clean":
+                if ( ! current ) {
+                    ConsoleManager.$.error( "No registry host is available" );
+                    return;
+                }
+
+                // Check if current is online
+                if ( await zNetCheckPortOnline( current.port, current.host ) ) {
+                    ConsoleManager.$.error( `Registry host '${ current.host }:${ current.port }' is online, and cannot be deleted while` );
+                    return;
+                }
+
+                // Remove current `.npmrc`
+                fs.unlinkSync( paths.npmRc );
+
+                // Remove verdaccio folder
+                fs.rmdirSync( paths.verdaccio, { recursive: true } );
 
                 break;
 
@@ -163,7 +245,7 @@ export default class Registry extends CommandBase {
 
         ConsoleManager.$.log( `Reading workspace package.json from: '${ paths.workspace }'` );
 
-        const rootPkg = new Package( paths.workspace  ),
+        const rootPkg = new Package( paths.workspace ),
             companyPrefix = `${ rootPkg.json.name.split( "/" )[ 0 ] }/*`;
 
         // Ensure that workspace packages are added to verdaccio config
@@ -198,12 +280,26 @@ export default class Registry extends CommandBase {
                 description: "Starts a local npm registry server",
                 usage: `${ name } @server`
             },
+            "@list": {
+                description: "List all online npm registry servers",
+                usage: `${ name } @list`
+            },
             "@use": {
                 description: "Use npm with custom configuration, that will be forwarded to local npm server",
+                arguments: {
+                    "id": "Id of the npm registry server, can be obtain using: @registry @list command",
+                    "command": "A npm command to execute against the registry"
+                },
                 examples: [
-                    `${ name } @use npm <command>`,
-                    `${ name } @use npm whoami`,
-                    `${ name } @use npm install`,
+                    `${ name } @use npm <id> <command>`,
+                    `${ name } @use npm 4a1a whoami`,
+                    `${ name } @use npm 4a1a install`,
+                ]
+            },
+            "@clean": {
+                description: "Delete current npm registry server and '.npmrc' token",
+                examples: [
+                    `${ name } @delete`
                 ]
             }
         } ) );
