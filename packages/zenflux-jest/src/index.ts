@@ -8,7 +8,7 @@ import { fileURLToPath } from "node:url";
 
 import { ConsoleManager } from "@zenflux/cli/src/managers/console-manager";
 
-import { zWorkspaceFindRootPackageJson, zWorkspaceGetPackages } from "@zenflux/cli/src/core/workspace";
+import { zWorkspaceFindRootPackageJsonPath, zWorkspaceGetPackages } from "@zenflux/cli/src/core/workspace";
 
 import { Package } from "@zenflux/cli/src/modules/npm/package";
 
@@ -20,7 +20,7 @@ import type { Config } from "@jest/types";
 
 const __dirname = path.dirname( fileURLToPath( import.meta.url ) );
 
-const rootPkg = new Package( path.dirname( zWorkspaceFindRootPackageJson() ) );
+const rootPkg = new Package( path.dirname( zWorkspaceFindRootPackageJsonPath() ) );
 
 const filterProjects: string[] = [];
 
