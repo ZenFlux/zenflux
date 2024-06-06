@@ -6,7 +6,9 @@
     "type": "module",
     "files": [
         "src",
-        "types"
+        "types",
+        "tsconfig.json",
+        "tsconfig.import-meta.json"
     ],
     "main": "src/index.js",
     "exports": {

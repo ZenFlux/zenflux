@@ -106,30 +106,36 @@ const output = process.argv.includes( '--zvm-verbose' ) ? ( module, method, call
  * @param {string} directoryPath
  * @param {RegExp} filterPattern
  * @param {number} [maxAllowedDepth=Infinity]
+ * @param options {{
+ *     ignoreStartsWith: string[];
+ * }}
  *
  * @return {string[]}
  */
-export const getMatchingPathsRecursive = ( directoryPath, filterPattern, maxAllowedDepth = Infinity )=> {
-    const result = [],
-        maxPatternDepth = filterPattern.toString().split( "*" ).length;
+export const getMatchingPathsRecursive = ( directoryPath, filterPattern, maxAllowedDepth = Infinity, options = {
+    ignoreStartsWith: [],
+} )=> {
+    const result = [];
 
     function searchRecursive( directoryPath, depth = 0 ) {
         const filesInDirectory = fs.readdirSync( directoryPath, { withFileTypes: true } );
 
-        if ( ( maxPatternDepth > 0 && depth >= maxPatternDepth ) || depth >= maxAllowedDepth ) {
+        if ( depth >= maxAllowedDepth ) {
             return;
         }
 
         filesInDirectory.forEach( ( dirent ) => {
-            if ( dirent.name.startsWith( "." ) ) {
+            const filePath = path.join( directoryPath, dirent.name );
+
+            if ( options.ignoreStartsWith.some( ( prefix ) => path.basename( directoryPath ).startsWith( prefix ) ||
+                options.ignoreStartsWith.some( ( prefix ) => path.basename( filePath ).startsWith( prefix ) )
+            ) ) {
                 return;
             }
 
-            const filePath = path.join( directoryPath, dirent.name );
-
-            if ( dirent.isDirectory() && filterPattern.test( filePath ) ) {
+            if ( dirent.isFile() && filterPattern.test( filePath ) ) {
                 result.push( filePath );
-
+            } else if ( dirent.isDirectory() ) {
                 searchRecursive( filePath, depth + 1 );
             }
         } );
