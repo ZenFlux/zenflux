@@ -7,6 +7,8 @@ import fs from "fs";
 import path from "path";
 import process from "process";
 
+import { zRegistryGetAllOnlineNpmRcs } from "@zenflux/cli/src/core/registry";
+
 import { ConsoleManager } from "@zenflux/cli/src/managers/console-manager";
 
 import { CommandBase } from "@zenflux/cli/src/base/command-base";
@@ -17,8 +19,9 @@ import { Package } from "@zenflux/cli/src/modules/npm/package";
 
 import { ConsoleMenuCheckbox } from "@zenflux/cli/src/modules/console/console-menu-checkbox";
 
-import { DEFAULT_Z_REGISTRY_URL } from "@zenflux/cli/src/definitions/zenflux";
 import { DEFAULT_NPM_RC_PATH, DEFAULT_NPM_REMOTE_REGISTRY_URL } from "@zenflux/cli/src/modules/npm/definitions";
+
+import { ConsoleMenu } from "@zenflux/cli/src/modules/console";
 
 import type { TNewPackageOptions, TPackages } from "@zenflux/cli/src/modules/npm/package";
 
@@ -39,22 +42,26 @@ export default class Publish extends CommandBase {
             return;
         }
 
+        const activeRegistries = await zRegistryGetAllOnlineNpmRcs();
+
         // Use local registry?
-        // TODO: The command should store all running registry servers, then it should suggest of using them
-        if ( fs.existsSync( this.paths.npmRc ) &&
-            await ConsoleManager.$.confirm( `Local registry found: ${ util.inspect( DEFAULT_Z_REGISTRY_URL ) }', Do you want to use local npm registry?` ) ) {
+        if ( activeRegistries.length &&
+            await ConsoleManager.$.confirm( `There are ${ util.inspect( activeRegistries.length ) } active registries, do you want to use one of them?` ) ) {
 
-            // Check if local registry is running by fetching the registry url
-            try {
-                await fetch( DEFAULT_Z_REGISTRY_URL );
-            } catch ( e ) {
-                ConsoleManager.$.error( `Local registry is not running, please run: ${ util.inspect( "@z-cli @registry server" ) }` );
+            const menu = new ConsoleMenu( activeRegistries.map( r => ( {
+                title: `id: ${ r.id }, url: ${ r.url }, path: ${ r.path }`,
+            } ) ) );
 
-                return;
+            const selected = await menu.start();
+
+            if ( ! selected ) {
+                return ConsoleManager.$.log( "No registry selected" );
             }
 
-            this.newPackageOptions.registryUrl = DEFAULT_Z_REGISTRY_URL;
-            this.newPackageOptions.npmRcPath = this.paths.npmRc;
+            const selectedRegistry = activeRegistries[ selected.index ];
+
+            this.newPackageOptions.registryUrl = selectedRegistry.url;
+            this.newPackageOptions.npmRcPath = selectedRegistry.path;
         }
 
         ConsoleManager.$.log( `Used NPM registry: ${ util.inspect( this.newPackageOptions.registryUrl ) }` );
@@ -98,7 +105,7 @@ export default class Publish extends CommandBase {
             ConsoleManager.$.log( pkg.getDisplayName() + " =>", await pkg.getPublishFiles() );
         }
 
-        const prepublishPath = path.join( this.paths.etc, "prepublish" );
+        const prepublishPath = path.join( this.paths.workspaceEtc, "prepublish" );
 
         // Make directory for files that about to be published
         fs.mkdirSync( prepublishPath, { recursive: true } );
@@ -136,15 +143,9 @@ export default class Publish extends CommandBase {
         ConsoleManager.$.log( `Publishing package: ${ util.inspect( Object.values( packages ).map( pkg => pkg.getDisplayName() ) ) }` );
 
         for ( const pkg of Object.values( packages ) ) {
-            promises.push(
-                pkg.publish()
-                    .then( () => {
-                        ConsoleManager.$.log( util.inspect( pkg.getDisplayName() ) +  " Package published successfully" );
-                    } )
-                    .catch( e => {
-                        ConsoleManager.$.error( "Error while publishing => " + ( e.stack ) );
-                    } )
-
+            promises.push( pkg.publish()
+                    .then( () => ConsoleManager.$.log( util.inspect( pkg.getDisplayName() ) + " Package published successfully" ) )
+                    .catch( e => ConsoleManager.$.error( "Error while publishing => " + ( e.stack ) ) )
             );
         }
 

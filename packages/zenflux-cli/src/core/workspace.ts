@@ -23,7 +23,7 @@ const zWorkspaceFindRootPackageJsonCache: {
     [ packagePath: string ]: string
 } = {};
 
-export function zWorkspaceFindRootPackageJson( options: {
+export function zWorkspaceFindRootPackageJsonPath( options: {
     silent?: boolean
     useCache?: boolean
 } = {} ) {
@@ -101,7 +101,7 @@ const zWorkspaceFindPackagesCache: {
 
 export function zWorkspaceFindPackages(
     names: string[],
-    workspacePath = path.dirname( zWorkspaceFindRootPackageJson( { silent: true } ) ),
+    workspacePath = path.dirname( zWorkspaceFindRootPackageJsonPath( { silent: true } ) ),
     options: {
         silent?: boolean
         useCache?: boolean
@@ -162,7 +162,7 @@ const zWorkspaceGetPackagesCache: {
 
 export function zWorkspaceGetPackages( rootPkg: Package | "auto", newPackageOptions?: TNewPackageOptions, options = { useCache: true } ): TPackages {
     if ( rootPkg === "auto" ) {
-        rootPkg = new Package( path.dirname( zWorkspaceFindRootPackageJson() ) );
+        rootPkg = new Package( path.dirname( zWorkspaceFindRootPackageJsonPath() ) );
     }
 
     if ( options.useCache && zWorkspaceGetPackagesCache[ rootPkg.getPath() ] ) {
@@ -198,14 +198,15 @@ export function zWorkspaceGetPackagesPaths( rootPkg: Package, options = { useCac
     }
 
     const result = ( rootPkg.json.workspaces ).map( ( workspace: string ) => {
-        const workspaces = getMatchingPathsRecursive( rootPkg.getPath(), new RegExp( workspace ) );
+        const workspacesPackageJsons = getMatchingPathsRecursive(
+            rootPkg.getPath(),
+            new RegExp( workspace.replace( "*", ".*" ) + "/package.json" ),
+            3, {
+                ignoreStartsWith: [ ".", "#" ]
+            }
+    );
 
-        // Filter packages that contains package.json
-        const packages = workspaces.filter( ( workspace: string ) => {
-            const files = fs.readdirSync( workspace );
-
-            return files.find( ( file: string ) => file.endsWith( "package.json" ) );
-        } );
+        const packages = workspacesPackageJsons.map( ( packageJsonPath ) => path.dirname( packageJsonPath ) );
 
         return {
             workspace,
@@ -258,4 +259,10 @@ export function zWorkspaceGetWorkspaceDependencies( packages: TPackages ) {
     } );
 
     return packagesDependencies;
+}
+
+export function zWorkspaceGetRootPackageName( options = { silent: true } ) {
+    const rootPackageJsonPath = zWorkspaceFindRootPackageJsonPath( options );
+
+    return new Package( path.dirname( rootPackageJsonPath ) ).json.name;
 }
