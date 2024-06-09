@@ -19,7 +19,7 @@ Via package manager, `bun install @zenflux/cli`
 
 ## 📦 Features
 
-The CLI provides several commands, each starting with the `@` symbol. 
+The CLI provides several commands, each starting with the `@` symbol.
 
 These commands are designed to help you manage and build your projects efficiently.
 
@@ -246,25 +246,32 @@ The tool supports publishing npm packages to a registry. It includes features fo
 ### Registry Operations
 
 The tool handles interactions with npm registries, creating a local npm registry for testing and development purposes
+
 - **CLI Commands**: `@registry`
   <br /><br />
-- **Default Behavior**:
-  - `@z-cli @registry @server`
-      - Starts a local npm registry and create custom npm (`.npmrc`) configuration file that connects to the local registry
-  - `@z-cli @registry @use`
-      - Uses the custom npm configuration file to connect to the local registry
-<br /><br />
+
 - **Sub Commands**:
   - **@server:**
-      - Description: Starts a local npm registry server
+      - Description: Starts a local npm registry server.
       - Usage: `@z-cli @registry @server`
-<br /><br />
+        <br /><br />
   - **@use:**
-      - Description: Use npm with custom configuration, which will be forwarded to the local npm server
+      - Description: Use npm with custom configuration, which will be forwarded to the local npm server.
+      - Arguments:
+          - `id`: Id of the npm registry server, can be obtained using: `@registry @list` command
+          - `command`: A npm command to execute against the registry
       - Examples:
-          - `@z-cli @registry @use npm <command>`
-          - `@z-cli @registry @use npm whoami`
-          - `@z-cli @registry @use npm install`
+          - `@z-cli @registry @use npm <id> <command>`
+          - `@z-cli @registry @use npm 4a1a whoami`
+          - `@z-cli @registry @use npm 4a1a install`
+  - **@list:**
+      - Description: List all online npm registry servers.
+      - Usage: `@z-cli @registry @list`
+  - **@clean:**
+      - Description: Delete current npm registry server and '.npmrc' token.
+      - Usage: `@z-cli @registry @clean`
+        <br /><br />
+
 <br /><br />
 ### Global arguments
 - **--zvm-verbose:** Log [tsnode-vm](https://github.com/ZenFlux/zenflux/tree/main/packages/zenflux-tsnode-vm) verbose, shows modules resolution
