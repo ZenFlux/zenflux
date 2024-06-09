@@ -85,8 +85,8 @@ export class WorkspaceProvider extends ProviderBase {
             }
 
             const workspacesPackageJsons = getMatchingPathsRecursive(
-                rootPath,
-                new RegExp( packagesPathPattern.replace( "*", ".*" ) + "/package.json" ),
+                path.join( rootPath, path.dirname( packagesPathPattern ) ),
+                new RegExp( "/*/package.json" ),
                 2, {
                     ignoreStartsWith: [ ".", "#" ]
                 }
