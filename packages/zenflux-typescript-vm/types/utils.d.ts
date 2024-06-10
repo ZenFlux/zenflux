@@ -50,12 +50,12 @@ export function verbose(module: string, method: string, callback: Function): voi
  * @param {string} directoryPath
  * @param {RegExp} filterPattern
  * @param {number} [maxAllowedDepth=Infinity]
- * @param options {{
+ * @param [options] {{
  *     ignoreStartsWith: string[];
  * }}
  *
  * @return {string[]}
  */
-export function getMatchingPathsRecursive(directoryPath: string, filterPattern: RegExp, maxAllowedDepth?: number, options: {
+export function getMatchingPathsRecursive(directoryPath: string, filterPattern: RegExp, maxAllowedDepth?: number, options?: {
     ignoreStartsWith: string[]
 } ): string[];

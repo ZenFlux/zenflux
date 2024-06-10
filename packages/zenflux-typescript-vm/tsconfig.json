@@ -1,7 +1,9 @@
 {
     "compilerOptions": {
+        "outDir": "./types",
         "esModuleInterop": true,
         "allowJs": true,
+        "declaration": false,
         "skipLibCheck": true
     },
     "include": [

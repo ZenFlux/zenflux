@@ -1,7 +1,7 @@
 import fs from "node:fs";
 import * as inspector from "node:inspector";
 
-import swc, { transformFile } from "@swc/core";
+import swc from "@swc/core";
 
 import { convertTsConfig, readTsConfig } from "@zenflux/tsconfig-to-swc";
 
