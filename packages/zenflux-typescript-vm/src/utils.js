@@ -106,7 +106,7 @@ const output = process.argv.includes( '--zvm-verbose' ) ? ( module, method, call
  * @param {string} directoryPath
  * @param {RegExp} filterPattern
  * @param {number} [maxAllowedDepth=Infinity]
- * @param options {{
+ * @param [options] {{
  *     ignoreStartsWith: string[];
  * }}
  *

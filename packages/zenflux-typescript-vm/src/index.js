@@ -188,6 +188,11 @@ const initialize = async () => {
 
                                     break;
                                 }
+                                if ( path.extname( result.resolvedPath ) === ".ts" ) {
+                                    type = "esm";
+                                    modulePath = result.resolvedPath;
+                                    break;
+                                }
                                 type = "node";
                                 modulePath = result.modulePath;
                                 break;

@@ -5,7 +5,7 @@
 This package provides a simple node VM for running Typescript code in a sandboxed environment, with favor of `tsconfig.json`
 and tsconfig paths.
 
-The aim of this package is to provide Typescript runtime based on node VM, with the ability to resolve modules, with out of box support
+The aim of this package is to provide Typescript runtime based on node VM, with the ability to resolve modules, without of box support
 for Typescript projects.
 
 ---
@@ -26,7 +26,7 @@ Via package manager, `bun install @zenflux/typescript-vm`
 
 ## 💻 Usage
 ```javascript
-#!/usr/bin/env node --unhandled-rejections=strict --experimental-vm-modules --trace-uncaught --no-warnings --trace-exit
+#!/usr/bin/env -S node --unhandled-rejections=strict --experimental-vm-modules --experimental-import-meta-resolve --trace-uncaught --no-warnings --trace-exit
 import path from "path";
 
 import { fileURLToPath } from "url";
@@ -47,8 +47,9 @@ vm.defineConfig( {
     tsConfigPath: path.resolve( currentDir, "./tsconfig.json" ),
 
     /**
-     * Enable support for resolving workspace packages, eg: `@company/package`, 
+     * Enable support for resolving workspace packages, eg: `@company/package`,
      * it will read "workspace" field from `package.json`.
+     * mainly used when node resolve is not statisfy.
      */
     workspacePath: path.resolve( currentDir, "../../../" ),
 
@@ -61,7 +62,7 @@ vm.defineConfig( {
      * Determines whether to use SWC compiler or not.
      */
     useSwc: true,
-    
+
     vmContext: {
         global,
 
@@ -90,7 +91,7 @@ vm.tap( async ( vm ) => {
 
 ---
 
-## 
+##
 ## ⚙️ Development summary
 
 | File                             | Summary                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         |
