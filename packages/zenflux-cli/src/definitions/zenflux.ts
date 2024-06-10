@@ -10,8 +10,8 @@ export const DEFAULT_Z_VERDACCIO_CONFIG_FILE = "config.yaml";
 export const DEFAULT_Z_VERDACCIO_STORAGE_FOLDER = "storage";
 export const DEFAULT_Z_VERDACCIO_HTPASSWD_FILE = "htpasswd";
 
-export const DEFAULT_Z_REGISTRY_HOST = "localhost:4873";
-export const DEFAULT_Z_REGISTRY_URL = `http://${ DEFAULT_Z_REGISTRY_HOST }`;
+export const DEFAULT_Z_REGISTRY_HOST = "0.0.0.0";
+export const DEFAULT_Z_REGISTRY_PORT_RANGE: [ number, number ] = [ 4873, 4999 ];
 
 export const DEFAULT_Z_REGISTRY_USER = "zenflux";
 export const DEFAULT_Z_REGISTRY_PASSWORD = "zenflux";
