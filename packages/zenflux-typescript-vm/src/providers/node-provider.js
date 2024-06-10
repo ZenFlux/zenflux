@@ -58,7 +58,6 @@ export class NodeProvider extends ProviderBase {
 
             middleware( { resolvedPath: result, modulePath, referencingModule, provider: this } );
 
-
             this.resolveCache.set( resolve, "esm" );
         } catch ( e ) {
         }
@@ -80,7 +79,6 @@ export class NodeProvider extends ProviderBase {
             }
 
             middleware( { resolvedPath: result, modulePath, referencingModule, provider: this } );
-
 
             this.resolveCache.set( resolve, "cjs" );
         } catch ( e ) {
