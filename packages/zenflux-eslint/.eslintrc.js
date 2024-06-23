@@ -10,12 +10,16 @@ import TypeScriptPlugin from "@typescript-eslint/eslint-plugin";
 
 import ImportPlugin from "eslint-plugin-import";
 
+import { fixupPluginRules } from "@eslint/compat";
+
 import { fileURLToPath } from "node:url";
+
+import { zFindRootPackageJsonPath } from "@zenflux/utils/src/workspace";
 
 const workingPath = path.dirname( fileURLToPath( import.meta.url ) );
 
 globalThis.__Z_ESLINT_CONFIG__ = globalThis.__Z_ESLINT_CONFIG__ ?? {
-    zRootPackagePath: path.resolve( workingPath , "../../package.json" ),
+    zRootPackagePath: zFindRootPackageJsonPath(),
     zPackagePath: path.resolve( workingPath, "./package.json" ),
 };
 
@@ -72,7 +76,7 @@ export function zLintGetDefaultConfig( workspaces = zLintGetWorkspaces() ) {
             // Specifies ESLint plugins used in this configuration
             plugins: {
                 "@typescript-eslint": TypeScriptPlugin,
-                "import": ImportPlugin,
+                "import": fixupPluginRules( ImportPlugin ),
                 "@zenflux": ZenFluxPlugin,
             },
 
@@ -143,6 +147,9 @@ export function zLintGetDefaultConfig( workspaces = zLintGetWorkspaces() ) {
                 // It also helps to avoid circular dependencies
                 "@typescript-eslint/consistent-type-exports": "error",
                 "@typescript-eslint/consistent-type-imports": "error",
+                "@typescript-eslint/no-import-type-side-effects": "error",
+
+                "import/consistent-type-specifier-style" : "error",
 
                 // Disable named-as-default rule for import
                 "import/no-named-as-default": "off",
