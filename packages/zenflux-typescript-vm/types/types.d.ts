@@ -1,5 +1,6 @@
-import type Module from "node:module";
+import Module, { ImportAttributes } from "node:module";
 
+import { Script } from "vm";
 import type { ModuleLinker, SourceTextModule, SourceTextModuleOptions, SyntheticModule } from "node:vm";
 import type { ProviderBase } from "../src/providers/base/provider-base";
 
@@ -11,9 +12,9 @@ declare global {
     type zVmModule = SyntheticModule | SourceTextModule;
 
     interface zVmModuleLocalTextSourceOptions {
-        referencingModule: Module;refererUrl
-        moduleImportMeta?: ReturnType<SourceTextModuleOptions["initializeImportMeta"]>
-        moduleImportDynamically?: ReturnType<SourceTextModuleOptions["importModuleDynamically"]>
+        referencingModule: Module;
+        moduleImportMeta?: ReturnType<SourceTextModuleOptions["initializeImportMeta"]>;
+        moduleImportDynamically?: ( ( specifier: string, script: Script, importAttributes: ImportAttributes ) => Module );
         moduleLinkerCallback?: ModuleLinker | null;
     }
 
@@ -30,6 +31,4 @@ declare global {
     }
 
     function zVmResolverMiddlewareCallback( request: zVmResolverRequest ): void;
-
-
 }

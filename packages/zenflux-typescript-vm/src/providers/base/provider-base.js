@@ -48,12 +48,16 @@ export class ProviderBase {
             return;
         }
 
-        setTimeout( () => {
+        setTimeout( async() => {
             if ( args.tsConfig ) {
                 this.tsConfig = args.tsConfig;
             }
 
-            this.initialize( args );
+            const init = this.initialize( args );
+
+            if ( init instanceof Promise ) {
+                await init;
+            }
 
             // May come from extended `initialize` method.
             if ( this.tsConfig ) {

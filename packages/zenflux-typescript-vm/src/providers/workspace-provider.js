@@ -2,7 +2,7 @@ import path from "node:path";
 
 import { createRequire } from "node:module";
 
-import { getMatchingPathsRecursive, isCommonPathFormat } from "../utils.js";
+import { zGetMatchingPathsRecursive, zIsUnixOrFileProtocolPath } from "@zenflux/utils/src/path";
 
 import { ProviderBase } from "./base/provider-base.js";
 
@@ -51,9 +51,11 @@ export class WorkspaceProvider extends ProviderBase {
 
         this.workspacePath = args.workspacePath;
         this.extensions = args.extensions;
+
+
     }
 
-    initialize() {
+    async initialize() {
         const projectsPaths = [];
 
         if ( this.workspacePath ) {
@@ -62,7 +64,9 @@ export class WorkspaceProvider extends ProviderBase {
                 rootPkg = require( rootPkgPath );
 
             // Get all projects from `package.json` workspaces.
-            projectsPaths.push( ...this.findPackageDirectories( rootPkg.workspaces, this.workspacePath ) );
+            projectsPaths.push(
+                ...await this.findPackageDirectories( rootPkg.workspaces, this.workspacePath )
+            );
         }
 
         this.workspaceCache = new Map();
@@ -77,22 +81,23 @@ export class WorkspaceProvider extends ProviderBase {
         } );
     }
 
-    findPackageDirectories( packagesPaths, rootPath ) {
-        return ( packagesPaths ).flatMap( ( packagesPathPattern ) => {
+    async findPackageDirectories( packagesPaths, rootPath ) {
+        const paths = await Promise.all( packagesPaths.map( async ( packagesPathPattern ) => {
+
             if ( ! rootPath ) {
                 rootPath = path.dirname( packagesPathPattern );
             }
 
-            const workspacesPackageJsons = getMatchingPathsRecursive(
+            return zGetMatchingPathsRecursive(
                 path.join( rootPath, path.dirname( packagesPathPattern ) ),
                 new RegExp( "/*/package.json" ),
                 2, {
                     ignoreStartsWith: [ ".", "#" ]
                 }
             );
+        } ) );
 
-            return workspacesPackageJsons.map( ( packageJsonPath ) => path.dirname( packageJsonPath ) );
-        } );
+        return paths.flat().map( packageJsonPath => path.dirname( packageJsonPath ) );
     }
 
     /**
@@ -120,16 +125,32 @@ export class WorkspaceProvider extends ProviderBase {
         // If the exports field is an object, we need to find the correct export
         if ( typeof packageJson.exports === 'object' ) {
             const keys = Object.keys( packageJson.exports );
+
             for ( const key of keys ) {
                 if ( key === modulePath || key === `.${ modulePath }` ) {
-                    resolvedPath = path.join( packagePath,
-                        typeof packageJson.exports[ key ] === 'string' ?
-                            packageJson.exports[ key ] :
-                        packageJson.exports[ key ].default ??
-                        packageJson.exports[ key ].import ??
-                        packageJson.exports[ key ].require
-                    );
-                    break;
+                    if ( Array.isArray( packageJson.exports[ key ] ) ) {
+                        for ( const exportPath of packageJson.exports[ key ] ) {
+                            const potentialPath = path.join( packagePath, exportPath, modulePath );
+
+                            if ( this.fileExistsSync( potentialPath ) ) {
+                                resolvedPath = potentialPath;
+                                break;
+                            }
+                        }
+                    } else if ( typeof packageJson.exports[ key ] === 'string' ) {
+                        resolvedPath = path.join( packagePath, packageJson.exports[ key ]);
+                    } else if ( typeof packageJson.exports[ key ] === 'object' ) {
+                        resolvedPath = path.join( packagePath,
+                            packageJson.exports[ key ].default ??
+                            packageJson.exports[ key ].import ??
+                            packageJson.exports[ key ].require
+                        );
+                    }
+
+                    if ( ! resolvedPath ) {
+                        return null;
+                    }
+
                 }
             }
         }
@@ -144,7 +165,7 @@ export class WorkspaceProvider extends ProviderBase {
     async resolve( modulePath, referencingModule, middleware ) {
         middleware( { modulePath, referencingModule, provider: this } );
 
-        if ( isCommonPathFormat( modulePath ) ) {
+        if ( zIsUnixOrFileProtocolPath( modulePath ) ) {
             return null;
         }
 

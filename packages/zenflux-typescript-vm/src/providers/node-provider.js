@@ -3,7 +3,7 @@ import path from "node:path";
 
 import { createRequire } from "node:module";
 
-import { isCommonPathFormat } from "../utils.js";
+import { zIsUnixOrFileProtocolPath } from "@zenflux/utils/src/path";
 
 import { ProviderBase } from "./base/provider-base.js";
 
@@ -91,7 +91,7 @@ export class NodeProvider extends ProviderBase {
     async resolve( modulePath, referencingModule, middleware ) {
         middleware( { modulePath, referencingModule, provider: this } );
 
-        if ( isCommonPathFormat( modulePath ) ) {
+        if ( zIsUnixOrFileProtocolPath( modulePath ) ) {
             return (
                 modulePath.includes( this.projectPath ) &&
                 fs.statSync( modulePath ).isFile()

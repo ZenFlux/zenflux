@@ -1,8 +1,10 @@
 import util from "node:util";
 
-import { createResolvablePromise, verbose } from "./utils.js";
+import { zCreateResolvablePromise } from "@zenflux/utils/src/promise";
 
-const defineConfigPromise = createResolvablePromise();
+import { verbose } from "./utils.js";
+
+const defineConfigPromise = zCreateResolvablePromise();
 
 export const externalConfig = {
     /**

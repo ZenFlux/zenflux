@@ -25,9 +25,6 @@
 
         "./tsconfig.import-meta.json": "./tsconfig.import-meta.json"
     },
-    "scripts": {
-        "@z-tsnode-vm--build-utils-dts": "tsc src/utils.js --declaration --allowJs --emitDeclarationOnly --outDir types"
-    },
     "publishConfig": {
         "access": "public"
     },
@@ -38,7 +35,8 @@
     },
     "dependencies": {
         "@zenflux/tsconfig-to-swc": "workspace:*",
-        "@swc/core": "^1.3.101",
+        "@zenflux/utils": "workspace:*",
+        "@swc/core": "latest",
         "ts-node": "^10.9.1",
         "tsconfig-paths": "^4.2.0",
         "source-map-support": "^0.5.21"

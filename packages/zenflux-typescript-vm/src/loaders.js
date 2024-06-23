@@ -8,7 +8,9 @@ import fs from "node:fs";
 import util from "node:util";
 import vm from "node:vm";
 
-import { checksum, createResolvablePromise, verbose } from "./utils.js";
+import { zCreateResolvablePromise } from "@zenflux/utils/src/promise";
+
+import { checksum, verbose } from "./utils.js";
 
 export class Loaders {
     /**
@@ -304,7 +306,7 @@ export class Loaders {
         verbose( "loaders", "setPrepareCache", () => `setting prepare cache id: ${ util.inspect( id ) }` );
 
         this.modulePrepareCache.set( id, {
-            promise: createResolvablePromise(),
+            promise: zCreateResolvablePromise(),
             prepare: true,
         } )
     }
