@@ -1,18 +1,21 @@
-import path from "node:path";
+
 import fs from "node:fs";
-import process from "node:process";
 import inspector from "node:inspector";
 import util from "node:util";
 
+import path from "node:path";
+import process from "node:process";
+
 import { fileURLToPath } from "node:url";
 
-import { ConsoleManager } from "@zenflux/cli/src/managers/console-manager";
+import { normalize } from "jest-config";
 
-import { zWorkspaceFindRootPackageJsonPath, zWorkspaceGetPackages } from "@zenflux/cli/src/core/workspace";
+import { zFindRootPackageJsonPath } from "@zenflux/utils/src/workspace";
 
 import { Package } from "@zenflux/cli/src/modules/npm/package";
+import { ConsoleManager } from "@zenflux/cli/src/managers/console-manager";
 
-import { normalize } from "jest-config";
+import { zWorkspaceGetPackages } from "@zenflux/cli/src/core/workspace";
 
 import { runCLI } from "@jest/core";
 
@@ -20,7 +23,7 @@ import type { Config } from "@jest/types";
 
 const __dirname = path.dirname( fileURLToPath( import.meta.url ) );
 
-const rootPkg = new Package( path.dirname( zWorkspaceFindRootPackageJsonPath() ) );
+const rootPkg = new Package( path.dirname( zFindRootPackageJsonPath() ) );
 
 const filterProjects: string[] = [];
 
@@ -67,13 +70,15 @@ if ( process.argv.includes( "--runTestsByPath" ) ) {
 
 }
 
-function getProjectsConfig(): Promise<{
+async function getProjectsConfig(): Promise<{
     pkg: Package;
     config: Config.ProjectConfig | Config.InitialOptions;
     configPath: string;
     normalized?: Config.ProjectConfig,
-}>[] {
-    return Object.values( zWorkspaceGetPackages( rootPkg ) )
+}[]> {
+    const packages = await zWorkspaceGetPackages( rootPkg );
+
+    return await Promise.all( Object.values( packages )
         .filter( ( pkg ) => {
             if ( filterProjects.length > 0 ) {
                 const match = filterProjects.find( ( p ) => {
@@ -104,7 +109,7 @@ function getProjectsConfig(): Promise<{
                     configPath,
                 };
             } );
-        } );
+        } ) );
 }
 
 // Initial config
@@ -167,7 +172,7 @@ const originalWarn = ConsoleManager.$.warn;
 
 let didCatch = false;
 
-const projects = await Promise.all( getProjectsConfig() );
+const projects = await Promise.all( await getProjectsConfig() );
 
 // Pre validate
 const normalizers = projects.map( async ( project, index ) => {
