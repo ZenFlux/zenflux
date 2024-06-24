@@ -10,6 +10,8 @@ const configs: IZConfigs = {
             "react",
             "@zenflux/react-scheduler"
         ],
+
+        enableCustomLoader: true,
     },
 
     "@zenflux/react-reconciler": {
