@@ -19,8 +19,30 @@ interface IConfigOptionalArgs {
     },
 };
 
+interface IIConfigArgsGeneralBase {
+    enableCustomLoader?: boolean;
+    enableCjsAsyncWrap?: boolean;
+
+    omitWarningCodes?: string[],
+
+    // Dts probably built once, since it's not format dependent - TODO: Use tsconfig.json
+    inputDtsPath?: string;
+    outputDtsPath?: string;
+
+    onBuiltFormat?: ( format: TZFormatType | undefined ) => void;
+    onBuilt?: () => void;
+}
+
+interface IIConfigArgsGeneralBasic extends IIConfigArgsGeneralBase {
+    enableCustomLoader?: false,
+
+    moduleForwarding?: never,
+}
+
 // Here are properties that are not format dependent
-interface IConfigArgsGeneral {
+interface IConfigArgsGeneralWithCustomLoader extends IIConfigArgsGeneralBase {
+    enableCustomLoader: true,
+
     /**
      * This property is an object that maps module names to their respective paths.
      * It is used to redirect module imports to different locations, which can be useful in a monorepo setup.
@@ -50,35 +72,27 @@ interface IConfigArgsGeneral {
             [ source: string ]: string
         };
     }
-
-    // Dts probably built once, since it's not format dependent - TODO: Use tsconfig.json
-    inputDtsPath?: string;
-    outputDtsPath?: string;
-
-    onBuiltFormat?: ( format: TZFormatType | undefined ) => void;
-    onBuilt?: () => void;
 }
 
-interface IConfigArgsForEachFormat extends IConfigRequiredArgs, IConfigOptionalArgs {
-};
+type IConfigArgsGeneral = IIConfigArgsGeneralBasic | IConfigArgsGeneralWithCustomLoader;
 
-export interface IConfigArgsBase extends IConfigOptionalArgs, IConfigArgsGeneral {
-};
+interface IConfigArgsForEachFormat extends IConfigRequiredArgs, IConfigOptionalArgs {};
+
+export type IConfigArgsBase = IConfigOptionalArgs & IConfigArgsGeneral;
 
 export type TConfigType = "single" | "multi" | "unknown";
 
 /**
  * @public
  */
-export interface IZConfig extends IConfigArgsForEachFormat, IConfigArgsGeneral {
+export type IZConfig = IConfigArgsForEachFormat & IConfigArgsGeneral & {
     outputName: string,
 };
 
 /**
  * @public
  */
-export interface IZConfigInMulti extends IConfigArgsForEachFormat, IConfigArgsGeneral {
-};
+export type IZConfigInMulti = IConfigArgsForEachFormat & IConfigArgsGeneral;
 
 /**
  * @public
@@ -98,7 +112,7 @@ export interface IZConfigs {
 /**
  * @internal
  */
-export interface IZConfigInternal extends IZConfig {
+export type IZConfigInternal = IZConfig & {
     type: TConfigType,
 
     // Path of self.
@@ -129,7 +143,7 @@ export type TZConfigInternalArgs = Omit<IZConfigInternal, "format"> &
 }
 
 /**
- * @internal$
+ * @internal
  */
 export const Z_CONFIG_DEFAULTS: IZConfigArgsRequiredInternal = {
     extensions: [ ".ts", ".js" ],
@@ -138,7 +152,9 @@ export const Z_CONFIG_DEFAULTS: IZConfigArgsRequiredInternal = {
 /**
  * @internal
  */
-export const Z_CONFIG_REQUIRED_KEYS = Object.keys({
+export const Z_CONFIG_REQUIRED: TForceEnumKeys<IConfigRequiredArgs> = {
     inputPath: true,
     outputFileName: true,
-} as TForceEnumKeys<IConfigRequiredArgs> );
+};
+
+export const Z_CONFIG_REQUIRED_KEYS = Object.keys( Z_CONFIG_REQUIRED ) as ( keyof IConfigRequiredArgs )[];

@@ -12,6 +12,8 @@ export interface IPluginArgs {
     format: ModuleFormat;
     minify: boolean;
     moduleForwarding?: { [ key: string ]: { [ key: string ]: string } };
+    enableCustomLoader: boolean;
+    enableCjsAsyncWrap: boolean;
     sourcemap: boolean;
 }
 

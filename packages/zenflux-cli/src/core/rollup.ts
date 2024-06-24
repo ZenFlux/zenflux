@@ -219,10 +219,11 @@ export const zRollupGetPlugins = ( args: IPluginArgs ): OutputPlugin[] => {
 
     plugins.push( zRollupSwcPlugin( requiredArgs ) );
 
-    plugins.push( zRollupCustomLoaderPlugin( requiredArgs ) );
+    if ( args.enableCustomLoader ) {
+        plugins.push( zRollupCustomLoaderPlugin( requiredArgs ) );
+    }
 
-    if ( "cjs" === format ) {
-        // Depends on `transpiler` plugin
+    if ( "cjs" === format && args.enableCjsAsyncWrap ) {
         plugins.push( zRollupCjsAsyncWrapPlugin( requiredArgs ) );
     }
 
@@ -324,6 +325,8 @@ export const zRollupGetConfig = ( args: TZConfigInternalArgs, projectPath: strin
         sourcemap: !! result.output.sourcemap,
         minify: "development" !== process.env.NODE_ENV,
         projectPath: projectPath,
+        enableCustomLoader: !! args.enableCustomLoader,
+        enableCjsAsyncWrap: !! args.enableCjsAsyncWrap,
     };
 
     result.plugins = zRollupGetPlugins( pluginsArgs );
