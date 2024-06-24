@@ -1,9 +1,9 @@
 {
-    "$schema": "https://json.schemastore.org/package",
+    "$schema": "https://raw.githubusercontent.com/SchemaStore/schemastore/master/src/schemas/json/package.json",
     "name": "@zenflux/eslint",
     "author": "Leonid Vinikov <leonidvinikov@gmail.com> (https://github.com/iNewLegend)",
     "type": "module",
-    "version": "0.0.4",
+    "version": "0.1.0",
     "main": ".eslintrc.js",
     "repository": {
         "type": "git",
