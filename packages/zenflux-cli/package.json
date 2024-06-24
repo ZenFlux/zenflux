@@ -1,7 +1,7 @@
 {
-    "$schema": "https://json.schemastore.org/package",
+    "$schema": "https://raw.githubusercontent.com/SchemaStore/schemastore/master/src/schemas/json/package.json",
     "name": "@zenflux/cli",
-    "version": "0.0.3",
+    "version": "0.1.0",
     "type": "module",
     "types": "./types/index.d.ts",
     "bin": {
@@ -10,19 +10,20 @@
     "files": [
         "bin",
         "scripts",
-        "dist",
         "src",
         "tsconfig.json",
         "tsconfig.paths.json"
     ],
     "dependencies": {
         "@microsoft/api-extractor": "^7.38.0",
-        "@rollup/plugin-node-resolve": "^15.2.1",
-        "@swc/core": "^1.3.101",
+        "@rollup/plugin-node-resolve": "latest",
+        "@rollup/plugin-commonjs": "latest",
+        "@swc/core": "latest",
         "@verdaccio/config": "next",
         "@verdaccio/node-api": "next",
         "@zenflux/tsconfig-to-swc": "workspace:*",
         "@zenflux/typescript-vm": "workspace:*",
+        "@zenflux/utils": "workspace:*",
         "chokidar": "^3.5.3",
         "libnpmpack": "^6.0.2",
         "libnpmpublish": "^9.0.1",
@@ -30,17 +31,30 @@
         "pacote": "^17.0.4",
         "rollup": "^4.9.1",
         "tslib": "^2.6.2",
-        "typescript": "^5.2.2",
+        "typescript": "latest",
         "verdaccio": "^5.29.2",
         "magic-string": "^0.30.5",
         "blessed": "^0.1.81"
     },
     "devDependencies": {
+        "@types/bun": "^1.1.3",
         "@types/libnpmpublish": "^4.0.5",
         "@types/npm-packlist": "^7.0.2",
         "@types/blessed": "^0.1.25"
     },
     "publishConfig": {
         "access": "public"
+    },
+    "exports": {
+        ".": {
+            "types": "./types/index.d.ts"
+        },
+        "./package.json": "./package.json",
+        "./src/*": [
+            "./src/*.ts"
+        ],
+        "./src/modules/console": [
+            "./src/modules/console/index.ts"
+        ]
     }
 }

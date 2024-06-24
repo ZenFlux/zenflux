@@ -1,71 +1,9 @@
 /**
  * @author Leonid Vinikov <leonidvinikov@gmail.com>
  */
-import { isAbsolute, resolve } from "node:path";
-
 import util from "node:util";
-import path from "node:path";
 import crypto from "node:crypto";
-import fs from "node:fs";
 import process from "node:process";
-
-/**
- * Check if path a common path format.
- *
- * @param {string} path
- */
-export const isCommonPathFormat = ( path ) => {
-    return path.startsWith( "/" ) ||
-        path.startsWith( "./" ) ||
-        path.startsWith( "../" ) ||
-        path.startsWith( "file://" );
-};
-
-/**
- * Ensure path is absolute, if not, resolve it from relative path.
- *
- * @param {string} path
- * @param {string} [relative=process.cwd()]
- */
-export const getAbsoluteOrRelativePath = ( path, relative = process.cwd() ) => {
-    return ! isAbsolute( path ) ? resolve( relative, path ) : resolve( path );
-};
-
-/**
- * Create a promise that can be resolved from outside.
- */
-export const createResolvablePromise = () => {
-    const result = {};
-
-    result.promise = new Promise( ( resolve, reject ) => {
-        result.resolve = resolve;
-        result.reject = reject;
-    } );
-
-    // Alias.
-    result.await = result.promise;
-
-    // State
-    result.isPending = true;
-    result.isRejected = false;
-    result.isFulfilled = false;
-
-    // Attach state changers.
-    result.promise.then(
-        function(v) {
-            result.isFulfilled = true;
-            result.isPending = false;
-            return v;
-        },
-        function(e) {
-            result.isRejected = true;
-            result.isFulfilled = false;
-            throw e;
-        }
-    );
-
-    return result;
-};
 
 /**
  * Generate checksum for data.
@@ -96,52 +34,3 @@ const output = process.argv.includes( '--zvm-verbose' ) ? ( module, method, call
         ...Array.isArray( result ) ? result : [ result ],
     ] );
 } : () => {};
-
-
-/**
- * Since we are currently bun based, we can use the same logic as bun.
- *
- * TODO - Find better solution - https://github.com/oven-sh/bun/blob/feefaf00d799e152e1c816e7cd8c8beb70c7f074/docs/install/workspaces.md?plain=1#L41
- *
- * @param {string} directoryPath
- * @param {RegExp} filterPattern
- * @param {number} [maxAllowedDepth=Infinity]
- * @param [options] {{
- *     ignoreStartsWith: string[];
- * }}
- *
- * @return {string[]}
- */
-export const getMatchingPathsRecursive = ( directoryPath, filterPattern, maxAllowedDepth = Infinity, options = {
-    ignoreStartsWith: [],
-} )=> {
-    const result = [];
-
-    function searchRecursive( directoryPath, depth = 0 ) {
-        const filesInDirectory = fs.readdirSync( directoryPath, { withFileTypes: true } );
-
-        if ( depth >= maxAllowedDepth ) {
-            return;
-        }
-
-        filesInDirectory.forEach( ( dirent ) => {
-            const filePath = path.join( directoryPath, dirent.name );
-
-            if ( options.ignoreStartsWith.some( ( prefix ) => path.basename( directoryPath ).startsWith( prefix ) ||
-                options.ignoreStartsWith.some( ( prefix ) => path.basename( filePath ).startsWith( prefix ) )
-            ) ) {
-                return;
-            }
-
-            if ( dirent.isFile() && filterPattern.test( filePath ) ) {
-                result.push( filePath );
-            } else if ( dirent.isDirectory() ) {
-                searchRecursive( filePath, depth + 1 );
-            }
-        } );
-    };
-
-    searchRecursive( directoryPath );
-
-    return result;
-};

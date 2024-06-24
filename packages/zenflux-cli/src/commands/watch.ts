@@ -50,7 +50,7 @@ export default class Watch extends CommandBuildBase {
         ];
     }
 
-    protected async run() {
+    public async runImpl() {
         const configs = this.getConfigs();
 
         const globalPaths = zGlobalPathsGet();
@@ -67,7 +67,12 @@ export default class Watch extends CommandBuildBase {
         } );
 
         process.on( "exit", () => {
+            rollupConsole.log( "watcher", "Closing" );
             watcher.close();
+        } );
+
+        watcher.on( "error", ( error ) => {
+            rollupConsole.error( "watcher", "Error", error );
         } );
 
         let totalBuildTime = 0;

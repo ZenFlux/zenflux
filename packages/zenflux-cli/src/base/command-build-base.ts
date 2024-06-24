@@ -36,32 +36,62 @@ export abstract class CommandBuildBase extends CommandConfigBase {
         }
     }
 
-    protected initialize() {
+    protected async initialize() {
         // Ensure that original console instance is saved.
         ConsoleManager.getInstance();
 
         // Set global console instance as rollupConsole.
         ConsoleManager.setInstance( this.getRollupConsole() );
 
-        super.initialize();
+        return super.initialize();
+    }
+
+    public showHelp( name: string ) {
+        super.showHelp( name );
+
+        // Describe what the `--dev` option does for the command
+        ConsoleManager.$.log( util.inspect( {
+            "--dev": {
+                description: "Run in development mode",
+                behaviors: [
+                    "Shows all api-exporter diagnostics",
+                    "No minification",
+                    "Loading different tsconfig file: tsconfig.{format}.dev.json",
+                    "Sets process.env.NODE_ENV to 'development'"
+                ]
+            },
+            "--no-diagnostic": {
+                description: "Disable typescript diagnostics",
+                behaviors: [
+                    "No typescript diagnostics"
+                ]
+            },
+            "--no-declaration": {
+                description: "Disable typescript declaration",
+                behaviors: [
+                    "No declaration file generation",
+                    "No api-exporter will be used"
+                ]
+            },
+        } ) );
     }
 
     public async loadConfigs() {
-        const result = super.loadConfigs();
+        const promise = super.loadConfigs();
 
-        await result.then( () => {
-            this.getConfigs().forEach( config => {
-                this.getRollupConsole().verbose( () => [
-                    this.constructor.name,
-                    this.loadConfigs.name,
-                    `Start building rollup config for: ${ util.inspect( config.outputName ) } config path: ${ util.inspect( config.path ) }`
-                ] );
+        await promise;
 
-                this.rollupConfig[ config.path + "-" + config.outputName ] = this.getConfigForEachFormat( config );
-            } );
-        } );
+        await Promise.all( this.getConfigs().map( async config => {
+            this.getRollupConsole().verbose( () => [
+                this.constructor.name,
+                this.loadConfigs.name,
+                `Start building rollup config for: ${ util.inspect( config.outputName ) } config path: ${ util.inspect( config.path ) }`
+            ] );
 
-        return result;
+            this.rollupConfig[ config.path + "-" + config.outputName ] = await this.getConfigForEachFormat( config );
+        } ) );
+
+        return promise;
     }
 
     protected getRollupConsole(): ConsoleThreadFormat {
@@ -188,41 +218,11 @@ export abstract class CommandBuildBase extends CommandConfigBase {
         } );
     }
 
-    private getConfigForEachFormat( config: IZConfigInternal ) {
-        return config.format.map( format => zRollupGetConfig( {
+    private async getConfigForEachFormat( config: IZConfigInternal ) {
+        return Promise.all( config.format.map( format => zRollupGetConfig( {
             ... Z_CONFIG_DEFAULTS,
             ... config,
             format
-        }, path.dirname( config.path ) ) );
-    }
-
-    public showHelp( name: string ) {
-        super.showHelp( name );
-
-        // Describe what the `--dev` option does for the command
-        ConsoleManager.$.log( util.inspect( {
-            "--dev": {
-                description: "Run in development mode",
-                behaviors: [
-                    "Shows all api-exporter diagnostics",
-                    "No minification",
-                    "Loading different tsconfig file: tsconfig.{format}.dev.json",
-                    "Sets process.env.NODE_ENV to 'development'"
-                ]
-            },
-            "--no-diagnostic": {
-                description: "Disable typescript diagnostics",
-                behaviors: [
-                    "No typescript diagnostics"
-                ]
-            },
-            "--no-declaration": {
-                description: "Disable typescript declaration",
-                behaviors: [
-                    "No declaration file generation",
-                    "No api-exporter will be used"
-                ]
-            },
-        } ) );
+        }, path.dirname( config.path ) ) ) );
     }
 }

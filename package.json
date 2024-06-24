@@ -1,10 +1,10 @@
 {
-    "$schema": "https://json.schemastore.org/package",
+    "$schema": "https://raw.githubusercontent.com/SchemaStore/schemastore/master/src/schemas/json/package.json",
     "name": "@zenflux/zenflux",
     "author": "Leonid Vinikov <leonidvinikov@gmail.com> (https://github.com/iNewLegend)",
     "license": "MIT",
     "type": "module",
-    "version": "0.0.1",
+    "version": "0.1.0",
     "keywords": [
         "zenflux",
         "commands",
@@ -30,9 +30,9 @@
         "@z-flux:build:react": "@z-cli @build --workspace react-* --dev",
         "@z-flux:dev": "@z-cli @watch --dev",
         "@z-flux:dev:react": "@z-cli @watch --workspace react-* --dev",
-        "@z-flux:dev:react-reconciler": "@z-cli @watch --workspace react-reconciler-* --dev",
+        "@z-flux:dev:react-reconciler": "@z-cli @watch --workspace react-reconciler --dev",
         "@z-flux-ci:build:react": "@z-cli @build --workspace \"react-*\" --haltOnDiagnosticError --no-diagnostic --no-declaration",
         "@z-flux:ci:jest:react": "@z-jest --selectedProjects react-test-renderer,react-cache,react-scheduler,internal-test-utils,react-reconciler"
     },
-    "packageManager": "bun@1.1.5"
+    "packageManager": "bun@1.1.12"
 }

@@ -1,0 +1,25 @@
+{
+    "$schema": "https://raw.githubusercontent.com/SchemaStore/schemastore/master/src/schemas/json/package.json",
+    "name": "@zenflux/utils",
+    "version": "0.1.0",
+    "type": "module",
+    "publishConfig": {
+        "access": "public"
+    },
+    "files": [
+        "src",
+        "package.json",
+        "tsconfig.json",
+        "tsconfig.eslint.json"
+    ],
+    "exports": {
+        "./package.json": "./package.json",
+        "./src/*": [
+            "./src/*.js",
+            "./src/*.ts"
+        ]
+    },
+    "scripts": {
+        "build-types": "tsc src/*.js --declaration --allowJs --emitDeclarationOnly --outDir src"
+    }
+}

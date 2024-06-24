@@ -8,7 +8,7 @@ import util from "node:util";
 
 import ts from "typescript";
 
-import { createResolvablePromise } from "@zenflux/typescript-vm/utils";
+import { zCreateResolvablePromise } from "@zenflux/utils/src/promise";
 
 import { zTSGetPackageByTSConfig } from "@zenflux/cli/src/utils/typescript";
 
@@ -40,7 +40,7 @@ const diagnosticWorkers = new Map<number, Worker>(),
     declarationWorkers = new Map<number, Worker>();
 
 const waitingTSConfigs = new Map<string, {
-    promise: ReturnType<typeof createResolvablePromise>,
+    promise: ReturnType<typeof zCreateResolvablePromise>,
     dependencies: Record<string, true>,
 }>();
 
@@ -598,7 +598,7 @@ async function zTSWaitForDependencies(
                 util.inspect( Object.keys( availableDependencies ), { breakLength: Infinity } ),
             ] );
 
-            const promise = createResolvablePromise();
+            const promise = zCreateResolvablePromise();
 
             // Insert current config to the waiting list.
             waitingTSConfigs.set( tsConfig.options.configFilePath as string, {

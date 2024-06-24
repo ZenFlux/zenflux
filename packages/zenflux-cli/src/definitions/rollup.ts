@@ -3,20 +3,22 @@
  */
 import type ts from "typescript";
 
-import type { ModuleFormat } from "rollup";
+import type { InternalModuleFormat } from "rollup";
 
 export interface IPluginArgs {
     tsConfig?: ts.ParsedCommandLine;
     extensions?: string[],
     projectPath: string;
-    format: ModuleFormat;
+    format: InternalModuleFormat;
     minify: boolean;
     moduleForwarding?: { [ key: string ]: { [ key: string ]: string } };
+    enableCustomLoader: boolean;
+    enableCjsAsyncWrap: boolean;
     sourcemap: boolean;
 }
 
 export interface IOutputArgs {
-    format: ModuleFormat;
+    format: InternalModuleFormat;
     outputFileName: string;
     outputName: string,
 }

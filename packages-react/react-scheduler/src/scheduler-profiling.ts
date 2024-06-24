@@ -16,7 +16,7 @@ const INITIAL_EVENT_LOG_SIZE = 131072;
 const MAX_EVENT_LOG_SIZE = 524288; // Equivalent to 2 megabytes
 
 let eventLogSize = 0;
-let eventLogBuffer: ArrayBuffer | ArrayLike<number> | null = null;
+let eventLogBuffer: ArrayBufferLike | ArrayBuffer | ArrayLike<number> | null = null;
 let eventLog: any = null;
 let eventLogIndex = 0;
 

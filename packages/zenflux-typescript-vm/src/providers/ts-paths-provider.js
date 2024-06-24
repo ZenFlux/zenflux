@@ -1,9 +1,10 @@
 import fs from "node:fs";
 
-import { isCommonPathFormat } from "../utils.js";
+import { createMatchPathAsync } from "tsconfig-paths";
+
+import { zIsUnixOrFileProtocolPath } from "@zenflux/utils/src/path.js";
 
 import { ProviderBase } from "./base/provider-base.js";
-import { createMatchPathAsync } from "tsconfig-paths";
 
 /**
  * @typedef {ProviderBaseArgs} TsPathsProviderArgs
@@ -65,7 +66,7 @@ export class TsPathsProvider extends ProviderBase {
         middleware( { modulePath, referencingModule, provider: this.provider } );
 
         // Is modulePath is relative path or absolute path, skip.
-        if ( isCommonPathFormat( modulePath ) ) {
+        if ( zIsUnixOrFileProtocolPath( modulePath ) ) {
             return;
         }
 

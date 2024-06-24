@@ -11,7 +11,9 @@ import path from "node:path";
 
 import { createContext } from "node:vm";
 
-import { createResolvablePromise, getAbsoluteOrRelativePath } from "./utils.js";
+import { zGetAbsoluteOrRelativePath } from "@zenflux/utils/src/path";
+import { zCreateResolvablePromise } from "@zenflux/utils/src/promise";
+
 import { defineConfig, externalConfig, waitForConfig } from "./config.js";
 
 export { Resolvers } from "./resolvers.js";
@@ -25,24 +27,24 @@ if ( ! process.execArgv.includes( '--experimental-vm-modules' ) ) {
 util.inspect.defaultOptions.colors = true;
 util.inspect.defaultOptions.breakLength = 1;
 
-const initializePromise = createResolvablePromise();
+const initializePromise = zCreateResolvablePromise();
 
 const initialize = async () => {
     // Wait for config to be defined.
     await waitForConfig();
 
     const paths = {
-        project: getAbsoluteOrRelativePath( externalConfig.projectPath ),
+        project: zGetAbsoluteOrRelativePath( externalConfig.projectPath ),
 
         workspacePath: null,
 
-        nodeModules: getAbsoluteOrRelativePath( externalConfig.nodeModulesPath, externalConfig.projectPath ),
+        nodeModules: zGetAbsoluteOrRelativePath( externalConfig.nodeModulesPath, externalConfig.projectPath ),
 
-        tsConfigPath: getAbsoluteOrRelativePath( externalConfig.tsConfigPath, externalConfig.projectPath ),
+        tsConfigPath: zGetAbsoluteOrRelativePath( externalConfig.tsConfigPath, externalConfig.projectPath ),
     };
 
     if ( externalConfig.workspacePath ) {
-        paths.workspacePath = getAbsoluteOrRelativePath( externalConfig.workspacePath, externalConfig.projectPath );
+        paths.workspacePath = zGetAbsoluteOrRelativePath( externalConfig.workspacePath, externalConfig.projectPath );
     }
 
     // Check all paths exists.

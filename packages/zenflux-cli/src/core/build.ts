@@ -3,45 +3,50 @@
  *
  * @TODO: Avoid using useless imports from thread, use dynamic imports instead.
  */
-import util from "node:util";
 import path from "node:path";
+
 import process from "node:process";
+
+import util from "node:util";
+
+import { zCreateResolvablePromise } from "@zenflux/utils/src/promise";
 
 import { rollup } from "rollup";
 
-import { createResolvablePromise } from "@zenflux/typescript-vm/utils";
+import { ConsoleThreadReceive } from "@zenflux/cli/src/console/console-thread-receive";
 
-import { zTSGetPackageByConfig } from "@zenflux/cli/src/utils/typescript";
+import { ConsoleThreadSend } from "@zenflux/cli/src/console/console-thread-send";
 
 import { zRollupGetPlugins } from "@zenflux/cli/src/core/rollup";
 
 import { zRollupSwcCompareCaches } from "@zenflux/cli/src/core/rollup-plugins/rollup-swc/rollup-swc-plugin";
 
-import { ensureInWorker } from "@zenflux/cli/src/modules/threading/utils";
-
 import { ConsoleManager } from "@zenflux/cli/src/managers/console-manager";
 
-import { ConsoleThreadSend } from "@zenflux/cli/src/console/console-thread-send";
-import { ConsoleThreadReceive } from "@zenflux/cli/src/console/console-thread-receive";
+import { ensureInWorker } from "@zenflux/cli/src/modules/threading/utils";
 
-import type { ThreadHost } from "@zenflux/cli/src/modules/threading/definitions";
+import { zTSGetPackageByConfig } from "@zenflux/cli/src/utils/typescript";
 
-import type { OutputOptions, RollupBuild, RollupOptions } from "rollup";
+import type { ConsoleThreadFormat } from "@zenflux/cli/src/console/console-thread-format";
 
-import type { Worker } from "@zenflux/cli/src/modules/threading/worker";
-
-import type { TZFormatType } from "@zenflux/cli/src/definitions/zenflux";
 import type { TZBuildOptions, TZBuildWorkerOptions } from "@zenflux/cli/src/definitions/build";
 import type { IZConfigInternal } from "@zenflux/cli/src/definitions/config";
 
+import type { TZFormatType } from "@zenflux/cli/src/definitions/zenflux";
+
 import type { Package } from "@zenflux/cli/src/modules/npm/package";
-import type { ConsoleThreadFormat } from "@zenflux/cli/src/console/console-thread-format";
+
+import type { ThreadHost } from "@zenflux/cli/src/modules/threading/definitions";
+
+import type { Worker } from "@zenflux/cli/src/modules/threading/worker";
+
+import type { InternalModuleFormat, OutputOptions, RollupBuild, RollupOptions } from "rollup";
 
 const threads = new Map<number, Worker>(),
     builders = new Map<string, RollupBuild>();
 
 const waitingThreads = new Map<number, {
-    promise: ReturnType<typeof createResolvablePromise>,
+    promise: ReturnType<typeof zCreateResolvablePromise>,
     dependencies: Record<string, true>,
 }>();
 
@@ -54,9 +59,22 @@ async function rollupBuildInternal( config: RollupOptions, options: TZBuildOptio
 
     // TODO: This should be only once
     config.onLog = ( logLevel, message ) => {
-        // @ts-ignore
-        message.projectPath = options.config.path;
-        ConsoleManager.$.log( `Rollup: ${ util.inspect( message ) }` );
+        const methods = {
+            "info": ConsoleManager.$.info,
+            "warn": ConsoleManager.$.warn,
+            "error": ConsoleManager.$.error,
+            "debug": ( ... args: any[] ) => ConsoleManager.$.debug( () => args ),
+            "log": ConsoleManager.$.log,
+        } as const;
+
+        if ( logLevel === "warn" && options.config.omitWarningCodes?.includes( message.code || "undefined" ) ) {
+            return;
+        }
+
+        methods[ logLevel ]( ... [ "build", "rollupBuildInternal", "", util.inspect( {
+            message,
+            projectPath: options.config.path,
+        } ) ] );
     };
 
     let isBundleChanged = true;
@@ -83,12 +101,12 @@ async function rollupBuildInternal( config: RollupOptions, options: TZBuildOptio
         file = output.file ?? output.entryFileNames;
 
     options.silent ||
-        ConsoleManager.$.log( `Writing - Start ${ util.inspect( output.format ) } bundle to ${ util.inspect( file ) }` );
+    ConsoleManager.$.log( `Writing - Start ${ util.inspect( output.format ) } bundle to ${ util.inspect( file ) }` );
 
     await builders.get( builderKey )!.write( output );
 
     options.silent ||
-        ConsoleManager.$.log( `Writing - Done ${ util.inspect( output.format ) } bundle of ${ util.inspect( file ) } in ${ util.inspect( Date.now() - startTime ) + "ms" }` );
+    ConsoleManager.$.log( `Writing - Done ${ util.inspect( output.format ) } bundle of ${ util.inspect( file ) } in ${ util.inspect( Date.now() - startTime ) + "ms" }` );
 
     options.config.onBuiltFormat?.( output.format as TZFormatType );
 }
@@ -105,21 +123,40 @@ export async function zRollupBuildInWorker(
 
     rollupOptions = ! Array.isArray( rollupOptions ) ? [ rollupOptions ] : rollupOptions;
 
-    const linkedRollupOptions = rollupOptions.map( ( rollupOptions ) => {
+    const linkedRollupOptions = await Promise.all( rollupOptions.map( async ( rollupOptions ) => {
         const output = rollupOptions.output as OutputOptions;
 
-        rollupOptions.plugins = zRollupGetPlugins( {
-                extensions: config.extensions || [],
-                format: output.format!,
-                moduleForwarding: config.moduleForwarding,
-                sourcemap: !! output.sourcemap,
-                minify: "development" !== process.env.NODE_ENV,
-                projectPath: path.dirname( config.path )
-            },
-        );
+        const convertFormatToInternalFormat = ( format: typeof output.format ): InternalModuleFormat => {
+            switch ( format ) {
+                case "cjs":
+                case "commonjs":
+                    return "cjs";
+
+                case "system":
+                case "systemjs":
+                    return "system";
+
+                case "es":
+                case "esm":
+                case "module":
+                default:
+                    return "es";
+            }
+        };
+
+        rollupOptions.plugins = await zRollupGetPlugins( {
+            enableCustomLoader: !! config.enableCustomLoader,
+            enableCjsAsyncWrap: !! config.enableCjsAsyncWrap,
+            extensions: config.extensions || [],
+            format: convertFormatToInternalFormat( output.format! ),
+            moduleForwarding: config.moduleForwarding,
+            sourcemap: !! output.sourcemap,
+            minify: "development" !== process.env.NODE_ENV,
+            projectPath: path.dirname( config.path )
+        } );
 
         return rollupOptions;
-    } );
+    } ) );
 
     await Promise.all( linkedRollupOptions.map( async ( singleRollupOptions ) => {
         const output = singleRollupOptions.output as OutputOptions,
@@ -156,7 +193,7 @@ export async function zRollupBuildInWorker(
     } ) );
 }
 
-export async function zRollupCreateBuildWorker( rollupOptions: RollupOptions[], options: TZBuildWorkerOptions, activeConsole: ConsoleThreadFormat  ) {
+export async function zRollupCreateBuildWorker( rollupOptions: RollupOptions[], options: TZBuildWorkerOptions, activeConsole: ConsoleThreadFormat ) {
     // Plugins cannot be transferred to worker threads, since they are "live" objects/function etc...
     rollupOptions.forEach( ( o ) => {
         delete o.plugins;
@@ -185,6 +222,13 @@ export async function zRollupCreateBuildWorker( rollupOptions: RollupOptions[], 
 
     const thread = threads.get( options.threadId as number );
 
+    // TODO: Find better way to handle this. some error cause thread to 'exit'. eg: rollup errors or swc...
+    if ( ! thread?.isAlive() ) {
+        threads.delete( options.threadId as number );
+
+        return zRollupCreateBuildWorker( rollupOptions, options, activeConsole );
+    }
+
     if ( ! thread ) {
         throw new Error( "Thread not found." );
     }
@@ -192,7 +236,13 @@ export async function zRollupCreateBuildWorker( rollupOptions: RollupOptions[], 
     await zBuildThreadWaitForDependencies( options, zTSGetPackageByConfig( config ), config, activeConsole );
 
     const buildPromise = thread.run().catch( ( error ) => {
-        activeConsole.error( "build", "error", "in RO-" + options.threadId , "\n ->", error );
+        const isDebug = ConsoleManager.isFlagEnabled( "debug" ) || ConsoleManager.isFlagEnabled( "inspectorDebug" );
+
+        if ( error.watchFiles && ! isDebug ) {
+            delete error.watchFiles;
+        }
+
+        activeConsole.error( "build", "in RO-" + options.threadId, "", util.inspect( { $: error } ) );
     } );
 
     zBuildThreadHandleResume( buildPromise, config );
@@ -246,7 +296,7 @@ async function zBuildThreadWaitForDependencies( options: TZBuildWorkerOptions, p
                     util.inspect( config.outputName ) ]
                 );
 
-                const promise = createResolvablePromise();
+                const promise = zCreateResolvablePromise();
 
                 waitingThreads.set( options.threadId, {
                     promise,

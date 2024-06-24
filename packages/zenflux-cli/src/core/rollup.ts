@@ -6,6 +6,7 @@ import process from "node:process";
 import util from "node:util";
 
 import nodeResolve from "@rollup/plugin-node-resolve";
+import nodeCommonJsToEsm from "@rollup/plugin-commonjs";
 
 import { ConsoleManager}  from "@zenflux/cli/src/managers/console-manager";
 
@@ -30,7 +31,7 @@ import type { TZFormatType } from "@zenflux/cli/src/definitions/zenflux";
 
 const DEFAULT_BASE_SRC_PATH = "/src";
 
-export function zRollupPluginModuleResolve( args: Required<IPluginArgs> ): Plugin {
+export async function zRollupPluginModuleResolve( args: Required<IPluginArgs> ): Promise<Plugin> {
     const tsConfig = args.tsConfig!,
         projectPath = args.projectPath,
         baseSrcPath = tsConfig?.options.baseUrl ?? function useDefaultSrcPath () {
@@ -44,7 +45,7 @@ export function zRollupPluginModuleResolve( args: Required<IPluginArgs> ): Plugi
         }(),
         extensions = args.extensions;
 
-    const workspacePackages = zWorkspaceGetPackages( "auto" );
+    const workspacePackages = await zWorkspaceGetPackages( "auto" );
 
     const relativeCache = new Map<string, string>(),
         workspaceCache = new Map<string, string>(),
@@ -188,7 +189,7 @@ export function zRollupPluginModuleResolve( args: Required<IPluginArgs> ): Plugi
 /**
  * Function zRollupGetPlugins(): This function returns an array of Rollup plugins based on the provided arguments.
  */
-export const zRollupGetPlugins = ( args: IPluginArgs ): OutputPlugin[] => {
+export const zRollupGetPlugins = async ( args: IPluginArgs ): Promise<OutputPlugin[]> => {
     // TODO: Should plugins be recreated for each format?
     const { extensions, format } = args;
 
@@ -200,7 +201,7 @@ export const zRollupGetPlugins = ( args: IPluginArgs ): OutputPlugin[] => {
 
     const plugins: Plugin[] = [];
 
-    plugins.push( zRollupPluginModuleResolve( requiredArgs ) );
+    plugins.push( await zRollupPluginModuleResolve( requiredArgs ) );
 
     const nodeResolvePlugin = nodeResolve( {
         extensions: extensions,
@@ -208,21 +209,17 @@ export const zRollupGetPlugins = ( args: IPluginArgs ): OutputPlugin[] => {
         modulePaths: [ zGlobalPathsGet().workspace + "/node_modules/" ],
     } );
 
-    nodeResolvePlugin.onLog = ( logLevel, message ) => {
-        ConsoleManager.$.log( `nodeResolvePlugin: ${ util.inspect( {
-            ... message,
-            projectPath: args.projectPath,
-        } ) }` );
-    };
-
     plugins.push( nodeResolvePlugin );
+
+    plugins.push( nodeCommonJsToEsm( {} ) );
 
     plugins.push( zRollupSwcPlugin( requiredArgs ) );
 
-    plugins.push( zRollupCustomLoaderPlugin( requiredArgs ) );
+    if ( args.enableCustomLoader ) {
+        plugins.push( zRollupCustomLoaderPlugin( requiredArgs ) );
+    }
 
-    if ( "cjs" === format ) {
-        // Depends on `transpiler` plugin
+    if ( args.enableCjsAsyncWrap ) {
         plugins.push( zRollupCjsAsyncWrapPlugin( requiredArgs ) );
     }
 
@@ -287,7 +284,7 @@ export const zRollupGetOutput = ( args: IOutputArgs, projectPath: string ): Outp
  * Function zRollupGetConfig(): This function generates a Rollup configuration object based on the provided arguments.
  * It assembles the input, output, and plugin configurations for Rollup.
  */
-export const zRollupGetConfig = ( args: TZConfigInternalArgs, projectPath: string ): RollupOptions => {
+export const zRollupGetConfig = async ( args: TZConfigInternalArgs, projectPath: string ): Promise<RollupOptions> => {
     const {
         extensions,
         external,
@@ -324,9 +321,11 @@ export const zRollupGetConfig = ( args: TZConfigInternalArgs, projectPath: strin
         sourcemap: !! result.output.sourcemap,
         minify: "development" !== process.env.NODE_ENV,
         projectPath: projectPath,
+        enableCustomLoader: !! args.enableCustomLoader,
+        enableCjsAsyncWrap: !! args.enableCjsAsyncWrap,
     };
 
-    result.plugins = zRollupGetPlugins( pluginsArgs );
+    result.plugins = await zRollupGetPlugins( pluginsArgs );
 
     return result;
 };

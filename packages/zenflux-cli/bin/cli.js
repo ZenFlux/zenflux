@@ -1,21 +1,33 @@
-#!/usr/bin/env -S node --unhandled-rejections=strict --experimental-vm-modules --trace-uncaught --no-warnings
+#!/usr/bin/env -S node --unhandled-rejections=strict --experimental-vm-modules --trace-uncaught --no-warnings --experimental-import-meta-resolve
 import path from "node:path";
+import fs from "node:fs";
 
 import { fileURLToPath } from "node:url";
 
 import { Loaders, Resolvers, vm } from "@zenflux/typescript-vm";
 
 import { workerData } from "node:worker_threads";
+import process from "node:process";
 
-const currentFile = fileURLToPath( import.meta.url );
-const currentDir = path.dirname( currentFile );
+const currentFilePath = fileURLToPath( import.meta.url ),
+    currentDirPath = path.dirname( currentFilePath ),
+    currentWorkspacePackageJsonPath = path.resolve( currentDirPath, "../../../package.json" );
+
+function isZenWorkspace() {
+    if ( fs.existsSync( currentWorkspacePackageJsonPath ) ) {
+        const packageJson = JSON.parse( fs.readFileSync( currentWorkspacePackageJsonPath, "utf-8" ) );
+
+        if ( packageJson.name === "@zenflux/zenflux" )
+            return true;
+    }
+}
 
 // For better error stack trace, since we are using vm.
 Error.stackTraceLimit = Infinity;
 
 global.__ZENFLUX_CLI__ = {
     paths: {
-        cli: currentFile,
+        cli: currentFilePath,
     }
 };
 
@@ -35,14 +47,16 @@ Object.defineProperty( vmContext, "console", {
     }
 } );
 
-vm.defineConfig( {
-    projectPath: path.resolve( currentDir, "../" ),
+/**
+ * @type {typeof import("@zenflux/typescript-vm/src/config.js").externalConfig}
+ */
+const config = {
+    projectPath: path.resolve( currentDirPath, "../" ),
 
-    workspacePath: path.resolve( currentDir, "../../../" ),
+    nodeModulesPath: process.env[ "npm_package_json" ] ?
+        path.dirname( process.env[ "npm_package_json" ] ) : path.resolve( currentDirPath, "../../../node_modules" ),
 
-    nodeModulesPath: path.resolve( currentDir, "../../../node_modules" ),
-
-    tsConfigPath: path.resolve( currentDir, "./tsconfig.json" ),
+    tsConfigPath: path.resolve( currentDirPath, "./tsconfig.json" ),
 
     vmContext,
 
@@ -51,7 +65,13 @@ vm.defineConfig( {
     useSwc: true,
 
     useTsNode: false,
-} );
+};
+
+if ( isZenWorkspace() ) {
+    config.workspacePath = path.dirname( currentWorkspacePackageJsonPath );
+}
+
+vm.defineConfig( config );
 
 vm.tap( async ( vm ) => {
     const resolvers = new Resolvers( vm ),

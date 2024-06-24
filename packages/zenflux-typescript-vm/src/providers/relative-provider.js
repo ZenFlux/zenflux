@@ -1,6 +1,6 @@
 import path from "node:path";
 
-import { isCommonPathFormat } from "../utils.js";
+import { zIsUnixOrFileProtocolPath } from "@zenflux/utils/src/path";
 
 import { ProviderBase } from "./base/provider-base.js";
 
@@ -35,7 +35,7 @@ export class RelativeProvider extends ProviderBase {
     async resolve( modulePath, referencingModule, middleware ) {
         middleware( { modulePath, referencingModule, provider: this } );
 
-        if ( ! isCommonPathFormat( modulePath ) ) {
+        if ( ! zIsUnixOrFileProtocolPath( modulePath ) ) {
             return;
         }
 

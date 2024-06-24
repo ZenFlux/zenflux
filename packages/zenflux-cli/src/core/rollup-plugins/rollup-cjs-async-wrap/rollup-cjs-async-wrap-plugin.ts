@@ -142,7 +142,7 @@ export default function zRollupCjsAsyncWrapPlugin( args: IPluginArgs ): Plugin {
             return null;
         },
 
-        renderChunk( code, chunk, options ) {
+        renderChunk( code ) {
             const magicString: MagicStringType = new MagicString( code );
 
             // Check if chunk contains wrapped async function

@@ -1,8 +1,8 @@
 {
-    "$schema": "https://json.schemastore.org/package",
+    "$schema": "https://raw.githubusercontent.com/SchemaStore/schemastore/master/src/schemas/json/package.json",
     "name": "@zenflux/typescript-vm",
     "description": "A simple VM for running Typescript code in a NodeJS environment, with favor of tsconfig.json",
-    "version": "0.0.9",
+    "version": "0.1.0",
     "type": "module",
     "files": [
         "src",
@@ -25,9 +25,6 @@
 
         "./tsconfig.import-meta.json": "./tsconfig.import-meta.json"
     },
-    "scripts": {
-        "@z-tsnode-vm--build-utils-dts": "tsc src/utils.js --declaration --allowJs --emitDeclarationOnly --outDir types"
-    },
     "publishConfig": {
         "access": "public"
     },
@@ -38,7 +35,8 @@
     },
     "dependencies": {
         "@zenflux/tsconfig-to-swc": "workspace:*",
-        "@swc/core": "^1.3.101",
+        "@zenflux/utils": "workspace:*",
+        "@swc/core": "latest",
         "ts-node": "^10.9.1",
         "tsconfig-paths": "^4.2.0",
         "source-map-support": "^0.5.21"

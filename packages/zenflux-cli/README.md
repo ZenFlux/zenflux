@@ -4,13 +4,11 @@
 
 The repository contains a CLI tool called `@z-cli` that offers functionalities related to building, publishing, and watching **monorepo** workspaces.
 
-It utilizes technologies like `Babel`, `Rollup`, `TypeScript`, and `Verdaccio`.
+It utilizes technologies like `Babel`, `Rollup`, `TypeScript`, `SWC` and `Verdaccio`.
 
 The tool is designed to simplify the development process by providing a command-line interface with various commands for managing and building projects. It includes modules for handling npm registry operations.
 
 The tool's value proposition lies in its ability to automate repetitive tasks and streamline project workflows, ultimately enhancing developer productivity.
-
----
 
 ## 🛠️ Installation
 Via package manager, `bun install @zenflux/cli`
@@ -34,12 +32,12 @@ These commands are designed to help you manage and build your projects efficient
 
 
 - **CLI Commands**: `@build` `@watch`
-<br /><br />
+  <br /><br />
 
 - **Default Behavior** ( without  arguments ): `@z-cli @build` `@z-cli @watch`
     - Current working directory is **workspace**: Builds all packages in the workspace
     - Current working directory is **package**: Build the current package
-<br /><br />
+      <br /><br />
 
 - **CLI Options**
     - **--config:**
@@ -48,39 +46,39 @@ These commands are designed to help you manage and build your projects efficient
             - `--config <config-file-name>`
             - `--config zenflux.test.config.ts`
               <br /><br />
-  - **--workspace:**
-      - Description: Run for a specific workspace
-      - Examples:
-          - `--workspace <company@package-name>`
-          - `--workspace <package-name>`
-          - `--workspace <package-name-a>, <package-name-b>`
-          - `--workspace "prefix-*", "react-*"`
-<br /><br />
+    - **--workspace:**
+        - Description: Run for a specific workspace
+        - Examples:
+            - `--workspace <company@package-name>`
+            - `--workspace <package-name>`
+            - `--workspace <package-name-a>, <package-name-b>`
+            - `--workspace "prefix-*", "react-*"`
+              <br /><br />
 
-  - **--dev:**
-      - Description: Run in development mode
-      - Behaviors:
-          - Shows all api-exporter diagnostics
-          - No minification
-          - Loads a different tsconfig file: `tsconfig.{format}.dev.json` or `tsconfig.dev.json`
-          - Sets `process.env.NODE_ENV` to `development`
-<br /><br />
-  - **--haltOnDiagnosticError:**
-    - Description: Halt on typescript diagnostic error
-    - Behaviors:
-        - Kill the process if typescript diagnostic error occurred
-    <br /><br />
-  - **--no-diagnostic:**
-      - Description: Disable typescript diagnostics
-      - Behaviors:
-          - No typescript diagnostics
-    <br /><br />
-   - **--no-declaration:**
-       - Description: Disable declaration file generation
-       - Behaviors:
-           - No declaration file generation
-           - No api-exporter will be used
-    <br /><br />
+    - **--dev:**
+        - Description: Run in development mode
+        - Behaviors:
+            - Shows all api-exporter diagnostics
+            - No minification
+            - Loads a different tsconfig file: `tsconfig.{format}.dev.json` or `tsconfig.dev.json`
+            - Sets `process.env.NODE_ENV` to `development`
+              <br /><br />
+    - **--haltOnDiagnosticError:**
+        - Description: Halt on typescript diagnostic error
+        - Behaviors:
+            - Kill the process if typescript diagnostic error occurred
+              <br /><br />
+    - **--no-diagnostic:**
+        - Description: Disable typescript diagnostics
+        - Behaviors:
+            - No typescript diagnostics
+              <br /><br />
+    - **--no-declaration:**
+        - Description: Disable declaration file generation
+        - Behaviors:
+            - No declaration file generation
+            - No api-exporter will be used
+              <br /><br />
 
 - **Configuration file (`zenflux.config.ts`)**;
     - `format`:
@@ -101,26 +99,30 @@ These commands are designed to help you manage and build your projects efficient
         - Object that will be used as globals, eg: `{ jquery: "jQuery" }`
     - `external` (**optional**):
         - Array of external packages, packages that should not be bundled, eg: `react-dom`
+    - `enableCustomLoader` (**optional**):
+      - Enables zCustomLoader, (moduleForwarding depended on this)
+    - `enableCjsAsyncWrap` (**optional**):
+      - Enables cjs top level async wrap
     - `moduleForwarding`
-      - This property is an object that maps module names to their respective paths. It is used to redirect module imports to different locations, which can be particularly useful in a monorepo setup.
-        <br />
+        - This property is an object that maps module names to their respective paths. It is used to redirect module imports to different locations, which can be particularly useful in a monorepo setup.
+          <br />
           The keys of the object represent the module names that you want to redirect. The values are another object that maps the source module path to the target module path.
 
-        For example:
-        ```ts
-        moduleForwarding: {
-            "@zenflux/react-reconciler": {
-                "@zenflux/react-scheduler": "@zenflux/react-scheduler/mock",
-            },
-            "@zenflux/react-noop-renderer": {
-                "@zenflux/react-scheduler": "@zenflux/react-scheduler/mock",
-            }
-        }
-        ```
-        In the above example, whenever the `@zenflux/react-reconciler` module imports `@zenflux/react-scheduler`, it will be redirected to `@zenflux/react-scheduler/mock`.
-        <br />The same goes for `@zenflux/react-noop-renderer`.
-        <br />This allows you to substitute certain modules with others, which can be especially useful for testing or development purposes.
-        <br /><br />
+          For example:
+          ```ts
+          moduleForwarding: {
+              "@zenflux/react-reconciler": {
+                  "@zenflux/react-scheduler": "@zenflux/react-scheduler/mock",
+              },
+              "@zenflux/react-noop-renderer": {
+                  "@zenflux/react-scheduler": "@zenflux/react-scheduler/mock",
+              }
+          }
+          ```
+          In the above example, whenever the `@zenflux/react-reconciler` module imports `@zenflux/react-scheduler`, it will be redirected to `@zenflux/react-scheduler/mock`.
+          <br />The same goes for `@zenflux/react-noop-renderer`.
+          <br />This allows you to substitute certain modules with others, which can be especially useful for testing or development purposes.
+          <br /><br />
 
 - **Single Configuration**
      ```ts
@@ -152,20 +154,20 @@ These commands are designed to help you manage and build your projects efficient
      ```
 <br />
 
-  - **Multi Configuration**
-<br /><br />
-    Each key in the configs object represents a package in your workspace.
-    The key should match the name of the package.
-    The `$defaults` key is optional and can be used to define default configurations that apply to all packages.
-    These defaults can be overridden by package-specific configurations.
-    Each package-specific configuration is an object that follows the `IZConfigInMulti` interface. This includes properties like:
-<br /><br />
-  - `inputPath`
-  - `outputFileName`
-  - `format`
-  - `extensions`
-    <br /><br />
-  - This format allows you to manage configurations for multiple packages in a centralized manner, making it easier to maintain and update configurations as your workspace grows.
+- **Multi Configuration**
+  <br /><br />
+  Each key in the configs object represents a package in your workspace.
+  The key should match the name of the package.
+  The `$defaults` key is optional and can be used to define default configurations that apply to all packages.
+  These defaults can be overridden by package-specific configurations.
+  Each package-specific configuration is an object that follows the `IZConfigInMulti` interface. This includes properties like:
+  <br /><br />
+- `inputPath`
+- `outputFileName`
+- `format`
+- `extensions`
+  <br /><br />
+- This format allows you to manage configurations for multiple packages in a centralized manner, making it easier to maintain and update configurations as your workspace grows.
     - Example
       ```ts
       import type { IZConfigs } from "@zenflux/cli";
@@ -194,39 +196,41 @@ These commands are designed to help you manage and build your projects efficient
 
 <br /><br />
 - **Typescript configuration** - `tsconfig.json`
-  - Fallback flow:
-    - `--dev`
-        - `tsconfig.{format}.dev.json`
-        - `tsconfig.dev.json`
-    - Regular
-        - `tsconfig.{format}.json`
-        - `tsconfig.json`
+    - Fallback flow:
+        - `--dev`
+            - `tsconfig.{format}.dev.json`
+            - `tsconfig.dev.json`
+        - Regular
+            - `tsconfig.{format}.json`
+            - `tsconfig.json`
 
-<br /><br />
-- **Flow**
+<details>
+<summary style="padding: 20px">Flow</summary>
 
-  - **Initialization**: The run method begins by retrieving the configurations using the `getConfigs` method and the configuration paths using the `getConfigsPaths` method.
-  - **Configuration Retrieval**: It loads the `zenflux.config.ts` for each package and creates a `TZBuildOptions` object. It assigns the index of the current configuration to the thread property of the `TZBuildOptions` object if the number of configurations is greater than `DEFAULT_MIN_SINGLE_BUILD_CONFIGS`.
-  - **Configuration Loop**: For each configuration path, it reads the TypeScript configuration using the `zTSConfigRead` method, performs pre-diagnostics using the `zTSPreDiagnostics` method, and loads the relevant `tsconfig.{format}.json`.
-  - **Package Build**: For each package format, it builds the package and fires the `onBuiltFormat` callback if provided in `zenflux.config.ts`.
-  - **Post-Build**: After building all configurations, for each configuration path, it begins the creation of declaration files and creates them using the `zTSCreateDeclaration` method.
-  - **Declaration File Consolidation**: It then merges all the declaration files into a single declaration file per package using the `zApiExporter` method, if `inputDtsPath` and `outputDtsPath` are provided in `zenflux.config.ts`.
-  - **Api-Extractor**: The `zApiExporter` method bundles multiple declaration files into a single declaration file. This operation eases usage for the package consumers. If operating in development mode, it also generates a diagnostics log for each package with paths like: `${ projectPath }/log/api-extractor-diagnostics.${ buildOutputFileName }.log`
-  <br /><br />
-  - **@watch**
-    - **Initialization**: The `@watch` command starts by retrieving the configurations for each package in your workspace. These configurations are defined in the `zenflux.config.ts` file of each package.
-    - **Watcher Creation**: It sets up a file watcher using the `chokidar.watch` method. This watcher monitors the files in your workspace for any changes.
-    - **Configuration Loop**: For each package configuration, it creates a separate build process. This means that each package in your workspace has its own independent build process that runs whenever a file in that package changes.
-    - **Rollup Configuration**: For each package, it creates a Rollup configuration. This configuration defines how the package should be bundled.
-    - **Watcher Setup**: It sets up a watcher for each package. When the watcher detects a change in a package, it triggers the build process for that package. To avoid triggering multiple builds for rapid successive changes, the build process is debounced using the `debounce` function.
-    - **Change Detection**: Whenever a file in a package changes, the watcher triggers the build process for that package. The build process is triggered after a delay to ensure that multiple rapid changes do not trigger multiple builds.
-    - **Post-Build**: After each build process, it performs TypeScript pre-diagnostics for all configurations. This helps to catch and report any TypeScript errors that might have been introduced during the changes.
-    - **Watch Method**: The `watch` method is used to set up a watcher for a specific package. It triggers a build process whenever a change is detected in the package. The build process is debounced to avoid triggering multiple builds for rapid successive changes.
-    - **Debounce Function**: The `debounce` function ensures that the build process is not triggered more than once within a specified delay.
-      <br />&nbsp;&nbsp;&nbsp;This is useful to avoid triggering multiple builds for rapid successive changes.
-      <br />&nbsp;&nbsp;&nbsp;The debounce function works by delaying the execution of the build process until a certain amount of time has passed without any new changes being detected. This ensures that if multiple changes are made in quick succession, the build process will only be triggered once, after the last change.
-        <br /><br />
+- **Initialization**: The run method begins by retrieving the configurations using the `getConfigs` method and the configuration paths using the `getConfigsPaths` method.
+    - **Configuration Retrieval**: It loads the `zenflux.config.ts` for each package and creates a `TZBuildOptions` object. It assigns the index of the current configuration to the thread property of the `TZBuildOptions` object if the number of configurations is greater than `DEFAULT_MIN_SINGLE_BUILD_CONFIGS`.
+    - **Configuration Loop**: For each configuration path, it reads the TypeScript configuration using the `zTSConfigRead` method, performs pre-diagnostics using the `zTSPreDiagnostics` method, and loads the relevant `tsconfig.{format}.json`.
+    - **Package Build**: For each package format, it builds the package and fires the `onBuiltFormat` callback if provided in `zenflux.config.ts`.
+    - **Post-Build**: After building all configurations, for each configuration path, it begins the creation of declaration files and creates them using the `zTSCreateDeclaration` method.
+    - **Declaration File Consolidation**: It then merges all the declaration files into a single declaration file per package using the `zApiExporter` method, if `inputDtsPath` and `outputDtsPath` are provided in `zenflux.config.ts`.
+    - **Api-Extractor**: The `zApiExporter` method bundles multiple declaration files into a single declaration file. This operation eases usage for the package consumers. If operating in development mode, it also generates a diagnostics log for each package with paths like: `${ projectPath }/log/api-extractor-diagnostics.${ buildOutputFileName }.log`
+      <br /><br />
+    - **@watch**
+        - **Initialization**: The `@watch` command starts by retrieving the configurations for each package in your workspace. These configurations are defined in the `zenflux.config.ts` file of each package.
+        - **Watcher Creation**: It sets up a file watcher using the `chokidar.watch` method. This watcher monitors the files in your workspace for any changes.
+        - **Configuration Loop**: For each package configuration, it creates a separate build process. This means that each package in your workspace has its own independent build process that runs whenever a file in that package changes.
+        - **Rollup Configuration**: For each package, it creates a Rollup configuration. This configuration defines how the package should be bundled.
+        - **Watcher Setup**: It sets up a watcher for each package. When the watcher detects a change in a package, it triggers the build process for that package. To avoid triggering multiple builds for rapid successive changes, the build process is debounced using the `debounce` function.
+        - **Change Detection**: Whenever a file in a package changes, the watcher triggers the build process for that package. The build process is triggered after a delay to ensure that multiple rapid changes do not trigger multiple builds.
+        - **Post-Build**: After each build process, it performs TypeScript pre-diagnostics for all configurations. This helps to catch and report any TypeScript errors that might have been introduced during the changes.
+        - **Watch Method**: The `watch` method is used to set up a watcher for a specific package. It triggers a build process whenever a change is detected in the package. The build process is debounced to avoid triggering multiple builds for rapid successive changes.
+        - **Debounce Function**: The `debounce` function ensures that the build process is not triggered more than once within a specified delay.
+          <br />&nbsp;&nbsp;&nbsp;This is useful to avoid triggering multiple builds for rapid successive changes.
+          <br />&nbsp;&nbsp;&nbsp;The debounce function works by delaying the execution of the build process until a certain amount of time has passed without any new changes being detected. This ensures that if multiple changes are made in quick succession, the build process will only be triggered once, after the last change.
+          <br /><br />
+</details>
 
+---
 
 ### Publishing Packages
 
@@ -242,7 +246,10 @@ The tool supports publishing npm packages to a registry. It includes features fo
     - Replacing **workspace** dependencies with corresponding **local** dependencies
     - Showing the user the packages/files that will be published
     - Asking the user for confirmation, and publishing the packages
-<br /><br />
+      <br /><br />
+
+---
+
 ### Registry Operations
 
 The tool handles interactions with npm registries, creating a local npm registry for testing and development purposes
@@ -251,28 +258,31 @@ The tool handles interactions with npm registries, creating a local npm registry
   <br /><br />
 
 - **Sub Commands**:
-  - **@server:**
-      - Description: Starts a local npm registry server.
-      - Usage: `@z-cli @registry @server`
-        <br /><br />
-  - **@use:**
-      - Description: Use npm with custom configuration, which will be forwarded to the local npm server.
-      - Arguments:
-          - `id`: Id of the npm registry server, can be obtained using: `@registry @list` command
-          - `command`: A npm command to execute against the registry
-      - Examples:
-          - `@z-cli @registry @use npm <id> <command>`
-          - `@z-cli @registry @use npm 4a1a whoami`
-          - `@z-cli @registry @use npm 4a1a install`
-  - **@list:**
-      - Description: List all online npm registry servers.
-      - Usage: `@z-cli @registry @list`
-  - **@clean:**
-      - Description: Delete current npm registry server and '.npmrc' token.
-      - Usage: `@z-cli @registry @clean`
-        <br /><br />
+    - **@server:**
+        - Description: Starts a local npm registry server.
+        - Usage: `@z-cli @registry @server`
+          <br /><br />
+    - **@use:**
+        - Description: Use npm with custom configuration, which will be forwarded to the local npm server.
+        - Arguments:
+            - `id`: Id of the npm registry server, can be obtained using: `@registry @list` command
+            - `command`: A npm command to execute against the registry
+        - Examples:
+            - `@z-cli @registry @use npm <id> <command>`
+            - `@z-cli @registry @use npm 4a1a whoami`
+            - `@z-cli @registry @use npm 4a1a install`
+    - **@list:**
+        - Description: List all online npm registry servers.
+        - Usage: `@z-cli @registry @list`
+    - **@clean:**
+        - Description: Delete current npm registry server and '.npmrc' token.
+        - Usage: `@z-cli @registry @clean`
+          <br /><br />
 
 <br /><br />
+
+---
+
 ### Global arguments
 - **--zvm-verbose:** Log [tsnode-vm](https://github.com/ZenFlux/zenflux/tree/main/packages/zenflux-tsnode-vm) verbose, shows modules resolution
 

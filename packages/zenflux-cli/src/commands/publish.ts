@@ -7,6 +7,8 @@ import fs from "fs";
 import path from "path";
 import process from "process";
 
+import { ConsoleMenu } from "@zenflux/cli/src/modules/console";
+
 import { zRegistryGetAllOnlineNpmRcs } from "@zenflux/cli/src/core/registry";
 
 import { ConsoleManager } from "@zenflux/cli/src/managers/console-manager";
@@ -21,8 +23,6 @@ import { ConsoleMenuCheckbox } from "@zenflux/cli/src/modules/console/console-me
 
 import { DEFAULT_NPM_RC_PATH, DEFAULT_NPM_REMOTE_REGISTRY_URL } from "@zenflux/cli/src/modules/npm/definitions";
 
-import { ConsoleMenu } from "@zenflux/cli/src/modules/console";
-
 import type { TNewPackageOptions, TPackages } from "@zenflux/cli/src/modules/npm/package";
 
 const localPublishRequirements = [ "publishConfig", "version" ];
@@ -33,9 +33,9 @@ export default class Publish extends CommandBase {
         npmRcPath: DEFAULT_NPM_RC_PATH,
     };
 
-    public async run(): Promise<void> {
+    public async runImpl(): Promise<void> {
         const workspacePackage = new Package( this.paths.workspace ),
-            packages = zWorkspaceGetPackages( workspacePackage, this.newPackageOptions );
+            packages = await zWorkspaceGetPackages( workspacePackage, this.newPackageOptions );
 
         if ( ! Object.keys( packages ).length ) {
             ConsoleManager.$.log( "No workspaces found" );
