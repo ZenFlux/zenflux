@@ -1,3 +1,5 @@
+// noinspection HttpUrlsUsage
+
 /**
  * @author: Leonid Vinikov <leonidvinikov@gmail.com>
  */
@@ -30,7 +32,7 @@ import { zNetCheckPortOnline, zNetFindFreePort } from "@zenflux/cli/src/utils/ne
 
 export default class Registry extends CommandBase {
 
-    public async run() {
+    public async runImpl() {
         const args = this.args,
             paths = this.paths;
 
@@ -115,7 +117,7 @@ export default class Registry extends CommandBase {
 
                 // Get registry host
                 const hostId = args[ 1 ],
-                    npmRc = zRegistryGetAllNpmRcs().find( ( host => host.id === hostId ) );
+                    npmRc = ( await zRegistryGetAllNpmRcs()).find( ( host => host.id === hostId ) );
 
                 if ( ! npmRc ) {
                     ConsoleManager.$.error( `No registry host found with id '${ hostId }'` );
@@ -272,7 +274,7 @@ export default class Registry extends CommandBase {
         }
     }
 
-    protected showHelp( name = this.options.name, optionsText = "commands" ): void {
+    public showHelp( name = this.options.name, optionsText = "commands" ): void {
         super.showHelp( name, optionsText );
 
         ConsoleManager.$.log( util.inspect( {

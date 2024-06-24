@@ -1,7 +1,9 @@
+// noinspection HttpUrlsUsage
+
 import fs from "node:fs";
 import crypto from "node:crypto";
 
-import { getMatchingPathsRecursive } from "@zenflux/typescript-vm/utils";
+import { zGetMatchingPathsRecursive } from "@zenflux/utils/src/path";
 
 import { zNetCheckPortOnline } from "@zenflux/cli/src/utils/net";
 
@@ -36,10 +38,10 @@ export function zRegistryGetNpmRc( path: string ) {
     };
 }
 
-export function zRegistryGetAllNpmRcs() {
+export async function zRegistryGetAllNpmRcs() {
     const paths = zGlobalPathsGet();
 
-    const npmrcPaths = getMatchingPathsRecursive(
+    const npmrcPaths = await zGetMatchingPathsRecursive(
         paths.etc,
         new RegExp( ".*/*/.npmrc" ),
         3
@@ -55,7 +57,7 @@ export function zRegistryGetAllNpmRcs() {
 
 export async function zRegistryGetAllOnlineNpmRcs() {
     const results: NonNullable<ReturnType<typeof zRegistryGetNpmRc>>[] = [],
-        hosts = zRegistryGetAllNpmRcs();
+        hosts = await zRegistryGetAllNpmRcs();
 
     if ( ! hosts ) {
         return results;
