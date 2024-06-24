@@ -1,11 +1,25 @@
-#!/usr/bin/env -S node --unhandled-rejections=strict --experimental-vm-modules --trace-uncaught --no-warnings --trace-exit
+#!/usr/bin/env -S node --unhandled-rejections=strict --experimental-vm-modules --trace-uncaught --no-warnings --experimental-import-meta-resolve
 import path from "node:path";
 
 import { fileURLToPath } from "node:url";
 
 import { Loaders, Resolvers, vm } from "@zenflux/typescript-vm";
+import fs from "node:fs";
 
-const currentDir = path.dirname( fileURLToPath( import.meta.url ) );
+const currentFilePath = fileURLToPath( import.meta.url ),
+    currentDirPath = path.dirname( currentFilePath ),
+    isInNodeModules = currentDirPath.includes( "node_modules" ),
+    currentWorkspacePackageJsonPath =
+        path.resolve( currentDirPath, "../../", ( isInNodeModules ? "../../package.json" : "../package.json" ) );
+
+function isZenWorkspace() {
+    if ( fs.existsSync( currentWorkspacePackageJsonPath ) ) {
+        const packageJson = JSON.parse( fs.readFileSync( currentWorkspacePackageJsonPath, "utf-8" ) );
+
+        if ( packageJson.name === "@zenflux/zenflux" )
+            return true;
+    }
+}
 
 // For better error stack trace, since we are using vm.
 Error.stackTraceLimit = Infinity;
@@ -16,14 +30,17 @@ const vmContext = {
     setTimeout,
 };
 
-vm.defineConfig( {
-    projectPath: path.resolve( currentDir, "../" ),
+/**
+ * @type {typeof import("@zenflux/typescript-vm/src/config.js").externalConfig}
+ */
+const config = {
+    projectPath: path.resolve( currentDirPath, "../" ),
 
-    nodeModulesPath: path.resolve( currentDir, "../../../node_modules" ),
+    nodeModulesPath: process.env[ "npm_package_json" ] ?
+        path.dirname( process.env[ "npm_package_json" ] ) : path.resolve(
+            path.dirname( currentWorkspacePackageJsonPath ), "node_modules" ),
 
-    workspacePath: path.resolve( currentDir, "../../../" ),
-
-    tsConfigPath: path.resolve( currentDir, "../tsconfig.json" ),
+    tsConfigPath: path.resolve( currentDirPath, "../tsconfig.json" ),
 
     vmContext,
 
@@ -32,7 +49,14 @@ vm.defineConfig( {
     useSwc: true,
 
     useTsNode: false,
-} );
+};
+
+
+if ( isZenWorkspace() ) {
+    config.workspacePath = path.dirname( currentWorkspacePackageJsonPath );
+}
+
+vm.defineConfig( config );
 
 vm.tap( async ( vm ) => {
     const resolvers = new Resolvers( vm ),
