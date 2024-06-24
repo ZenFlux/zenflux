@@ -64,6 +64,10 @@ export class Worker {
 
         this.worker.on( "exit", () => {
             globalThis.zWorkersCount--;
+
+            if ( this.state !== "killed" ) {
+                this.state = "terminated";
+            }
         } );
 
         this.worker.on( "message", ( [ type, ... args ]: any [] ) => {
