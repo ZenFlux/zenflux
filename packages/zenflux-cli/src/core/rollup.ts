@@ -219,7 +219,7 @@ export const zRollupGetPlugins = async ( args: IPluginArgs ): Promise<OutputPlug
         plugins.push( zRollupCustomLoaderPlugin( requiredArgs ) );
     }
 
-    if ( "cjs" === format && args.enableCjsAsyncWrap ) {
+    if ( args.enableCjsAsyncWrap ) {
         plugins.push( zRollupCjsAsyncWrapPlugin( requiredArgs ) );
     }
 

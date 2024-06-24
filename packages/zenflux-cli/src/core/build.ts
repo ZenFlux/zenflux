@@ -3,39 +3,44 @@
  *
  * @TODO: Avoid using useless imports from thread, use dynamic imports instead.
  */
-import util from "node:util";
 import path from "node:path";
+
 import process from "node:process";
 
-import { rollup } from "rollup";
+import util from "node:util";
 
 import { zCreateResolvablePromise } from "@zenflux/utils/src/promise";
 
-import { zTSGetPackageByConfig } from "@zenflux/cli/src/utils/typescript";
+import { rollup } from "rollup";
+
+import { ConsoleThreadReceive } from "@zenflux/cli/src/console/console-thread-receive";
+
+import { ConsoleThreadSend } from "@zenflux/cli/src/console/console-thread-send";
 
 import { zRollupGetPlugins } from "@zenflux/cli/src/core/rollup";
 
 import { zRollupSwcCompareCaches } from "@zenflux/cli/src/core/rollup-plugins/rollup-swc/rollup-swc-plugin";
 
-import { ensureInWorker } from "@zenflux/cli/src/modules/threading/utils";
-
 import { ConsoleManager } from "@zenflux/cli/src/managers/console-manager";
 
-import { ConsoleThreadSend } from "@zenflux/cli/src/console/console-thread-send";
-import { ConsoleThreadReceive } from "@zenflux/cli/src/console/console-thread-receive";
+import { ensureInWorker } from "@zenflux/cli/src/modules/threading/utils";
 
-import type { ThreadHost } from "@zenflux/cli/src/modules/threading/definitions";
+import { zTSGetPackageByConfig } from "@zenflux/cli/src/utils/typescript";
 
-import type { InternalModuleFormat, OutputOptions, RollupBuild, RollupOptions } from "rollup";
+import type { ConsoleThreadFormat } from "@zenflux/cli/src/console/console-thread-format";
 
-import type { Worker } from "@zenflux/cli/src/modules/threading/worker";
-
-import type { TZFormatType } from "@zenflux/cli/src/definitions/zenflux";
 import type { TZBuildOptions, TZBuildWorkerOptions } from "@zenflux/cli/src/definitions/build";
 import type { IZConfigInternal } from "@zenflux/cli/src/definitions/config";
 
+import type { TZFormatType } from "@zenflux/cli/src/definitions/zenflux";
+
 import type { Package } from "@zenflux/cli/src/modules/npm/package";
-import type { ConsoleThreadFormat } from "@zenflux/cli/src/console/console-thread-format";
+
+import type { ThreadHost } from "@zenflux/cli/src/modules/threading/definitions";
+
+import type { Worker } from "@zenflux/cli/src/modules/threading/worker";
+
+import type { InternalModuleFormat, OutputOptions, RollupBuild, RollupOptions } from "rollup";
 
 const threads = new Map<number, Worker>(),
     builders = new Map<string, RollupBuild>();
@@ -96,12 +101,12 @@ async function rollupBuildInternal( config: RollupOptions, options: TZBuildOptio
         file = output.file ?? output.entryFileNames;
 
     options.silent ||
-        ConsoleManager.$.log( `Writing - Start ${ util.inspect( output.format ) } bundle to ${ util.inspect( file ) }` );
+    ConsoleManager.$.log( `Writing - Start ${ util.inspect( output.format ) } bundle to ${ util.inspect( file ) }` );
 
     await builders.get( builderKey )!.write( output );
 
     options.silent ||
-        ConsoleManager.$.log( `Writing - Done ${ util.inspect( output.format ) } bundle of ${ util.inspect( file ) } in ${ util.inspect( Date.now() - startTime ) + "ms" }` );
+    ConsoleManager.$.log( `Writing - Done ${ util.inspect( output.format ) } bundle of ${ util.inspect( file ) } in ${ util.inspect( Date.now() - startTime ) + "ms" }` );
 
     options.config.onBuiltFormat?.( output.format as TZFormatType );
 }
@@ -123,13 +128,15 @@ export async function zRollupBuildInWorker(
 
         const convertFormatToInternalFormat = ( format: typeof output.format ): InternalModuleFormat => {
             switch ( format ) {
+                case "cjs":
                 case "commonjs":
                     return "cjs";
 
+                case "system":
                 case "systemjs":
                     return "system";
 
-
+                case "es":
                 case "esm":
                 case "module":
                 default:
@@ -186,7 +193,7 @@ export async function zRollupBuildInWorker(
     } ) );
 }
 
-export async function zRollupCreateBuildWorker( rollupOptions: RollupOptions[], options: TZBuildWorkerOptions, activeConsole: ConsoleThreadFormat  ) {
+export async function zRollupCreateBuildWorker( rollupOptions: RollupOptions[], options: TZBuildWorkerOptions, activeConsole: ConsoleThreadFormat ) {
     // Plugins cannot be transferred to worker threads, since they are "live" objects/function etc...
     rollupOptions.forEach( ( o ) => {
         delete o.plugins;
@@ -235,7 +242,7 @@ export async function zRollupCreateBuildWorker( rollupOptions: RollupOptions[], 
             delete error.watchFiles;
         }
 
-        activeConsole.error( "build", "in RO-" + options.threadId , "", util.inspect( { $: error } ) );
+        activeConsole.error( "build", "in RO-" + options.threadId, "", util.inspect( { $: error } ) );
     } );
 
     zBuildThreadHandleResume( buildPromise, config );
