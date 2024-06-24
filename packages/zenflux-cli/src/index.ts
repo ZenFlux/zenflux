@@ -6,8 +6,6 @@ import process from "node:process";
 
 import { ConsoleManager } from "@zenflux/cli/src/managers/console-manager";
 
-import { CommandConfigBase } from "@zenflux/cli/src/base/command-config-base";
-
 export default async function boot( args = process.argv.slice( 2 ) ) {
     const commands = {
         "@watch": {
@@ -47,10 +45,6 @@ export default async function boot( args = process.argv.slice( 2 ) ) {
     const command = new ( await runner.module() )( args.slice( 1 ), {
         name: `@z-cli ${ args[ 0 ] }`,
     } );
-
-    if ( command instanceof CommandConfigBase ) {
-        await command.loadConfigs();
-    }
 
     await command.run();
 }
