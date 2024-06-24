@@ -20,6 +20,8 @@ const config: IZConfig = {
         "@zenflux/react-scheduler",
         "@zenflux/react-scheduler/mock",
     ],
+
+    enableCustomLoader: true,
 };
 
 export default config;

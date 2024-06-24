@@ -1,4 +1,3 @@
-
 import fs from "node:fs";
 import inspector from "node:inspector";
 import util from "node:util";
@@ -92,13 +91,7 @@ async function getProjectsConfig(): Promise<{
                 }
             }
 
-            const jestConfigExist = fs.existsSync( pkg.getPath() + "/jest.config.ts" );
-
-            if ( ! jestConfigExist ) {
-                throw new Error( `${ util.inspect( "jest.config.ts" ) } not found in ` + util.inspect( pkg.getPath() ) );
-            }
-
-            return true;
+            return fs.existsSync( pkg.getPath() + "/jest.config.ts" );
         } )
         .map( async ( pkg ) => {
             const configPath = pkg.getPath() + "/jest.config.ts";
@@ -113,7 +106,7 @@ async function getProjectsConfig(): Promise<{
 }
 
 // Initial config
-const rootConfig: Partial<Config.Argv> = {
+const rootConfig: Config.InitialOptions = {
     testRegex: "(/test/.*\\.test\\.(js|cjs))$",
 
     verbose: true,
@@ -121,12 +114,11 @@ const rootConfig: Partial<Config.Argv> = {
     // Detect debug mode...
     cache: ! inspector.url(),
     testTimeout: inspector.url() ? 30000 : 5000,
+
+    rootDir: rootPkg.getPath(),
 };
 
-const eachProjectConfig: Partial<Config.ProjectConfig> = {};
-
 const initialArgv: Config.Argv = {
-    ... rootConfig,
     $0: process.argv[ 1 ],
     _: [],
 };
@@ -180,11 +172,6 @@ const normalizers = projects.map( async ( project, index ) => {
 
     project.config.rootDir = project.pkg.getPath();
 
-    project.config = {
-        ... eachProjectConfig,
-        ... project.config,
-    } as any;
-
     // Since jest does not give simple flexibility without adding custom code,
     ConsoleManager.$.warn = ( ... args ) => {
         args.push( "\n" + "cause: file://" + configPath + "\n" );
@@ -192,11 +179,10 @@ const normalizers = projects.map( async ( project, index ) => {
     };
 
     const promise = normalize(
-        project.config as Config.InitialOptions,
+        rootConfig,
         initialArgv,
         configPath, // Jest not favoring this path
         index,
-        true
     );
 
     promise.catch( ( error ) => {
@@ -227,6 +213,10 @@ let jestProjects = projects.map( ( p => {
 
         if ( ! p.config.displayName ) {
             p.config.displayName = p.pkg.getDisplayName();
+        }
+
+        if ( ! p.config.testRegex && p.normalized.testRegex ) {
+            p.config.testRegex = p.normalized.testRegex;
         }
 
         return p.config;

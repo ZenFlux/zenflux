@@ -2,7 +2,7 @@
     "$schema": "https://raw.githubusercontent.com/SchemaStore/schemastore/master/src/schemas/json/package.json",
     "name": "@zenflux/jest",
     "type": "module",
-    "version": "0.1.0",
+    "version": "0.1.7",
     "publishConfig": {
         "access": "public"
     },
