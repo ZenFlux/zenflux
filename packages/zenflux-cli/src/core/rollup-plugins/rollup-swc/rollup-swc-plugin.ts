@@ -5,6 +5,8 @@ import swc from "@swc/core";
 
 import { convertTsConfig } from "@zenflux/tsconfig-to-swc";
 
+import { ConsoleManager } from "@zenflux/cli/src/managers/console-manager";
+
 import type { Plugin, RollupCache } from "rollup";
 
 import type { IPluginArgs } from "@zenflux/cli/src/definitions/rollup";
@@ -19,14 +21,12 @@ export default function zRollupSwcPlugin( args: Required<IPluginArgs> ): Plugin 
         throw new Error( "Unable to convert tsconfig to swc options" );
     }
 
-    if ( ( args.format === "esm" || args.format === "module" ) && ! [ "nodenext", "es6" ].includes( swcOptions.module.type ) ) {
+    if ( ( args.format === "es" && ! [ "nodenext", "es6" ].includes( swcOptions.module.type ) ) ) {
         // Tell the user that bundling esm is limited to 'NodeNext' or 'ES6'
         throw new Error( "Bundling esm is limited to 'NodeNext' or 'ES6'\n" +
             "Please ensure that `\"module\": \"NodeNext\"` or any ES(eg: `\"module\": \"ESNext\"` type is set in your `tsconfig.json`\n" +
             "Caused by file://" + args.tsConfig.options.configFilePath );
-    }
-
-    if ( args.format === "cjs" && swcOptions.module.type !== "nodenext" ) {
+    } else if ( args.format === "cjs" && swcOptions.module.type !== "nodenext" ) {
         throw new Error( "Rollup does not bundle `require` calls, currently bundling commonjs is limited to 'NodeNext'\n" +
             "Please ensure that `\"module\": \"NodeNext\"` is set in your `tsconfig.json`\n" +
             "Caused by file://" + args.tsConfig.options.configFilePath );
@@ -45,7 +45,11 @@ export default function zRollupSwcPlugin( args: Required<IPluginArgs> ): Plugin 
         name: "z-rollup-swc-plugin",
 
         transform( source, id ) {
-            const lastModified = fs.statSync( id ).mtimeMs;
+            ConsoleManager.$.debug( () => [ "Transforming", id ] );
+
+            // If id has \x00, then its virtual module, and cannot be interacted with fs.
+            const lastModified = id.startsWith( "\x00" ) ? Math.random() :
+                fs.statSync( id ).mtimeMs;
 
             const cached = cache.get( id );
 
