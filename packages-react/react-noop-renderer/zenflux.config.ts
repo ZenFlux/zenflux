@@ -22,7 +22,10 @@ const config: IZConfigs = {
             "@zenflux/react-noop-renderer": {
                 "@zenflux/react-scheduler": "@zenflux/react-scheduler/mock",
             }
-        }
+        },
+
+        enableCustomLoader: true,
+        enableCjsAsyncWrap: true,
     },
 
     "@zenflux/react-noop-renderer": {
