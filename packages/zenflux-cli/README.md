@@ -99,6 +99,10 @@ These commands are designed to help you manage and build your projects efficient
         - Object that will be used as globals, eg: `{ jquery: "jQuery" }`
     - `external` (**optional**):
         - Array of external packages, packages that should not be bundled, eg: `react-dom`
+    - `enableCustomLoader` (**optional**):
+      - Enables zCustomLoader, (moduleForwarding depended on this)
+    - `enableCjsAsyncWrap` (**optional**):
+      - Enables cjs top level async wrap
     - `moduleForwarding`
         - This property is an object that maps module names to their respective paths. It is used to redirect module imports to different locations, which can be particularly useful in a monorepo setup.
           <br />
