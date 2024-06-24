@@ -1,12 +1,12 @@
 /**
  * @author: Leonid Vinikov <leonidvinikov@gmail.com>
  */
-import process from "node:process";
 import path from "node:path";
-import fs from "node:fs";
+
 import util from "node:util";
 
-import { getMatchingPathsRecursive } from "@zenflux/typescript-vm/utils";
+import { zGetMatchingPathsRecursive } from "@zenflux/utils/src/path";
+import { zFindRootPackageJsonPath } from "@zenflux/utils/src/workspace";
 
 import { ConsoleManager } from "@zenflux/cli/src/managers/console-manager";
 
@@ -18,50 +18,6 @@ export type TWorkspace = {
     workspace: string;
     packages: string[]
 };
-
-const zWorkspaceFindRootPackageJsonCache: {
-    [ packagePath: string ]: string
-} = {};
-
-export function zWorkspaceFindRootPackageJsonPath( options: {
-    silent?: boolean
-    useCache?: boolean
-} = {} ) {
-    const { silent = false, useCache = true } = options;
-
-    let currentPath = process.env[ "npm_package_json" ] ?
-        path.dirname( process.env[ "npm_package_json" ] ) : process.cwd();
-
-    if ( useCache && zWorkspaceFindRootPackageJsonCache[ currentPath ] ) {
-        return zWorkspaceFindRootPackageJsonCache[ currentPath ];
-    }
-
-    do {
-        const packageJsonPath = path.join( currentPath, "package.json" );
-
-        // Check if package.json exists & has workspaces key
-        if ( fs.existsSync( packageJsonPath ) ) {
-            const packageJson = JSON.parse( fs.readFileSync( packageJsonPath, "utf8" ) );
-
-            if ( packageJson.workspaces ) {
-
-                if ( useCache ) {
-                    zWorkspaceFindRootPackageJsonCache[ currentPath ] = packageJsonPath;
-                }
-
-                return packageJsonPath;
-            }
-        }
-
-        currentPath = path.resolve( currentPath, ".." );
-    } while ( currentPath !== "/" );
-
-    if ( ! silent ) {
-        throw new Error( "Workspace root package.json not found" );
-    }
-
-    return "";
-}
 
 export function zWorkspaceExtractPackages( regex: string, rootPkg: Package, packages: TPackages ) {
     const result: TPackages = {};
@@ -99,9 +55,9 @@ const zWorkspaceFindPackagesCache: {
     }
 } = {};
 
-export function zWorkspaceFindPackages(
+export async function zWorkspaceFindPackages(
     names: string[],
-    workspacePath = path.dirname( zWorkspaceFindRootPackageJsonPath( { silent: true } ) ),
+    workspacePath = path.dirname( zFindRootPackageJsonPath( { silent: true } ) ),
     options: {
         silent?: boolean
         useCache?: boolean
@@ -133,7 +89,7 @@ export function zWorkspaceFindPackages(
     names = names.filter( ( name ) => ! result[ name ] );
 
     const rootPkg = new Package( workspacePath ),
-        packages = zWorkspaceGetPackages( rootPkg );
+        packages = await zWorkspaceGetPackages( rootPkg );
 
     names.forEach( ( name ) => {
         const currentPackages = zWorkspaceExtractPackages( name, rootPkg, packages );
@@ -160,18 +116,23 @@ const zWorkspaceGetPackagesCache: {
     [ packagePath: string ]: TPackages
 } = {};
 
-export function zWorkspaceGetPackages( rootPkg: Package | "auto", newPackageOptions?: TNewPackageOptions, options = { useCache: true } ): TPackages {
+export async function zWorkspaceGetPackages(
+    rootPkg: Package | "auto",
+    newPackageOptions?: TNewPackageOptions,
+    options = { useCache: true }
+): Promise<TPackages> {
     if ( rootPkg === "auto" ) {
-        rootPkg = new Package( path.dirname( zWorkspaceFindRootPackageJsonPath() ) );
+        rootPkg = new Package( path.dirname( zFindRootPackageJsonPath() ) );
     }
 
     if ( options.useCache && zWorkspaceGetPackagesCache[ rootPkg.getPath() ] ) {
         return zWorkspaceGetPackagesCache[ rootPkg.getPath() ];
     }
 
-    const packages: TPackages = {};
+    const packages: TPackages = {},
+        workspacePaths = await zWorkspaceGetPackagesPaths( rootPkg );
 
-    zWorkspaceGetPackagesPaths( rootPkg ).forEach( ( workspace: TWorkspace ) => {
+    workspacePaths.forEach( ( workspace: TWorkspace ) => {
         workspace.packages.forEach( ( packagePath: string ) => {
             const pkg = new Package( packagePath, newPackageOptions );
 
@@ -187,7 +148,7 @@ const zWorkspaceGetPackagesPathsCache: {
     [ packagePath: string ]: TWorkspace[]
 } = {};
 
-export function zWorkspaceGetPackagesPaths( rootPkg: Package, options = { useCache: true } ): TWorkspace[] {
+export async function zWorkspaceGetPackagesPaths( rootPkg: Package, options = { useCache: true } ): Promise<TWorkspace[]> {
     // Check if package contains `workspaces` property
     if ( ! rootPkg.json.workspaces?.length ) {
         return [];
@@ -197,14 +158,14 @@ export function zWorkspaceGetPackagesPaths( rootPkg: Package, options = { useCac
         return zWorkspaceGetPackagesPathsCache[ rootPkg.getPath() ];
     }
 
-    const result = ( rootPkg.json.workspaces ).map( ( workspace: string ) => {
-        const workspacesPackageJsons = getMatchingPathsRecursive(
+    const promises = ( rootPkg.json.workspaces ).map( async ( workspace: string ) => {
+        const workspacesPackageJsons = await zGetMatchingPathsRecursive(
             rootPkg.getPath(),
             new RegExp( workspace.replace( "*", ".*" ) + "/package.json" ),
             3, {
                 ignoreStartsWith: [ ".", "#" ]
             }
-    );
+        );
 
         const packages = workspacesPackageJsons.map( ( packageJsonPath ) => path.dirname( packageJsonPath ) );
 
@@ -214,17 +175,19 @@ export function zWorkspaceGetPackagesPaths( rootPkg: Package, options = { useCac
         };
     } );
 
+    const result = await Promise.all( promises );
+
     ConsoleManager.$.debug(
         () => [
             "workspace",
             zWorkspaceGetPackagesPaths.name,
             `workspaces from package: ${ util.inspect( rootPkg.getPath() ) }`,
             util.inspect(
-            {
-                workspaces: rootPkg.json.workspaces,
-                paths: Object.values( result.map( ( i ) => i.packages ).flat() ),
-            }
-        ) ]
+                {
+                    workspaces: rootPkg.json.workspaces,
+                    paths: Object.values( result.map( ( i ) => i.packages ).flat() ),
+                }
+            ) ]
     );
 
     zWorkspaceGetPackagesPathsCache[ rootPkg.getPath() ] = result;
@@ -262,7 +225,7 @@ export function zWorkspaceGetWorkspaceDependencies( packages: TPackages ) {
 }
 
 export function zWorkspaceGetRootPackageName( options = { silent: true } ) {
-    const rootPackageJsonPath = zWorkspaceFindRootPackageJsonPath( options );
+    const rootPackageJsonPath = zFindRootPackageJsonPath( options );
 
     return new Package( path.dirname( rootPackageJsonPath ) ).json.name;
 }
