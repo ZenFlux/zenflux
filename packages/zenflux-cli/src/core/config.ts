@@ -4,17 +4,17 @@
 import fs from "fs";
 import util from "node:util";
 
+import { DEFAULT_Z_FORMATS } from "@zenflux/cli/src/definitions/zenflux";
+
 import { ConsoleManager } from "@zenflux/cli/src/managers/console-manager";
 
 import { Z_CONFIG_REQUIRED_KEYS } from "@zenflux/cli/src/definitions/config";
 
 import type { IZConfigInternal , IConfigArgsBase, IZConfigs, TConfigType} from "@zenflux/cli/src/definitions/config";
 
-type KeyOfZConfigRequiredKeys = keyof typeof Z_CONFIG_REQUIRED_KEYS;
-
 function hasRequiredKeys( config: IZConfigInternal ) {
     return Z_CONFIG_REQUIRED_KEYS.every( ( key ) => {
-        return config.hasOwnProperty( key as KeyOfZConfigRequiredKeys );
+        return config.hasOwnProperty( key );
     } );
 }
 
@@ -22,6 +22,13 @@ function configValidate( config: IZConfigInternal ) {
     if ( config.inputDtsPath && ! config.outputDtsPath ) {
         throw new Error( `'${ config.path }' inputDtsPath is defined but outputDtsPath is not` );
     }
+
+    // Validate format not using something else then TZFormatType.
+    config.format.forEach( ( i ) => {
+        if ( ! DEFAULT_Z_FORMATS.includes( i ) ) {
+            throw new Error( `'${ config.path }' format is invalid: '${ i }'` );
+        }
+    } );
 }
 
 function configEnsureInternals( config: IZConfigInternal, args: {

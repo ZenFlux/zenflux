@@ -26,7 +26,7 @@ import { ConsoleThreadReceive } from "@zenflux/cli/src/console/console-thread-re
 
 import type { ThreadHost } from "@zenflux/cli/src/modules/threading/definitions";
 
-import type { OutputOptions, RollupBuild, RollupOptions } from "rollup";
+import type { InternalModuleFormat, OutputOptions, RollupBuild, RollupOptions } from "rollup";
 
 import type { Worker } from "@zenflux/cli/src/modules/threading/worker";
 
@@ -54,9 +54,22 @@ async function rollupBuildInternal( config: RollupOptions, options: TZBuildOptio
 
     // TODO: This should be only once
     config.onLog = ( logLevel, message ) => {
-        // @ts-ignore
-        message.projectPath = options.config.path;
-        ConsoleManager.$.log( `Rollup: ${ util.inspect( message ) }` );
+        const methods = {
+            "info": ConsoleManager.$.info,
+            "warn": ConsoleManager.$.warn,
+            "error": ConsoleManager.$.error,
+            "debug": ( ... args: any[] ) => ConsoleManager.$.debug( () => args ),
+            "log": ConsoleManager.$.log,
+        } as const;
+
+        if ( logLevel === "warn" && options.config.omitWarningCodes?.includes( message.code || "undefined" ) ) {
+            return;
+        }
+
+        methods[ logLevel ]( ... [ "build", "rollupBuildInternal", "", util.inspect( {
+            message,
+            projectPath: options.config.path,
+        } ) ] );
     };
 
     let isBundleChanged = true;
@@ -108,17 +121,22 @@ export async function zRollupBuildInWorker(
     const linkedRollupOptions = await Promise.all( rollupOptions.map( async ( rollupOptions ) => {
         const output = rollupOptions.output as OutputOptions;
 
-        rollupOptions.plugins = zRollupGetPlugins( {
-                extensions: config.extensions || [],
-                format: output.format!,
-                moduleForwarding: config.moduleForwarding,
-                sourcemap: !! output.sourcemap,
-                minify: "development" !== process.env.NODE_ENV,
-                projectPath: path.dirname( config.path )
-            },
-        );
-            enableCustomLoader: !! config.enableCustomLoader,
-            enableCjsAsyncWrap: !! config.enableCjsAsyncWrap,
+        const convertFormatToInternalFormat = ( format: typeof output.format ): InternalModuleFormat => {
+            switch ( format ) {
+                case "commonjs":
+                    return "cjs";
+
+                case "systemjs":
+                    return "system";
+
+
+                case "esm":
+                case "module":
+                default:
+                    return "es";
+            }
+        };
+
         rollupOptions.plugins = await zRollupGetPlugins( {
             enableCustomLoader: !! config.enableCustomLoader,
             enableCjsAsyncWrap: !! config.enableCjsAsyncWrap,
@@ -197,6 +215,13 @@ export async function zRollupCreateBuildWorker( rollupOptions: RollupOptions[], 
 
     const thread = threads.get( options.threadId as number );
 
+    // TODO: Find better way to handle this. some error cause thread to 'exit'. eg: rollup errors or swc...
+    if ( ! thread?.isAlive() ) {
+        threads.delete( options.threadId as number );
+
+        return zRollupCreateBuildWorker( rollupOptions, options, activeConsole );
+    }
+
     if ( ! thread ) {
         throw new Error( "Thread not found." );
     }
@@ -204,7 +229,13 @@ export async function zRollupCreateBuildWorker( rollupOptions: RollupOptions[], 
     await zBuildThreadWaitForDependencies( options, zTSGetPackageByConfig( config ), config, activeConsole );
 
     const buildPromise = thread.run().catch( ( error ) => {
-        activeConsole.error( "build", "error", "in RO-" + options.threadId , "\n ->", error );
+        const isDebug = ConsoleManager.isFlagEnabled( "debug" ) || ConsoleManager.isFlagEnabled( "inspectorDebug" );
+
+        if ( error.watchFiles && ! isDebug ) {
+            delete error.watchFiles;
+        }
+
+        activeConsole.error( "build", "in RO-" + options.threadId , "", util.inspect( { $: error } ) );
     } );
 
     zBuildThreadHandleResume( buildPromise, config );
