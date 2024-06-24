@@ -19,6 +19,7 @@
         "@microsoft/api-extractor": "^7.38.0",
         "@rollup/plugin-node-resolve": "^15.2.1",
         "@swc/core": "^1.3.101",
+        "@rollup/plugin-commonjs": "latest",
         "@verdaccio/config": "next",
         "@verdaccio/node-api": "next",
         "@zenflux/tsconfig-to-swc": "workspace:*",
