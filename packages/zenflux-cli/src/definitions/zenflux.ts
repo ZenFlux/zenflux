@@ -16,4 +16,6 @@ export const DEFAULT_Z_REGISTRY_PORT_RANGE: [ number, number ] = [ 4873, 4999 ];
 export const DEFAULT_Z_REGISTRY_USER = "zenflux";
 export const DEFAULT_Z_REGISTRY_PASSWORD = "zenflux";
 
-export type TZFormatType = "cjs" | "es" | "umd";
+export const DEFAULT_Z_FORMATS = [ "cjs", "es", "umd" ] as const;
+
+export type TZFormatType = typeof DEFAULT_Z_FORMATS[ number ];

@@ -6,21 +6,22 @@ import process from "node:process";
 
 import { CommandBuildBase } from "@zenflux/cli/src/base/command-build-base";
 
-import { zRollupBuild, zRollupCreateBuildWorker } from "@zenflux/cli/src/core/build";
+import { zRollupCreateBuildWorker } from "@zenflux/cli/src/core/build";
 
 import { ConsoleManager } from "@zenflux/cli/src/managers/console-manager";
 
 import type { TZBuildOptions } from "@zenflux/cli/src/definitions/build";
 
-const DEFAULT_MIN_SINGLE_BUILD_CONFIGS = 1;
-
 export default class Build extends CommandBuildBase {
 
-    public async run() {
+    public async runImpl() {
         const startTime = Date.now(),
-            configs = this.getConfigs(),
-            configsPaths = this.getConfigsPaths(),
-            isMultiThreaded = configsPaths.length > DEFAULT_MIN_SINGLE_BUILD_CONFIGS;
+            configs = this.getConfigs();
+
+        if ( ! configs.length ) {
+            ConsoleManager.$.log( "Build", "config", "no available configs found" );
+            return;
+        }
 
         const promises: Promise<any>[] = [];
 
@@ -31,15 +32,11 @@ export default class Build extends CommandBuildBase {
 
             let promise;
 
-            if ( isMultiThreaded ) {
-                promise = zRollupCreateBuildWorker( rollupConfig, {
-                    ... options,
-                    threadId: configs.indexOf( config ),
-                    otherConfigs: configs.filter( ( c ) => c !== config ),
-                }, this.getRollupConsole() );
-            } else {
-                promise = zRollupBuild( rollupConfig, options );
-            }
+            promise = zRollupCreateBuildWorker( rollupConfig, {
+                ... options,
+                threadId: configs.indexOf( config ),
+                otherConfigs: configs.filter( ( c ) => c !== config ),
+            }, this.getRollupConsole() );
 
             promise.then( () => config.onBuilt?.() );
 

@@ -20,19 +20,26 @@ export abstract class CommandConfigBase extends CommandBase {
 
     protected isWorkspaceSpecified = false;
 
-    protected initialize() {
+    /**
+     * Initializes the workspace and project paths based on the command line arguments.
+     */
+    protected async initialize() {
         const workspaceArgIndex = this.args.indexOf( "--workspace" );
 
         // Determine if the workspace is specified
         if ( workspaceArgIndex > -1 ) {
             this.isWorkspaceSpecified = true;
 
-            const result = zWorkspaceFindPackages(
+            const result = await zWorkspaceFindPackages(
                 this.args[ workspaceArgIndex + 1 ]
                     .split( "," )
                     .map( i => i.trim() ),
                 this.initPathsArgs.workspacePath,
             );
+
+            if ( ! Object.keys( result ).length ) {
+                ConsoleManager.$.error( "build", "workspace", `Package(s) not found: ${ util.inspect( this.args[ workspaceArgIndex + 1 ] ) }` );
+            }
 
             this.initPathsArgs.projectsPaths = Object.values( result ).map( i => i.getPath() );
 
@@ -41,21 +48,53 @@ export abstract class CommandConfigBase extends CommandBase {
 
         // Determine if the current working directory is a workspace
         if ( this.initPathsArgs.workspacePath === this.initPathsArgs.cwd ) {
-            this.initPathsArgs.projectsPaths = zWorkspaceGetPackagesPaths(
-                new Package( this.initPathsArgs.workspacePath )
-            ).flatMap( i => i.packages );
+            const workspacePaths = await zWorkspaceGetPackagesPaths(
+                new Package( this.initPathsArgs.cwd )
+            );
+
+            this.initPathsArgs.projectsPaths = workspacePaths.flatMap( i => i.packages );
 
             return;
         }
 
-        // Default runs on the current working directory
+        // Else... runs on the current working directory
+    }
+
+    public showHelp( name: string ) {
+        super.showHelp( name );
+
+        ConsoleManager.$.log( util.inspect( {
+            "--config": {
+                description: "Specify a custom config file",
+                // aliases: [ "-c" ],
+                examples: [
+                    "--config <config-file-name>",
+                    "--config zenflux.test.config.ts",
+                ]
+            },
+            "--workspace": {
+                description: "Run for specific workspace",
+                examples: [
+                    "--workspace <company@package-name>",
+                    "--workspace <package-name>",
+                    "--workspace <package-name-a>, <package-name-b>",
+                    "--workspace \"prefix-*\", \"react-*\""
+                ]
+            }
+        } ) );
+    }
+
+    public async run() {
+        if ( ! await super.run( false ) ) {
+            return;
+        }
+
+        await this.loadConfigs();
+
+        await this.runImpl();
     }
 
     public async loadConfigs() {
-        if ( this.args.includes( "--help" ) ) {
-            return;
-        }
-
         const configArgIndex = this.args.indexOf( "--config" );
 
         let configFileName: string | undefined;
@@ -90,29 +129,5 @@ export abstract class CommandConfigBase extends CommandBase {
         }
 
         return Object.keys( result );
-    }
-
-    protected showHelp( name: string ) {
-        super.showHelp( name );
-
-        ConsoleManager.$.log( util.inspect( {
-            "--config": {
-                description: "Specify a custom config file",
-                // aliases: [ "-c" ],
-                examples: [
-                    "--config <config-file-name>",
-                    "--config zenflux.test.config.ts",
-                ]
-            },
-            "--workspace": {
-                description: "Run for specific workspace",
-                examples: [
-                    "--workspace <company@package-name>",
-                    "--workspace <package-name>",
-                    "--workspace <package-name-a>, <package-name-b>",
-                    "--workspace \"prefix-*\", \"react-*\""
-                ]
-            }
-        } ) );
     }
 }
