@@ -15,8 +15,14 @@ export class ConsoleMenuHotkey extends ConsoleMenu {
     }
 
     protected getSelection( key: TConsoleMenuKey ) {
-        return ( key.str && this.items.find( ( item ) => item.hotkey === key.str ) )
-            || super.getSelection( key );
+        const indexOf = key.str ?
+            this.items.findIndex( ( item ) => item.hotkey === key.str ) : -1;
+
+        if ( indexOf === -1 ) {
+            return super.getSelection( key );
+        }
+
+        return { index: indexOf, item: this.items[ indexOf ] };
     }
 
     protected getItemDisplay( item: MenuItemHotKey ): string {
