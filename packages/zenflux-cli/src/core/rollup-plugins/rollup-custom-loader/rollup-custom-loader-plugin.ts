@@ -39,6 +39,28 @@ export function zEmitCustomLoaderCallESM( module: string, args: { [ key: string 
     return `await globalThis.__Z_CUSTOM_LOADER__.zCustomLoader( '${ module }', ${ argsJSON } )`;
 }
 
+/**
+ * TODO: Not working well
+ */
+export function removeComments( code: string ) {
+    // Matches both single-line (//) and multi-line (/** */) comments
+    const commentPattern = /.*(?:\/\*[\s\S]*?\*\/|\/\/.*).*/g;
+
+    let magicString: MagicStringType = new MagicString(code );
+
+    let match;
+    while ((match = commentPattern.exec(code)) !== null) {
+        // Get the start and end indices of the match
+        const start = match.index;
+        const end = start + match[0].length;
+
+        // Remove the comment from magicString
+        magicString.remove(start, end);
+    }
+
+    return magicString.toString();
+}
+
 export default function zRollupCustomLoaderPlugin( args: IPluginArgs ): Plugin {
     return {
         name: "z-rollup-custom-loader-plugin",
@@ -53,26 +75,8 @@ export default function zRollupCustomLoaderPlugin( args: IPluginArgs ): Plugin {
         renderChunk( code, chunk, options ) {
             let hasReplacements = false;
 
-            // Matches both single-line (//) and multi-line (/** */) comments
-            const commentPattern = /.*(?:\/\*[\s\S]*?\*\/|\/\/.*).*/g;
-
-            let magicString: MagicStringType = new MagicString(code);
-
-            let match;
-            while ((match = commentPattern.exec(code)) !== null) {
-                // Get the start and end indices of the match
-                const start = match.index;
-                const end = start + match[0].length;
-
-                // Remove the comment from magicString
-                magicString.remove(start, end);
-            }
-
-            // Get the string without comments
-            const codeWithoutComments = magicString.toString();
-
             // Create a new MagicString instance from the string without comments
-            magicString = new MagicString(codeWithoutComments);
+            const magicString = new MagicString(code);
 
             const sourceId = Math.random().toString( 36 ).slice( 2 );
 
