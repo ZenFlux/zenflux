@@ -9,7 +9,7 @@ import process from "node:process";
 
 import { rollup } from "rollup";
 
-import { createResolvablePromise } from "@zenflux/typescript-vm/utils";
+import { zCreateResolvablePromise } from "@zenflux/utils/src/promise";
 
 import { zTSGetPackageByConfig } from "@zenflux/cli/src/utils/typescript";
 
@@ -41,7 +41,7 @@ const threads = new Map<number, Worker>(),
     builders = new Map<string, RollupBuild>();
 
 const waitingThreads = new Map<number, {
-    promise: ReturnType<typeof createResolvablePromise>,
+    promise: ReturnType<typeof zCreateResolvablePromise>,
     dependencies: Record<string, true>,
 }>();
 
@@ -105,7 +105,7 @@ export async function zRollupBuildInWorker(
 
     rollupOptions = ! Array.isArray( rollupOptions ) ? [ rollupOptions ] : rollupOptions;
 
-    const linkedRollupOptions = rollupOptions.map( ( rollupOptions ) => {
+    const linkedRollupOptions = await Promise.all( rollupOptions.map( async ( rollupOptions ) => {
         const output = rollupOptions.output as OutputOptions;
 
         rollupOptions.plugins = zRollupGetPlugins( {
@@ -119,9 +119,19 @@ export async function zRollupBuildInWorker(
         );
             enableCustomLoader: !! config.enableCustomLoader,
             enableCjsAsyncWrap: !! config.enableCjsAsyncWrap,
+        rollupOptions.plugins = await zRollupGetPlugins( {
+            enableCustomLoader: !! config.enableCustomLoader,
+            enableCjsAsyncWrap: !! config.enableCjsAsyncWrap,
+            extensions: config.extensions || [],
+            format: convertFormatToInternalFormat( output.format! ),
+            moduleForwarding: config.moduleForwarding,
+            sourcemap: !! output.sourcemap,
+            minify: "development" !== process.env.NODE_ENV,
+            projectPath: path.dirname( config.path )
+        } );
 
         return rollupOptions;
-    } );
+    } ) );
 
     await Promise.all( linkedRollupOptions.map( async ( singleRollupOptions ) => {
         const output = singleRollupOptions.output as OutputOptions,
@@ -248,7 +258,7 @@ async function zBuildThreadWaitForDependencies( options: TZBuildWorkerOptions, p
                     util.inspect( config.outputName ) ]
                 );
 
-                const promise = createResolvablePromise();
+                const promise = zCreateResolvablePromise();
 
                 waitingThreads.set( options.threadId, {
                     promise,
