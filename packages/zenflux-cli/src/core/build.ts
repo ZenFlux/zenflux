@@ -117,6 +117,8 @@ export async function zRollupBuildInWorker(
                 projectPath: path.dirname( config.path )
             },
         );
+            enableCustomLoader: !! config.enableCustomLoader,
+            enableCjsAsyncWrap: !! config.enableCjsAsyncWrap,
 
         return rollupOptions;
     } );
