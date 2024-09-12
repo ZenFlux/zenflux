@@ -26,7 +26,7 @@ export class Resolvers {
 
         let middleware = ( request ) =>
             verbose( "resolvers", "try().middleware",
-                () => `requesting: ${ util.inspect( request.modulePath ) } provider: ${ util.inspect( request.provider?.name || "null" ) } trying with path: ${ util.inspect( request.resolvedPath ) }` );
+                () => `requesting: ${ util.inspect( request.modulePath ) } provider: ${ util.inspect( request.provider?.name || "null" ) } trying with path: ${ util.inspect( request.resolvedPath ) }  meta: ${ util.inspect( request.meta ) }` );
 
 
         const tryPromise = () => new Promise( async ( resolve, reject ) => {
@@ -73,7 +73,7 @@ export class Resolvers {
             resolve: async ( callback ) => {
                 const result = this.cache.has( modulePath ) ? this.cache.get( modulePath ) : await tryPromise();
 
-                verbose( "resolvers", "try().resolve", () => `resolved: ${ util.inspect( result.modulePath ) } provider: ${ util.inspect( result.provider?.name || "null" ) } with path: ${ util.inspect( result.resolvedPath ) }` );
+                verbose( "resolvers", "try().resolve", () => `resolved: ${ util.inspect( result.modulePath ) } provider: ${ util.inspect( result.provider?.name || "null" ) } with path: ${ util.inspect( result.resolvedPath ) } meta: ${ util.inspect( result.meta ) }` );
 
                 callback?.( result );
 

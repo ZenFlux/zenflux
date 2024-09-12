@@ -24,6 +24,11 @@ if ( ! process.execArgv.includes( '--experimental-vm-modules' ) ) {
     throw new Error( "Please enable '--experimental-vm-modules' flag" );
 }
 
+// Ensure '--experimental-import-meta-resolve' flag is enabled.
+if ( ! process.execArgv.includes( '--experimental-import-meta-resolve' ) ) {
+    throw new Error( "Please enable '--experimental-import-meta-resolve' flag" );
+}
+
 util.inspect.defaultOptions.colors = true;
 util.inspect.defaultOptions.breakLength = 1;
 

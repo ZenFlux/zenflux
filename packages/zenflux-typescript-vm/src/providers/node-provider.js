@@ -56,7 +56,7 @@ export class NodeProvider extends ProviderBase {
 
             result = resolve.replace( "file://", "" );
 
-            middleware( { resolvedPath: result, modulePath, referencingModule, provider: this } );
+            middleware( { resolvedPath: result, modulePath, referencingModule, provider: this, meta: "esm" } );
 
             this.resolveCache.set( resolve, "esm" );
         } catch ( e ) {
@@ -78,7 +78,7 @@ export class NodeProvider extends ProviderBase {
                 result = resolve;
             }
 
-            middleware( { resolvedPath: result, modulePath, referencingModule, provider: this } );
+            middleware( { resolvedPath: result, modulePath, referencingModule, provider: this, meta: "cjs" } );
 
             this.resolveCache.set( resolve, "cjs" );
         } catch ( e ) {
