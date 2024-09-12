@@ -1,6 +1,5 @@
 import fs from "node:fs";
 import inspector from "node:inspector";
-import util from "node:util";
 
 import path from "node:path";
 import process from "node:process";
