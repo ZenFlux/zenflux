@@ -6,6 +6,8 @@ import process from "node:process";
 import path from "node:path";
 import util from "node:util";
 
+import { ensureInWorker } from "@zenflux/worker/utils";
+
 import ts from "typescript";
 
 import { zCreateResolvablePromise } from "@zenflux/utils/src/promise";
@@ -18,13 +20,14 @@ import { ConsoleThreadReceive } from "@zenflux/cli/src/console/console-thread-re
 import { zApiExporter } from "@zenflux/cli/src/core/api-extractor";
 
 import { zWorkspaceGetWorkspaceDependencies } from "@zenflux/cli/src/core/workspace";
-import { ensureInWorker } from "@zenflux/cli/src/modules/threading/utils";
 
 import { ConsoleManager } from "@zenflux/cli/src/managers/console-manager";
 
+import type { ThreadHost } from "@zenflux/worker/definitions";
+import type { Worker } from "@zenflux/worker";
+
 import type { ConsoleThreadFormat } from "@zenflux/cli/src/console/console-thread-format";
 
-import type { ThreadHost } from "@zenflux/cli/src/modules/threading/definitions";
 import type { TZFormatType } from "@zenflux/cli/src/definitions/zenflux";
 import type {
     TZCreateDeclarationWorkerOptions,
@@ -32,7 +35,6 @@ import type {
     TZPreDiagnosticsWorkerOptions
 } from "@zenflux/cli/src/definitions/typescript";
 
-import type { Worker } from "@zenflux/cli/src/modules/threading/worker";
 import type { IZConfigInternal } from "@zenflux/cli/src/definitions/config";
 
 // TODO: Avoid this, create threadPool with max threads = cpu cores.
@@ -407,18 +409,15 @@ export async function zTSCreateDiagnosticWorker(
     activeConsole: ConsoleThreadFormat
 ) {
     if ( ! diagnosticWorkers.has( options.id ) ) {
-        const { Worker } = ( await import( "@zenflux/cli/src/modules/threading/worker" ) );
+        const { zCreateWorker } = ( await import( "@zenflux/worker" ) );
 
-        // Create a new thread.
-        const worker = new Worker(
-            "Diagnostic",
-            options.id,
-            tsConfig.options.configFilePath as string,
-            zTSDiagnosticInWorker, [
-                tsConfig.options.configFilePath,
-                options,
-            ],
-        );
+        const worker = zCreateWorker( {
+            name: "Diagnostic",
+            id: options.id,
+            display: tsConfig.options.configFilePath as string,
+            workArgs: [ tsConfig.options.configFilePath, options ],
+            workFunction: zTSDiagnosticInWorker,
+        } );
 
         ConsoleThreadReceive.connect( worker, activeConsole );
 
@@ -473,18 +472,15 @@ export async function zTSCreateDeclarationWorker(
     activeConsole: ConsoleThreadFormat,
 ) {
     if ( ! declarationWorkers.has( options.id ) ) {
-        const { Worker } = ( await import( "@zenflux/cli/src/modules/threading/worker" ) );
+        const { zCreateWorker } = ( await import( "@zenflux/worker" ) );
 
-        // Create a new thread.
-        const worker = new Worker(
-            "Declaration",
-            options.id,
-            tsConfig.options.configFilePath as string,
-            zTSDeclarationInWorker, [
-                tsConfig.options.configFilePath,
-                options.config,
-            ],
-        );
+        const worker = zCreateWorker( {
+            name: "Declaration",
+            id: options.id,
+            display: tsConfig.options.configFilePath as string,
+            workArgs: [ tsConfig.options.configFilePath, options.config ],
+            workFunction: zTSDeclarationInWorker,
+        } );
 
         ConsoleThreadReceive.connect( worker, activeConsole );
 

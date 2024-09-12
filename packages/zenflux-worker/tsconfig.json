@@ -1,0 +1,30 @@
+{
+    // Extends the configuration from "./tsconfig.paths.json"
+    "extends": [
+        "./tsconfig.paths.json",
+        // Extends `import.meta`
+        "@zenflux/typescript-vm/tsconfig.import-meta.json"
+    ],
+
+    // Compiler options
+    "compilerOptions": {
+        "rootDir": ".",
+        "typeRoots": [
+            "../../node_modules/@types",
+            "../../node_modules"
+        ],
+        "types": [
+            "node",
+            "bun"
+        ],
+
+        // Specifies the ECMAScript version to transpile to (e.g., ESNext)
+        "target": "ESNext",
+
+        // Specifies the module system used in the code (e.g., ESNext)
+        "module": "ESNext",
+
+        // Defines how TypeScript resolves module import paths (Node.js style)
+        "moduleResolution": "bundler",
+    }
+}

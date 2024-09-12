@@ -4,6 +4,7 @@
 
 /// <reference types="@zenflux/typescript-vm/import-meta" />
 
+import * as fs from "fs";
 import * as process from "node:process";
 
 import { fileURLToPath } from "node:url";
@@ -11,9 +12,9 @@ import * as util from "node:util";
 
 import { parentPort, Worker as NodeWorker, workerData } from "node:worker_threads";
 
-import { zGlobalPathsGet } from "@zenflux/cli/src/core/global";
+import * as path from "path";
 
-import type { ThreadHost, TWorkerEvent, TWorkerState } from "@zenflux/cli/src/modules/threading/definitions";
+import type { ThreadHost, TWorkerEvent, TWorkerState } from "@zenflux/worker/definitions";
 
 declare module globalThis {
     var zWorkersCount: number;
@@ -39,24 +40,54 @@ export class Worker {
         private readonly name: string,
         private readonly id: number,
         private readonly display: string,
-        private readonly work: Function,
-        private readonly args: any[],
+        private readonly workFunction: Function,
+        private readonly workPath: string,
+        private readonly workArgs: any[],
     ) {
-        this.worker = new NodeWorker( zGlobalPathsGet().cli, {
+        const runnerTarget = fileURLToPath( import.meta.url ),
+            paths = [
+                ... process.env.PATH!.split( path.delimiter ),
+                process.env.PWD + "/node_modules/.bin",
+            ],
+            binPath = paths.find( ( p: string ) =>
+                p.endsWith( "node_modules/.bin" ) && fs.existsSync( path.resolve( p, "@z-runner" ) )
+            );
+
+        if ( ! binPath ) {
+            throw new Error( `'@z-runner' not found in PATHs: ${ util.inspect( paths ) }` );
+        }
+
+        const runnerPath = path.resolve( binPath, "@z-runner" );
+
+        process.env.Z_RUN_TARGET = runnerTarget;
+
+        const argv = [];
+
+        if ( process.argv.includes( "--zvm-verbose" ) ) {
+            argv.push( "--zvm-verbose" );
+        }
+
+        this.worker = new NodeWorker( runnerPath, {
             name: `z-thread-${ this.name }-${ this.id }`,
 
-            argv: process.argv,
+            argv,
+
+            // Required by `@z-runner`
+            execArgv: [
+                "--experimental-vm-modules",
+                "--experimental-import-meta-resolve",
+            ],
 
             workerData: {
-                zCliWorkPath: fileURLToPath( import.meta.url ),
-                zCliWork: fileURLToPath( import.meta.refererUrl ),
-                zCliWorkFunction: work.name,
+                zCliRunPath: runnerTarget,
+                zCliWorkPath: this.workPath,
+                zCliWorkFunction: workFunction.name,
 
                 name: this.name,
                 id: this.id,
                 display: this.display,
 
-                args: this.args
+                args: this.workArgs
             }
         } );
 
@@ -73,12 +104,13 @@ export class Worker {
         this.worker.on( "message", ( [ type, ... args ]: any [] ) => {
             if ( this.eventCallbacks.has( type ) ) {
                 if ( [ "verbose", "debug" ].includes( type ) ) {
-                    this.eventCallbacks.get( type )!.forEach( c => c.call( null, () => args  ) );
+                    this.eventCallbacks.get( type )!.forEach( c => c.call( null, () => args ) );
                 } else {
                     this.eventCallbacks.get( type )!.forEach( c => c.call( null, ... args ) );
                 }
 
-            } else if( "done" !== type ) {
+            } else if ( "internal-error" ) {
+            } else if ( "done" !== type ) {
                 throw new Error( `Unhandled message: '${ type }', at worker: '${ this.name + ":" + this.id }'` );
             }
         } );
@@ -110,9 +142,14 @@ export class Worker {
                 if ( message === "done" ) {
                     this.state = "idle";
 
-                    resolve( args[ 0 ] );
-
                     this.worker.off( "message", onMessageCallback );
+
+                    resolve( args[ 0 ] );
+                } else if ( message === "internal-error" ) {
+                    this.state = "error";
+                    this.worker.off( "message", onMessageCallback );
+
+                    reject( args[ 0 ] );
                 }
             };
 
@@ -192,7 +229,7 @@ export class Worker {
 
 const workData = workerData;
 
-if ( workData?.zCliWorkPath === fileURLToPath( import.meta.url ) ) {
+if ( workData?.zCliRunPath === fileURLToPath( import.meta.url ) ) {
 
     if ( null === parentPort ) {
         throw new Error( "Parent port is not defined" );
@@ -200,13 +237,13 @@ if ( workData?.zCliWorkPath === fileURLToPath( import.meta.url ) ) {
 
     const parent = parentPort!;
 
-    const { zCliWork, zCliWorkFunction, name, id, display } = workData;
+    const { zCliWorkPath, zCliWorkFunction, name, id, display } = workData;
 
-    const workModule = ( await import( zCliWork ) );
+    const workModule = ( await import( zCliWorkPath ) );
 
     if ( ! workModule[ zCliWorkFunction ] ) {
         throw new Error( `Function ${ util.inspect( zCliWorkFunction ) } ` +
-            `not found in ${ util.inspect( zCliWork ) } ` +
+            `not found in ${ util.inspect( zCliWorkPath ) } ` +
             `thread ${ util.inspect( name ) }: ${ util.inspect( id ) }`
         );
     }
@@ -285,7 +322,20 @@ if ( workData?.zCliWorkPath === fileURLToPath( import.meta.url ) ) {
             case "run":
                 const result = work();
 
-                result instanceof Promise ? result.then( done ) : done( result );
+                if ( result instanceof Promise ) {
+                    result
+                        .then( done )
+                        .catch( ( error ) => {
+                            parentPort?.postMessage( [ "internal-error", {
+                                name: error.name,
+                                message: error.message,
+                                code: error.code,
+                                stack: error.stack
+                            } ] );
+                        } );
+                } else {
+                    done( result );
+                }
 
                 isRequestedToTerminate && terminate();
 
@@ -305,3 +355,35 @@ if ( workData?.zCliWorkPath === fileURLToPath( import.meta.url ) ) {
         }
     } );
 }
+
+interface ZCreateWorkerArguments {
+    name: string;
+    id?: number;
+    display?: string;
+    workFunction: Function;
+    workFilePath?: string;
+    workArgs?: any[]
+}
+
+export const zCreateWorker: ( args: ZCreateWorkerArguments ) => Worker = ( {
+   name,
+   id = zWorkerGetCount(),
+   display = name,
+   workFunction,
+   workFilePath = import.meta.refererUrl ? fileURLToPath( import.meta.refererUrl ) : undefined,
+   workArgs = []
+} ) => {
+    let isExist = false;
+
+    try {
+        isExist = workFilePath && fs.existsSync( workFilePath );
+
+    } catch ( e ) {
+    }
+
+    if ( ! isExist ) {
+        throw new Error( `File not found: ${ workFilePath }` );
+    }
+
+    return new Worker( name, id, display, workFunction, workFilePath, workArgs );
+};

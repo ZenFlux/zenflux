@@ -13,6 +13,8 @@ import { zCreateResolvablePromise } from "@zenflux/utils/src/promise";
 
 import { rollup } from "rollup";
 
+import { ensureInWorker } from "@zenflux/worker/utils";
+
 import { ConsoleThreadReceive } from "@zenflux/cli/src/console/console-thread-receive";
 
 import { ConsoleThreadSend } from "@zenflux/cli/src/console/console-thread-send";
@@ -22,8 +24,6 @@ import { zRollupGetPlugins } from "@zenflux/cli/src/core/rollup";
 import { zRollupSwcCompareCaches } from "@zenflux/cli/src/core/rollup-plugins/rollup-swc/rollup-swc-plugin";
 
 import { ConsoleManager } from "@zenflux/cli/src/managers/console-manager";
-
-import { ensureInWorker } from "@zenflux/cli/src/modules/threading/utils";
 
 import { zTSGetPackageByConfig } from "@zenflux/cli/src/utils/typescript";
 
@@ -36,9 +36,9 @@ import type { TZFormatType } from "@zenflux/cli/src/definitions/zenflux";
 
 import type { Package } from "@zenflux/cli/src/modules/npm/package";
 
-import type { ThreadHost } from "@zenflux/cli/src/modules/threading/definitions";
+import type { ThreadHost } from "@zenflux/worker/definitions";
 
-import type { Worker } from "@zenflux/cli/src/modules/threading/worker";
+import type { Worker } from "@zenflux/worker";
 
 import type { InternalModuleFormat, OutputOptions, RollupBuild, RollupOptions } from "rollup";
 
@@ -202,18 +202,19 @@ export async function zRollupCreateBuildWorker( rollupOptions: RollupOptions[], 
     const { config } = options;
 
     if ( ! threads.has( options.threadId as number ) ) {
-        const { Worker } = ( await import( "@zenflux/cli/src/modules/threading/worker" ) );
+        const { zCreateWorker } = ( await import( "@zenflux/worker" ) );
 
-        // Create a new thread.
-        const worker = new Worker(
-            "Build",
-            options.threadId,
-            config.outputName,
-            zRollupBuildInWorker, [
+        const worker = zCreateWorker( {
+            name: "Build",
+            id: options.threadId,
+            display: config.outputName,
+
+            workFunction: zRollupBuildInWorker,
+            workArgs: [
                 rollupOptions,
                 options.config,
             ],
-        );
+        } );
 
         ConsoleThreadReceive.connect( worker, activeConsole );
 

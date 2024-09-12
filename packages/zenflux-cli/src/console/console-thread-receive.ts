@@ -1,11 +1,11 @@
 /**
  * @author: Leonid Vinikov <leonidvinikov@gmail.com>
  */
+import { DEFAULT_WORKER_EVENTS } from "@zenflux/worker/definitions";
+
 import { ConsoleThreadFormat } from "@zenflux/cli/src/console/console-thread-format";
 
-import { DEFAULT_WORKER_EVENTS } from "@zenflux/cli/src/modules/threading/definitions";
-
-import type { Worker } from "@zenflux/cli/src/modules/threading/worker";
+import type { Worker } from "@zenflux/worker";
 import type { TConsoleLoggerMethod } from "@zenflux/cli/src/modules/console/console";
 
 /**
