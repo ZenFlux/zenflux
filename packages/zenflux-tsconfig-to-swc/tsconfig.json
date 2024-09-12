@@ -1,9 +1,8 @@
 {
     "compilerOptions": {
-        "esModuleInterop": true,
-        "allowJs": true,
-        "declaration": true,
-        "emitDeclarationOnly": true
+        "diagnostics": true,
+        "extendedDiagnostics": true,
+        "resolveJsonModule": true,
     },
     "include": [
         "src/index.js"
