@@ -11,7 +11,7 @@
     "repository": {
         "type": "git",
         "url": "https://github.com/ZenFlux/zenflux.git",
-        "directory": "packages/tsconfig-to-swc"
+        "directory": "packages/zenflux-tsconfig-to-swc"
     },
     "publishConfig": {
         "access": "public"

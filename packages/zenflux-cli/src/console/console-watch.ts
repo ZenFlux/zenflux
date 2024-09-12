@@ -1,11 +1,11 @@
 /**
  * @author: Leonid Vinikov <leonidvinikov@gmail.com>
  */
+import { zWorkerGetCount } from "@zenflux/worker";
+
 import { ConsoleThreadFormat } from "@zenflux/cli/src/console/console-thread-format";
 
 import { zConsoleCreateLogBox, zConsoleCreateStickyBox, zConsoleRender } from "@zenflux/cli/src/modules/console";
-
-import { zWorkerGetCount } from "@zenflux/cli/src/modules/threading/worker";
 
 import { zUppercaseAt } from "@zenflux/cli/src/utils/common";
 import { zDebounce } from "@zenflux/cli/src/utils/timers";

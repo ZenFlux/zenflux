@@ -5,7 +5,7 @@
 This package provides a simple node VM for running Typescript code in a sandboxed environment, with favor of `tsconfig.json`
 and tsconfig paths.
 
-The aim of this package is to provide Typescript runtime based on node VM, with the ability to resolve modules, with out of box support
+The aim of this package is to provide Typescript runtime based on node VM, with the ability to resolve modules, without of box support
 for Typescript projects.
 
 ---

@@ -5,7 +5,7 @@ import process from "node:process";
 
 import { ConsoleManager } from "@zenflux/cli/src/managers/console-manager";
 
-import type { ThreadHost } from "@zenflux/cli/src/modules/threading/definitions";
+import type { ThreadHost } from "@zenflux/worker/definitions";
 import type { TConsoleLoggerMethod } from "@zenflux/cli/src/modules/console/console";
 
 const stdout = process.stdout,

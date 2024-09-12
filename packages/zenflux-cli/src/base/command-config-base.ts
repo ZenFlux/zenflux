@@ -33,7 +33,7 @@ export abstract class CommandConfigBase extends CommandBase {
             const result = await zWorkspaceFindPackages(
                 this.args[ workspaceArgIndex + 1 ]
                     .split( "," )
-                    .map( i => i.trim() ),
+                    .map( i => i.trim().replace( /"/g, "" ) ),
                 this.initPathsArgs.workspacePath,
             );
 

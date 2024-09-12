@@ -1,0 +1,25 @@
+{
+    "name": "@zenflux/runner",
+    "version": "0.0.0-dev.4",
+    "description": "Running code in a sandboxed environment",
+    "type": "module",
+    "bin": {
+        "@z-runner": "./src/index.js"
+    },
+    "files": [
+        "src",
+        "tsconfig.json"
+    ],
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/ZenFlux/zenflux.git",
+        "directory": "packages/zenflux-runner"
+    },
+    "publishConfig": {
+        "access": "public"
+    },
+    "dependencies": {
+        "@zenflux/typescript-vm": "workspace:*",
+        "@zenflux/utils": "workspace:*"
+    }
+}
