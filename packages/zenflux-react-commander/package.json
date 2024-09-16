@@ -1,0 +1,31 @@
+{
+    "$schema": "https://raw.githubusercontent.com/SchemaStore/schemastore/master/src/schemas/json/package.json",
+    "name": "@zenflux/react-commander",
+    "author": "Leonid Vinikov <leonidvinikov@gmail.com> (https://github.com/iNewLegend)",
+    "version": "0.0.1-dev",
+    "type": "module",
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/zenflux/zenflux.git",
+        "directory": "packages/zenflux-react-commander"
+    },
+    "exports": {
+        "./command-base": "./src/command-base.ts",
+        "./commands-manager": "./src/commands-manager.ts",
+        "./commands-context": "./src/commands-context.ts",
+        "./commands-provider": "./src/commands-provider.tsx",
+        "./with-commands": "./src/with-commands.tsx",
+        "./use-commands": "./src/use-commands.tsx",
+        "./definitions": "./src/definitions.ts",
+        "./constants": "./src/_internal/constants.ts",
+        "./core": "./src/_internal/core.ts"
+    },
+    "dependencies": {
+        "rxjs": "^7.4.0"
+    },
+    "peerDependencies": {
+        "vite": "^5.4.5",
+        "react": "^18.2.0",
+        "react-dom": "^18.2.0"
+    }
+}
