@@ -76,12 +76,11 @@ export function withCommands(
         return str;
     }
 
-    function compareObjects( obj1: any, obj2: any, level: number ): boolean {
-        // Add a unique flag property to the objects
-        const flag = Symbol( "compared" );
+    const comparedObjects = new WeakMap();
 
+    function compareObjects( obj1: any, obj2: any, level: number ): boolean {
         // Check if the objects have already been compared
-        if ( obj1[ flag ] && obj2[ flag ] ) {
+        if ( comparedObjects.has(obj1) && comparedObjects.get(obj1) === obj2 ) {
             return true;
         }
 
@@ -90,10 +89,10 @@ export function withCommands(
 
         const isEqual = strObj1 === strObj2;
 
-        // If the objects are equal, flag them as compared
+        // If the objects are equal, store them in the WeakMap
         if ( isEqual ) {
-            obj1[ flag ] = true;
-            obj2[ flag ] = true;
+            comparedObjects.set(obj1, obj2);
+            comparedObjects.set(obj2, obj1);
         }
 
         return isEqual;
