@@ -19,7 +19,8 @@
     },
     "workspaces": [
         "packages/*",
-        "packages-react/*"
+        "packages-react/*",
+        "zenflux-react-app-examples/*"
     ],
     "scripts": {
         "@z-flux:cli": "bun run @z-cli",

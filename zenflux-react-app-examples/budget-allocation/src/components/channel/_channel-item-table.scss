@@ -1,0 +1,119 @@
+.channel-item-table {
+    @apply self-start;
+    @apply max-w-[1060px] h-full;
+    @apply pt-[18px] ps-[25px];
+    @apply overflow-x-hidden;
+
+    .arrow-skinny {
+        position: relative;
+        cursor: pointer;
+        transform: scale(1.3);
+        top: 8px;
+        left: 970px;
+    }
+
+    &.left .arrow-skinny {
+        left: 1722px;
+        position: relative;
+        top: 8px;
+        transform: scale(1.3) rotate(180deg);
+    }
+
+    .channel-item-table-breaks {
+        @apply w-max;
+        @apply grid grid-cols-12 grid-rows-2 gap-y-[3px] gap-x-[50px];
+
+        > .channel-item-table-budget {
+            text-align: right;
+            position: relative;
+            left: -8px;
+
+            .input {
+                text-align: center;
+            }
+        }
+
+        .channel-item-table-date {
+            @apply text-slate-400 text-[11px] font-bold font-sans uppercase leading-none;
+        }
+
+        .channel-item-table-budget {
+            .trigger {
+                @apply bg-white;
+                @apply shadow-none;
+                @apply p-0 m-0;
+
+                input {
+                    @apply border-1 border-solid border-white;
+                    @apply rounded-lg;
+                    @apply p-0 ps-[7px];
+                    @apply h-[80%];
+                    @apply absolute;
+                    @apply ps-[20px];
+                    @apply top-[-10px];
+                    @apply left-[-3px];
+                }
+
+                .currency-sign {
+                    @apply absolute;
+                    @apply top-[-4px] left-[8px];
+                }
+
+                :after {
+                    content: "\00a0";
+                    width: 0;
+                }
+            }
+
+            .control-area {
+                width: 63px;
+                display: inline;
+                position: absolute;
+                top: -7px;
+                left: 78px;
+
+                .pencil, .cancel, .save {
+                    @apply invisible;
+
+                    &:hover {
+                        @apply animate-pulse delay-100;
+                    }
+                }
+
+                * {
+                    width: 16px;
+
+                    display: inline;
+                    margin-left: 2px;
+
+                    cursor: pointer;
+                }
+            }
+
+            &[data-disabled="true"] {
+                .trigger {
+                    :hover {
+                        .pencil {
+                            @apply visible;
+                        }
+                    }
+                }
+            }
+
+            &[data-disabled="false"] {
+                input {
+                    border: 1px solid rgba(178, 187, 213, 0.50);
+                }
+
+                .cancel, .save {
+                    @apply visible;
+                }
+            }
+
+            .wrapper {
+                @apply w-[100px];
+            }
+        }
+    }
+
+}

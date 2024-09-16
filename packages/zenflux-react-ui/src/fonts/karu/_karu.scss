@@ -1,0 +1,26 @@
+$karu-fonts: (
+    'karu-black': 'Karu Black',
+    'karu-bold': 'Karu Bold',
+    'karu-regular': 'Karu Regular',
+    'karu-light': 'Karu Light',
+);
+
+@font-face {
+    font-family: 'Karu Light';
+    src: url('./Karu Light.otf') format('opentype');
+}
+
+@font-face {
+    font-family: 'Karu Black';
+    src: url('./karu-black.ttf') format('truetype');
+}
+
+@font-face {
+    font-family: 'Karu Bold';
+    src: url('./karu-bold.ttf') format('truetype');
+}
+
+@font-face {
+    font-family: 'Karu Regular';
+    src: url('./karu-regular.ttf') format('truetype');
+}

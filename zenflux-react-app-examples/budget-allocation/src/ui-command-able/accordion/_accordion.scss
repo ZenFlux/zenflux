@@ -1,0 +1,39 @@
+.loader {
+    visibility: hidden;
+
+    &.loaded {
+        visibility: visible;
+        @apply animate-appearance-in duration-300;
+    }
+}
+
+.accordion {
+    /* Editable? */
+    .accordion-item-title {
+        position: relative;
+        height: 15px;
+        top: 5px;
+
+        &[contenteditable="true"] {
+            @apply cursor-text;
+
+            @apply animate-pulse duration-[800];
+
+            outline: 3px solid rgba(178, 187, 213, 0.50);
+            filter: drop-shadow(0px 1px 2px #E6E8F0);
+            border-radius: 8px;
+            background: rgba(186, 190, 195, 0.45);
+            text-align: center;
+
+            user-select: none;
+
+            &:before {
+                content: "\00a0\00a0";
+            }
+
+            &:after {
+                content: "\00a0\00a0";
+            }
+        }
+    }
+}

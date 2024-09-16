@@ -1,0 +1,20 @@
+.accordion-item-menu {
+    @apply w-[35px];
+
+    .menu-trigger {
+        @apply cursor-pointer;
+
+        /* Make it a bit wider, so it will be easier to click */
+        @apply p-[8px] pt-[8px];
+
+        svg path {
+            @apply fill-[#B2BBD5];
+        }
+
+        &:hover {
+            svg path {
+                @apply fill-[#5E6C84];
+            }
+        }
+    }
+}
