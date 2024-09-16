@@ -15,7 +15,11 @@ import type {
 import type { CommandBase } from "@zenflux/react-commander/command-base";
 
 class CommandsManager {
-    private commands: Map> = new Map();
+    private commands: {
+        [ componentName: string ]: {
+            [ commandName: string ]: CommandBase
+        };
+    } = {};
 
     public register( args: DCommandRegisterArgs ) {
         const { componentName, commands } = args;
