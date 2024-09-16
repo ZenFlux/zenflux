@@ -14,6 +14,9 @@ import type { DCommandSingleComponentContext } from "@zenflux/react-commander/de
 
 const context: DCoreContext = {};
 
+// This will hold the sorted keys for the binary search
+let sortedContextKeys: string[] = [];
+
 /**
  * Core class is responsible for managing the command context for each component.
  * It provides methods to register, unregister, get and link components.
@@ -43,6 +46,7 @@ class Core implements DCoreInterface {
             throw new Error( `Component '${ componentNameUnique }' already registered` );
         }
 
+        // Register the context
         context[ componentNameUnique ] = {
             commands,
             componentName,
@@ -56,6 +60,9 @@ class Core implements DCoreInterface {
             props: undefined,
             lifecycleHandlers,
         };
+
+        // Update sorted keys
+        this.updateSortedContextKeys();
     }
 
     /**
@@ -76,6 +83,9 @@ class Core implements DCoreInterface {
 
         // Clean up context
         delete context[ componentNameUnique ];
+
+        // Update sorted keys
+        this.updateSortedContextKeys();
     }
 
     /**
@@ -101,23 +111,27 @@ class Core implements DCoreInterface {
 
             const anyMatchComponent = componentName.substring( 0, componentName.length - 1 );
 
-            Object.entries( context ).forEach( ( [ componentNameUnique, context ] ) => {
+            sortedContextKeys.forEach( ( componentNameUnique ) => {
                 if ( componentNameUnique.includes( anyMatchComponent ) ) {
-                    result.push( context );
+                    result.push( context[ componentNameUnique ] );
                 }
             } );
 
             return result;
+        } else {
+            const index = this.binarySearch( sortedContextKeys, componentName );
+            if ( index !== -1 ) {
+                return [ context[ sortedContextKeys[ index ] ] ];
+            }
         }
 
-        throw new Error( `Component '${ componentName }' is not valid regex` );
+        throw new Error( `Component '${ componentName }' not found` );
     }
 
     [ SET_TO_CONTEXT_SYMBOL ]( // eslint-disable-line @typescript-eslint/explicit-member-accessibility
         componentNameUnique: string,
         data: { [ key: string ]: any },
     ): void {
-        // Check if the component is registered
         if ( ! context[ componentNameUnique ] ) {
             throw new Error( `Component '${ componentNameUnique }' not registered` );
         }
@@ -128,15 +142,47 @@ class Core implements DCoreInterface {
         } );
     }
 
+    /**
+     * Updates the sorted keys for binary search.
+     */
+    private updateSortedContextKeys() {
+        sortedContextKeys = Object.keys( context ).sort();
+    }
+
+    /**
+     * Binary Search function to find a context entry by its symbol
+     * @param array - The sorted array of context entry keys.
+     * @param symbol - The symbol to find.
+     * @returns Index of the found context entry, or -1 if not found.
+     */
+    private binarySearch( array: string[], symbol: string ): number {
+        let left = 0;
+        let right = array.length - 1;
+
+        while ( left <= right ) {
+            const mid = Math.floor( ( left + right ) / 2 );
+            if ( array[ mid ] === symbol ) {
+                return mid;
+            } else if ( array[ mid ] < symbol ) {
+                left = mid + 1;
+            } else {
+                right = mid - 1;
+            }
+        }
+
+        return -1; // Symbol not found
+    }
+
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    public __devDebug( ... args: any[] ): void {}
+    public __devDebug( ... args: any[] ): void {
+    }
 
     declare public __devGetContextLength: () => number;
     declare public __devGetContextKeys: () => string[];
     declare public __devGetContextValues: () => DCommandSingleComponentContext[];
 }
 
-const core: DCoreInterface   = new Core();
+const core: DCoreInterface = new Core();
 
 if ( /* from vite */ import.meta.env.DEV ) {
     if ( ( window as any ).__DEBUG__ ) {

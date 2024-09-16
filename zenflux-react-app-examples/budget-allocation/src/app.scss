@@ -1,0 +1,68 @@
+@use "@zenflux/react-ui/src/fonts.scss" as fonts;
+
+.fs-1 {
+    font-family: map-get( fonts.$karu-fonts, 'karu-regular' );
+
+    /* Figma */
+    color: #182033;
+    font-size: 24px;
+    font-weight: 500;
+    letter-spacing: -0.2px;
+}
+
+.fs-2 {
+    /* Figma */
+    color: #182033;
+    font-family: map-get( fonts.$karu-fonts, 'karu-bold' );
+    font-size: 18px;
+    font-weight: 600;
+}
+
+.loading {
+    @apply flex items-center justify-center;
+    @apply w-full h-full;
+    @apply animate-bounce;
+
+    & span {
+        @apply animate-spin;
+        @apply p-5;
+        font-size: 50px;
+    }
+}
+
+img.icon {
+    @apply w-[36px] h-[36px];
+}
+
+.tabs {
+    .list  {
+        @apply bg-transparent;
+
+        .tab {
+            @apply text-2xl;
+
+            .cursor {
+                @apply w-[80%] bottom-0 shadow-[0_1px_0px_0_rgba(0,0,0,0.05)];
+            }
+
+            @apply cursor-pointer;
+            @apply hover:underline;
+        }
+
+        [data-selected="true"] {
+            @apply underline;
+        }
+    }
+
+    @apply mb-[20px];
+}
+
+.layout header {
+    .add-channel {
+        font-size: 15px;
+
+        @apply bg-gradient-to-r from-[#FAFAFC] to-white shadow-sm rounded border border-[rgba(178,187,213,0.50)];
+
+        @apply hover:underline;
+    }
+}

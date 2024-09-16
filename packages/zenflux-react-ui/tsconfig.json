@@ -1,0 +1,65 @@
+{
+    "compilerOptions": {
+        // Specifies a list of included libraries
+        // ESNext: Latest draft ECMAScript language standard, including all ECMAScript proposals
+        // DOM: Type definitions for web browsers
+        "lib": [
+            "ESNext",
+            "DOM"
+        ],
+
+        // Emit __importStar and __importDefault helpers for runtime babel ecosystem compatibility
+        "esModuleInterop": true,
+
+        //Specifying Base Path for Modules
+        "baseUrl": "./src/",
+
+        //Specify Target ECMAScript version.
+        "module": "esnext",
+
+        //Specify ECMAScript target version.
+        "target": "esnext",
+
+        // Select the module management
+        "moduleResolution": "bundler",
+
+        // Module Detection mode.
+        "moduleDetection": "force",
+
+        // Allows import declaration of files with .ts and .tsx extensions, instead of .d.ts extension files.
+        "allowImportingTsExtensions": true,
+
+        // Do not emit the JavaScript.
+        "noEmit": true,
+
+        // Enables all strict type checking options.
+        "strict": true,
+
+        // Specifies how JSX syntax should be parsed. Preserves JSX syntax to output file.
+        "jsx": "react-jsx",
+
+        // Allow default imports from modules with no default export.
+        "allowSyntheticDefaultImports": true,
+
+        //Used to specify a list of types to be included in the compile.
+        "types": [
+            "node",
+            "lib.dom",
+            "react",
+            "react-dom",
+            "react-scripts",
+            "vite/client"
+        ],
+
+        // Specify multiple type root directories.
+        "typeRoots": [
+            "../../node_modules",
+            "../../node_modules/@types"
+        ]
+    },
+
+    // Used to specify a list of source files to be included in the compile.
+    "include": [
+        "src/**/*",
+    ]
+}

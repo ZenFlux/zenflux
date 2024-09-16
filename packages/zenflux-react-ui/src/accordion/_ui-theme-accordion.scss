@@ -1,0 +1,87 @@
+
+.accordion {
+    /* Figma, round only the first child */
+    & > div:first-child {
+        .accordion-heading {
+            @apply rounded-t-[8px];
+        }
+
+    }
+
+    @apply ps-2 pe-2;
+
+    /* Add bottom border only for last child of heading */
+    @apply [&>*:last-child]:border-b-1;
+}
+
+.accordion-content-container {
+    @apply rounded-t-lg border border-neutral-200 bg-white dark:border-neutral-600 dark:bg-neutral-800;
+}
+
+.accordion-collapse {
+    @apply will-change-auto;
+    @apply overflow-hidden;
+}
+
+.accordion-content {
+    /* Figma */
+    @apply p-[32px];
+
+    @apply border-[#B2BBD57F] border-[1px] border-t-[0px];
+}
+
+/* Heading */
+// ---
+
+.accordion-heading {
+    @apply flex justify-between;
+    @apply mb-0;
+
+    /* Figma */
+    @apply bg-[#F6F7FB];
+    @apply bg-gradient-to-r from-50% to-[#B2BBD580];
+
+    @apply border-[1px] border-[#B2BBD57F] border-b-[0px];
+
+    .accordion-button {
+        @apply flex space-x-4;
+        @apply w-full;
+
+        @apply p-3;
+        @apply rounded-none;
+
+        .accordion-indicator {
+            @apply scale-[1.2];
+
+            @apply data-[open=true]:-rotate-0;
+
+            @apply shrink-0;
+            @apply fill-[#336dec];
+
+            @apply transition-transform;
+            @apply duration-200;
+            @apply ease-in-out;
+            @apply motion-reduce:transition-none;
+
+            @apply m-3;
+
+            @apply rotate-[-90deg];
+
+            [data-collapsed="attached"] & {
+                @apply rotate-[0deg];
+            }
+        }
+
+        .accordion-icon {
+            @apply mr-5 ml-2;
+            @apply rounded-sm;
+        }
+
+        .accordion-title {
+            @apply text-medium;
+            @apply font-medium;
+            @apply text-base;
+        }
+    }
+}
+
