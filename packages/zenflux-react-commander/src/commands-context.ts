@@ -6,13 +6,15 @@ import type { DCommandComponentContextProps } from "@zenflux/react-commander/def
 export const ComponentIdContext = React.createContext<DCommandComponentContextProps>( {
     isSet: false,
 
+    const createErrorMessage = (functionName: string) => `ComponentCommandContext.Provider is not set. Using default ${functionName} function.`;
+
     getNameUnique: () => {
-        throw new Error( "ComponentCommandContext.Provider is not set. Using default getUniqueName function." );
+        throw new Error(createErrorMessage('getUniqueName'));
     },
     getComponentName: () => {
-        throw new Error( "ComponentCommandContext.Provider is not set. Using default getUniqueName function." );
+        throw new Error(createErrorMessage('getComponentName'));
     },
     getComponentRef: () => {
-        throw new Error( "ComponentCommandContext.Provider is not set. Using default getComponentRef function." );
+        throw new Error(createErrorMessage('getComponentRef'));
     }
 } );
