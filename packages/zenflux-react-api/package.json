@@ -1,5 +1,4 @@
 {
-    "$schema": "https://raw.githubusercontent.com/SchemaStore/schemastore/master/src/schemas/json/package.json",
     "name": "@zenflux/react-api",
     "author": "Leonid Vinikov <leonidvinikov@gmail.com> (https://github.com/iNewLegend)",
     "version": "0.0.1-dev",

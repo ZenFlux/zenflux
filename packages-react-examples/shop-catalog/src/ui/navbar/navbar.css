@@ -1,0 +1,48 @@
+.navbar {
+  height: 60px;
+  border-bottom: 1px solid #ccc;
+  @apply shadow-md;
+  @apply bg-gray-50;
+}
+
+.navbar nav {
+  @apply flex;
+  @apply items-center;
+  @apply justify-between;
+  @apply h-full;
+  @apply px-4;
+  @apply container;
+  @apply mx-auto;
+}
+
+.navbar .navbar-brand {
+  @apply text-2xl;
+  @apply font-bold;
+  @apply text-gray-700;
+  @apply select-none;
+  cursor: pointer;
+}
+.navbar .navbar-brand h1 {
+  @apply transition-all duration-300;
+}
+.navbar .navbar-brand h1:hover {
+  @apply text-gray-950;
+  @apply font-extrabold;
+}
+
+.navbar .navbar-end .navbar-cart {
+  @apply w-[40px];
+  @apply h-[40px];
+  /* Flip horizontal */
+  transform: scaleX(-1);
+  @apply select-none;
+  cursor: pointer;
+}
+.navbar .navbar-end .navbar-cart svg {
+  @apply transition-all duration-300;
+}
+.navbar .navbar-end .navbar-cart svg:hover {
+  @apply scale-110;
+}
+
+/*# sourceMappingURL=navbar.css.map */

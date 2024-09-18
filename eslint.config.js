@@ -1,4 +1,4 @@
-import { zLintGetDefaultConfig } from "@zenflux/eslint";
+import { zLintGetConfig } from "@zenflux/eslint";
 
 /** @type {import('eslint').Linter.FlatConfig[]} */
 export const tests = [
@@ -30,7 +30,7 @@ export const tests = [
 
 /** @type {import("eslint").Linter.FlatConfig[]} */
 const config = [
-    ...zLintGetDefaultConfig(),
+    ...( await zLintGetConfig() ),
     ...tests,
 ];
 

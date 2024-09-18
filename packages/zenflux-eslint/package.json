@@ -1,10 +1,10 @@
 {
-    "$schema": "https://raw.githubusercontent.com/SchemaStore/schemastore/master/src/schemas/json/package.json",
     "name": "@zenflux/eslint",
     "author": "Leonid Vinikov <leonidvinikov@gmail.com> (https://github.com/iNewLegend)",
     "type": "module",
-    "version": "0.1.0",
-    "main": ".eslintrc.js",
+    "version": "0.1.1",
+    "main": "src/main.js",
+    "types": "types/main.d.ts",
     "repository": {
         "type": "git",
         "url": "https://github.com/zenflux/zenflux.git",
@@ -14,13 +14,11 @@
         "access": "public"
     },
     "dependencies": {
+        "eslint": "^9.10.0",
         "@eslint/compat": "latest",
         "@eslint/eslintrc": "latest",
-        "@types/eslint": "latest",
-        "@typescript-eslint/eslint-plugin": "latest",
-        "@typescript-eslint/parser": "latest",
+        "typescript-eslint": "latest",
         "@zenflux/utils": "workspace:*",
-        "eslint": "latest",
         "eslint-import-resolver-typescript": "latest",
         "eslint-plugin-import": "latest"
     },

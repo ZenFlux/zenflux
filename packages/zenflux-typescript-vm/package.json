@@ -1,5 +1,4 @@
 {
-    "$schema": "https://raw.githubusercontent.com/SchemaStore/schemastore/master/src/schemas/json/package.json",
     "name": "@zenflux/typescript-vm",
     "description": "A simple VM for running Typescript code in a NodeJS environment, with favor of tsconfig.json",
     "version": "0.1.1",

@@ -1,0 +1,121 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.restoreControlledState = exports.restoreControlledTextareaState = exports.initTextarea = exports.updateTextarea = exports.validateTextareaProps = void 0;
+var react_current_fiber_1 = require("@zenflux/react-reconciler/src/react-current-fiber");
+var react_feature_flags_1 = require("@zenflux/react-shared/src/react-feature-flags");
+var ToStringValue_1 = require("@zenflux/react-dom-bindings/src/client/ToStringValue");
+var ReactDOMInput_1 = require("./ReactDOMInput");
+var ReactDOMSelect_1 = require("./ReactDOMSelect");
+var didWarnValDefaultVal = false;
+/**
+ * Implements a <textarea> host component that allows setting `value`, and
+ * `defaultValue`. This differs from the traditional DOM API because value is
+ * usually set as PCDATA children.
+ *
+ * If `value` is not supplied (or null/undefined), user actions that affect the
+ * value will trigger updates to the element.
+ *
+ * If `value` is supplied (and not null/undefined), the rendered element will
+ * not trigger updates to the element. Instead, the `value` prop must change in
+ * order for the rendered element to be updated.
+ *
+ * The rendered element will be initialized with an empty value, the prop
+ * `defaultValue` if specified, or the children content (deprecated).
+ */
+function validateTextareaProps(element, props) {
+    if (__DEV__) {
+        if (props.value !== undefined && props.defaultValue !== undefined && !didWarnValDefaultVal) {
+            console.error("%s contains a textarea with both value and defaultValue props. " + "Textarea elements must be either controlled or uncontrolled " + "(specify either the value prop, or the defaultValue prop, but not " + "both). Decide between using a controlled or uncontrolled textarea " + "and remove one of these props. More info: " + "https://reactjs.org/link/controlled-components", (0, react_current_fiber_1.getCurrentFiberOwnerNameInDevOrNull)() || "A component");
+            didWarnValDefaultVal = true;
+        }
+        if (props.children != null && props.value == null) {
+            console.error("Use the `defaultValue` or `value` props instead of setting " + "children on <textarea>.");
+        }
+    }
+}
+exports.validateTextareaProps = validateTextareaProps;
+function updateTextarea(element, value, defaultValue) {
+    var node = element;
+    if (value != null) {
+        // Cast `value` to a string to ensure the value is set correctly. While
+        // browsers typically do this as necessary, jsdom doesn't.
+        var newValue = (0, ToStringValue_1.toString)((0, ToStringValue_1.getToStringValue)(value));
+        // To avoid side effects (such as losing text selection), only set value if changed
+        if (newValue !== node.value) {
+            node.value = newValue;
+        }
+        // TOOO: This should respect disableInputAttributeSyncing flag.
+        if (defaultValue == null) {
+            if (node.defaultValue !== newValue) {
+                node.defaultValue = newValue;
+            }
+            return;
+        }
+    }
+    if (defaultValue != null) {
+        node.defaultValue = (0, ToStringValue_1.toString)((0, ToStringValue_1.getToStringValue)(defaultValue));
+    }
+    else {
+        node.defaultValue = "";
+    }
+}
+exports.updateTextarea = updateTextarea;
+function initTextarea(element, value, defaultValue, children) {
+    var node = element;
+    var initialValue = value;
+    // Only bother fetching default value if we're going to use it
+    if (initialValue == null) {
+        if (children != null) {
+            if (!react_feature_flags_1.disableTextareaChildren) {
+                if (defaultValue != null) {
+                    throw new Error("If you supply `defaultValue` on a <textarea>, do not pass children.");
+                }
+                if (Array.isArray(children)) {
+                    if (children.length > 1) {
+                        throw new Error("<textarea> can only have at most one child.");
+                    }
+                    children = children[0];
+                }
+                defaultValue = children;
+            }
+        }
+        if (defaultValue == null) {
+            defaultValue = "";
+        }
+        initialValue = defaultValue;
+    }
+    var stringValue = (0, ToStringValue_1.getToStringValue)(initialValue);
+    node.defaultValue = stringValue; // This will be toString:ed.
+    // This is in postMount because we need access to the DOM node, which is not
+    // available until after the component has mounted.
+    var textContent = node.textContent;
+    // Only set node.value if textContent is equal to the expected
+    // initial value. In IE10/IE11 there is a bug where the placeholder attribute
+    // will populate textContent as well.
+    // https://developer.microsoft.com/microsoft-edge/platform/issues/101525/
+    if (textContent === stringValue) {
+        if (textContent !== "" && textContent !== null) {
+            node.value = textContent;
+        }
+    }
+}
+exports.initTextarea = initTextarea;
+function restoreControlledTextareaState(element, props) {
+    // DOM component is still mounted; update
+    updateTextarea(element, props.value, props.defaultValue);
+}
+exports.restoreControlledTextareaState = restoreControlledTextareaState;
+function restoreControlledState(domElement, tag, props) {
+    switch (tag) {
+        case "input":
+            (0, ReactDOMInput_1.restoreControlledInputState)(domElement, props);
+            return;
+        case "textarea":
+            restoreControlledTextareaState(domElement, props);
+            return;
+        case "select":
+            (0, ReactDOMSelect_1.restoreControlledSelectState)(domElement, props);
+            return;
+    }
+}
+exports.restoreControlledState = restoreControlledState;

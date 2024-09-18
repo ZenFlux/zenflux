@@ -1,5 +1,4 @@
 {
-    "$schema": "https://raw.githubusercontent.com/SchemaStore/schemastore/master/src/schemas/json/package.json",
     "name": "@zenflux/zenflux",
     "author": "Leonid Vinikov <leonidvinikov@gmail.com> (https://github.com/iNewLegend)",
     "license": "MIT",
@@ -20,11 +19,12 @@
     "workspaces": [
         "packages/*",
         "packages-react/*",
-        "zenflux-react-app-examples/*"
+        "packages-react-examples/*"
     ],
     "scripts": {
         "@z-flux:cli": "bun run @z-cli",
         "@z-flux:eslint": "eslint .",
+        "@z-flux:eslint:bun": "bunx --bun eslint .",
         "@z-flux:publish": "@z-cli @publish",
         "@z-flux:registry-server": "@z-cli @registry server",
         "@z-flux:build:core": "@z-cli @build --workspace core",

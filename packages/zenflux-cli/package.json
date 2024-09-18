@@ -1,5 +1,4 @@
 {
-    "$schema": "https://raw.githubusercontent.com/SchemaStore/schemastore/master/src/schemas/json/package.json",
     "name": "@zenflux/cli",
     "version": "0.1.1",
     "type": "module",
