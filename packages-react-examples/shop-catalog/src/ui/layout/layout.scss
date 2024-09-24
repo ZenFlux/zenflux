@@ -1,3 +1,7 @@
 .layout {
-
+    .content {
+        @apply container;
+        @apply mx-auto;
+        @apply px-4;
+    }
 }
