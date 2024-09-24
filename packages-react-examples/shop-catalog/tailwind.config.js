@@ -9,6 +9,11 @@ module.exports = {
     ],
     theme: {
         extend: {
+            screens: {
+                '2lg': '1550px',
+                'xl': '1700px',
+                '2xl': '1800px',
+            },
         },
     },
     plugins: [

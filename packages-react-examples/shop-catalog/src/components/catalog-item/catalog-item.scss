@@ -1,0 +1,137 @@
+/*
+    `Brief` explanation
+    On 2XL or larger - cols count should be 4
+        if last row have only one item it should take span of 4
+        if last row have only two items both should take span of 2
+        if last row have only three items then they should be centered
+
+    On 2lG - cols count should be 3
+        if last row have only one item it should take span of 3
+        if last row have only two items both should be centered
+
+    On LG - cols count should be 2
+        if the lat row have only one item it should take span of 2
+
+    On smaller then LG, it should be only one col
+*/
+
+@media screen and (min-width: theme('screens.md')) and (max-width: theme('screens.2lg')) {
+    .catalog {
+        @apply grid-cols-2;
+    }
+
+    .grid-lg-type-1 {
+        .catalog-item:last-child {
+            @apply flex;
+            @apply justify-center;
+            @apply col-span-2;
+
+            max-width: 100%;
+
+            .catalog-item-content {
+                width: 50%;
+            }
+        }
+    }
+}
+
+@media screen and (min-width: theme('screens.2lg')) and (max-width: theme('screens.2xl')) {
+    .catalog {
+        @apply grid-cols-3;
+    }
+
+    .grid-2lg-type-1 {
+        .catalog-item:last-child {
+            @apply flex;
+            @apply justify-center;
+            @apply col-span-3;
+
+            max-width: 100%;
+
+            .catalog-item-content {
+                width: calc(33% - 10px);
+            }
+        }
+    }
+
+    .grid-2lg-type-2 {
+        .catalog-item:nth-last-child(1),
+        .catalog-item:nth-last-child(2) {
+            @apply flex;
+            @apply col-span-1;
+            @apply justify-center;
+
+            max-width: 100%;
+
+            position: relative;
+            left: 50%;
+
+            .catalog-item-content {
+                width: 100%;
+            }
+        }
+    }
+}
+
+@screen 2xl {
+    .catalog {
+        @apply grid-cols-4;
+    }
+
+    .grid-xl-type-1 {
+        .catalog-item:last-child {
+            @apply flex;
+            @apply justify-center;
+            @apply col-span-4;
+
+            max-width: 100%;
+
+            .catalog-item-content {
+                width: 40%;
+            }
+        }
+    }
+
+    .grid-xl-type-2 {
+        .catalog-item:nth-last-child(1),
+        .catalog-item:nth-last-child(2) {
+            @apply flex;
+            @apply col-span-2;
+
+            max-width: 100%;
+
+            .catalog-item-content {
+                width: 80%;
+            }
+        }
+
+        .catalog-item:nth-last-child(1) {
+            @apply justify-start;
+        }
+
+        .catalog-item:nth-last-child(2) {
+            @apply justify-end;
+        }
+    }
+
+    .grid-xl-type-3 {
+        .catalog-item:nth-last-child(1),
+        .catalog-item:nth-last-child(2),
+        .catalog-item:nth-last-child(3) {
+            @apply flex;
+            @apply col-span-1;
+            @apply justify-center;
+
+            max-width: 100%;
+
+            position: relative;
+            left: 50%;
+
+            .catalog-item-content {
+                width: 100%;
+            }
+        }
+    }
+}
+
+
