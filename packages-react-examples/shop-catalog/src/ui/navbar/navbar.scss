@@ -37,23 +37,7 @@
 }
 
 .navbar .navbar__end {
-    .navbar__cart {
-        @apply w-[40px];
-        @apply h-[40px];
-
-        /* Flip horizontal */
-        transform: scaleX(-1);
-
-        @apply select-none;
-        cursor: pointer;
-
-        svg {
-            @apply transition-all duration-300;
-
-            &:hover {
-                @apply scale-110;
-            }
-        }
-    }
+    max-width: 40px;
+    max-height: 40px;
 }
 

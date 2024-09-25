@@ -1,20 +1,20 @@
-import CartIcon from "@zenflux/app-shop-catalog/src/ui/icons/shopping-cart-icon";
+import React from "react";
 
 import "@zenflux/app-shop-catalog/src/ui/navbar/navbar.scss";
 
-export default function Navbar() {
+interface NavbarProps {
+    brandName?: string;
+    end?: React.ReactNode;
+}
+
+export default function Navbar( { brandName, end }: NavbarProps ) {
     return (
             <div className="navbar">
                 <nav>
-                    <div className="navbar__brand">
-                        <h1>Shop Catalog</h1>
-                    </div>
-
-                    <div className="navbar__end">
-                        <div className="navbar__cart">
-                            <CartIcon/>
-                        </div>
-                    </div>
+                    { brandName && <div className="navbar__brand">
+                        <h1>{ brandName }</h1>
+                    </div>}
+                    { end && <div className="navbar__end">{ end }</div>}
                 </nav>
             </div>
     );

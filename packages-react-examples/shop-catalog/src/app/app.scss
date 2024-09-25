@@ -1,0 +1,18 @@
+#app-navbar-cart {
+    /* Flip horizontal */
+    transform: scaleX(-1);
+
+    @apply select-none;
+    cursor: pointer;
+
+    svg {
+        width: 100%;
+        height: auto;
+
+        @apply transition-all duration-300;
+
+        &:hover {
+            @apply scale-110;
+        }
+    }
+}
