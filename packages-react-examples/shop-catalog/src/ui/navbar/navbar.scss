@@ -18,7 +18,7 @@
     @apply mx-auto;
 }
 
-.navbar .navbar-brand {
+.navbar .navbar__brand {
     @apply text-2xl;
     @apply font-bold;
     @apply text-gray-700;
@@ -36,8 +36,8 @@
     }
 }
 
-.navbar .navbar-end {
-    .navbar-cart {
+.navbar .navbar__end {
+    .navbar__cart {
         @apply w-[40px];
         @apply h-[40px];
 

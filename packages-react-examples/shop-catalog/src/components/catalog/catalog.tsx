@@ -1,6 +1,6 @@
-import "@zenflux/app-shop-catalog/src/components/catalog/catalog.scss";
+import CatalogItem from "@zenflux/app-shop-catalog/src/components/catalog/catalog-item/catalog-item";
 
-import CatalogItem from "@zenflux/app-shop-catalog/src/components/catalog-item/catalog-item";
+import "@zenflux/app-shop-catalog/src/components/catalog/catalog.scss";
 
 const DEFAULT_MAX_GRID_COLS = 4;
 
@@ -15,7 +15,7 @@ function getGridType( count: number ): string {
 
     return breakpoints
             .slice( 0, mods.length )
-            .map( ( bp, i ) => `grid-${ bp }-type-${ mods[ i ] }` )
+            .map( ( bp, i ) => `catalog__grid--${ bp }-type-${ mods[ i ] }` )
             .join( " " );
 }
 
@@ -30,7 +30,7 @@ export default function Catalog() {
     }
 
     return (
-            <div className={ `catalog grid gap-6 ${ getGridType( count ) }` }>
+            <div className={ `catalog ${ getGridType( count ) }` }>
                 { items }
             </div>
     );

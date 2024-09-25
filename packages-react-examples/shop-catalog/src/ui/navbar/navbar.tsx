@@ -6,12 +6,12 @@ export default function Navbar() {
     return (
             <div className="navbar">
                 <nav>
-                    <div className="navbar-brand">
+                    <div className="navbar__brand">
                         <h1>Shop Catalog</h1>
                     </div>
 
-                    <div className="navbar-end">
-                        <div className="navbar-cart">
+                    <div className="navbar__end">
+                        <div className="navbar__cart">
                             <CartIcon/>
                         </div>
                     </div>
