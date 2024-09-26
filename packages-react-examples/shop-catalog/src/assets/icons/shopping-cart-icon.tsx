@@ -1,6 +1,10 @@
-export default function ShoppingCartIcon() {
+import type { DClassNamesProps } from "@zenflux/app-shop-catalog/src/definitions";
+
+export default function ShoppingCartIcon( { classNames = [] }: DClassNamesProps ) {
+    classNames = [ "shopping-cart-icon", ... classNames ];
+
     return (
-            <svg className="shopping-cart-icon" version="1.1" id="_x32_" xmlns="http://www.w3.org/2000/svg"
+            <svg className={ classNames.join( " " ) } version="1.1" id="_x32_" xmlns="http://www.w3.org/2000/svg"
                  xmlnsXlink="http://www.w3.org/1999/xlink"
                  viewBox="0 0 512 512" xmlSpace="preserve">
                 <style type="text/css">

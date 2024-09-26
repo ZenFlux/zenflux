@@ -2,25 +2,46 @@ import React from "react";
 
 import "@zenflux/app-shop-catalog/src/ui/layout/layout.scss";
 
-interface LayoutProps {
-    children: React.ReactNode;
+export interface LayoutProps {
+    id?: string;
     header?: React.ReactNode;
     sidebar?: React.ReactNode;
+    overlay?: {
+        isVisible?: boolean;
+        classNames?: string[];
+        onClick?: ( e?: React.MouseEvent ) => void;
+    };
+
+    children: React.ReactNode;
 }
 
-export default function Layout({ children, header, sidebar }: LayoutProps) {
+function Layout( { id, header, sidebar, overlay, children }: LayoutProps ) {
     return (
-            <div className="layout">
-                { header && <div className="layout__header">
+            <div { ... { id } } className="layout">
+                { header && <header className="layout__header">
                     { header }
-                </div> }
-                { sidebar && <div className="layout__sidebar">
+                </header> }
+
+                { sidebar && <aside className="layout__sidebar">
                     { sidebar }
-                </div> }
-                <div className="layout__content">
+                </aside> }
+
+                <main className="layout__content">
                     { children }
-                </div>
+                </main>
+
+                { overlay && <div
+                        onClick={ overlay.onClick ?? (() => {}) }
+                        className={ `${ [
+                                "layout__overlay",
+                                overlay.isVisible ? "layout__overlay--visible" : "layout__overlay--invisible",
+                            ... overlay.classNames ?? []
+                        ].join( " " ) }` }
+                >
+                </div> }
             </div>
     );
 
 }
+
+export default React.memo( Layout );
