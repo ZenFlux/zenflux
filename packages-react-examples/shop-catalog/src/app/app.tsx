@@ -8,6 +8,8 @@ import Navbar from "@zenflux/app-shop-catalog/src/ui/navbar/navbar";
 
 import Catalog from "@zenflux/app-shop-catalog/src/components/catalog/catalog";
 
+import Sidebar from "@zenflux/app-shop-catalog/src/ui/sidebar/sidebar";
+
 import "@zenflux/app-shop-catalog/src/app/app.scss";
 
 import type { LayoutProps } from "@zenflux/app-shop-catalog/src/ui/layout/layout";
@@ -30,6 +32,18 @@ function AppHeader( { onCartClick }: { onCartClick: () => void } ) {
     );
 }
 
+function AppSidebar( { isOpen }: { isOpen: boolean } ) {
+    return (
+            <Sidebar isOpen={ isOpen } classNames={ [
+                "bg-white",
+                "transform-translate-x-full transition-transform",
+                "duration-300 ease-in-out"
+            ] }>
+                <h1>Hi</h1>
+            </Sidebar>
+    );
+}
+
 function App() {
     const [ sidebarState, setSidebarState ] = React.useState( false );
 
@@ -40,6 +54,7 @@ function App() {
     const layoutProps: Omit<LayoutProps, "children"> = {
         id: "app",
         header: <AppHeader onCartClick={ toggleSidebarState }/>,
+        sidebar: <AppSidebar isOpen={ sidebarState }/>,
         overlay: {
             isVisible: sidebarState,
             onClick: toggleSidebarState,

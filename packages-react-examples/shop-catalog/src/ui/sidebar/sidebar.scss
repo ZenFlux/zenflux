@@ -1,0 +1,25 @@
+:root {
+    --sidebar-width: 480px;
+    --sidebar-z-index: 10;
+    --sidebar-closed-right-postion: calc( 0px - var(--sidebar-width) );
+}
+
+.sidebar {
+    width: var(--sidebar-width);
+    z-index: var(--sidebar-z-index);
+
+    @apply fixed;
+    @apply top-0 bottom-0;
+
+    @apply overflow-y-auto overflow-x-hidden;
+
+    &.sidebar--open {
+        right: 0;
+    }
+
+    &.sidebar--closed {
+        right: var( --sidebar-closed-right-postion );
+    }
+}
+
+
