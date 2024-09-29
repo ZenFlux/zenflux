@@ -24,7 +24,7 @@
     @apply text-gray-700;
 
     @apply select-none;
-    cursor: pointer;
+    @apply cursor-pointer;
 
     h1 {
         @apply transition-all duration-300;

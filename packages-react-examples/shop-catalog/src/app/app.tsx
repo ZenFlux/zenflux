@@ -37,12 +37,12 @@ function AppSidebar( { isOpen }: { isOpen: boolean } ) {
             <Sidebar isOpen={ isOpen } classNames={ [
                 "bg-white",
                 "transform-translate-x-full transition-transform",
-                "duration-300 ease-in-out"
+                "duration-400 ease-in"
             ] }>
                 <h1>Hi</h1>
             </Sidebar>
     );
-}
+};
 
 function App() {
     const [ sidebarState, setSidebarState ] = React.useState( false );
@@ -63,7 +63,7 @@ function App() {
                 "w-full h-full",
                 "top-0 left-0 right-0 bottom-0",
                 "bg-white bg-opacity-60",
-                "transition-opacity duration-500 ease-in-out"
+                "transition-opacity duration-500 ease-in"
             ]
         }
     };

@@ -1,7 +1,3 @@
-:root {
-    --layout-overlay-z-index: 5;
-}
-
 .layout {
     .layout__content {
         @apply container;
@@ -16,11 +12,11 @@
 
     .layout__overlay--invisible {
         @apply opacity-0;
-        z-index: -1;
+        pointer-events: none;
     }
 
     .layout__overlay--visible {
         @apply opacity-100;
-        z-index: var(--layout-overlay-z-index);
+        pointer-events: all;
     }
 }
