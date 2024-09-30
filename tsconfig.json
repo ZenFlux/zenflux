@@ -2,6 +2,8 @@
     "display": "Node 20",
     "_version": "20.1.0",
     "compilerOptions": {
+        // In case global `tsconfig.json` is used, e.g: when running `@z-cli` from root.
+        "target": "ESNext",
         "allowSyntheticDefaultImports": true
     }
 }
