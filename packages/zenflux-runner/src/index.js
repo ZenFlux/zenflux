@@ -62,7 +62,11 @@ const defaults = {
 
     nodeModulesPath: nodeModulesPath,
 
-    tsConfigPath: nodePath.resolve( currentPackagePath, "../", TS_CONFIG_JSON ),
+    tsConfigPath: nodePath.resolve(
+        currentPackagePath,
+        isZenWorkspace( rootPackageJsonPath ) ? "" : "../",
+        TS_CONFIG_JSON
+    ),
 
     extensions: [ ".ts", ".json" ],
 
