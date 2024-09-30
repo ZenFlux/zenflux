@@ -74,6 +74,7 @@ export class Worker {
 
             // Required by `@z-runner`
             execArgv: [
+                "--no-warnings",
                 "--experimental-vm-modules",
                 "--experimental-import-meta-resolve",
             ],
@@ -109,7 +110,8 @@ export class Worker {
                     this.eventCallbacks.get( type )!.forEach( c => c.call( null, ... args ) );
                 }
 
-            } else if ( "internal-error" ) {
+            } else if ( type === "internal-error" ) {
+                // Bypass.
             } else if ( "done" !== type ) {
                 throw new Error( `Unhandled message: '${ type }', at worker: '${ this.name + ":" + this.id }'` );
             }
@@ -322,7 +324,7 @@ if ( workData?.zCliRunPath === fileURLToPath( import.meta.url ) ) {
             case "run":
                 const result = work();
 
-                if ( result instanceof Promise ) {
+                if ( result && Object.prototype.toString.call( result) === "[object Promise]" ) {
                     result
                         .then( done )
                         .catch( ( error ) => {
@@ -378,6 +380,7 @@ export const zCreateWorker: ( args: ZCreateWorkerArguments ) => Worker = ( {
     try {
         isExist = workFilePath && fs.existsSync( workFilePath );
 
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch ( e ) {
     }
 
