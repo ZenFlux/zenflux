@@ -1,4 +1,4 @@
-#!/usr/bin/env -S node --unhandled-rejections=strict --experimental-vm-modules --trace-uncaught --no-warnings --experimental-import-meta-resolve
+#!/usr/bin/env -S node --no-warnings --unhandled-rejections=strict --experimental-vm-modules --trace-uncaught --no-warnings --experimental-import-meta-resolve
 import { fileURLToPath } from "node:url";
 
 import nodePath from "node:path";
@@ -139,8 +139,14 @@ if ( typeof Bun !== "undefined" ) {
         const resolvers = new Resolvers( vm ),
             loaders = new Loaders( vm );
 
-        await vm.auto( targetPath, loaders, resolvers )
-            .catch( ( err ) => {
+        await vm.auto( targetPath, loaders, resolvers ).catch( ( err ) => {
+                err.cause ??= {
+                    deepStack: []
+                };
+
+                err.cause.deepStack.push( import.meta.url );
+                err.cause.meta = vm.config.paths;
+
                 throw err;
             } );
     } );
