@@ -80,6 +80,7 @@ export default function zRollupCjsAsyncWrapPlugin( args: IPluginArgs ): Plugin {
             runInjection.code = `/* rollup-cjs-async-run.js */\n${runInjection.code}`;
         },
 
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
         async transform( code, id ) {
             if ( ! code.includes( "await" ) ) {
                 return null;
