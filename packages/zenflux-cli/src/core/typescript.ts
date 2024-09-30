@@ -39,6 +39,7 @@ import type { IZConfigInternal } from "@zenflux/cli/src/definitions/config";
 
 // TODO: Avoid this, create threadPool with max threads = cpu cores.
 const diagnosticWorkers = new Map<number, Worker>(),
+    diagnosticWorkersPreparing = new Map<number, ReturnType<typeof zCreateResolvablePromise>>,
     declarationWorkers = new Map<number, Worker>();
 
 const waitingTSConfigs = new Map<string, {
@@ -155,22 +156,7 @@ export function zTSConfigGetPath( format: TZFormatType | null, targetPath: strin
     }
 }
 
-/**
- * Function zTSConfigRead() - Read and parse TypeScript configuration from tsconfig.json file.
- */
-export function zTSConfigRead( format: TZFormatType | null, projectPath: string ) {
-    const cacheKey = projectPath + "_" + format;
-
-    if ( configCache[ cacheKey ] ) {
-        return configCache[ cacheKey ];
-    }
-
-    const tsConfigPath = zTSConfigGetPath( format, projectPath, false );
-
-    if ( ! tsConfigPath ) {
-        throw new Error( "tsconfig.json not found" );
-    }
-
+export function zTSConfigReadInternal( tsConfigPath: string, projectPath: string ) {
     ConsoleManager.$.debug(
         () => [
             "Ts-Config",
@@ -211,6 +197,27 @@ export function zTSConfigRead( format: TZFormatType | null, projectPath: string 
             process.exit( 1 );
         }
     }
+
+    return content;
+}
+
+/**
+ * Function zTSConfigRead() - Read and parse TypeScript configuration from tsconfig.json file.
+ */
+export function zTSConfigRead( format: TZFormatType | null, projectPath: string ) {
+    const cacheKey = projectPath + "_" + format;
+
+    if ( configCache[ cacheKey ] ) {
+        return configCache[ cacheKey ];
+    }
+
+    const tsConfigPath = zTSConfigGetPath( format, projectPath, false );
+
+    if ( ! tsConfigPath ) {
+        throw new Error( "tsconfig.json not found" );
+    }
+
+    const content =  zTSConfigReadInternal( tsConfigPath, projectPath );
 
     configCache[ cacheKey ] = Object.assign( {}, content );
 
@@ -361,10 +368,15 @@ export function zTSCreateDeclaration( tsConfig: ts.ParsedCommandLine, config: IZ
 
         // Check if we need to generate dts file.
         if ( config.inputDtsPath ) {
+            const tsConfig = zTSConfigReadInternal(
+                `${ projectPath }/tsconfig.api-extractor.json`,
+                projectPath
+            );
+
             const result = zApiExporter(
                 projectPath,
-                config.inputDtsPath as string,
-                config.outputDtsPath as string,
+                config,
+                tsConfig,
                 activeConsole
             );
 
@@ -409,6 +421,12 @@ export async function zTSCreateDiagnosticWorker(
     activeConsole: ConsoleThreadFormat
 ) {
     if ( ! diagnosticWorkers.has( options.id ) ) {
+        const preparePromise = zCreateResolvablePromise();
+
+        diagnosticWorkersPreparing.set( options.id, preparePromise  );
+
+        preparePromise.await.then( () => diagnosticWorkersPreparing.delete( options.id ) );
+
         const { zCreateWorker } = ( await import( "@zenflux/worker" ) );
 
         const worker = zCreateWorker( {
@@ -422,6 +440,8 @@ export async function zTSCreateDiagnosticWorker(
         ConsoleThreadReceive.connect( worker, activeConsole );
 
         diagnosticWorkers.set( options.id, worker );
+
+        preparePromise.resolve();
     }
 
     const thread = diagnosticWorkers.get( options.id as number );
@@ -503,11 +523,27 @@ export async function zTSCreateDeclarationWorker(
         // Main thread will wait for dependencies before starting the worker.
         await zTSWaitForDependencies( tsConfig, options.otherTSConfigs, activeConsole );
 
+        const isDiagnosticPreparingPromise = diagnosticWorkersPreparing.get( options.id );
+
+        if ( isDiagnosticPreparingPromise ) {
+            activeConsole.verbose( () => [
+                zTSCreateDeclarationWorker.name,
+                `Waiting for diagnostic worker DI${ options.id } to prepare`
+            ] );
+
+            await isDiagnosticPreparingPromise.await;
+
+            activeConsole.verbose( () => [
+                zTSCreateDeclarationWorker.name,
+                `Done waiting for diagnostic worker DI${ options.id } to prepare`
+            ] );
+        }
+
         // Get corresponding diagnostics worker.
         const diagnosticThread = diagnosticWorkers.get( options.id as number );
 
         if ( ! diagnosticThread ) {
-            reject( `Diagnostic worker DI${ options.id } not found` );
+            throw new Error( `Diagnostic worker DI${ options.id } not found` );
         }
 
         activeConsole.verbose( () => [

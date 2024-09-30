@@ -6,11 +6,29 @@ import util from "node:util";
 import fs from "node:fs";
 import path from "node:path";
 
-import { Extractor, ExtractorConfig } from "@microsoft/api-extractor";
+import {
+    Extractor,
+    ExtractorConfig,
+    ExtractorLogLevel
+} from "@microsoft/api-extractor";
 
 import { ConsoleManager } from "@zenflux/cli/src/managers/console-manager";
 
-export function zApiExporter( projectPath: string, inputPath: string, outputPath: string, activeConsole = ConsoleManager.$ ) {
+import type ts from "typescript";
+
+import type { IExtractorConfigPrepareOptions } from "@microsoft/api-extractor";
+
+import type { IZConfigInternal } from "@zenflux/cli/src/definitions/config";
+
+export function zApiExporter(
+    projectPath: string,
+    config: IZConfigInternal,
+    tsConfig: ts.ParsedCommandLine,
+    activeConsole = ConsoleManager.$
+) {
+    const inputPath = config.inputDtsPath!,
+        outputPath = config.outputDtsPath!;
+
     const logDiagnosticsFile = process.env.NODE_ENV === "development" ?
         path.resolve( projectPath, `log/api-extractor-diagnostics.${ path.basename( inputPath ) }.log` ) : undefined;
 
@@ -23,29 +41,55 @@ export function zApiExporter( projectPath: string, inputPath: string, outputPath
             fs.mkdirSync( logFolder, { recursive: true } );
         }
     }
-
     activeConsole.verbose( () => [ zApiExporter.name, util.inspect( {
         projectPath,
         inputPath,
         outputPath,
     } ) ] );
 
-    const extractorConfig: ExtractorConfig = ExtractorConfig.prepare( {
+    const packageJsonFullPath = projectPath + "/package.json",
+        packageJsonContent = JSON.parse( fs.readFileSync( packageJsonFullPath, "utf8" ) ),
+        selfPackageLocalize = packageJsonContent[ "name" ] + "/*",
+        paths = { [ selfPackageLocalize ]: [ "./dist/*" ] };
+
+    tsConfig.raw.compilerOptions ??= {};
+    tsConfig.raw.include ??= [];
+    tsConfig.raw.exclude ??= [];
+
+    tsConfig.raw.include.push(
+        "dist/src/**/*.d.ts"
+    );
+
+    tsConfig.raw.compilerOptions["paths"] = {
+        ... tsConfig.raw.compilerOptions["paths"] ?? {},
+        ... paths,
+    };
+
+    const baseConfig: IExtractorConfigPrepareOptions = {
         configObject: {
             projectFolder: projectPath,
             mainEntryPointFilePath: inputPath,
-            bundledPackages: [],
             compiler: {
-                tsconfigFilePath: "<projectFolder>/tsconfig.api-extractor.json",
+                overrideTsconfig: tsConfig.raw,
             },
             dtsRollup: {
                 enabled: true,
                 untrimmedFilePath: outputPath,
-            }
+            },
+            ... config.apiExtractor ?? {}
         },
-        configObjectFullPath: undefined,
+        configObjectFullPath: projectPath + "api-extractor.json",
         packageJsonFullPath: projectPath + "/package.json",
-    } );
+    };
+
+    baseConfig.configObject.messages ??= {};
+    baseConfig.configObject.messages.extractorMessageReporting ??= {};
+
+    baseConfig.configObject.messages.extractorMessageReporting[ "ae-wrong-input-file-type" ] ??= {
+        logLevel: ExtractorLogLevel.Error
+    };
+
+    const extractorConfig: ExtractorConfig = ExtractorConfig.prepare( baseConfig );
 
     if ( logDiagnosticsFile && fs.existsSync( logDiagnosticsFile ) ) {
         activeConsole.verbose( () => [ zApiExporter.name, `Removing old diagnostics file: ${ logDiagnosticsFile }` ] );
@@ -63,11 +107,11 @@ export function zApiExporter( projectPath: string, inputPath: string, outputPath
             let handled = true;
 
             if ( logDiagnosticsFile ) {
-                devDiagnostics.push( message.text );
+                devDiagnostics.push( util.inspect( message, { colors: false } ) );
             } else {
                 switch ( message.logLevel ) {
                     case "error":
-                        activeConsole.error( message.text );
+                        activeConsole.error( `${ zApiExporter.name }`, util.inspect( message ) );
                         break;
                     case "warning":
                         activeConsole.warn( `${ zApiExporter.name }`, "warning", message.text );
@@ -82,7 +126,7 @@ export function zApiExporter( projectPath: string, inputPath: string, outputPath
 
                     default:
                         handled = false;
-                };
+                }
             }
 
             // By default, API Extractor sends its messages to the console, this flag tells api-extractor to not log to console.
