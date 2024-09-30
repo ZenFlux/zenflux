@@ -1,11 +1,14 @@
 import util from "node:util";
 import fs from "node:fs";
+import * as path from "node:path";
 
 import swc from "@swc/core";
 
 import { convertTsConfig } from "@zenflux/tsconfig-to-swc";
 
 import { ConsoleManager } from "@zenflux/cli/src/managers/console-manager";
+
+import type { Output } from "@swc/types";
 
 import type { Plugin, RollupCache } from "rollup";
 
@@ -59,7 +62,19 @@ export default function zRollupSwcPlugin( args: Required<IPluginArgs> ): Plugin 
             }
 
             try {
-                const output = swc.transformSync( source, swcOptions );
+                let output: Output;
+
+                // Check if the file is a JSON file
+                if ( path.extname( id ) === ".json" ) {
+                    // Process JSON manually
+                    const jsonContent = fs.readFileSync( id, "utf-8" );
+                    output = {
+                        code: `export default ${ jsonContent };`,
+                    };
+                } else {
+                    // Process with SWC for non-JSON files
+                    output = swc.transformSync( source, swcOptions );
+                }
 
                 // Acknowledge change for `build` command
                 this.cache.set( id, { output, lastModified } );
