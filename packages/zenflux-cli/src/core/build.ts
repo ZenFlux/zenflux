@@ -244,14 +244,10 @@ export async function zRollupCreateBuildWorker( rollupOptions: RollupOptions[], 
         }
 
         if ( error.name === "Error" ) {
-            const obj = error;
-
-            error = new Error();
-
-            Object.assign( error, obj );
+            error = Object.assign( new Error( error.message ), error );
         }
 
-        activeConsole.error( "build", "in RO-" + options.threadId, "", util.inspect( { $: error } ) );
+        activeConsole.error( "build", "in RO-" + options.threadId, "", util.inspect( { $: error }, { depth: 4 } ) );
     } );
 
     zBuildThreadHandleResume( buildPromise, config );

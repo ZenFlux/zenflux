@@ -137,7 +137,8 @@ export abstract class CommandBuildBase extends CommandConfigBase {
             ... options
         }, tsDiagnosticConsole );
 
-        promise.catch( () => {} ).then( () => {
+        // TODO: Internal error.
+        promise.catch( ( ) => {} ).then( () => {
             tsDiagnosticConsole.log( "recv", "from DS-" + id, util.inspect( config.outputName ) );
         } );
 
@@ -162,7 +163,8 @@ export abstract class CommandBuildBase extends CommandConfigBase {
             otherTSConfigs
         }, tsDeclarationConsole );
 
-        result.catch( () => {} ).then( () => {
+        // TODO: Internal error.
+        result.catch( ( ) => {} ).then( () => {
             tsDeclarationConsole.log( "recv", "from DE-" + id, util.inspect( config.outputName ) );
         } );
 

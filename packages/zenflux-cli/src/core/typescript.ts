@@ -565,7 +565,7 @@ export async function zTSCreateDeclarationWorker(
 
         const buildPromise = thread.run();
 
-        buildPromise.catch( ( error: { message: string | string[]; } ) => {
+        buildPromise.catch( ( error: { message: string | string[], name: string } ) => {
             if ( error.message.includes( "Killed by diagnostic worker" ) ) {
                 activeConsole.verbose( () => [
                     zTSCreateDeclarationWorker.name,
