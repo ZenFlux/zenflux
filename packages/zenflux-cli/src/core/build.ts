@@ -243,6 +243,14 @@ export async function zRollupCreateBuildWorker( rollupOptions: RollupOptions[], 
             delete error.watchFiles;
         }
 
+        if ( error.name === "Error" ) {
+            const obj = error;
+
+            error = new Error();
+
+            Object.assign( error, obj );
+        }
+
         activeConsole.error( "build", "in RO-" + options.threadId, "", util.inspect( { $: error } ) );
     } );
 
