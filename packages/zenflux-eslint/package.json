@@ -2,7 +2,7 @@
     "name": "@zenflux/eslint",
     "author": "Leonid Vinikov <leonidvinikov@gmail.com> (https://github.com/iNewLegend)",
     "type": "module",
-    "version": "0.1.1",
+    "version": "0.1.2",
     "main": "src/main.js",
     "types": "types/main.d.ts",
     "bin": {
@@ -24,6 +24,5 @@
         "@zenflux/utils": "workspace:*",
         "eslint-import-resolver-typescript": "latest",
         "eslint-plugin-import": "latest"
-    },
-    "packageManager": "bun@1.1.12"
+    }
 }
