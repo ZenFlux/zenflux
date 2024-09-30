@@ -108,7 +108,13 @@ export async function zLintGetConfig( options ) {
     return baseConfig;
 }
 
-async function zLintGetProjectsPathsWithConfig( workspaces ) {
+/**
+ * Finds and returns the paths to projects within the provided workspaces that have ESLint configuration files.
+ *
+ * @param {Array<string>} workspaces - An array of workspace paths that may contain project directories. Supports wildcard '*' character in paths.
+ * @return {Promise<Array<string>>} A promise that resolves to an array of project paths containing ESLint configuration files.
+ */
+export async function zLintGetProjectsPathsWithConfig( workspaces ) {
     const projectsESLintPath = [];
 
     await Promise.all( workspaces.map( async ( workspace ) => {

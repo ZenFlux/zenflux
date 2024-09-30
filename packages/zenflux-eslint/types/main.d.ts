@@ -68,21 +68,11 @@ export function zLintGetWorkspaces( rootPkgPath?: string ): string[];
 
 export function zLintGetBaseConfig( options: ZESLintDefaultOptions ): Linter.Config[];
 
-/**
- * Loads ESLint configurations from the provided paths.
- *
- * @param {string[]} esLintConfigPaths - Array of paths to ESLint configuration files.
- * @return {Promise<Array<object>>} - A promise that resolves to an array of loaded configurations.
- */
+
 export function loadPackageESLintConfigs( esLintConfigPaths: string[] ): Promise<object[]>;
 
-/**
- * Retrieves ESLint configuration for child projects in the provided workspaces.
- *
- * @param {string[]} [workspaces] - Array of workspace directories to search for ESLint configurations.
- * @return {Promise<Array<object>>} - A promise that resolves to an array of child project configurations.
- */
 export function zLintGetChildrenConfig( workspaces?: string[] ): Promise<object[]>;
 
-
 export function zLintGetConfig( options: ZESLintDefaultOptions ): Promise<Linter.Config[]>;
+
+export function zLintGetProjectsPathsWithConfig( workspaces?: string[] ): Promise<string[]>;
