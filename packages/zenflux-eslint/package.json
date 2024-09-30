@@ -5,6 +5,9 @@
     "version": "0.1.1",
     "main": "src/main.js",
     "types": "types/main.d.ts",
+    "bin": {
+        "@z-lint": "bin/z-lint.js"
+    },
     "repository": {
         "type": "git",
         "url": "https://github.com/zenflux/zenflux.git",
