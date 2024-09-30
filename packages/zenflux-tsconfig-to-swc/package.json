@@ -3,7 +3,7 @@
     "version": "0.1.0",
     "description": "A tsconfig.json to swc.config.js converter",
     "type": "module",
-    "main": "src/index",
+    "main": "src/index.js",
     "types": "src/index",
     "scripts": {
         "@z-tsconfig-to-swc--build-dts": "rm -f ./src/*.d.ts ; tsc"
