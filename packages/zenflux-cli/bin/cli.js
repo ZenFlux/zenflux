@@ -78,6 +78,13 @@ vm.tap( async ( vm ) => {
         loaders = new Loaders( vm );
 
     await vm.auto( workerData?.zCliWorkPath || vm.config.paths.project + "/src/boot.ts", loaders, resolvers ).catch( ( err ) => {
+        err.cause ??= {
+            deepStack: []
+        };
+
+        err.cause.deepStack.push( import.meta.url );
+        err.cause.meta = vm.config.paths;
+
         throw err;
     } );
 } );
