@@ -1,6 +1,6 @@
-import * as ZenCore from "../../src/exports";
+import { Http } from "@zenflux/core/src/clients/http";
 
-import { Http } from "@z-core/clients/http";
+import * as ZenCore from "@zenflux/core/src/exports";
 
 describe( "clients", () => {
     describe( "Http", () => {

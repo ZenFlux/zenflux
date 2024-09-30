@@ -1,3 +1,4 @@
+// eslint-disable-next-line
 import shared from "./__shared__";
 
 beforeAll( async () => {

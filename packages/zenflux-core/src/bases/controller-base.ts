@@ -4,13 +4,13 @@
  *
  * @author Leonid Vinikov <leonidvinikov@gmail.com>
  */
-import { ObjectBase } from "@z-core/bases/object-base";
+import { ObjectBase } from "@zenflux/core/src/bases/object-base";
 
-import * as managers from "@z-core/managers/export";
+import * as managers from "@zenflux/core/src/managers/export";
 
-import type { CommandPublic } from "@z-core/command-bases/command-public";
-import type { CommandRestful } from "@z-core/command-bases/command-restful";
-import type { CommandInternal } from "@z-core/command-bases/command-internal";
+import type { CommandPublic } from "@zenflux/core/src/command-bases/command-public";
+import type { CommandRestful } from "@zenflux/core/src/command-bases/command-restful";
+import type { CommandInternal } from "@zenflux/core/src/command-bases/command-internal";
 
 // noinspection TypeScriptAbstractClassConstructorCanBeMadeProtected
 

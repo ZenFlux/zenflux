@@ -1,6 +1,7 @@
-import * as ZenCore from "../../src/exports";
+// eslint-disable-next-line
+import { __CommandRestful__Public__ } from "@zenflux/core/test/__mock__/bases/command-restful--public";
 
-import { __CommandRestful__Public__ } from "../__mock__/bases/command-restful--public";
+import * as ZenCore from "@zenflux/core/src/exports";
 
 describe( "command-bases", () => {
     describe( "CommandRestful", () => {

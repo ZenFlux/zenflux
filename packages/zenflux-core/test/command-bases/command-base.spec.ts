@@ -1,8 +1,9 @@
-import * as ZenCore from "../../src/exports";
+// eslint-disable-next-line
+import { __CommandBase__Public__ } from "@zenflux/core/test/__mock__/bases/command-base--public";
 
-import { __CommandBase__Public__ } from "../__mock__/bases/command-base--public";
+import * as ZenCore from "@zenflux/core/src/exports";
 
-import { ControllerAlreadySet } from "../../src/errors";
+import { ControllerAlreadySet } from "@zenflux/core/src/errors";
 
 describe( "command-bases" , () => {
     describe( "CommandBase", () => {

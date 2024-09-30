@@ -1,4 +1,4 @@
-import { CommandBase } from "../../../src/command-bases/command-base";
+import { CommandBase } from "@zenflux/core/src/command-bases/command-base";
 
 export class __CommandBase__Public__ extends CommandBase {
     public initialize( args: any, options: any ) {

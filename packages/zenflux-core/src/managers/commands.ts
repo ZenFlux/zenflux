@@ -2,10 +2,10 @@
  * @author Leonid Vinikov <leonidvinikov@gmail.com>
  * @description Responsible for manging/running/hooking commands.
  */
-import { ObjectBase } from "@z-core/bases/object-base";
+import { ObjectBase } from "@zenflux/core/src/bases/object-base";
 
-import { CommandNotFound } from "@z-core/errors/command-not-found";
-import { CommandAlreadyRegistered } from "@z-core/errors/command-already-registered";
+import { CommandNotFound } from "@zenflux/core/src/errors/command-not-found";
+import { CommandAlreadyRegistered } from "@zenflux/core/src/errors/command-already-registered";
 
 import type {
     TCommandCallbackType,
@@ -17,10 +17,10 @@ import type {
     ICommandOptionsInterface,
 
     ILogger,
-} from "@z-core/interfaces";
+} from "@zenflux/core/src/interfaces";
 
-import type { ControllerBase } from "@z-core/bases/controller-base";
-import type { CommandBase } from "@z-core/command-bases/command-base";
+import type { ControllerBase } from "@zenflux/core/src/bases/controller-base";
+import type { CommandBase } from "@zenflux/core/src/command-bases/command-base";
 
 export class Commands extends ObjectBase {
     public static readonly trace:string[] = [];
@@ -91,7 +91,7 @@ export class Commands extends ObjectBase {
         return result;
     }
 
-    public register( commands: { [ key: string ]: typeof CommandBase }, controller: ControllerBase ) {// eslint-disable-line @typescript-eslint/no-unused-vars
+    public register( commands: { [ key: string ]: typeof CommandBase }, controller: ControllerBase ) {
         const result: { [ key: string ]: typeof CommandBase } = {};
 
         Object.values( commands ).forEach( ( command ) => {

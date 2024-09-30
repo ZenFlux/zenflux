@@ -1,4 +1,5 @@
-import { __ObjectBase__Public__ } from "../__mock__/bases/object-base--public";
+// eslint-disable-next-line
+import { __ObjectBase__Public__ } from "@zenflux/core/test/__mock__/bases/object-base--public";
 
 describe( "bases", () => {
     describe( "ObjectBase", () => {

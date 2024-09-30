@@ -1,7 +1,7 @@
 /**
  * @author Leonid Vinikov <leonidvinikov@gmail.com>
  */
-export * from "@z-core/interfaces/commands";
-export * from "@z-core/interfaces/config";
-export * from "@z-core/interfaces/logger";
-export * from "@z-core/interfaces/restful";
+export type * from "@zenflux/core/src/interfaces/commands";
+export type * from "@zenflux/core/src/interfaces/config";
+export type * from "@zenflux/core/src/interfaces/logger";
+export * from "@zenflux/core/src/interfaces/restful";

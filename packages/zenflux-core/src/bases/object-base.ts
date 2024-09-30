@@ -6,7 +6,7 @@
  *
  * @author Leonid Vinikov <leonidvinikov@gmail.com>
  */
-import { ForceMethodBase } from "@z-core/errors/force-method-implementation";
+import { ForceMethodBase } from "@zenflux/core/src/errors/force-method-implementation";
 
 export abstract class ObjectBase {
     private readonly _id: string;
