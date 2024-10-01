@@ -9,9 +9,9 @@
  */
 import { bases } from "@zenflux/core";
 
-import type { interfaces } from "@zenflux/core";
-
 import { getHexColorDelta, reduceCircularReferences } from "@z-logging/utils";
+
+import type { interfaces } from "@zenflux/core";
 
 // TODO: Should by dynamic/configure-able.
 const MAX_MAPPING_RECURSIVE_DEPTH = 4,
