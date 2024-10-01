@@ -370,6 +370,7 @@ export class APIChannelsModule extends APIModuleBase {
                 } );
 
             } );
+            // eslint-disable-next-line @typescript-eslint/no-unused-vars
         } catch ( error ) {
             this.autosaveHandler?.();
         }

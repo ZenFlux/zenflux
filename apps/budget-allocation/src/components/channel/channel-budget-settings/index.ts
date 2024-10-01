@@ -8,4 +8,4 @@ export {
     ChannelBudgetAllocation
 } from "@zenflux/app-budget-allocation/src/components/channel/channel-budget-settings/channel-budget-allocation";
 
-export * from "@zenflux/app-budget-allocation/src/components/channel/channel-budget-settings/channel-budget-types";
+export type * from "@zenflux/app-budget-allocation/src/components/channel/channel-budget-settings/channel-budget-types";
