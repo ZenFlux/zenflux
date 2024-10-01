@@ -12,7 +12,7 @@
         "module": "ESNext",
 
         // Defines how TypeScript resolves module import paths (Node.js style)
-        "moduleResolution": "node",
+        "moduleResolution": "Node",
 
         // Generates declaration files (.d.ts) without emitting JavaScript files
         "declaration": true,

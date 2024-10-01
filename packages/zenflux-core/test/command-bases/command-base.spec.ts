@@ -1,4 +1,3 @@
-// eslint-disable-next-line
 import { __CommandBase__Public__ } from "@zenflux/core/test/__mock__/bases/command-base--public";
 
 import * as ZenCore from "@zenflux/core/src/exports";

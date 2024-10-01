@@ -1,4 +1,3 @@
-// eslint-disable-next-line
 import { __CommandRestful__Public__ } from "@zenflux/core/test/__mock__/bases/command-restful--public";
 
 import * as ZenCore from "@zenflux/core/src/exports";

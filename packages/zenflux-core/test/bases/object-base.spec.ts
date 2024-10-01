@@ -1,4 +1,3 @@
-// eslint-disable-next-line
 import { __ObjectBase__Public__ } from "@zenflux/core/test/__mock__/bases/object-base--public";
 
 describe( "bases", () => {

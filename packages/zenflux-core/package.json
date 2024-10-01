@@ -9,7 +9,7 @@
         "types"
     ],
     "scripts": {
-        "@z-core--test": "jest",
+        "@z-core--test": "@z-jest",
         "@z-core--lint": "@z-lint",
         "@z-core--lint-fix": "@z-lint --fix",
         "@z-core--build": "@z-cli @build",
@@ -28,6 +28,8 @@
         "./src/command-bases": "./src/command-bases/index.ts",
         "./src/errors": "./src/errors/index.ts",
         "./src/interfaces": "./src/interfaces/index.ts",
+
+        "./test/*": "./test/*.ts",
 
         "./package.json": "./package.json"
     },
