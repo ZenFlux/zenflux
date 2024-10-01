@@ -10,7 +10,7 @@
         "@z-logging--build": "@z-cli @build",
         "@z-logging--dev": "@z-cli @watch --dev"
     },
-    "peerDependencies": {
+    "dependencies": {
         "@zenflux/core": "workspace:*"
     },
     "devDependencies": {

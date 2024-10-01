@@ -19,7 +19,7 @@
     "workspaces": [
         "packages/*",
         "packages-react/*",
-        "packages-react-examples/*"
+        "apps/*"
     ],
     "scripts": {
         "@z-flux:cli": "bun run @z-cli",
@@ -35,5 +35,5 @@
         "@z-flux-ci:build:react": "@z-cli @build --workspace \"react-*\" --haltOnDiagnosticError --no-diagnostic --no-declaration",
         "@z-flux:ci:jest:react": "@z-jest --selectedProjects react-test-renderer,react-cache,react-scheduler,internal-test-utils,react-reconciler"
     },
-    "packageManager": "bun@1.1.12"
+    "packageManager": "bun@1.1.27"
 }
