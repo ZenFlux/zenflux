@@ -15,6 +15,8 @@ import { DefaultEventPriority, IdleEventPriority } from "@zenflux/react-reconcil
 
 import { ConcurrentRoot, LegacyRoot } from "@zenflux/react-shared/src/react-internal-constants/root-tags";
 
+import type React from "react";
+
 import type { RootTag } from "@zenflux/react-shared/src/react-internal-constants/root-tags";
 
 import type { reactReconciler } from "@zenflux/react-reconciler";

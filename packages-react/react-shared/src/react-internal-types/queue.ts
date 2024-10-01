@@ -1,13 +1,12 @@
-/* eslint-disable no-restricted-imports */
 
-import type { MemoCache } from "./cache";
-import type { EventFunctionPayload } from "./payload";
-import type { StoreConsistencyCheck } from "./store";
-import type { Effect } from "./effect";
+import type { MemoCache } from "@zenflux/react-shared/src/react-internal-types/cache";
+import type { EventFunctionPayload } from "@zenflux/react-shared/src/react-internal-types/payload";
+import type { StoreConsistencyCheck } from "@zenflux/react-shared/src/react-internal-types/store";
+import type { Effect } from "@zenflux/react-shared/src/react-internal-types/effect";
 
 import type { Wakeable } from "@zenflux/react-shared/src/react-types";
-import type { Lanes } from "./lanes";
-import type { FiberUpdate, HookUpdate } from "./update";
+import type { Lanes } from "@zenflux/react-shared/src/react-internal-types/lanes";
+import type { FiberUpdate, HookUpdate } from "@zenflux/react-shared/src/react-internal-types/update";
 
 export type RetryQueue = Set<Wakeable>;
 

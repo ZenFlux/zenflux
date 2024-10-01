@@ -1,3 +1,5 @@
+import type React from "react";
+
 import type { RootTag } from "@zenflux/react-shared/src/react-internal-constants/root-tags";
 
 import type {

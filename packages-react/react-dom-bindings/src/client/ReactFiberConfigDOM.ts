@@ -927,7 +927,6 @@ export function unhideInstance( instance: Instance, props: Props ): void {
     const display = styleProp !== undefined && styleProp !== null && styleProp.hasOwnProperty( "display" ) ? styleProp.display : null;
     // @ts-ignore
     instance.style.display = display == null || typeof display === "boolean" ? "" : // The value would've errored already if it wasn't safe.
-        // not-used: eslint-disable-next-line react-internal/safe-string-coercion
         ( "" + display ).trim();
 }
 

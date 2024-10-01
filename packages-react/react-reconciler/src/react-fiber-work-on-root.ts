@@ -200,7 +200,7 @@ function flushSyncWorkAcrossRoots_impl( onlyLegacy: boolean ) {
     if ( errors !== null ) {
         if ( errors.length > 1 ) {
             if ( typeof AggregateError === "function" ) {
-                // eslint-disable-next-line no-undef
+
                 throw new AggregateError( errors );
             } else {
                 for ( let i = 1 ; i < errors.length ; i++ ) {

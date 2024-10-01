@@ -1,4 +1,3 @@
-// eslint-disable-next-line import/no-cycle
 import * as domConfig from "@zenflux/react-dom-bindings/src/client/react-fiber-config-dom";
 
 import type {
@@ -58,6 +57,7 @@ type ReactFiberConfigSupportsSwitches<T = boolean> = {
     [ Key in typeof ReactFiberConfigSupportsSwitchesMethods[ number ] ]: T;
 };
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const ReactFiberConfigBaseMethods = [
     "getPublicInstance",
     "getRootHostContext",

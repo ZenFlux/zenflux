@@ -292,8 +292,7 @@ function validateDOMNesting( childTag: string, ancestorInfo: AncestorInfoDev ): 
         }
 
         const ancestorTag = invalidParentOrAncestor.tag;
-        const warnKey = // eslint-disable-next-line react-internal/safe-string-coercion
-            String( !! invalidParent ) + "|" + childTag + "|" + ancestorTag;
+        const warnKey = String( !! invalidParent ) + "|" + childTag + "|" + ancestorTag;
 
         if ( didWarn[ warnKey ] ) {
             return;
@@ -322,7 +321,6 @@ function validateTextNesting( childText: string, parentTag: string ): void {
             return;
         }
 
-        // eslint-disable-next-line react-internal/safe-string-coercion
         const warnKey = "#text|" + parentTag;
 
         if ( didWarn[ warnKey ] ) {

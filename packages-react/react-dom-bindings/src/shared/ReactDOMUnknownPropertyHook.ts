@@ -220,7 +220,7 @@ function validateProperty( tagName: string, name: any, value: any, eventRegistry
 
             case "function":
             case "symbol":
-                // eslint-disable-line
+
                 // Warn when a known attribute is a bad type
                 warnedProperties[ name ] = true;
                 return false;

@@ -1,5 +1,7 @@
 import { SyncLane } from "@zenflux/react-shared/src/react-internal-constants/fiber-lane-constants";
 
+import { WorkTag } from "@zenflux/react-shared/src/react-internal-constants/work-tags";
+
 import { setIsRunningInsertionEffect } from "@zenflux/react-reconciler/src/react-fiber-work-running-insertion-effect";
 import { isAlreadyFailedLegacyErrorBoundary } from "@zenflux/react-reconciler/src/react-fiber-work-legacy-error-boundary";
 import { createCapturedValueAtFiber } from "@zenflux/react-reconciler/src/react-captured-value";
@@ -11,7 +13,6 @@ import { createClassErrorUpdate, createRootErrorUpdate } from "@zenflux/react-re
 import { ReactFiberRootSchedulerShared } from "@zenflux/react-reconciler/src/react-fiber-root-scheduler-shared";
 
 import type { Fiber, Dispatcher, Lane } from "@zenflux/react-shared/src/react-internal-types";
-import { WorkTag } from "@zenflux/react-shared/src/react-internal-constants/work-tags";
 
 function captureCommitPhaseErrorOnRoot( rootFiber: Fiber, sourceFiber: Fiber, error: unknown ) {
     const errorInfo = createCapturedValueAtFiber( error, sourceFiber );

@@ -4,6 +4,8 @@ import { NoLanes } from "@zenflux/react-shared/src/react-internal-constants/fibe
 
 import { HookFlags } from "@zenflux/react-shared/src/react-internal-constants/hook-flags";
 
+import { FiberFlags } from "@zenflux/react-shared/src/react-internal-constants/fiber-flags";
+
 import { requestAsyncActionContext, requestSyncActionContext } from "@zenflux/react-reconciler/src/react-fiber-async-action";
 import { isRenderPhaseUpdate, mountWorkInProgressHook, updateWorkInProgressHook } from "@zenflux/react-reconciler/src/react-fiber-hooks-infra";
 import { ReactFiberHooksCurrent } from "@zenflux/react-reconciler/src/react-fiber-hooks-shared";
@@ -20,7 +22,6 @@ import type { Dispatch, FormStateActionQueue, FormStateActionQueueNode, Hook } f
 import type { Fiber, FiberRoot } from "@zenflux/react-shared/src/react-internal-types";
 import type { RejectedThenable, Thenable } from "@zenflux/react-shared/src/react-types";
 import type { BatchConfigTransition } from "@zenflux/react-shared/src/react-internal-types/transition";
-import { FiberFlags } from "@zenflux/react-shared/src/react-internal-constants/fiber-flags";
 
 const {
     ReactCurrentBatchConfig

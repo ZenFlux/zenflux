@@ -1,4 +1,3 @@
-/* eslint-disable dot-notation */
 // Shared implementation and constants between the inline script and external
 // runtime instruction sets.
 
@@ -128,8 +127,7 @@ export function completeSegment( containerID: string, placeholderID: string ) {
 // This is the exact URL string we expect that Fizz renders if we provide a function action.
 // We use this for hydration warnings. It needs to be in sync with Fizz. Maybe makes sense
 // as a shared module for that reason.
-const EXPECTED_FORM_ACTION_URL = // eslint-disable-next-line no-script-url
-    "javascript:throw new Error('A React form was unexpectedly submitted.')";
+const EXPECTED_FORM_ACTION_URL = "javascript:throw new Error('A React form was unexpectedly submitted.')";
 
 export function listenToFormSubmissionsForReplaying() {
     // A global replay queue ensures actions are replayed in order.
@@ -137,7 +135,6 @@ export function listenToFormSubmissionsForReplaying() {
     // we preventDefault in React's handling we also prevent this event
     // from queing it. Since React listens to the root and the top most
     // container you can use is the document, the window is fine.
-    // eslint-disable-next-line no-restricted-globals
     addEventListener( "submit", event => {
         if ( event.defaultPrevented ) {
             // We let earlier events to prevent the action from submitting.

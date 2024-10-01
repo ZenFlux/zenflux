@@ -484,6 +484,7 @@ function updateSimpleMemoComponent( current: Fiber | null, workInProgress: Fiber
 
                 try {
                     outerMemoType = init( payload );
+                    // eslint-disable-next-line @typescript-eslint/no-unused-vars
                 } catch ( x ) {
                     outerMemoType = null;
                 }

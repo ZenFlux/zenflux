@@ -142,6 +142,7 @@ export function dispatchSetState<S, A>( fiber: Fiber, queue: HookUpdateQueue<S, 
                         enqueueConcurrentHookUpdateAndEagerlyBailout( fiber, queue, update );
                         return;
                     }
+                    // eslint-disable-next-line @typescript-eslint/no-unused-vars
                 } catch ( error ) {// Suppress the error. It will throw again in the render phase.
                 } finally {
                     if ( __DEV__ ) {

@@ -13,8 +13,6 @@ import { includesBlockingLane, NoLanes } from "@zenflux/react-shared/src/react-i
 
 import { WorkTag } from "@zenflux/react-shared/src/react-internal-constants/work-tags";
 
-import { HookFlags } from "@zenflux/react-shared/src/react-internal-constants/hook-flags";
-
 import { FiberFlags } from "@zenflux/react-shared/src/react-internal-constants/fiber-flags";
 
 import { TypeOfMode } from "@zenflux/react-shared/src/react-internal-constants/type-of-mode";

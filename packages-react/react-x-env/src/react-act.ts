@@ -4,10 +4,9 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  */
-// eslint-disable-next-line no-restricted-imports
-import "./env";
 
-// eslint-disable-next-line import/order
+import "@zenflux/react-x-env/src/env";
+
 import queueMacrotask from "@zenflux/react-shared/src/enquque-task";
 
 import type { Thenable } from "@zenflux/react-shared/src/react-types";

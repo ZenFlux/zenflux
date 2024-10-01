@@ -1,3 +1,4 @@
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 function isCustomElement( tagName: string, props: Record<string, any> ): boolean {
     if ( tagName.indexOf( "-" ) === -1 ) {
         return false;

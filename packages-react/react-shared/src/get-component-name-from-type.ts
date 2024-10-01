@@ -6,7 +6,6 @@
  *
  * Sync with: https://github.com/facebook/react/blob/ce2bc58a9f6f3b0bfc8c738a0d8e2a5f3a332ff5/packages/shared/getComponentNameFromType.js
  */
-import type { LazyComponent } from "@zenflux/react-shared/src/lazy-component";
 
 import { enableCache, enableServerContext, enableTransitionTracing } from "@zenflux/react-shared/src/react-feature-flags";
 
@@ -26,6 +25,8 @@ import {
     REACT_SUSPENSE_TYPE,
     REACT_TRACING_MARKER_TYPE
 } from "@zenflux/react-shared/src/react-symbols";
+
+import type { LazyComponent } from "@zenflux/react-shared/src/lazy-component";
 
 import type { ReactContext, ReactProviderType } from "@zenflux/react-shared/src/react-types";
 
@@ -127,6 +128,7 @@ export default function getComponentNameFromType( type: any ): string | null {
 
                 try {
                     return getComponentNameFromType( init( payload ) );
+                    // eslint-disable-next-line @typescript-eslint/no-unused-vars
                 } catch ( x ) {
                     return null;
                 }

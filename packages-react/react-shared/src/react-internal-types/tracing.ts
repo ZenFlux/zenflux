@@ -1,7 +1,6 @@
-/* eslint-disable no-restricted-imports */
 
-import type { Transition, TransitionAbort } from "./transition";
-import type { PendingBoundaries } from "./boundaries";
+import type { Transition, TransitionAbort } from "@zenflux/react-shared/src/react-internal-types/transition";
+import type { PendingBoundaries } from "@zenflux/react-shared/src/react-internal-types/boundaries";
 
 import type { TracingMarkerTag } from "@zenflux/react-shared/src/react-internal-constants/transition";
 

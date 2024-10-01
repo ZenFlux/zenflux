@@ -1,29 +1,28 @@
-/* eslint-disable no-restricted-imports */
 
-import type { TypeOfMode } from "../react-internal-constants/type-of-mode";
+import type { TypeOfMode } from "@zenflux/react-shared/src/react-internal-constants/type-of-mode";
 
-import type { ConcurrentUpdate } from "./update";
+import type { ConcurrentUpdate } from "@zenflux/react-shared/src/react-internal-types/update";
 
-import type { ReactFormState, RefObject, Wakeable } from "../react-types";
+import type { ReactFormState, RefObject, Wakeable } from "@zenflux/react-shared/src/react-types";
 
-import type { Lane, LaneMap, Lanes } from "./lanes";
+import type { Lane, LaneMap, Lanes } from "@zenflux/react-shared/src/react-internal-types/lanes";
 
-import type { Transition, TransitionTracingCallbacks } from "./transition";
-import type { TracingMarkerInstance } from "./tracing";
-import type { SuspenseHydrationCallbacks, SuspenseInstance } from "./suspense";
+import type { Transition, TransitionTracingCallbacks } from "@zenflux/react-shared/src/react-internal-types/transition";
+import type { TracingMarkerInstance } from "@zenflux/react-shared/src/react-internal-types/tracing";
+import type { SuspenseHydrationCallbacks, SuspenseInstance } from "@zenflux/react-shared/src/react-internal-types/suspense";
 
 import type { Container, NoTimeout, TimeoutHandle } from "@zenflux/react-dom-bindings/src/client/ReactFiberConfigDOM";
-import type { FunctionComponentUpdateQueue, RetryQueue, FiberUpdateQueue } from "./queue";
-import type { OffscreenQueue } from "./offscreen";
+import type { FunctionComponentUpdateQueue, RetryQueue, FiberUpdateQueue } from "@zenflux/react-shared/src/react-internal-types/queue";
+import type { OffscreenQueue } from "@zenflux/react-shared/src/react-internal-types/offscreen";
 
-import type { Dependencies } from "./dependencies";
+import type { Dependencies } from "@zenflux/react-shared/src/react-internal-types/dependencies";
 
-import type { Source } from "../react-element-type";
-import type { HookType } from "./hook";
-import type { FiberFlags } from "../react-internal-constants/fiber-flags";
-import type { WorkTag } from "../react-internal-constants/work-tags";
-import type { RootTag } from "../react-internal-constants/root-tags";
-import type { Cache } from "./cache";
+import type { Source } from "@zenflux/react-shared/src/react-element-type";
+import type { HookType } from "@zenflux/react-shared/src/react-internal-types/hook";
+import type { FiberFlags } from "@zenflux/react-shared/src/react-internal-constants/fiber-flags";
+import type { WorkTag } from "@zenflux/react-shared/src/react-internal-constants/work-tags";
+import type { RootTag } from "@zenflux/react-shared/src/react-internal-constants/root-tags";
+import type { Cache } from "@zenflux/react-shared/src/react-internal-types/cache";
 
 // The following fields are only used in transition tracing in Profile builds
 type TransitionTracingOnlyFiberRootProperties = {

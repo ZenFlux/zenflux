@@ -86,7 +86,7 @@ export function updateInput(
         if ( type === "number" ) {
             if ( // $FlowFixMe[incompatible-type]
                 value === 0 && node.value === "" || // We explicitly want to coerce to number here if possible.
-                // eslint-disable-next-line
+
                 node.value != ( value as any ) ) {
                 node.value = toString( getToStringValue( value ) );
             }

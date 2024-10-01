@@ -352,6 +352,7 @@ export function describeUnknownElementTypeFrameInDEV( type: any, source: void | 
                 try {
                     // Lazy may contain any component type so we recursively resolve it.
                     return describeUnknownElementTypeFrameInDEV( init( payload ), source, ownerFn );
+                    // eslint-disable-next-line @typescript-eslint/no-unused-vars
                 } catch ( x ) {
                 }
             }

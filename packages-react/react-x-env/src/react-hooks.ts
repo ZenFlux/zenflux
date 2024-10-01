@@ -1,5 +1,5 @@
-// eslint-disable-next-line no-restricted-imports
-import "./react-internals";
+
+import "@zenflux/react-x-env/src/react-internals";
 
 import type { Dispatcher } from "@zenflux/react-shared/src/react-internal-types";
 

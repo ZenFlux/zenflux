@@ -13,4 +13,3 @@ export const NormalPriority = 3;
 export const LowPriority = 4;
 export const IdlePriority = 5;
 
-

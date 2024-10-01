@@ -1,4 +1,4 @@
-/* eslint-disable import/no-cycle */
+
 import { enableSuspenseAvoidThisFallback } from "@zenflux/react-shared/src/react-feature-flags";
 
 import { WorkTag } from "@zenflux/react-shared/src/react-internal-constants/work-tags";

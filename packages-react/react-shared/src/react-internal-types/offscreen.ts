@@ -1,13 +1,13 @@
-/* eslint-disable no-restricted-imports */
-import type { Transition } from "./transition";
 
-import type { Lanes } from "./lanes";
-import type { Fiber } from "./fiber";
-import type { SpawnedCachePool } from "./cache";
-import type { RetryQueue } from "./queue";
+import type { Transition } from "@zenflux/react-shared/src/react-internal-types/transition";
+
+import type { Lanes } from "@zenflux/react-shared/src/react-internal-types/lanes";
+import type { Fiber } from "@zenflux/react-shared/src/react-internal-types/fiber";
+import type { SpawnedCachePool } from "@zenflux/react-shared/src/react-internal-types/cache";
+import type { RetryQueue } from "@zenflux/react-shared/src/react-internal-types/queue";
 
 import type { OffscreenMode, ReactNodeList, Wakeable } from "@zenflux/react-shared/src/react-types";
-import type { TracingMarkerInstance } from "./tracing";
+import type { TracingMarkerInstance } from "@zenflux/react-shared/src/react-internal-types/tracing";
 
 export type OffscreenProps = {
     // TODO: Pick an API before exposing the Offscreen type. I've chosen an enum

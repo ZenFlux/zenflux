@@ -39,7 +39,6 @@ export default function invokeGuardedCallbackImpl<Args extends any[], Context>(
                 "event"
             );
 
-            // eslint-disable-next-line @typescript-eslint/no-unused-vars
             const restoreAfterDispatch = () => {
                 fakeNode.removeEventListener( evtType, callCallback, false );
 
@@ -74,6 +73,7 @@ export default function invokeGuardedCallbackImpl<Args extends any[], Context>(
                     if ( error != null && typeof error === "object" ) {
                         try {
                             error._suppressLogging = true;
+                            // eslint-disable-next-line @typescript-eslint/no-unused-vars
                         } catch ( inner ) {
                             // Ignore.
                         }
