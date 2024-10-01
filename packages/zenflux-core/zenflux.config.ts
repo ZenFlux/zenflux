@@ -1,3 +1,4 @@
+import { ExtractorLogLevel } from "@microsoft/api-extractor";
 import type { IZConfig } from "@zenflux/cli";
 
 const config: IZConfig = {
@@ -10,8 +11,18 @@ const config: IZConfig = {
     outputName: "@zenflux/core",
     outputFileName: "zenflux-core",
 
-    inputDtsPath: "dist/zenflux-core/src/index.d.ts",
+    inputDtsPath: "dist/src/index.d.ts",
     outputDtsPath: "dist/zenflux-core.d.ts",
+
+    apiExtractor: {
+        messages: {
+            extractorMessageReporting: {
+                "ae-missing-release-tag": {
+                    logLevel: ExtractorLogLevel.None
+                }
+            }
+        }
+    }
 };
 
 export default config;
