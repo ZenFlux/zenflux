@@ -2,6 +2,7 @@
     "compilerOptions": {
         "rootDir": ".",
 
+        // Save `.tsbuildinfo` files to allow for incremental compilation of projects.
         "incremental": true,
 
         "outDir": "dist",
