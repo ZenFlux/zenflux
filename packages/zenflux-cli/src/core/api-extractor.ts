@@ -30,10 +30,6 @@ export function zApiExporter(
     const inputPath = config.inputDtsPath!,
         outputPath = config.outputDtsPath!;
 
-    if ( ! fs.existsSync( inputPath ) ) {
-        throw new Error( `Input path '${ inputPath }' does not exist` );
-    }
-
     const logDiagnosticsFile = process.env.NODE_ENV === "development" ?
         path.resolve( projectPath, `log/api-extractor-diagnostics.${ path.basename( inputPath ) }.log` ) : undefined;
 

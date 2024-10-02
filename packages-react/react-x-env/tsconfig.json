@@ -1,5 +1,9 @@
 {
     "compilerOptions": {
+        "rootDir": ".",
+
+        "incremental": true,
+
         "outDir": "dist",
         // Specifies the ECMAScript version to transpile to (e.g., ESNext)
         "target": "ESNext",

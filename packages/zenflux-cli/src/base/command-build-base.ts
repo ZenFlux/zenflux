@@ -173,18 +173,20 @@ export abstract class CommandBuildBase extends CommandConfigBase {
 
     protected async onBuiltAll() {
         const configs = this.getConfigs(),
-            uniqueConfigs = this.getUniqueConfigs( configs ),
+            // uniqueConfigs = this.getUniqueConfigs( configs ),
             startTimestamp = Date.now(),
             promises: any[] = [];
 
         let passed = 0,
             failed = 0;
 
-        uniqueConfigs.forEach( config => this.handleTSDiagnostics( config ).catch( () => {
+        // TODO: Add cache + optimization.
+
+        configs.forEach( config => this.handleTSDiagnostics( config ).catch( () => {
             // Do nothing.
         }) );
 
-        uniqueConfigs.forEach( ( config ) => {
+        configs.forEach( ( config ) => {
             const promise = this.handleTSDeclaration( config )
                 .then( () => passed++ )
                 .catch( () => failed++ );
@@ -208,7 +210,8 @@ export abstract class CommandBuildBase extends CommandConfigBase {
     }
 
     protected getIdByConfig( config: IZConfigInternal ) {
-        return this.getUniqueConfigs( this.getConfigs() ).indexOf( config );
+        // return this.getUniqueConfigs( this.getConfigs() ).indexOf( config );
+        return this.getConfigs().indexOf( config );
     }
 
     protected getUniqueConfigs( configs: IZConfigInternal[] ) {

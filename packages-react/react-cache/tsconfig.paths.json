@@ -1,7 +1,8 @@
 {
     "compilerOptions": {
+        "rootDir": ".",
         "outDir": "dist",
-        "baseUrl": "./",
+        "baseUrl": "./"
     },
     "include": [
         "src/**/*.ts",

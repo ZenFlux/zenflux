@@ -247,4 +247,7 @@ export async function reactReconciler( config?: Partial<ReactReconcilerConfig> )
     return reconciler;
 }
 
+export type * from "@zenflux/react-shared/src/react-types";
+
 export default reactReconciler;
+

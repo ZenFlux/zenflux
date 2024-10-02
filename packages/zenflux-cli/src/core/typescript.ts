@@ -293,7 +293,7 @@ export async function zTSGetCompilerHost( tsConfig: ts.ParsedCommandLine, active
     const chain = zTSConfigReadExtendsChain( tsConfig, activeConsole ),
         mergedTsConfig = zDeepMergeAll<ts.ParsedCommandLine>( ... chain );
 
-    if ( ! mergedTsConfig.options.rootDir ) {
+    if ( ! mergedTsConfig.options?.rootDir ) {
         const currentPackage = new Package( currentProjectPath );
 
         // If one of configs in the chain have `projectReferences` and they are part of this workspace, then try to add paths.
