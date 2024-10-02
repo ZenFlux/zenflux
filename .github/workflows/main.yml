@@ -1,0 +1,14 @@
+# This workflow waits for the `self-hosted` workflow to complete and continues running only if it is cancelled.
+# to trigger `github-hosted` workflow, in case it is cancelled.
+
+name: Main workflow
+
+on: [ push, pull_request ]
+
+jobs:
+  star-react-package:
+    uses: ./.github/workflows/react-packages.yml
+    with:
+      runs-on: ubuntu-latest
+    secrets:
+      token: ${{ secrets.GITHUB_TOKEN }}
