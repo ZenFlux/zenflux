@@ -1,5 +1,4 @@
 {
-    "$schema": "https://raw.githubusercontent.com/SchemaStore/schemastore/master/src/schemas/json/package.json",
     "name": "@zenflux/utils",
     "version": "0.1.0",
     "type": "module",
@@ -20,6 +19,6 @@
         ]
     },
     "scripts": {
-        "build-types": "tsc src/*.js --declaration --allowJs --emitDeclarationOnly --outDir src"
+        "build-types": "rm src/*.d.ts >/dev/null 2>&1 ; tsc -p ./tsconfig.json"
     }
 }
