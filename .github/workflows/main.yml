@@ -1,6 +1,3 @@
-# This workflow waits for the `self-hosted` workflow to complete and continues running only if it is cancelled.
-# to trigger `github-hosted` workflow, in case it is cancelled.
-
 name: Main workflow
 
 on: [ push, pull_request ]
