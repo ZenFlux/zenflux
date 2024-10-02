@@ -23,8 +23,8 @@ jobs:
         run: bun install
 
       - name: Build
-        run: bun run @z-flux-ci:build:react
+        run: bun run @z-flux:react:build:ci
 
       - name: Run tests
-        run: bun run @z-flux:ci:jest:react
+        run: bun run @z-flux:react:test:ci
 
