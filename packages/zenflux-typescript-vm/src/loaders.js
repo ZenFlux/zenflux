@@ -94,7 +94,20 @@ export class Loaders {
 
         const provider = this.moduleProviders.get( type );
 
-        module = await provider.load( path );
+        try {
+            module = await provider.load( path );
+        } catch ( e ) {
+            e = new Error( e.message, e.cause );
+
+            e.cause ??= {};
+
+            e.cause.deepStack = [
+                "file://" + options.referencingModule.identifier,
+                import.meta.url,
+            ];
+
+            return Promise.reject( e );
+        }
 
         switch ( type ) {
             case "node":
