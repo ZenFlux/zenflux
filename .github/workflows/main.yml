@@ -6,7 +6,7 @@ name: Main workflow
 on: [ push, pull_request ]
 
 jobs:
-  star-react-package:
+  start-react-packages-workflow:
     uses: ./.github/workflows/react-packages.yml
     with:
       runs-on: ubuntu-latest

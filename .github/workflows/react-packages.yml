@@ -1,4 +1,4 @@
-name: React packages
+name: React packages workflow
 
 on:
   workflow_call:
@@ -11,7 +11,7 @@ on:
         required: true
 
 jobs:
-  react-build-and-test:
+  build-and-test:
     runs-on: ${{ inputs.runs-on }}
     timeout-minutes: 10
 
