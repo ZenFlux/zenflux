@@ -23,11 +23,16 @@ import type { IZConfigInternal } from "@zenflux/cli/src/definitions/config";
 export function zApiExporter(
     projectPath: string,
     config: IZConfigInternal,
-    tsConfig: ts.ParsedCommandLine,
+    tsConfigVirtual: ts.ParsedCommandLine,
+    tsConfigExtractor: ts.ParsedCommandLine,
     activeConsole = ConsoleManager.$
 ) {
     const inputPath = config.inputDtsPath!,
         outputPath = config.outputDtsPath!;
+
+    if ( ! fs.existsSync( inputPath ) ) {
+        throw new Error( `Input path '${ inputPath }' does not exist` );
+    }
 
     const logDiagnosticsFile = process.env.NODE_ENV === "development" ?
         path.resolve( projectPath, `log/api-extractor-diagnostics.${ path.basename( inputPath ) }.log` ) : undefined;
@@ -47,30 +52,47 @@ export function zApiExporter(
         outputPath,
     } ) ] );
 
+    // Start - TODO - Refactor + Dedicated method + Dont guess additionalPaths that comes from references, use custom property.
     const packageJsonFullPath = projectPath + "/package.json",
+        // TODO: Use module `Package` to read.
         packageJsonContent = JSON.parse( fs.readFileSync( packageJsonFullPath, "utf8" ) ),
-        selfPackageLocalize = packageJsonContent[ "name" ] + "/*",
-        paths = { [ selfPackageLocalize ]: [ "./dist/*" ] };
+        selfPackageLocalize = packageJsonContent[ "name" ] + "/*";
 
-    tsConfig.raw.compilerOptions ??= {};
-    tsConfig.raw.include ??= [];
-    tsConfig.raw.exclude ??= [];
+    tsConfigExtractor.raw.compilerOptions ??= {};
+    tsConfigExtractor.raw.include ??= [];
+    tsConfigExtractor.raw.exclude ??= [];
 
-    tsConfig.raw.include.push(
+    tsConfigExtractor.raw.include.push(
         "dist/src/**/*.d.ts"
     );
 
-    tsConfig.raw.compilerOptions["paths"] = {
-        ... tsConfig.raw.compilerOptions["paths"] ?? {},
-        ... paths,
+    const additionalPaths: ts.ParsedCommandLine["options"]["paths"] = {};
+
+    if ( ! tsConfigVirtual.options.rootDir && tsConfigVirtual.projectReferences?.length ) {
+        // For each reference that starts with "@" add path to `dist/${ref}/*`/.
+        tsConfigVirtual.projectReferences.forEach( ref => {
+            if ( ref.originalPath!.startsWith( "@" ) ) {
+
+                additionalPaths[ `${ ref.originalPath }/*` ] = [ `./dist/${ path.basename( ref.path ) }/*` ];
+            }
+        });
+        additionalPaths[ selfPackageLocalize ] = [ `./dist/${ path.basename( projectPath )}/*` ];
+    } else {
+        additionalPaths[ selfPackageLocalize ] = [ "./dist/*" ];
+    }
+
+    tsConfigExtractor.raw.compilerOptions["paths"] = {
+        ... tsConfigExtractor.raw.compilerOptions["paths"] ?? {},
+        ... additionalPaths,
     };
+    // End - Refactor
 
     const baseConfig: IExtractorConfigPrepareOptions = {
         configObject: {
             projectFolder: projectPath,
             mainEntryPointFilePath: inputPath,
             compiler: {
-                overrideTsconfig: tsConfig.raw,
+                overrideTsconfig: tsConfigExtractor.raw,
             },
             dtsRollup: {
                 enabled: true,
@@ -78,7 +100,7 @@ export function zApiExporter(
             },
             ... config.apiExtractor ?? {}
         },
-        configObjectFullPath: projectPath + "api-extractor.json",
+        configObjectFullPath: projectPath + "/api-extractor.json",
         packageJsonFullPath: projectPath + "/package.json",
     };
 
@@ -98,6 +120,8 @@ export function zApiExporter(
 
     const devDiagnostics: string[] = [];
 
+    let hadError = false;
+
     // Invoke API Extractor
     const result = Extractor.invoke( extractorConfig, {
         localBuild: true,
@@ -107,11 +131,27 @@ export function zApiExporter(
             let handled = true;
 
             if ( logDiagnosticsFile ) {
-                devDiagnostics.push( util.inspect( message, { colors: false } ) );
+                let logLine;
+
+                if ( message.logLevel === "error" ) {
+                    hadError = true;
+
+                    const { text, ... raw } = message;
+
+                    logLine = `${text}, metadata: ${ util.inspect(raw, { colors: false } ) }`;
+                } else {
+                    logLine = message.text;
+                }
+
+                devDiagnostics.push( `${ message.logLevel }: ${ logLine}` );
             } else {
                 switch ( message.logLevel ) {
                     case "error":
-                        activeConsole.error( `${ zApiExporter.name }`, util.inspect( message ) );
+                        activeConsole.error( `${ zApiExporter.name }`, util.inspect( {
+                            ... message,
+                            _tsConfig: config.path
+                        } ) );
+
                         break;
                     case "warning":
                         activeConsole.warn( `${ zApiExporter.name }`, "warning", message.text );
@@ -138,6 +178,10 @@ export function zApiExporter(
         fs.writeFileSync( logDiagnosticsFile, devDiagnostics.join( "\n" ) );
 
         activeConsole.log( "Api-Extractor", "diagnostics file is created: ", `'${ logDiagnosticsFile }'` );
+
+        if ( hadError ) {
+            activeConsole.error( "Api-Extractor", "diagnostics file contains errors, please check it" );
+        }
     }
 
     return result;

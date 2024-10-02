@@ -18,7 +18,7 @@ const configs: IZConfigs = {
         inputPath: "src/index.ts",
         outputFileName: "zenflux-react-reconciler",
 
-        inputDtsPath: /*process.env.NODE_ENV === "development" ? "dist/packages-react/zenflux-react-reconciler/src/index.d.ts" :*/ "dist/src/index.d.ts",
+        inputDtsPath: "dist/react-reconciler/src/index.d.ts",
         outputDtsPath: "dist/zenflux-react-reconciler.d.ts",
     },
 
@@ -26,7 +26,7 @@ const configs: IZConfigs = {
         inputPath: "src/constants.ts",
         outputFileName: "zenflux-react-reconciler.constants",
 
-        inputDtsPath: /*process.env.NODE_ENV === "development" ? "dist/packages-react/zenflux-react-reconciler/src/constants.d.ts" :*/ "dist/src/constants.d.ts",
+        inputDtsPath: "dist/react-reconciler/src/constants.d.ts",
         outputDtsPath: "dist/zenflux-react-reconciler.constants.d.ts",
     }
 };

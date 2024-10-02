@@ -1,7 +1,13 @@
 {
+    "extends": "./tsconfig.paths.json",
     "compilerOptions": {
+        "composite": true,
+        "declaration": true,
+        "declarationMap": true,
+        "emitDeclarationOnly": true,
+
         "moduleResolution": "Bundler",
-        "baseUrl": "./src",
+        "baseUrl": "./",
         "typeRoots": [
             "../../node_modules/@types",
             "../../node_modules/"
@@ -11,8 +17,5 @@
         ],
         // Skip lib check
         "skipLibCheck": true
-    },
-    "include": [
-        "src/**/*.ts"
-    ],
+    }
 }

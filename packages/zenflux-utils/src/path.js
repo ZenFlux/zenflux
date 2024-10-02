@@ -72,7 +72,13 @@ export const zIsUnixOrFileProtocolPath = ( path ) => {
 };
 
 /**
- * Ensure path is absolute, if not, resolve it from relative path.
+ * Function `zGetAbsoluteOrRelativePath()` - Ensure path is absolute
+ * This function takes a potential path and an optional relative base path as arguments.
+ * It determines whether the provided `path` is absolute by using the `isAbsolute` method;
+ * if the `path` is not absolute, it uses the `relative` argument (or the current working directory
+ * if `relative` is not provided) to resolve the `path` into an absolute path. The result is a normalized,
+ * absolute path string. If the `path` is already absolute, it resolves it using the `resolve` method.
+ * This ensures that the returned path is always absolute, providing consistency when handling file paths.
  *
  * @param {string} path
  * @param {string} [relative=process.cwd()]

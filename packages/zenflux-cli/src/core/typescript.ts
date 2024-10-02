@@ -6,11 +6,17 @@ import process from "node:process";
 import path from "node:path";
 import util from "node:util";
 
+import { zDeepMergeAll } from "@zenflux/utils/src/object";
+
+import { zGetAbsoluteOrRelativePath } from "@zenflux/utils/src/path";
+
 import { ensureInWorker } from "@zenflux/worker/utils";
 
 import ts from "typescript";
 
 import { zCreateResolvablePromise } from "@zenflux/utils/src/promise";
+
+import { Package } from "@zenflux/cli/src/modules/npm/package";
 
 import { zTSGetPackageByTSConfig } from "@zenflux/cli/src/utils/typescript";
 
@@ -19,7 +25,10 @@ import { ConsoleThreadReceive } from "@zenflux/cli/src/console/console-thread-re
 
 import { zApiExporter } from "@zenflux/cli/src/core/api-extractor";
 
-import { zWorkspaceGetWorkspaceDependencies } from "@zenflux/cli/src/core/workspace";
+import {
+    zWorkspaceGetPackages,
+    zWorkspaceGetWorkspaceDependencies
+} from "@zenflux/cli/src/core/workspace";
 
 import { ConsoleManager } from "@zenflux/cli/src/managers/console-manager";
 
@@ -53,7 +62,7 @@ const pathsCache: { [ key: string ]: string } = {},
     cacheCompilerHost: { [ key: string ]: ts.CompilerHost } = {},
     cacheProgram: { [ key: string ]: ts.Program } = {};
 
-export function zCustomizeDiagnostic( diagnostic: ts.Diagnostic ) {
+export function zTSCustomizeDiagnostic( diagnostic: ts.Diagnostic ) {
     let isIntroduceFile = false;
     const str = ts.flattenDiagnosticMessageText( diagnostic.messageText, "\n" );
 
@@ -105,9 +114,9 @@ export function zTSConfigGetPath( format: TZFormatType | null, targetPath: strin
     };
 
     function fileExists( filePath: string ) {
-        logDebug( `${ util.inspect( filePath) } file exists check` );
+        logDebug( `${ util.inspect( filePath ) } file exists check` );
         const exists = fs.existsSync( filePath );
-        logDebug( `${ util.inspect( filePath) } ${ exists ? "found" : "not found" }` );
+        logDebug( `${ util.inspect( filePath ) } ${ exists ? "found" : "not found" }` );
         return exists;
     };
 
@@ -165,6 +174,12 @@ export function zTSConfigReadInternal( tsConfigPath: string, projectPath: string
         ]
     );
 
+    const cacheKey = tsConfigPath + "_" + projectPath;
+
+    if ( configCache[ cacheKey ] ) {
+        return configCache[ cacheKey ];
+    }
+
     const data = ts.readConfigFile( tsConfigPath, ts.sys.readFile );
 
     if ( data.error ) {
@@ -172,7 +187,7 @@ export function zTSConfigReadInternal( tsConfigPath: string, projectPath: string
 
         error.cause = tsConfigPath;
         error.name = "\x1b[31mTypeScript 'tsconfig' configuration error\x1b[0m";
-        error.message = "\n" + zCustomizeDiagnostic( data.error );
+        error.message = "\n" + zTSCustomizeDiagnostic( data.error );
 
         throw error;
     }
@@ -188,7 +203,7 @@ export function zTSConfigReadInternal( tsConfigPath: string, projectPath: string
 
         error.cause = tsConfigPath;
         error.name = "\x1b[31mTypeScript 'tsconfig' parse error\x1b[0m";
-        error.message = "\n" + content.errors.map( error => zCustomizeDiagnostic( error ) )
+        error.message = "\n" + content.errors.map( error => zTSCustomizeDiagnostic( error ) )
             .join( "\n\n" );
 
         ConsoleManager.$.error( error );
@@ -198,7 +213,49 @@ export function zTSConfigReadInternal( tsConfigPath: string, projectPath: string
         }
     }
 
+    // content.options.rootDir = content.options.rootDir || projectPath;
+    content.options.configFilePath = tsConfigPath;
+
+    configCache[ cacheKey ] = content;
+
     return content;
+}
+
+/**
+ * Function zTSConfigReadExtendsChain() - Should traverse, load and merge all tsconfig(s) that are in the `extends` chain.
+ */
+export function zTSConfigReadExtendsChain( tsConfig: ts.ParsedCommandLine, activeConsole = ConsoleManager.$ ) {
+    const result: ts.ParsedCommandLine[] = [];
+
+    activeConsole.debug( () => [
+        "typescript",
+        zTSConfigReadExtendsChain.name,
+        `Reading extends chain for ${ tsConfig.options.configFilePath }`
+    ] );
+
+    if ( ! tsConfig.raw.extends ) {
+        return result;
+    }
+
+    const chainProjectPath = path.dirname( tsConfig.options.configFilePath as string ),
+        chainExtends = Array.isArray( tsConfig.raw.extends ) ? tsConfig.raw.extends : [ tsConfig.raw.extends ];
+
+    chainExtends.forEach( ( extenderFilePath: string ) => {
+        const extenderTsConfigPath = zGetAbsoluteOrRelativePath( extenderFilePath, chainProjectPath ),
+            extenderTsConfig = zTSConfigReadInternal( extenderTsConfigPath, chainProjectPath );
+
+        activeConsole.debug( () => [
+            "typescript",
+            zTSConfigReadExtendsChain.name,
+            `Extends chain: \`${ extenderFilePath }\` -> ${ extenderTsConfig.options.configFilePath }`
+        ] );
+
+        result.push( extenderTsConfig );
+
+        result.push( ... zTSConfigReadExtendsChain( extenderTsConfig, activeConsole ) );
+    } );
+
+    return result;
 }
 
 /**
@@ -217,12 +274,9 @@ export function zTSConfigRead( format: TZFormatType | null, projectPath: string 
         throw new Error( "tsconfig.json not found" );
     }
 
-    const content =  zTSConfigReadInternal( tsConfigPath, projectPath );
+    const content = zTSConfigReadInternal( tsConfigPath, projectPath );
 
     configCache[ cacheKey ] = Object.assign( {}, content );
-
-    content.options.rootDir = content.options.rootDir || projectPath;
-    content.options.configFilePath = tsConfigPath;
 
     return content;
 }
@@ -232,11 +286,45 @@ export function zTSConfigRead( format: TZFormatType | null, projectPath: string 
  *
  * Retrieves the compiler host for a given TypeScript configuration.
  */
-export function zTSGetCompilerHost( tsConfig: ts.ParsedCommandLine, activeConsole = ConsoleManager.$ ) {
+export async function zTSGetCompilerHost( tsConfig: ts.ParsedCommandLine, activeConsole = ConsoleManager.$ ) {
+    const currentConfigFilePath = tsConfig.options.configFilePath as string,
+        currentProjectPath = path.dirname( currentConfigFilePath );
+
+    const chain = zTSConfigReadExtendsChain( tsConfig, activeConsole ),
+        mergedTsConfig = zDeepMergeAll<ts.ParsedCommandLine>( ... chain );
+
+    if ( ! mergedTsConfig.options.rootDir ) {
+        const currentPackage = new Package( currentProjectPath );
+
+        // If one of configs in the chain have `projectReferences` and they are part of this workspace, then try to add paths.
+        const workspaces = await zWorkspaceGetPackages(),
+            paths: ts.ParsedCommandLine["options"]["paths"] = tsConfig.options.paths ?? {};
+
+        if ( mergedTsConfig.projectReferences ) {
+            mergedTsConfig.projectReferences.forEach( projectReference => {
+                const packageName = projectReference.originalPath!,
+                    packageInfo = workspaces[ packageName ];
+
+                if ( packageInfo ) {
+                    paths[ packageName + "/*" ] = [ packageInfo.getPath() + "/*" ];
+
+                    projectReference.path = packageInfo.getPath();
+                }
+            } );
+
+            tsConfig.projectReferences = [ ... mergedTsConfig.projectReferences ];
+        }
+
+        // Add self to paths.
+        paths[ currentPackage.json.name + "/*" ] = [ currentProjectPath + "/*" ];
+
+        tsConfig.options.paths = paths;
+    }
+
     const outPath = tsConfig.options.declarationDir || tsConfig.options.outDir;
 
     if ( ! outPath ) {
-        throw new Error( `${ tsConfig.options.configFilePath }: 'declarationDir' or 'outDir' is required` );
+        throw new Error( `${ currentConfigFilePath }: 'declarationDir' or 'outDir' is required` );
     }
 
     // Get from cache
@@ -260,7 +348,7 @@ export function zTSGetCompilerHost( tsConfig: ts.ParsedCommandLine, activeConsol
         return compilerHostGetSourceFile( fileName, languageVersion, onError, shouldCreateNewSourceFile );
     };
 
-    cacheCompilerHost[ tsConfig.options.configFilePath as string ] = compilerHost;
+    cacheCompilerHost[ currentConfigFilePath ] = compilerHost;
 
     return compilerHost;
 }
@@ -274,7 +362,7 @@ export function zTSGetCompilerHost( tsConfig: ts.ParsedCommandLine, activeConsol
  *
  * Catching errors at this stage can save time during the development process.
  */
-export function zTSPreDiagnostics( tsConfig: ts.ParsedCommandLine, options: TZPreDiagnosticsOptions, activeConsole = ConsoleManager.$ ) {
+export async function zTSPreDiagnostics( tsConfig: ts.ParsedCommandLine, options: TZPreDiagnosticsOptions, activeConsole = ConsoleManager.$ ) {
     // ---
     const {
         useCache = true,
@@ -293,7 +381,7 @@ export function zTSPreDiagnostics( tsConfig: ts.ParsedCommandLine, options: TZPr
         return;
     }
 
-    const compilerHost = zTSGetCompilerHost( tsConfig );
+    const compilerHost = await zTSGetCompilerHost( tsConfig );
 
     const program = ts.createProgram( tsConfig.fileNames, Object.assign( {}, tsConfig.options, {
         noEmit: true,
@@ -318,7 +406,7 @@ export function zTSPreDiagnostics( tsConfig: ts.ParsedCommandLine, options: TZPr
         const error = new Error();
 
         error.name = `\x1b[31mTypeScript validation has ${ diagnostics.length } error(s)\x1b[0m config: ${ "file://" + tsConfig.options.configFilePath }`;
-        error.message = "\n" + diagnostics.map( error => zCustomizeDiagnostic( error ) ).join( "\n\n" );
+        error.message = "\n" + diagnostics.map( error => zTSCustomizeDiagnostic( error ) ).join( "\n\n" );
 
         activeConsole.error( error );
 
@@ -330,8 +418,15 @@ export function zTSPreDiagnostics( tsConfig: ts.ParsedCommandLine, options: TZPr
     return diagnostics;
 }
 
-export function zTSCreateDeclaration( tsConfig: ts.ParsedCommandLine, config: IZConfigInternal, activeConsole = ConsoleManager.$ ) {
-    const compilerHost = zTSGetCompilerHost( tsConfig );
+export async function zTSCreateDeclaration( tsConfig: ts.ParsedCommandLine, config: IZConfigInternal, activeConsole = ConsoleManager.$ ) {
+    // Remove old declaration .d.ts files
+    const declarationPath = tsConfig.options.declarationDir || tsConfig.options.outDir;
+
+    if ( ! declarationPath ) {
+        throw new Error( `${ tsConfig.options.configFilePath }: 'declarationDir' or 'outDir' is required` );
+    }
+
+    const compilerHost = await zTSGetCompilerHost( tsConfig );
 
     const program = ts.createProgram( tsConfig.fileNames, Object.assign( {}, tsConfig.options, {
         declaration: true,
@@ -342,20 +437,13 @@ export function zTSCreateDeclaration( tsConfig: ts.ParsedCommandLine, config: IZ
 
     cacheProgram[ tsConfig.options.configFilePath as string ] = program;
 
-    // Remove old declaration .d.ts files
-    const declarationPath = tsConfig.options.declarationDir || tsConfig.options.outDir;
-
-    if ( ! declarationPath ) {
-        throw new Error( `${ tsConfig.options.configFilePath }: 'declarationDir' or 'outDir' is required` );
-    }
-
     const result = program.emit();
 
     if ( result.diagnostics.length ) {
         const error = new Error();
 
         error.name = `\x1b[31mTypeScript declaration has ${ result.diagnostics.length } error(s)\x1b[0m config: ${ "file://" + tsConfig.options.configFilePath }`;
-        error.message = "\n" + result.diagnostics.map( error => zCustomizeDiagnostic( error ) ).join( "\n\n" );
+        error.message = "\n" + result.diagnostics.map( error => zTSCustomizeDiagnostic( error ) ).join( "\n\n" );
 
         activeConsole.error( error );
     } else {
@@ -366,9 +454,9 @@ export function zTSCreateDeclaration( tsConfig: ts.ParsedCommandLine, config: IZ
 
         const projectPath = path.dirname( config.path );
 
-        // Check if we need to generate dts file.
+        // Check if we need to rollup dts files.
         if ( config.inputDtsPath ) {
-            const tsConfig = zTSConfigReadInternal(
+            const tsConfigExtractor = zTSConfigReadInternal(
                 `${ projectPath }/tsconfig.api-extractor.json`,
                 projectPath
             );
@@ -377,6 +465,7 @@ export function zTSCreateDeclaration( tsConfig: ts.ParsedCommandLine, config: IZ
                 projectPath,
                 config,
                 tsConfig,
+                tsConfigExtractor,
                 activeConsole
             );
 
@@ -402,7 +491,7 @@ export function zTSDiagnosticInWorker( tsConfigFilePath: string, options: TZPreD
     return zTSPreDiagnostics( tsConfig, options );
 }
 
-export function zTSDeclarationInWorker( tsConfigFilePath: string, config: IZConfigInternal, host: ThreadHost ) {
+export async function zTSDeclarationInWorker( tsConfigFilePath: string, config: IZConfigInternal, host: ThreadHost ) {
     ensureInWorker();
 
     // Hook console logs to thread messages.
@@ -423,7 +512,7 @@ export async function zTSCreateDiagnosticWorker(
     if ( ! diagnosticWorkers.has( options.id ) ) {
         const preparePromise = zCreateResolvablePromise();
 
-        diagnosticWorkersPreparing.set( options.id, preparePromise  );
+        diagnosticWorkersPreparing.set( options.id, preparePromise );
 
         preparePromise.await.then( () => diagnosticWorkersPreparing.delete( options.id ) );
 
@@ -463,7 +552,7 @@ export async function zTSCreateDiagnosticWorker(
         const buildPromise = thread.run();
 
         buildPromise.catch( ( error ) => {
-            activeConsole.error( "error", "from DI-" + options.id, "\n ->", error );
+            activeConsole.error( "error", "from DI-" + options.id, "\n ->", error.stack ? error.stack : error );
 
             if ( options.haltOnError ) {
                 throw error;
@@ -565,14 +654,14 @@ export async function zTSCreateDeclarationWorker(
 
         const buildPromise = thread.run();
 
-        buildPromise.catch( ( error: { message: string | string[], name: string } ) => {
+        buildPromise.catch( ( error ) => {
             if ( error.message.includes( "Killed by diagnostic worker" ) ) {
                 activeConsole.verbose( () => [
                     zTSCreateDeclarationWorker.name,
                     error.message
                 ] );
             } else {
-                activeConsole.error( "error", "from DI-" + options.id, "\n ->", error );
+                activeConsole.error( "error", "from DE-" + options.id, "\n ->", error.stack ? error.stack : error );
             }
 
             reject( error );
@@ -581,7 +670,8 @@ export async function zTSCreateDeclarationWorker(
         buildPromise.then( resolve );
     } );
 
-    promise.catch( () => {} ).finally( () => zTSResumeDependencies( tsConfig, activeConsole ) );
+    promise.catch( () => {
+    } ).finally( () => zTSResumeDependencies( tsConfig, activeConsole ) );
 
     return promise;
 }

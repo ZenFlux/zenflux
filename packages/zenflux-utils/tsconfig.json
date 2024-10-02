@@ -1,15 +1,27 @@
 {
     "compilerOptions": {
+        "outDir": "./src",
+        "types": [
+            "node"
+        ],
+        "typeRoots": [
+            "../../node_modules/@types"
+        ],
+        "declaration": true,
+        "emitDeclarationOnly": true,
         "target": "ESNext",
         "module": "ESNext",
         "moduleResolution": "bundler",
         "esModuleInterop": true,
         "baseUrl": "./",
         "allowJs": true,
-        "allowArbitraryExtensions": false
+        "allowArbitraryExtensions": false,
+        "skipLibCheck": true
     },
     "include": [
-        "src/*.js",
-        "src/*.ts"
+        "src/*.js"
+    ],
+    "exclude": [
+        "node_modules"
     ]
 }

@@ -5,12 +5,17 @@
     // Compiler options
     "compilerOptions": {
         "types": [
-            "node",
+            "node"
         ],
 
         "typeRoots": [
-            "../../node_modules/@types",
+            "../../node_modules/@types"
         ],
+
+        "composite": true,
+        "declaration": true,
+        "declarationMap": true,
+        "emitDeclarationOnly": true,
 
         "moduleResolution": "bundler",
 
@@ -20,5 +25,5 @@
 
         // Skip lib check
         "skipLibCheck": true
-    }
+    },
 }

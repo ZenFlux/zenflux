@@ -6,9 +6,6 @@
         "checkJs": true,
         "module": "NodeNext",
         "esModuleInterop": true,
-//        "declaration": true,
-//        "declarationMap": true,
-//        "emitDeclarationOnly": true,
         "outDir": "dist",
         "rootDir": "./src",
         "types": [
