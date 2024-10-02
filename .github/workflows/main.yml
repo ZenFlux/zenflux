@@ -1,11 +1,11 @@
-name: Main self-hosted workflow
+name: Main workflow
 
 on: [ push, pull_request ]
 
 jobs:
-  self-hosted:
+  start-react-packages-workflow:
     uses: ./.github/workflows/react-packages.yml
     with:
-      runs-on: self-hosted
+      runs-on: ubuntu-latest
     secrets:
       token: ${{ secrets.GITHUB_TOKEN }}
