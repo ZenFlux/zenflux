@@ -1,5 +1,7 @@
 .z
 
+.eslintcache
+
 dist
 node_modules
 log
