@@ -11,7 +11,7 @@ on:
         required: true
 
 jobs:
-  build-and-test:
+  lint:
     runs-on: ${{ inputs.runs-on }}
     timeout-minutes: 10
 
@@ -30,8 +30,67 @@ jobs:
       - name: Install dependencies
         run: bun install
 
+      - name: Restore ESLint cache
+        id: restore-eslint-cache
+        uses: actions/cache@v3
+        with:
+          path: .eslintcache
+          key: eslint-cache-${{ runner.os }}-${{ hashFiles('bun.lock', 'eslint.confg.js', '.eslintignore') }}
+          restore-keys: |
+            eslint-cache-${{ runner.os }}-
+
+      - name: Run ESLint
+        run: bun run @z-flux:react:eslint:ci
+
+      - name: Save ESLint cache
+        if: steps.restore-eslint-cache.outputs.cache-hit != 'true'
+        uses: actions/cache@v3
+        with:
+          path: .eslintcache
+          key: eslint-cache-${{ runner.os }}-${{ hashFiles('bun.lock', 'eslint.confg.js', '.eslintignore') }}
+
+  build:
+    runs-on: ${{ inputs.runs-on }}
+    timeout-minutes: 10
+    needs: lint
+
+    steps:
+      - uses: actions/checkout@v4
+      - uses: oven-sh/setup-bun@v1
+
+      - name: Cache dependencies
+        uses: actions/cache@v3
+        with:
+          path: ~/.bun/install/cache
+          key: ${{ runner.os }}-bun-${{ hashFiles('**/bun.lockb') }}
+          restore-keys: |
+            ${{ runner.os }}-bun-
+
+      - name: Install dependencies
+        run: bun install
+
       - name: Build
         run: bun run @z-flux:react:build:ci
+
+  test:
+    runs-on: ${{ inputs.runs-on }}
+    timeout-minutes: 10
+    needs: build
+
+    steps:
+      - uses: actions/checkout@v4
+      - uses: oven-sh/setup-bun@v1
+
+      - name: Cache dependencies
+        uses: actions/cache@v3
+        with:
+          path: ~/.bun/install/cache
+          key: ${{ runner.os }}-bun-${{ hashFiles('**/bun.lockb') }}
+          restore-keys: |
+            ${{ runner.os }}-bun-
+
+      - name: Install dependencies
+        run: bun install
 
       - name: Run tests
         run: bun run @z-flux:react:test:ci
