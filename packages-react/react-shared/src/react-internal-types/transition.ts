@@ -1,5 +1,5 @@
-/* eslint-disable no-restricted-imports */
-import type { Fiber } from "./fiber";
+
+import type { Fiber } from "@zenflux/react-shared/src/react-internal-types/fiber";
 
 import type { FormStatus } from "@zenflux/react-dom-bindings/src/shared/ReactDOMFormActions";
 

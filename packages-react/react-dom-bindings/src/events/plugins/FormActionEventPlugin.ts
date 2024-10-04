@@ -1,11 +1,12 @@
 import { startHostTransition } from "@zenflux/react-reconciler/src/react-fiber-reconciler";
 
+import { getFiberCurrentPropsFromNode } from "@zenflux/react-dom-bindings/src/client/ReactDOMComponentTree";
+
+import { SyntheticEvent } from "@zenflux/react-dom-bindings/src/events/SyntheticEvent";
+
 import type { Fiber } from "@zenflux/react-shared/src/react-internal-types";
 
 import type { FormStatus } from "@zenflux/react-dom-bindings/src/shared/ReactDOMFormActions";
-
-import { getFiberCurrentPropsFromNode } from "@zenflux/react-dom-bindings/src/client/ReactDOMComponentTree";
-import { SyntheticEvent } from "@zenflux/react-dom-bindings/src/events/SyntheticEvent";
 
 import type { AnyNativeEvent } from "@zenflux/react-dom-bindings/src/events/PluginModuleType";
 import type { DOMEventName } from "@zenflux/react-dom-bindings/src/events/DOMEventNames";
@@ -16,6 +17,7 @@ import type { EventSystemFlags } from "@zenflux/react-dom-bindings/src/events/Ev
  * This plugin invokes action functions on forms, inputs and buttons if
  * the form doesn't prevent default.
  */
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 function extractEvents( dispatchQueue: DispatchQueue, domEventName: DOMEventName, maybeTargetInst: null | Fiber, nativeEvent: AnyNativeEvent, nativeEventTarget: null | EventTarget, eventSystemFlags: EventSystemFlags, targetContainer: EventTarget ) {
     if ( domEventName !== "submit" ) {
         return;

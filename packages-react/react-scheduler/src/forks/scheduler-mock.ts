@@ -721,7 +721,7 @@ export {
 
 export const unstable_Profiling: {
     startLoggingProfilingEvents: () => void;
-    stopLoggingProfilingEvents: () => ( ArrayBuffer | ArrayLike<number> | null )
+    stopLoggingProfilingEvents: () => ( ReturnType<typeof stopLoggingProfilingEvents> )
 } | null = enableProfiling ? {
     startLoggingProfilingEvents,
     stopLoggingProfilingEvents

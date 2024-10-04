@@ -398,7 +398,7 @@ function setProp( domElement: Element, tag: string, key: string, value: any, pro
                     // if someone calls stopPropagation before React gets the event.
                     // If CSP is used to block javascript: URLs that's fine too. It just won't show this
                     // error message but the URL will be logged.
-                    domElement.setAttribute( key, // eslint-disable-next-line no-script-url
+                    domElement.setAttribute( key,
                         "javascript:throw new Error('" + "A React form was unexpectedly submitted. If you called form.submit() manually, " + "consider using form.requestSubmit() instead. If you\\'re trying to use " + "event.stopPropagation() in a submit event handler, consider also calling " + "event.preventDefault()." + "')" );
                     break;
                 } else if ( typeof prevValue === "function" ) {
@@ -2114,7 +2114,7 @@ function diffHydratedCustomComponent( domElement: Element, tag: string, props: R
 // This is the exact URL string we expect that Fizz renders if we provide a function action.
 // We use this for hydration warnings. It needs to be in sync with Fizz. Maybe makes sense
 // as a shared module for that reason.
-const EXPECTED_FORM_ACTION_URL = // eslint-disable-next-line no-script-url
+const EXPECTED_FORM_ACTION_URL =
     "javascript:throw new Error('A React form was unexpectedly submitted.')";
 
 function diffHydratedGenericElement( domElement: Element, tag: string, props: Record<string, any>, hostContext: HostContext, extraAttributes: Set<string> ) {

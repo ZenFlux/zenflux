@@ -41,6 +41,7 @@ export function getOffsets( outerNode: DocumentFragment ) {
         anchorNode.nodeType;
         // @ts-ignore
         focusNode.nodeType;
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch ( e ) {
         return null;
     }

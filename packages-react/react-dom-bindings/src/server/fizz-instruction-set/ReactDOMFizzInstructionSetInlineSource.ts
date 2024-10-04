@@ -1,4 +1,4 @@
-/* eslint-disable dot-notation */
+
 // Instruction set for Fizz inline scripts.
 // DO NOT DIRECTLY IMPORT THIS FILE. This is the source for the compiled and
 // minified code in ReactDOMFizzInstructionSetInlineCodeStrings.
@@ -6,7 +6,7 @@ import {
     clientRenderBoundary,
     completeBoundary,
     completeSegment
-} from "@zenflux/react-dom-bindings/src/server/ReactDOMFizzInstructionSetShared";
+} from "@zenflux/react-dom-bindings/src/server/fizz-instruction-set/ReactDOMFizzInstructionSetShared";
 
 export { clientRenderBoundary, completeBoundary, completeSegment };
 // This function is almost identical to the version used by the external

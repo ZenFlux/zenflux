@@ -1,5 +1,3 @@
-import type { ReactElement } from "react";
-
 export default function getActiveElement( doc?: Document | null | undefined ): Element | HTMLInputElement {
     doc = doc || ( typeof document !== "undefined" ? document : undefined );
 
@@ -10,6 +8,7 @@ export default function getActiveElement( doc?: Document | null | undefined ): E
 
     try {
         return doc.activeElement || doc.body;
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch ( e ) {
         return doc.body;
     }

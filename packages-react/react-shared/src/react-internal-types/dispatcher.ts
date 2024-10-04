@@ -1,5 +1,5 @@
-// eslint-disable-next-line no-restricted-imports
-import type { TransitionStatus } from "./transition";
+
+import type { TransitionStatus } from "@zenflux/react-shared/src/react-internal-types/transition";
 
 import type {
     useCallback,

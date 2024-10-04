@@ -62,7 +62,7 @@ export function startLoggingProfilingEvents(): void {
     eventLogIndex = 0;
 }
 
-export function stopLoggingProfilingEvents(): ArrayBuffer | ArrayLike<number> | null {
+export function stopLoggingProfilingEvents() {
     const buffer = eventLogBuffer;
 
     eventLogSize = 0;

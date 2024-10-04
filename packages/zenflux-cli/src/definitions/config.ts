@@ -1,6 +1,7 @@
 /**
  * @author: Leonid Vinikov <leonidvinikov@gmail.com>
  */
+import type { IConfigFile as IAPIExtractorConfigFile } from "@microsoft/api-extractor";
 import type { TZFormatType } from "@zenflux/cli/src/definitions/zenflux";
 import type { TForceEnumKeys } from "@zenflux/cli/src/utils/common";
 
@@ -26,11 +27,14 @@ interface IIConfigArgsGeneralBase {
     omitWarningCodes?: string[],
 
     // Dts probably built once, since it's not format dependent - TODO: Use tsconfig.json
+    // TODO: Merge with `apiExtractor`.
     inputDtsPath?: string;
     outputDtsPath?: string;
 
     onBuiltFormat?: ( format: TZFormatType | undefined ) => void;
     onBuilt?: () => void;
+
+    apiExtractor?: Partial<IAPIExtractorConfigFile>
 }
 
 interface IIConfigArgsGeneralBasic extends IIConfigArgsGeneralBase {

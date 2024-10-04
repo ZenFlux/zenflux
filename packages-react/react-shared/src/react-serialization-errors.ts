@@ -149,6 +149,7 @@ function describeElementType( type: any ): string {
                 try {
                     // Lazy may contain any component type so we recursively resolve it.
                     return describeElementType( init( payload ) );
+                    // eslint-disable-next-line @typescript-eslint/no-unused-vars
                 } catch ( x ) {
                 }
             }

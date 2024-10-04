@@ -1,4 +1,4 @@
-import { listenToFormSubmissionsForReplaying } from "@zenflux/react-dom-bindings/src/server/ReactDOMFizzInstructionSetShared";
+import { listenToFormSubmissionsForReplaying } from "@zenflux/react-dom-bindings/src/server/fizz-instruction-set/ReactDOMFizzInstructionSetShared";
 // TODO: Export a helper function that throws the error from javascript URLs instead.
 // We can do that here since we mess with globals anyway and we can guarantee it has loaded.
 // It makes less sense in the external runtime since it's async loaded and doesn't expose globals

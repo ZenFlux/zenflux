@@ -24,6 +24,7 @@
             "require": "./dist/react-x-env.act.cjs"
         },
 
+        "./src/env": "./src/env.ts",
         "./src/react-internals": "./src/react-internals.ts"
     },
     "scripts": {

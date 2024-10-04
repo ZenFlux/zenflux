@@ -45,6 +45,7 @@ function isSameOriginFrame( iframe: HTMLIFrameElement ) {
         // https://html.spec.whatwg.org/multipage/browsers.html#integration-with-idl
         // @ts-ignore
         return typeof iframe.contentWindow.location.href === "string";
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch ( err ) {
         return false;
     }

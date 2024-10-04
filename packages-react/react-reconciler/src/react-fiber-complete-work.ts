@@ -275,7 +275,7 @@ function appendAllChildrenToContainer( containerChildSet: ChildSet, workInProgre
         let node = workInProgress.child;
 
         while ( node !== null ) {
-            // eslint-disable-next-line no-labels
+
             if ( node.tag === WorkTag.HostComponent ) {
                 let instance = node.stateNode;
 

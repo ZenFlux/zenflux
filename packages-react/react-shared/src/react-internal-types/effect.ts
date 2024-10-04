@@ -1,8 +1,7 @@
-/* eslint-disable no-restricted-imports */
 
 import type { DependencyList } from "react";
 
-import type { Dispatcher } from "./dispatcher";
+import type { Dispatcher } from "@zenflux/react-shared/src/react-internal-types/dispatcher";
 
 import type { HookFlags } from "@zenflux/react-shared/src/react-internal-constants/hook-flags";
 
