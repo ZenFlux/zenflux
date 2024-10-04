@@ -657,7 +657,7 @@ export async function zTSCreateDeclarationWorker(
             return;
         }
 
-        // diagnosticThread.terminate();
+        diagnosticThread.terminate();
 
         const buildPromise = thread.run();
 
@@ -674,9 +674,9 @@ export async function zTSCreateDeclarationWorker(
             reject( error );
         } );
 
-        // buildPromise.then( resolve ).then( () =>{
-        //     thread.terminate();
-        // } );
+        buildPromise.then( resolve ).then( () =>{
+            thread.terminate();
+        } );
     } );
 
     promise.catch( () => {
