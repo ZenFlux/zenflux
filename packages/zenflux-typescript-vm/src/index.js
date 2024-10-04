@@ -9,7 +9,7 @@ import fs from "node:fs";
 import util from "node:util";
 import path from "node:path";
 
-import { createContext } from "node:vm";
+import { createContext, measureMemory } from "node:vm";
 
 import { zGetAbsoluteOrRelativePath } from "@zenflux/utils/src/path";
 import { zCreateResolvablePromise } from "@zenflux/utils/src/promise";
@@ -69,6 +69,8 @@ const initialize = async () => {
         paths,
 
         extensions: externalConfig.extensions,
+
+        vmModuleEvaluateOptions: externalConfig.vmModuleEvaluateOptions,
     };
 
     // TODO: Find better solution.

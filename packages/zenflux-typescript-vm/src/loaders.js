@@ -277,7 +277,7 @@ export class Loaders {
         } );
 
         await vmModule.link( moduleLinkerCallback );
-        await vmModule.evaluate();
+        await vmModule.evaluate( this.vm.config.vmModuleEvaluateOptions );
 
         return vmModule;
     }
