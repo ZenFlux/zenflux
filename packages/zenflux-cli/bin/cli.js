@@ -62,6 +62,10 @@ const config = {
 
     vmContext,
 
+    vmModuleEvaluateOptions: {
+        breakOnSigint: true,
+    },
+
     extensions: [ ".ts", ".json" ],
 
     useSwc: true,
