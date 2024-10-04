@@ -9,19 +9,25 @@ Via package manager, `bun install @zenflux/eslint`
 ## 💻 Usage
 ```javascript
 // eslint.config.js
-import path from "node:path";
+import { zLintGetConfig } from "@zenflux/eslint";
+import util from "node:util";
 
-import { fileURLToPath } from "node:url";
+/** @type {import("eslint").Linter.FlatConfig[]} */
+const config = [
+    {
+        ignores: [
+            "**/eslint.config.*",
+            "**/*jest.config.ts",
+            "**/vite.config.*",
+        ],
+    },
+    ...( await zLintGetConfig() ),
+];
 
-import { zLintGetDefaultConfig, zLintSetRootPackagePath } from "@zenflux/eslint";
-
-zLintSetRootPackagePath( path.resolve(
-    path.dirname( fileURLToPath( import.meta.url ) ),
-    "package.json"
-) );
-
-const config = zLintGetDefaultConfig();
+if ( process.argv.includes( "--print-config" ) ) {
+    console.log( util.inspect( config, { depth: null } ) );
+    process.exit( 0 )
+}
 
 export default config;
-
 ```

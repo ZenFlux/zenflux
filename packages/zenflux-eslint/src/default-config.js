@@ -1,69 +1,24 @@
-/**
- * @author Leonid Vinikov <leonidvinikov@gmail.com>
- */
-import fs from "node:fs";
-import path from "node:path";
+import { fixupPluginRules } from "@eslint/compat";
 
-import * as TSLintParser from "@typescript-eslint/parser";
-
-import TypeScriptPlugin from "@typescript-eslint/eslint-plugin";
+import TSLint from "typescript-eslint";
 
 import ImportPlugin from "eslint-plugin-import";
 
-import { fixupPluginRules } from "@eslint/compat";
-
-import { fileURLToPath } from "node:url";
-
-import { zFindRootPackageJsonPath } from "@zenflux/utils/src/workspace";
-
-const workingPath = path.dirname( fileURLToPath( import.meta.url ) );
-
-globalThis.__Z_ESLINT_CONFIG__ = globalThis.__Z_ESLINT_CONFIG__ ?? {
-    zRootPackagePath: zFindRootPackageJsonPath(),
-    zPackagePath: path.resolve( workingPath, "./package.json" ),
-};
-
-const ZenFluxPlugin = ( await import( "@zenflux/eslint/plugin.js" ) ).default;
+const ZenFluxPlugin = ( await import( "./plugin.js" ) ).default;
 
 /**
- * Sets the root package path.
+ * @param {string[]} files
+ * @param {string[]} workspaces
  *
- * @param {string} zRootPackagePath - The path to the workspace `package.json`.
- *
- * @return {void}
+ * @returns {import("../types/default-config.d.ts").ESLintTSLintCompatible[]}
  */
-export function zLintSetRootPackagePath( zRootPackagePath ) {
-    globalThis.__Z_ESLINT_CONFIG__.zRootPackagePath = zRootPackagePath;
-}
-
-/**
- * Retrieves the workspaces from the provided workspace path.
- *
- * @param {string} [rootPkgPath=__Z_ESLINT_CONFIG__.zRootPackagePath] - The path to the root package.
- *
- * @return {Array} - An array containing the retrieved workspaces.
- */
-export function zLintGetWorkspaces( rootPkgPath = __Z_ESLINT_CONFIG__.zRootPackagePath ) {
-    return Object.values(
-        JSON.parse( fs.readFileSync( rootPkgPath ) ).workspaces
-    );
-}
-
-/**
- * Returns the default configuration for eslint.
- *
- * @param {Array<String>} [workspaces=zLintGetWorkspaces()] - The list of workspaces to include in the configuration.
- *
- * @return {import('eslint').Linter.FlatConfig[]} The default configuration for zLint.
- */
-export function zLintGetDefaultConfig( workspaces = zLintGetWorkspaces() ) {
+export function zLintDefaultConfig( files, workspaces ) {
     return [
         {
-            files: workspaces.map( ( p ) => `${ p.startsWith( "." ) ? p.substring( 1 ) : p + "/" }**/*.{ts,tsx}` ),
-
+            files,
             languageOptions: {
                 // Specifies the parser to use for linting (TypeScript)
-                "parser": TSLintParser,
+                parser: TSLint.parser,
 
                 parserOptions: {
                     "ecmaVersion": "latest",
@@ -75,7 +30,7 @@ export function zLintGetDefaultConfig( workspaces = zLintGetWorkspaces() ) {
 
             // Specifies ESLint plugins used in this configuration
             plugins: {
-                "@typescript-eslint": TypeScriptPlugin,
+                "@typescript-eslint": TSLint.plugin,
                 "import": fixupPluginRules( ImportPlugin ),
                 "@zenflux": ZenFluxPlugin,
             },
@@ -149,7 +104,7 @@ export function zLintGetDefaultConfig( workspaces = zLintGetWorkspaces() ) {
                 "@typescript-eslint/consistent-type-imports": "error",
                 "@typescript-eslint/no-import-type-side-effects": "error",
 
-                "import/consistent-type-specifier-style" : "error",
+                "import/consistent-type-specifier-style": "error",
 
                 // Disable named-as-default rule for import
                 "import/no-named-as-default": "off",
@@ -225,20 +180,31 @@ export function zLintGetDefaultConfig( workspaces = zLintGetWorkspaces() ) {
                 ],
             },
         },
-        {
-            ignores: [
-                "**/*.js",
-                "**/*.d.ts",
-
-                // "**/zenflux.*.config.ts",
-
-                "**/dist/**",
-                "**/bin/**",
-                "**/zenflux.config.ts",
-                "**/node_modules/**",
-                "**/.backups/**",
-            ],
-        }
     ];
 }
 
+/**
+ * Generates a default set of file and directory patterns to be excluded,
+ * with an option to add additional patterns.
+ *
+ * @param {string[]} addToExclude - An optional array of additional file patterns to exclude.
+ * @return {string[]} An array containing the default and additional exclusion patterns.
+ */
+export function zLintDefaultExclude( addToExclude = [] ) {
+    return [
+        "**/*.js",
+        "**/*.d.ts",
+
+        // "**/zenflux.*.config.ts",
+
+        "**/dist/**",
+        "**/bin/**",
+        "**/zenflux.config.ts",
+        "**/node_modules/**",
+        "**/.backups/**",
+
+        ... addToExclude,
+    ]
+}
+
+export default zLintDefaultConfig;

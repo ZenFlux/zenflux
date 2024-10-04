@@ -1,0 +1,36 @@
+{
+    // Change this to match your project
+
+    "compilerOptions": {
+        "allowJs": true,
+        "checkJs": true,
+        "module": "NodeNext",
+        "esModuleInterop": true,
+        "outDir": "dist",
+        "rootDir": "./src",
+        "types": [
+            "node"
+        ],
+        "typeRoots": [
+            "./types",
+            "../../node_modules/eslint/lib/types/index.d.ts",
+            "../../node_modules/@types/"
+        ],
+        "paths": {
+            "eslint": [
+                "../../node_modules/eslint/lib/types/index.d.ts"
+            ]
+        },
+        "strict": false
+    },
+    "include": [
+        "src/*.js",
+        "types/*.d.ts"
+    ],
+    "files": [
+        "../../node_modules/eslint/lib/types/index.d.ts"
+    ],
+    "exclude": [
+        "../../node_modules/@types/eslint"
+    ]
+}
