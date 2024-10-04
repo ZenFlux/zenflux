@@ -1,3 +1,5 @@
+/// <reference types="@zenflux/typescript-vm/import-meta" />
+
 /**
  * @author: Leonid Vinikov <leonidvinikov@gmail.com>
  */
@@ -5,6 +7,8 @@ import fs from "fs";
 import { fileURLToPath } from "node:url";
 
 import { WorkerServer } from "@zenflux/worker/worker-server";
+
+import type { DCreateWorkerArguments } from "@zenflux/worker/definitions";
 
 declare module globalThis {
     var zWorkersCount: number;
@@ -18,23 +22,16 @@ export function zWorkerGetCount() {
     return globalThis.zWorkersCount;
 }
 
-interface ZCreateWorkerArguments {
-    name: string;
-    id?: number;
-    display?: string;
-    workFunction: Function;
-    workFilePath?: string;
-    workArgs?: any[]
-}
+export async function zCreateWorker( args: DCreateWorkerArguments ) {
+    const {
+        name,
+        id = zWorkerGetCount().toString(),
+        display = name,
+        workFunction,
+        workFilePath = import.meta.refererUrl ? fileURLToPath( import.meta.refererUrl ) : undefined,
+        workArgs = []
+    } = args;
 
-export const zCreateWorker: ( args: ZCreateWorkerArguments ) => WorkerServer = ( {
-   name,
-   id = zWorkerGetCount(),
-   display = name,
-   workFunction,
-   workFilePath = import.meta.refererUrl ? fileURLToPath( import.meta.refererUrl ) : undefined,
-   workArgs = []
-} ) => {
     let isExist = false;
 
     try {
@@ -48,5 +45,15 @@ export const zCreateWorker: ( args: ZCreateWorkerArguments ) => WorkerServer = (
         throw new Error( `File not found: ${ workFilePath }` );
     }
 
-    return new WorkerServer( name, id, display, workFunction, workFilePath, workArgs );
+    const worker = new WorkerServer( name,
+        id.toString(),
+        display,
+        workFunction,
+        workFilePath,
+        workArgs
+    );
+
+    await worker.initialize();
+
+    return worker;
 };

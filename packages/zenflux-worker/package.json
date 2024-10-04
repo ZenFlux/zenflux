@@ -15,9 +15,11 @@
     "exports": {
         ".": "./src/index.ts",
         "./definitions": "./src/definitions.ts",
+        "./package.json": "./package.json",
         "./utils": "./src/utils.ts",
-        "./worker-server": "./src/worker-server.ts",
         "./worker-client": "./src/worker-client.ts",
-        "./package.json": "./package.json"
+        "./worker-pool": "./src/worker-pool.ts",
+        "./worker-runner": "./src/worker-runner.ts",
+        "./worker-server": "./src/worker-server.ts"
     }
 }

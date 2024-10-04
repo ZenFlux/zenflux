@@ -1,7 +1,7 @@
 /**
  * @author: Leonid Vinikov <leonidvinikov@gmail.com>
  */
-import { DEFAULT_WORKER_EVENTS } from "@zenflux/worker/definitions";
+import { DEFAULT_WORKER_CONSOLE_EVENTS } from "@zenflux/worker/definitions";
 
 import { ConsoleThreadFormat } from "@zenflux/cli/src/console/console-thread-format";
 
@@ -20,7 +20,7 @@ export class ConsoleThreadReceive extends ConsoleThreadFormat {
     public static connect( worker: WorkerServer, console: ConsoleThreadFormat ) {
         const newConsole = new ConsoleThreadReceive( console, worker.getId() );
 
-        DEFAULT_WORKER_EVENTS.forEach( ( event ) => {
+        DEFAULT_WORKER_CONSOLE_EVENTS.forEach( ( event ) => {
             worker.on( event, ( ... args: any[] ) => {
                 newConsole[ event ].call( newConsole, ... args );
             });
@@ -31,7 +31,7 @@ export class ConsoleThreadReceive extends ConsoleThreadFormat {
 
     protected constructor(
         private console: ConsoleThreadFormat,
-        private threadId: number | string
+        private threadId: string
     ) {
         super();
     }
@@ -41,7 +41,7 @@ export class ConsoleThreadReceive extends ConsoleThreadFormat {
     }
 
     public getThreadId() {
-        return this.threadId;
+        return this.threadId.match(/\d+/)?.[ 0 ] ?? this.threadId;
     }
 
     public getThreadCode(): string {

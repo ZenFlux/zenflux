@@ -40,7 +40,7 @@ export abstract class ConsoleThreadFormat extends ConsoleManager.module() {
      * Abstract method that should return the ID of the thread.
      * This method is expected to be implemented by any class that extends ConsoleThreadFormat.
      */
-    public abstract getThreadId(): number|string;
+    public abstract getThreadId(): string;
 
     /**
      * Abstract method that should return the code of the thread.

@@ -4,7 +4,7 @@
 import fs from "node:fs";
 import process from "node:process";
 import path from "node:path";
-
+import { fileURLToPath } from "node:url";
 import util from "node:util";
 
 import { zDeepMergeAll } from "@zenflux/utils/src/object";
@@ -33,8 +33,9 @@ import {
 
 import { ConsoleManager } from "@zenflux/cli/src/managers/console-manager";
 
-import type { ThreadHost } from "@zenflux/worker/definitions";
 import type { WorkerServer } from "@zenflux/worker/worker-server";
+
+import type { DThreadHostInterface } from "@zenflux/worker/definitions";
 
 import type { ConsoleThreadFormat } from "@zenflux/cli/src/console/console-thread-format";
 
@@ -48,9 +49,9 @@ import type {
 import type { IZConfigInternal } from "@zenflux/cli/src/definitions/config";
 
 // TODO: Avoid this, create threadPool with max threads = cpu cores.
-const diagnosticWorkers = new Map<number, WorkerServer>(),
-    declarationWorkers = new Map<number, WorkerServer>(),
-    diagnosticWorkersPreparing = new Map<string, ReturnType<typeof zCreateResolvablePromise>>;
+const diagnosticWorkers = new Map<string, WorkerServer>(),
+    diagnosticWorkersPreparing = new Map<string, ReturnType<typeof zCreateResolvablePromise>>,
+    declarationWorkers = new Map<string, WorkerServer>();
 
 const waitingTSConfigs = new Map<string, {
     promise: ReturnType<typeof zCreateResolvablePromise>,
@@ -478,7 +479,7 @@ export async function zTSCreateDeclaration( tsConfig: ts.ParsedCommandLine, conf
     return result.diagnostics.length <= 0;
 }
 
-export function zTSDiagnosticInWorker( tsConfigFilePath: string, options: TZPreDiagnosticsWorkerOptions, host: ThreadHost ) {
+export function zTSDiagnosticInWorker( tsConfigFilePath: string, options: TZPreDiagnosticsWorkerOptions, host: DThreadHostInterface ) {
     ensureInWorker();
 
     // Hook console logs to thread messages.
@@ -491,7 +492,7 @@ export function zTSDiagnosticInWorker( tsConfigFilePath: string, options: TZPreD
     return zTSPreDiagnostics( tsConfig, options );
 }
 
-export async function zTSDeclarationInWorker( tsConfigFilePath: string, config: IZConfigInternal, host: ThreadHost ) {
+export async function zTSDeclarationInWorker( tsConfigFilePath: string, config: IZConfigInternal, host: DThreadHostInterface ) {
     ensureInWorker();
 
     // Hook console logs to thread messages.
@@ -518,12 +519,13 @@ export async function zTSCreateDiagnosticWorker(
 
         const { zCreateWorker } = ( await import( "@zenflux/worker" ) );
 
-        const worker = zCreateWorker( {
+        const worker = await zCreateWorker( {
             name: "Diagnostic",
             id: options.id,
             display: tsConfig.options.configFilePath as string,
             workArgs: [ tsConfig.options.configFilePath, options ],
             workFunction: zTSDiagnosticInWorker,
+            workFilePath: fileURLToPath( import.meta.url ),
         } );
 
         ConsoleThreadReceive.connect( worker, activeConsole );
@@ -533,14 +535,14 @@ export async function zTSCreateDiagnosticWorker(
         preparePromise.resolve();
     }
 
-    const thread = diagnosticWorkers.get( options.id as number );
+    const thread = diagnosticWorkers.get( options.id );
 
     if ( ! thread ) {
         throw new Error( "Thread not found." );
     }
 
     if ( ! thread.isAlive() ) {
-        diagnosticWorkers.delete( options.id as number );
+        diagnosticWorkers.delete( options.id );
 
         return zTSCreateDiagnosticWorker( tsConfig, options, activeConsole );
     }
@@ -552,19 +554,19 @@ export async function zTSCreateDiagnosticWorker(
         const buildPromise = thread.run();
 
         buildPromise.catch( ( error ) => {
-            activeConsole.error( "error", "from DI-" + options.id, "\n ->", error );
+            activeConsole.error( "error", "from DI-" + options.id, "\n ->", error.stack ? error.stack : error );
 
             if ( options.haltOnError ) {
                 throw error;
             }
 
             // Skip declaration worker if diagnostic worker errors.
-            const declarationThread = declarationWorkers.get( options.id as number );
+            const declarationThread = declarationWorkers.get( options.id );
 
             if ( declarationThread ) {
                 activeConsole.verbose( () => [
                     zTSCreateDiagnosticWorker.name,
-                    `Skipping declaration worker DI${ options.id }`
+                    `Skipping declaration worker ${ options.id }`
                 ] );
 
                 declarationThread.skipNextRun();//
@@ -583,12 +585,13 @@ export async function zTSCreateDeclarationWorker(
     if ( ! declarationWorkers.has( options.id ) ) {
         const { zCreateWorker } = ( await import( "@zenflux/worker" ) );
 
-        const worker = zCreateWorker( {
+        const worker = await zCreateWorker( {
             name: "Declaration",
             id: options.id,
             display: tsConfig.options.configFilePath as string,
             workArgs: [ tsConfig.options.configFilePath, options.config ],
             workFunction: zTSDeclarationInWorker,
+            workFilePath: fileURLToPath( import.meta.url ),
         } );
 
         ConsoleThreadReceive.connect( worker, activeConsole );
@@ -596,48 +599,50 @@ export async function zTSCreateDeclarationWorker(
         declarationWorkers.set( options.id, worker );
     }
 
-    const thread = declarationWorkers.get( options.id as number );
+    const thread = declarationWorkers.get( options.id );
 
     if ( ! thread ) {
         throw new Error( "Thread not found." );
     }
 
     if ( ! thread.isAlive() ) {
-        declarationWorkers.delete( options.id as number );
+        declarationWorkers.delete( options.id );
 
         return zTSCreateDeclarationWorker( tsConfig, options, activeConsole );
     }
+
+    const diagnosticThreadId = options.id.replace( "DE", "DI" );
 
     const promise = new Promise( async ( resolve, reject ) => {
         // Main thread will wait for dependencies before starting the worker.
         await zTSWaitForDependencies( tsConfig, options.otherTSConfigs, activeConsole );
 
-        const isDiagnosticPreparingPromise = diagnosticWorkersPreparing.get( options.id );
+        const isDiagnosticPreparingPromise = diagnosticWorkersPreparing.get( diagnosticThreadId );
 
         if ( isDiagnosticPreparingPromise ) {
             activeConsole.verbose( () => [
                 zTSCreateDeclarationWorker.name,
-                `Waiting for diagnostic worker ${ options.id } to prepare`
+                `Waiting for diagnostic worker ${ diagnosticThreadId } to prepare`
             ] );
 
             await isDiagnosticPreparingPromise.await;
 
             activeConsole.verbose( () => [
                 zTSCreateDeclarationWorker.name,
-                `Done waiting for diagnostic worker ${ options.id } to prepare`
+                `Done waiting for diagnostic worker ${ diagnosticThreadId } to prepare`
             ] );
         }
 
         // Get corresponding diagnostics worker.
-        const diagnosticThread = diagnosticWorkers.get( options.id as number );
+        const diagnosticThread = diagnosticWorkers.get( diagnosticThreadId );
 
         if ( ! diagnosticThread ) {
-            reject( `Diagnostic worker DI${ options.id } not found` );
+            throw new Error( `Diagnostic worker ${ diagnosticThreadId } not found` );
         }
 
         activeConsole.verbose( () => [
             zTSCreateDeclarationWorker.name,
-            `Waiting for diagnostic worker DI${ options.id } to finish`
+            `Waiting for diagnostic worker ${ diagnosticThreadId } to finish`
         ] );
 
         // Wait for diagnostics to finish before starting declaration worker.
@@ -645,33 +650,37 @@ export async function zTSCreateDeclarationWorker(
 
         activeConsole.verbose( () => [
             zTSCreateDeclarationWorker.name,
-            `Done waiting for diagnostic worker DI${ options.id }`
+            `Done waiting for diagnostic worker ${ diagnosticThreadId }`
         ] );
 
         if ( ! shouldRun ) {
             return;
         }
 
+        // diagnosticThread.terminate();
+
         const buildPromise = thread.run();
 
-        buildPromise.catch( ( error: { message: string | string[]; } ) => {
+        buildPromise.catch( ( error ) => {
             if ( error.message.includes( "Killed by diagnostic worker" ) ) {
                 activeConsole.verbose( () => [
                     zTSCreateDeclarationWorker.name,
                     error.message
                 ] );
             } else {
-                activeConsole.error( "error", "from DI-" + options.id, "\n ->", error );
+                activeConsole.error( "error", "from " + options.id, "\n ->", error.stack ? error.stack : error );
             }
 
             reject( error );
         } );
 
-        buildPromise.then( resolve );
+        // buildPromise.then( resolve ).then( () =>{
+        //     thread.terminate();
+        // } );
     } );
 
-    promise.catch( () => {} ).finally( () => zTSResumeDependencies( tsConfig, activeConsole ) );
-    // TODO:Add internal error.
+    promise.catch( () => {
+    } ).finally( () => zTSResumeDependencies( tsConfig, activeConsole ) );
 
     return promise;
 }
