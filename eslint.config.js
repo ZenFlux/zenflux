@@ -1,38 +1,23 @@
-import { zLintGetDefaultConfig } from "@zenflux/eslint";
+import { zLintGetConfig } from "@zenflux/eslint";
+import util from "node:util";
 
-/** @type {import('eslint').Linter.FlatConfig[]} */
-export const tests = [
+/** @type {import("eslint").Linter.FlatConfig[]} */
+const config = [
     {
         ignores: [
             "**/eslint.config.*",
             "**/*jest.config.ts",
+            "**/vite.config.*",
+            "**/*.cjs"
         ],
     },
-    {
-        files: [
-            "packages/*/test/**/*.{ts,tsx}",
-        ],
-        rules: {
-            "no-restricted-imports": [
-                "error",
-                {
-                    "patterns": [ {
-                        group: [
-                            "@",
-                        ],
-                        message: "Please use relative imports",
-                    } ]
-                }
-            ],
-        },
-    },
+    ...( await zLintGetConfig() ),
 ];
 
-/** @type {import("eslint").Linter.FlatConfig[]} */
-const config = [
-    ...zLintGetDefaultConfig(),
-    ...tests,
-];
-
+if ( process.argv.includes( "--print-config" ) ) {
+    console.log( util.inspect( config, { depth: null } ) );
+    process.exit( 0 )
+}
 
 export default config;
+

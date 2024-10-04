@@ -3,11 +3,11 @@
  */
 import fs from "node:fs";
 import path from "node:path";
-
-// TODO: Use cache
-const rootPackageJson = JSON.parse(
-    fs.readFileSync( globalThis.__Z_ESLINT_CONFIG__.zRootPackagePath, 'utf8' )
-);
+//
+// // TODO: Use cache
+// const rootPackageJson = JSON.parse(
+//     fs.readFileSync( globalThis.__Z_ESLINT_CONFIG__.zRootPackagePath, 'utf8' )
+// );
 
 // TODO Move out of "@zenflux/eslint" package
 function findNearestPackageJson( directory ) {
