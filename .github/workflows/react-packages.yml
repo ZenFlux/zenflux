@@ -33,11 +33,18 @@ jobs:
       - name: Build
         run: bun run @z-flux:react:build:ci
 
+      - name: Compress build artifacts
+        run: |
+          mkdir -p build-artifacts
+          find packages-react/ -type f -path "*/dist/**/*" | cpio -pdm build-artifacts
+          tar -czvf build-artifacts.tar.gz -C build-artifacts .
+
       - name: Upload build artifacts
         uses: actions/upload-artifact@v3
         with:
           name: build-artifacts
-          path: '**/dist/'
+          path: build-artifacts.tar.gz
+
   lint:
     runs-on: ${{ inputs.runs-on }}
     timeout-minutes: 10
@@ -62,7 +69,9 @@ jobs:
         uses: actions/download-artifact@v3
         with:
           name: build-artifacts
-          path: .
+
+      - name: Extract build artifacts
+        run: tar -xzf build-artifacts.tar.gz
 
       - name: Restore ESLint cache
         id: restore-eslint-cache
@@ -107,7 +116,9 @@ jobs:
         uses: actions/download-artifact@v3
         with:
           name: build-artifacts
-          path: .
+
+      - name: Extract build artifacts
+        run: tar -xzf build-artifacts.tar.gz
 
       - name: Run tests
         run: bun run @z-flux:react:test:ci
