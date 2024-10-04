@@ -33,6 +33,11 @@ jobs:
       - name: Build
         run: bun run @z-flux:react:build:ci
 
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: build-artifacts
+          path: '**/dist/'
   lint:
     runs-on: ${{ inputs.runs-on }}
     timeout-minutes: 10
@@ -52,6 +57,12 @@ jobs:
 
       - name: Install dependencies
         run: bun install
+
+      - name: Download build artifacts
+        uses: actions/download-artifact@v3
+        with:
+          name: build-artifacts
+          path: .
 
       - name: Restore ESLint cache
         id: restore-eslint-cache
@@ -91,6 +102,12 @@ jobs:
 
       - name: Install dependencies
         run: bun install
+
+      - name: Download build artifacts
+        uses: actions/download-artifact@v3
+        with:
+          name: build-artifacts
+          path: .
 
       - name: Run tests
         run: bun run @z-flux:react:test:ci
