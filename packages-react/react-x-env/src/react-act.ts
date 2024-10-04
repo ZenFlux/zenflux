@@ -7,6 +7,7 @@
 
 import "@zenflux/react-x-env/src/env";
 
+// eslint-disable-next-line import/order
 import queueMacrotask from "@zenflux/react-shared/src/enquque-task";
 
 import type { Thenable } from "@zenflux/react-shared/src/react-types";
