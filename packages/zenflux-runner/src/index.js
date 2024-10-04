@@ -8,6 +8,8 @@ import { Loaders, Resolvers, vm } from "@zenflux/typescript-vm";
 
 import process from "node:process";
 import { zFindRootPackageJsonPath } from "@zenflux/utils/src/workspace";
+import * as util from "util";
+import { ErrorWithMeta } from "@zenflux/utils/src/error";
 
 // Constants
 const CORE_PROJECT_NAME = "@zenflux/zenflux";
@@ -139,15 +141,34 @@ if ( typeof Bun !== "undefined" ) {
         const resolvers = new Resolvers( vm ),
             loaders = new Loaders( vm );
 
+        process.on( "exit", ( code ) => {
+            if ( process.argv.includes( "--z-runner-verbose" ) ) {
+                console.log( "Process exits now... metadata: " + util.inspect( {
+                    argv: process.argv,
+                    cwd: process.cwd(),
+                    config: vm.config,
+                    targetPath: targetPath,
+                    code,
+                }, { depth: null } ) );
+            }
+        } );
+
         await vm.auto( targetPath, loaders, resolvers ).catch( ( err ) => {
-                err.cause ??= {
-                    deepStack: []
-                };
+            if ( err.message ) {
+                const deepStack = err.meta?.deepStack || [];
 
-                err.cause.deepStack.push( import.meta.url );
-                err.cause.meta = vm.config.paths;
+                deepStack.push( import.meta.url );
 
-                throw err;
-            } );
+                err = new ErrorWithMeta( `Error in @zenflux/runner, While running ${ targetPath } script`, {
+                    ... err.meta || {},
+                    config: vm.config.paths,
+                    deepStack
+                }, err );
+            }
+
+            throw err;
+        } );
     } );
 }
+
+
