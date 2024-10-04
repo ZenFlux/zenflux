@@ -1,5 +1,5 @@
-// eslint-disable-next-line no-restricted-imports
-import { TypeOfMode } from "./type-of-mode";
+
+import { TypeOfMode } from "@zenflux/react-shared/src/react-internal-constants/type-of-mode";
 
 import {
     allowConcurrentByDefault,

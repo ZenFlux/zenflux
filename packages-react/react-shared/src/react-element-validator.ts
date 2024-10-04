@@ -429,6 +429,7 @@ export function jsxWithValidation(
 //     return jsxWithValidation( type, props, key, false );
 // }
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 export function createElementWithValidation( type: any, props: any, children: any ): any {
     const validType = reactIsValidElementType( type );
 
@@ -539,6 +540,7 @@ export function createFactoryWithValidation( type: any ) {
     return validatedFactory;
 }
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 export function cloneElementWithValidation( element: any, props: any, children: any ) {
     const newElement = cloneElement.apply(this, arguments);
     for ( let i = 2 ; i < arguments.length ; i++ ) {

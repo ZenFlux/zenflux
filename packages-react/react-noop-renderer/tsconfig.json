@@ -1,5 +1,6 @@
 {
     "compilerOptions": {
+        "rootDir": ".",
         "esModuleInterop": true,
         "target": "ESNext",
         "module": "ESNext",
@@ -7,7 +8,7 @@
         "baseUrl": "./",
         "outDir": "dist",
         // Skip lib check
-        "skipLibCheck": true
+        "skipLibCheck": true,
     },
     "include": [
         "src/**/*.ts",

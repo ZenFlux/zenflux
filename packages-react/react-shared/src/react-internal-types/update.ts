@@ -1,5 +1,5 @@
-/* eslint-disable no-restricted-imports */
-import type { Lane } from "./lanes";
+
+import type { Lane } from "@zenflux/react-shared/src/react-internal-types/lanes";
 
 export type ConcurrentUpdate = {
     next: ConcurrentUpdate;

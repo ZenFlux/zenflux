@@ -7,6 +7,7 @@
 // List derived from Gecko source code:
 // https://github.com/mozilla/gecko-dev/blob/4e638efc71/layout/style/test/property_database.js
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const cSSShorthandKeys = [
     "animation",
     "background",

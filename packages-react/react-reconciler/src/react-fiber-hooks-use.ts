@@ -27,7 +27,6 @@ export function use<T>( usable: Usable<T> ): T {
         }
     }
 
-    // not-used: eslint-disable-next-line react-internal/safe-string-coercion
     throw new Error( "An unsupported type was passed to use(): " + String( usable ) );
 }
 

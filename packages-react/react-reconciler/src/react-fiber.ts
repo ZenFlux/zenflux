@@ -42,10 +42,10 @@ if ( __DEV__ ) {
     try {
         const nonExtensibleObject = Object.preventExtensions( {} );
 
-        /* eslint-disable no-new */
         new Map( [ [ nonExtensibleObject, null ] ] );
         new Set( [ nonExtensibleObject ] );
-        /* eslint-enable no-new */
+
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch ( e ) {
         // TODO: Consider warning about bad polyfills
         hasBadMapPolyfill = true;

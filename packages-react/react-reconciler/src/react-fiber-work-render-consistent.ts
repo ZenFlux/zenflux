@@ -30,6 +30,7 @@ export function isRenderConsistentWithExternalStores( finishedWork: Fiber ): boo
                                 // Found an inconsistent store.
                                 return false;
                             }
+                            // eslint-disable-next-line @typescript-eslint/no-unused-vars
                         } catch ( error ) {
                             // If `getSnapshot` throws, return `false`. This will schedule
                             // a re-render, and the error will be rethrown during render.
@@ -65,6 +66,6 @@ export function isRenderConsistentWithExternalStores( finishedWork: Fiber ): boo
     }
 
     // Flow doesn't know this is unreachable, but eslint does
-    // eslint-disable-next-line no-unreachable
+
     return true;
 }

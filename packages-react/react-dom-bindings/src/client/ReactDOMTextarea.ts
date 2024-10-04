@@ -2,11 +2,13 @@ import { getCurrentFiberOwnerNameInDevOrNull } from "@zenflux/react-reconciler/s
 
 import { disableTextareaChildren } from "@zenflux/react-shared/src/react-feature-flags";
 
+import { restoreControlledInputState } from "@zenflux/react-dom-bindings/src/client/ReactDOMInput";
+
 import { getToStringValue, toString } from "@zenflux/react-dom-bindings/src/client/ToStringValue";
 
+import { restoreControlledSelectState } from "@zenflux/react-dom-bindings/src/client/ReactDOMSelect";
+
 import type { Props } from "@zenflux/react-dom-bindings/src/client/ReactFiberConfigDOM";
-import { restoreControlledInputState } from "./ReactDOMInput";
-import { restoreControlledSelectState } from "./ReactDOMSelect";
 
 let didWarnValDefaultVal = false;
 

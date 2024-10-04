@@ -30,6 +30,7 @@ function willCoercionThrow( value: any ) {
     if ( __DEV__ ) {
         try {
             testStringCoercion( value );
+            // eslint-disable-next-line @typescript-eslint/no-unused-vars
         } catch ( e ) {
             return true;
         }
@@ -61,7 +62,6 @@ function testStringCoercion( value: unknown ) {
     // In most cases, this console output also shows the component and its
     // ancestor components where the exception happened.
     //
-    // not-used:eslint-disable-next-line react-internal/safe-string-coercion
     return "" + ( value as any );
 }
 

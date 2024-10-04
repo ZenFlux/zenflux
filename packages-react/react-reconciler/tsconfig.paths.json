@@ -4,7 +4,17 @@
         "baseUrl": "./"
     },
     "include": [
-        "src/**/*.ts",
+        "src",
         "zenflux.config.ts"
     ],
+    "exclude": [
+        "node_modules",
+        "dist"
+    ],
+    // A reference to a package, indicating which packages lack declarations that require creation.
+    "references": [
+        { "path": "@zenflux/cli" },
+        { "path": "@zenflux/react-shared" },
+        { "path": "@zenflux/react-dom-bindings" }
+    ]
 }

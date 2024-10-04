@@ -18,6 +18,7 @@ if ( canUseDOM ) {
         window.addEventListener( "test", options, options );
         // @ts-ignore
         window.removeEventListener( "test", options, options );
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch ( e ) {
         passiveBrowserEventsSupported = false;
     }

@@ -26,7 +26,6 @@ export function getValueForAttribute( node: Element, name: string, expected: unk
             switch ( typeof expected ) {
                 case "function":
                 case "symbol":
-                    // eslint-disable-line
                     return expected;
 
                 case "boolean": {
@@ -122,7 +121,7 @@ export function setValueForAttribute( node: Element, name: string, value: unknow
             case "undefined":
             case "function":
             case "symbol":
-                // eslint-disable-line
+
                 node.removeAttribute( name );
                 return;
 

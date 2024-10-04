@@ -34,10 +34,12 @@ const reporter = {
  * implementation in DEV mode.
  */
 export function invokeGuardedCallback<Context>(
+    /* eslint-disable @typescript-eslint/no-unused-vars */
     name: string | null,
     func: ( ... args: any[] ) => any,
     context?: Context,
     ... args: any[]
+    /* eslint-enable @typescript-eslint/no-unused-vars */
 ): void {
     hasError = false;
     caughtError = null;

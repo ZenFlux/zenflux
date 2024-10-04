@@ -65,6 +65,7 @@ function checkIfSnapshotChanged<T>( inst: StoreInstance<T> ): boolean {
     try {
         const nextValue = latestGetSnapshot();
         return ! is( prevValue, nextValue );
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch ( error ) {
         return true;
     }

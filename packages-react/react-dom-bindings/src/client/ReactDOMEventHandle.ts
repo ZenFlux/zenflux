@@ -1,7 +1,7 @@
 import { enableCreateEventHandleAPI, enableScopeAPI } from "@zenflux/react-shared/src/react-feature-flags";
 
-import { allNativeEvents } from "../events/EventRegistry";
-import { listenToNativeEventForNonManagedEventTarget } from "../events/DOMPluginEventSystem";
+import { allNativeEvents } from "@zenflux/react-dom-bindings/src/events/EventRegistry";
+import { listenToNativeEventForNonManagedEventTarget } from "@zenflux/react-dom-bindings/src/events/DOMPluginEventSystem";
 
 import {
     addEventHandleToTarget,
@@ -14,7 +14,7 @@ import { ELEMENT_NODE } from "@zenflux/react-dom-bindings/src/client/HTMLNodeTyp
 
 import type { ReactScopeInstance } from "@zenflux/react-shared/src/react-types";
 
-import type { DOMEventName } from "../events/DOMEventNames";
+import type { DOMEventName } from "@zenflux/react-dom-bindings/src/events/DOMEventNames";
 import type {
     ReactDOMEventHandle,
     ReactDOMEventHandleListener

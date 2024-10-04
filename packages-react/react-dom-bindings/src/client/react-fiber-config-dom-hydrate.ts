@@ -238,7 +238,6 @@ export function errorHydratingContainer( parentContainer: Container ): void {
     }
 }
 
-
 export function canHydrateTextInstance( instance: HydratableInstance, text: string, inRootOrSingleton: boolean ): null | TextInstance {
     // Empty strings are not parsed by HTML so there won't be a correct match here.
     if ( text === "" ) return null;

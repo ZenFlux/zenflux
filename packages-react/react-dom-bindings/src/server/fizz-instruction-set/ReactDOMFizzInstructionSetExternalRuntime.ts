@@ -1,13 +1,13 @@
-/* eslint-disable dot-notation */
+
 // Instruction set for the Fizz external runtime
+import { enableFormActions } from "@zenflux/react-shared/src/react-feature-flags";
+
 import {
     clientRenderBoundary,
     completeBoundary,
     completeSegment,
     listenToFormSubmissionsForReplaying
-} from "@zenflux/react-dom-bindings/src/server/ReactDOMFizzInstructionSetShared";
-
-import { enableFormActions } from "@zenflux/react-shared/src/react-feature-flags";
+} from "@zenflux/react-dom-bindings/src/server/fizz-instruction-set/ReactDOMFizzInstructionSetShared";
 
 export { clientRenderBoundary, completeBoundary, completeSegment };
 const resourceMap = new Map();

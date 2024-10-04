@@ -1,3 +1,5 @@
+import type React from "react";
+
 import type { RootTag } from "@zenflux/react-shared/src/react-internal-constants/root-tags";
 
 import type {
@@ -245,4 +247,7 @@ export async function reactReconciler( config?: Partial<ReactReconcilerConfig> )
     return reconciler;
 }
 
+export type * from "@zenflux/react-shared/src/react-types";
+
 export default reactReconciler;
+
