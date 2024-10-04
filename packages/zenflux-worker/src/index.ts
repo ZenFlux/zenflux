@@ -36,6 +36,8 @@ export class Worker {
 
     private eventCallbacks = new Map<TWorkerEvent, Function[]>();
 
+    private debugName: string;
+
     public constructor(
         private readonly name: string,
         private readonly id: number,
@@ -44,6 +46,8 @@ export class Worker {
         private readonly workPath: string,
         private readonly workArgs: any[],
     ) {
+        this.debugName = `z-thread-${ this.name }-${ this.id }`;
+
         const runnerTarget = fileURLToPath( import.meta.url ),
             paths = [
                 ... process.env.PATH!.split( path.delimiter ),
@@ -63,12 +67,17 @@ export class Worker {
 
         const argv = [];
 
-        if ( process.argv.includes( "--zvm-verbose" ) ) {
+        if ( process.argv.includes( "--z-worker-vm-verbose" ) ) {
             argv.push( "--zvm-verbose" );
         }
 
+        if ( process.argv.includes( "--z-worker-vm-memory-verbose" ) ) {
+            argv.push( "--zvm-memory-verbose" );
+            argv.push( "isolated" );
+        }
+
         this.worker = new NodeWorker( runnerPath, {
-            name: `z-thread-${ this.name }-${ this.id }`,
+            name: this.debugName,
 
             argv,
 
@@ -80,6 +89,8 @@ export class Worker {
             ],
 
             workerData: {
+                debugName: this.debugName,
+
                 zCliRunPath: runnerTarget,
                 zCliWorkPath: this.workPath,
                 zCliWorkFunction: workFunction.name,
@@ -239,7 +250,7 @@ if ( workData?.zCliRunPath === fileURLToPath( import.meta.url ) ) {
 
     const parent = parentPort!;
 
-    const { zCliWorkPath, zCliWorkFunction, name, id, display } = workData;
+    const { zCliWorkPath, zCliWorkFunction, name, id, display, debugName } = workData;
 
     const workModule = ( await import( zCliWorkPath ) );
 
@@ -319,12 +330,22 @@ if ( workData?.zCliRunPath === fileURLToPath( import.meta.url ) ) {
         threadHost.sendMessage( "done", result );
     };
 
+    const debugMemoryUsage = ( prefix: string ) => {
+        let output = debugName + ": ";
+        for ( const [ key, value ] of Object.entries( process.memoryUsage() ) ) {
+            output += ( `By ${ key } -> ${ Math.round( value / 1024 / 1024 * 100 ) / 100 } MB, ` );
+        }
+        threadHost.sendDebug( "Memory usage", prefix, output );
+    };
+
     parentPort.on( "message", ( message ) => {
         switch ( message ) {
             case "run":
+                debugMemoryUsage( "Before work" );
+
                 const result = work();
 
-                if ( result && Object.prototype.toString.call( result) === "[object Promise]" ) {
+                if ( result && Object.prototype.toString.call( result ) === "[object Promise]" ) {
                     result
                         .then( done )
                         .catch( ( error ) => {
@@ -338,6 +359,8 @@ if ( workData?.zCliRunPath === fileURLToPath( import.meta.url ) ) {
                 } else {
                     done( result );
                 }
+
+                debugMemoryUsage( "After work" );
 
                 isRequestedToTerminate && terminate();
 
