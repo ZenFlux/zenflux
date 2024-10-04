@@ -209,15 +209,6 @@ export abstract class CommandBuildBase extends CommandConfigBase {
         return this.getConfigs().indexOf( config );
     }
 
-    protected getUniqueConfigs( configs: IZConfigInternal[] ) {
-        return configs.filter( ( config, index, self ) => {
-            // Should filter duplicate config.paths.
-            return index === self.findIndex( ( c ) => {
-                return c.path === config.path;
-            } );
-        } );
-    }
-
     private async getConfigForEachFormat( config: IZConfigInternal ) {
         return Promise.all( config.format.map( format => zRollupGetConfig( {
             ... Z_CONFIG_DEFAULTS,
