@@ -40,7 +40,7 @@ if ( process.argv.includes( "--debug" ) ) {
     logFlags |= DEFAULT_LOG_FLAGS.debug;
 }
 
-if ( inspector.url() ) {
+if ( inspector.url() || process.argv.includes( "--inspector-debug" ) ) {
     logFlags |= DEFAULT_LOG_FLAGS.inspectorDebug;
 }
 
