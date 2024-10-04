@@ -38,11 +38,11 @@ import type { Package } from "@zenflux/cli/src/modules/npm/package";
 
 import type { ThreadHost } from "@zenflux/worker/definitions";
 
-import type { Worker } from "@zenflux/worker";
+import type { WorkerServer } from "@zenflux/worker/worker-server";
 
 import type { InternalModuleFormat, OutputOptions, RollupBuild, RollupOptions } from "rollup";
 
-const threads = new Map<number, Worker>(),
+const threads = new Map<number, WorkerServer>(),
     builders = new Map<string, RollupBuild>();
 
 const waitingThreads = new Map<number, {

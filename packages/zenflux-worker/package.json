@@ -16,6 +16,8 @@
         ".": "./src/index.ts",
         "./definitions": "./src/definitions.ts",
         "./utils": "./src/utils.ts",
+        "./worker-server": "./src/worker-server.ts",
+        "./worker-client": "./src/worker-client.ts",
         "./package.json": "./package.json"
     }
 }

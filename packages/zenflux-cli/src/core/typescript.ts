@@ -34,7 +34,7 @@ import {
 import { ConsoleManager } from "@zenflux/cli/src/managers/console-manager";
 
 import type { ThreadHost } from "@zenflux/worker/definitions";
-import type { Worker } from "@zenflux/worker";
+import type { WorkerServer } from "@zenflux/worker/worker-server";
 
 import type { ConsoleThreadFormat } from "@zenflux/cli/src/console/console-thread-format";
 
@@ -48,8 +48,8 @@ import type {
 import type { IZConfigInternal } from "@zenflux/cli/src/definitions/config";
 
 // TODO: Avoid this, create threadPool with max threads = cpu cores.
-const diagnosticWorkers = new Map<number, Worker>(),
-    declarationWorkers = new Map<number, Worker>(),
+const diagnosticWorkers = new Map<number, WorkerServer>(),
+    declarationWorkers = new Map<number, WorkerServer>(),
     diagnosticWorkersPreparing = new Map<string, ReturnType<typeof zCreateResolvablePromise>>;
 
 const waitingTSConfigs = new Map<string, {
