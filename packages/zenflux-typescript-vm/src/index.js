@@ -228,7 +228,7 @@ const initialize = async () => {
                         return loaders.loadModule( modulePath, type, referencingModule,linker );
                     }
 
-                    throw new Error( `Module not found: ${ util.inspect( modulePath ) } referer ${ util.inspect( referencingModule.identifier ) }` );
+                    throw new Error( `Module not found: ${ util.inspect( modulePath ) } referer ${ util.inspect( "file://" + referencingModule.identifier ) }` );
                 }
 
                 loaders.loadModule( entrypointPath, "esm", null , linker )

@@ -6,7 +6,11 @@ import process from "node:process";
 
 import { ConsoleManager } from "@zenflux/cli/src/managers/console-manager";
 
+import packageJSON from "@zenflux/cli/package.json" assert { type: "json" };
+
 export default async function boot( args = process.argv.slice( 2 ) ) {
+    ConsoleManager.$.log( `(${ packageJSON.name }~v${ packageJSON.version }) Starting...`);
+
     const commands = {
         "@watch": {
             module: async () => ( await import( "@zenflux/cli/src/commands/watch" ) ).default,
@@ -34,7 +38,7 @@ export default async function boot( args = process.argv.slice( 2 ) ) {
         ) ) );
 
         ConsoleManager.$.log( "global options",  util.inspect( {
-            "--zvm-verbose":"Log tsnode-vm verbose, shows modules resolution",
+            "--zvm-verbose":"Log `@zenflux/typescript-vm` verbose, shows modules resolution",
             "--verbose": "Log verbose",
             "--help": "Show help",
         } ) );

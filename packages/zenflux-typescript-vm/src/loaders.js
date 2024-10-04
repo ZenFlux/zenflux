@@ -11,6 +11,7 @@ import vm from "node:vm";
 import { zCreateResolvablePromise } from "@zenflux/utils/src/promise";
 
 import { checksum, verbose } from "./utils.js";
+import { ErrorWithMeta } from "@zenflux/utils/src/error";
 
 export class Loaders {
     /**
@@ -96,17 +97,23 @@ export class Loaders {
 
         try {
             module = await provider.load( path );
-        } catch ( e ) {
-            e = new Error( e.message, e.cause );
+        } catch ( err ) {
+            if ( err.message ) {
+                const deepStack = err.meta?.deepStack || [];
 
-            e.cause ??= {};
+                deepStack.push( ... [
+                    ( "file://" + options.referencingModule?.identifier ) || "",
+                    import.meta.url,
+                ] );
 
-            e.cause.deepStack = [
-                "file://" + options.referencingModule.identifier,
-                import.meta.url,
-            ];
+                err = new ErrorWithMeta( "Error in @zenflux/typescript-vm, While loading module: " + path, {
+                    ... err.meta || {},
+                    config: this.vm.config.paths,
+                    deepStack
+                }, err );
+            }
 
-            return Promise.reject( e );
+            return Promise.reject( err );
         }
 
         switch ( type ) {
