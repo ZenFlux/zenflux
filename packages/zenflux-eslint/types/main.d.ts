@@ -37,7 +37,7 @@ export interface ZESLintDefaultOptions {
 
     /**
      * Flag to determine if files should be excluded.
-     * @defaut {false}
+     * @default {false}
      */
     excludeFiles?: boolean;
 
