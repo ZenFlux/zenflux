@@ -36,7 +36,7 @@ jobs:
       - name: Compress build artifacts
         run: |
           mkdir -p build-artifacts
-          find packages-react/ -type f -path "*/dist/**/*" | cpio -pdm build-artifacts
+          find packages-react -type f -path "*/dist/**" | cpio -pdm build-artifacts
           tar -czvf build-artifacts.tar.gz -C build-artifacts .
 
       - name: Upload build artifacts
