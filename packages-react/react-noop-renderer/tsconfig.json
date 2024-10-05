@@ -1,5 +1,7 @@
 {
     "compilerOptions": {
+        // Save `.tsbuildinfo` files to allow for incremental compilation of projects.
+        "incremental": true,
         "rootDir": ".",
         "esModuleInterop": true,
         "target": "ESNext",

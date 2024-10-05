@@ -3,6 +3,8 @@
     "extends": "./tsconfig.paths.json",
     // Compiler options
     "compilerOptions": {
+        // Save `.tsbuildinfo` files to allow for incremental compilation of projects.
+        "incremental": true,
         // Specifies the ECMAScript version to transpile to (e.g., ESNext)
         "target": "ESNext",
         // Specifies the module system used in the code (e.g., ESNext)
