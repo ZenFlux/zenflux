@@ -36,12 +36,12 @@ export class WorkspaceProvider extends ProviderBase {
     /**
      * @type {Map<string, string>}
      */
-    workspaceCache;
+    workspaceCache = new Map();
 
     /**
      * @type {Map<string, any>}
      */
-    packagesCache;
+    packagesCache = new Map();
 
     /**
      * @param {WorkspaceProviderArgs} args
