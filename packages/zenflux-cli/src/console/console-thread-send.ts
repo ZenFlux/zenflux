@@ -5,7 +5,7 @@ import process from "node:process";
 
 import { ConsoleManager } from "@zenflux/cli/src/managers/console-manager";
 
-import type { ThreadHost } from "@zenflux/worker/definitions";
+import type { DThreadHostInterface } from "@zenflux/worker/definitions";
 import type { TConsoleLoggerMethod } from "@zenflux/cli/src/modules/console/console";
 
 const stdout = process.stdout,
@@ -16,7 +16,7 @@ const stdout = process.stdout,
  * leveraging the functionalities provided by ConsoleManager.
  */
 export class ConsoleThreadSend extends ConsoleManager.module() {
-    public constructor( private host: ThreadHost ) {
+    public constructor( private host: DThreadHostInterface ) {
         super( { stdout, stderr } );
     }
 

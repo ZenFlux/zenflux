@@ -6,6 +6,7 @@
 import path from "node:path";
 
 import process from "node:process";
+import { fileURLToPath } from "node:url";
 
 import util from "node:util";
 
@@ -27,6 +28,8 @@ import { ConsoleManager } from "@zenflux/cli/src/managers/console-manager";
 
 import { zTSGetPackageByConfig } from "@zenflux/cli/src/utils/typescript";
 
+import type { WorkerServer } from "@zenflux/worker/worker-server";
+
 import type { ConsoleThreadFormat } from "@zenflux/cli/src/console/console-thread-format";
 
 import type { TZBuildOptions, TZBuildWorkerOptions } from "@zenflux/cli/src/definitions/build";
@@ -36,13 +39,11 @@ import type { TZFormatType } from "@zenflux/cli/src/definitions/zenflux";
 
 import type { Package } from "@zenflux/cli/src/modules/npm/package";
 
-import type { ThreadHost } from "@zenflux/worker/definitions";
-
-import type { Worker } from "@zenflux/worker";
+import type { DThreadHostInterface } from "@zenflux/worker/definitions";
 
 import type { InternalModuleFormat, OutputOptions, RollupBuild, RollupOptions } from "rollup";
 
-const threads = new Map<number, Worker>(),
+const threads = new Map<number, WorkerServer>(),
     builders = new Map<string, RollupBuild>();
 
 const waitingThreads = new Map<number, {
@@ -114,7 +115,7 @@ async function rollupBuildInternal( config: RollupOptions, options: TZBuildOptio
 export async function zRollupBuildInWorker(
     rollupOptions: RollupOptions[] | RollupOptions,
     config: IZConfigInternal,
-    host: ThreadHost,
+    host: DThreadHostInterface,
 ) {
     ensureInWorker();
 
@@ -204,11 +205,12 @@ export async function zRollupCreateBuildWorker( rollupOptions: RollupOptions[], 
     if ( ! threads.has( options.threadId as number ) ) {
         const { zCreateWorker } = ( await import( "@zenflux/worker" ) );
 
-        const worker = zCreateWorker( {
+        const worker = await zCreateWorker( {
             name: "Build",
             id: options.threadId,
             display: config.outputName,
 
+            workFilePath: fileURLToPath( import.meta.url ),
             workFunction: zRollupBuildInWorker,
             workArgs: [
                 rollupOptions,
@@ -243,10 +245,18 @@ export async function zRollupCreateBuildWorker( rollupOptions: RollupOptions[], 
             delete error.watchFiles;
         }
 
-        activeConsole.error( "build", "in RO-" + options.threadId, "", util.inspect( { $: error } ) );
+        if ( error.name === "Error" ) {
+            error = Object.assign( new Error( error.message ), error );
+        }
+
+        activeConsole.error( "build", "in RO-" + options.threadId, "", util.inspect( { $: error }, { depth: 4 } ) );
     } );
 
     zBuildThreadHandleResume( buildPromise, config );
+
+    // buildPromise.then( () =>{
+    //     thread.terminate();
+    // } );
 
     return buildPromise;
 }

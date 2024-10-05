@@ -3,7 +3,7 @@ import type ts from "typescript";
 import type { IZConfigInternal } from "@zenflux/cli/src/definitions/config";
 
 type TZWorkerOptions = {
-    id: number,
+    id: string,
     config: IZConfigInternal;
     otherTSConfigs: ts.ParsedCommandLine[],
 }

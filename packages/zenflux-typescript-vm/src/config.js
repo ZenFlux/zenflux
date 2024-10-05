@@ -35,6 +35,11 @@ export const externalConfig = {
     vmContextOptions: {},
 
     /**
+     * @type {import("node:vm").ModuleEvaluateOptions}
+     */
+    vmModuleEvaluateOptions: {},
+
+    /**
      * Determines whether to use ts-node compiler or not.
      *
      * @param {boolean}

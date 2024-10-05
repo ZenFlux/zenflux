@@ -8,6 +8,7 @@ import { Loaders, Resolvers, vm } from "@zenflux/typescript-vm";
 
 import { workerData } from "node:worker_threads";
 import process from "node:process";
+import { ErrorWithMeta } from "@zenflux/utils/src/error";
 
 const currentFilePath = fileURLToPath( import.meta.url ),
     currentDirPath = path.dirname( currentFilePath ),
@@ -37,6 +38,7 @@ const vmContext = {
     fetch,
     setTimeout,
     setInterval,
+    setImmediate,
     clearTimeout,
     clearInterval
 };
@@ -60,6 +62,10 @@ const config = {
 
     vmContext,
 
+    vmModuleEvaluateOptions: {
+        breakOnSigint: true,
+    },
+
     extensions: [ ".ts", ".json" ],
 
     useSwc: true,
@@ -78,6 +84,18 @@ vm.tap( async ( vm ) => {
         loaders = new Loaders( vm );
 
     await vm.auto( workerData?.zCliWorkPath || vm.config.paths.project + "/src/boot.ts", loaders, resolvers ).catch( ( err ) => {
+        if ( err.message ) {
+            const deepStack = err.meta?.deepStack || [];
+
+            deepStack.push( import.meta.url );
+
+            err = new ErrorWithMeta( "Error in @zenflux/cli, While running boot script", {
+                ... err.meta || {},
+                config: vm.config.paths,
+                deepStack
+            }, err );
+        }
+
         throw err;
     } );
 } );

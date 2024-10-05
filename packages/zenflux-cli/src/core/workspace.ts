@@ -117,7 +117,7 @@ const zWorkspaceGetPackagesCache: {
 } = {};
 
 export async function zWorkspaceGetPackages(
-    rootPkg: Package | "auto",
+    rootPkg: Package | "auto" = "auto",
     newPackageOptions?: TNewPackageOptions,
     options = { useCache: true }
 ): Promise<TPackages> {
@@ -142,6 +142,16 @@ export async function zWorkspaceGetPackages(
     } );
 
     return packages;
+}
+
+export function zWorkspaceGetPackagesFromCache() {
+    const rootPkg = new Package( path.dirname( zFindRootPackageJsonPath() ) );
+
+    if ( zWorkspaceGetPackagesCache[ rootPkg.getPath() ] ) {
+        return zWorkspaceGetPackagesCache[ rootPkg.getPath() ];
+    }
+
+    return {};
 }
 
 const zWorkspaceGetPackagesPathsCache: {

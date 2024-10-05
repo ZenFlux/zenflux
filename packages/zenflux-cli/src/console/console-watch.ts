@@ -93,7 +93,7 @@ abstract class ConsoleWatchBase extends ConsoleThreadFormat {
     }
 
     public getPrefix(): string {
-        return `Thread {blue-fg}${ this.getThreadCode() }-${ this.getThreadId().toString() }{/}{tab}`;
+        return `Thread {blue-fg}${ this.getThreadCode() }-${ this.getThreadId() }{/}{tab}`;
     }
 
     protected initialize() {

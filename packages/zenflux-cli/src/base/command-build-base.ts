@@ -122,13 +122,13 @@ export abstract class CommandBuildBase extends CommandConfigBase {
         }
 
         const tsDiagnosticConsole = this.getTSDiagnosticsConsole(),
-            id = this.getIdByConfig( config ),
+            id = "DI" + this.getIdByConfig( config ),
             otherConfigs = this.getConfigs().filter( ( c ) => c !== config );
 
         // It should be aware about all other dependencies that are proceeding at this time.
         const otherTSConfigs = otherConfigs.map( ( c ) => zTSConfigRead( null, path.dirname( c.path ) ) );
 
-        tsDiagnosticConsole.log( "send", "to DS-" + id, util.inspect( config.outputName ) );
+        tsDiagnosticConsole.log( "send", "to " + id, util.inspect( config.outputName ) );
 
         const promise = zTSCreateDiagnosticWorker( zTSConfigRead( null, path.dirname( config.path ) ), {
             id,
@@ -137,8 +137,15 @@ export abstract class CommandBuildBase extends CommandConfigBase {
             ... options
         }, tsDiagnosticConsole );
 
-        promise.catch( () => {} ).then( () => {
-            tsDiagnosticConsole.log( "recv", "from DS-" + id, util.inspect( config.outputName ) );
+        // TODO: Internal error.
+        promise.catch( ( e ) => {
+            if ( options.haltOnError ) {
+                throw e;
+            } else {
+                tsDiagnosticConsole.error( "Internal error", e );
+            }
+        } ).then( () => {
+            tsDiagnosticConsole.log( "recv", "from " + id, util.inspect( config.outputName ) );
         } );
 
         return promise;
@@ -150,11 +157,11 @@ export abstract class CommandBuildBase extends CommandConfigBase {
         }
 
         const tsDeclarationConsole = this.getTSDeclarationConsole(),
-            id = this.getIdByConfig( config ),
+            id = "DE" + this.getIdByConfig( config ),
             otherConfigs = this.getConfigs().filter( ( c ) => c !== config ),
             otherTSConfigs = otherConfigs.map( ( c ) => zTSConfigRead( null, path.dirname( c.path ) ) );
 
-        tsDeclarationConsole.log( "send", "to DE-" + id, util.inspect( config.outputName ) );
+        tsDeclarationConsole.log( "send", "to " + id, util.inspect( config.outputName ) );
 
         const result = zTSCreateDeclarationWorker( zTSConfigRead( null, path.dirname( config.path ) ), {
             id,
@@ -162,8 +169,10 @@ export abstract class CommandBuildBase extends CommandConfigBase {
             otherTSConfigs
         }, tsDeclarationConsole );
 
-        result.catch( () => {} ).then( () => {
-            tsDeclarationConsole.log( "recv", "from DE-" + id, util.inspect( config.outputName ) );
+        result.catch( ( e ) => {
+            tsDeclarationConsole.error( "Internal error", e );
+        } ).then( () => {
+            tsDeclarationConsole.log( "recv", "from " + id, util.inspect( config.outputName ) );
         } );
 
         return result;
@@ -171,18 +180,18 @@ export abstract class CommandBuildBase extends CommandConfigBase {
 
     protected async onBuiltAll() {
         const configs = this.getConfigs(),
-            uniqueConfigs = this.getUniqueConfigs( configs ),
             startTimestamp = Date.now(),
             promises: any[] = [];
 
         let passed = 0,
             failed = 0;
 
-        uniqueConfigs.forEach( config => this.handleTSDiagnostics( config ).catch( () => {
+        // TODO: Add cache + optimization.
+        configs.forEach( config => this.handleTSDiagnostics( config ).catch( () => {
             // Do nothing.
         }) );
 
-        uniqueConfigs.forEach( ( config ) => {
+        configs.forEach( ( config ) => {
             const promise = this.handleTSDeclaration( config )
                 .then( () => passed++ )
                 .catch( () => failed++ );
@@ -206,16 +215,7 @@ export abstract class CommandBuildBase extends CommandConfigBase {
     }
 
     protected getIdByConfig( config: IZConfigInternal ) {
-        return this.getUniqueConfigs( this.getConfigs() ).indexOf( config );
-    }
-
-    protected getUniqueConfigs( configs: IZConfigInternal[] ) {
-        return configs.filter( ( config, index, self ) => {
-            // Should filter duplicate config.paths.
-            return index === self.findIndex( ( c ) => {
-                return c.path === config.path;
-            } );
-        } );
+        return this.getConfigs().indexOf( config );
     }
 
     private async getConfigForEachFormat( config: IZConfigInternal ) {

@@ -1,12 +1,12 @@
 /**
  * @author: Leonid Vinikov <leonidvinikov@gmail.com>
  */
-import { DEFAULT_WORKER_EVENTS } from "@zenflux/worker/definitions";
+import { DEFAULT_WORKER_CONSOLE_EVENTS } from "@zenflux/worker/definitions";
 
 import { ConsoleThreadFormat } from "@zenflux/cli/src/console/console-thread-format";
 
-import type { Worker } from "@zenflux/worker";
 import type { TConsoleLoggerMethod } from "@zenflux/cli/src/modules/console/console";
+import type { WorkerServer } from "@zenflux/worker/worker-server";
 
 /**
  * The `ConsoleThreadReceive` class is an adapter like, a part of a console system that is designed to handle console output in a multithreaded environment.
@@ -17,10 +17,10 @@ import type { TConsoleLoggerMethod } from "@zenflux/cli/src/modules/console/cons
  * ensuring that messages from different threads are outputted correctly.
  */
 export class ConsoleThreadReceive extends ConsoleThreadFormat {
-    public static connect( worker: Worker, console: ConsoleThreadFormat ) {
+    public static connect( worker: WorkerServer, console: ConsoleThreadFormat ) {
         const newConsole = new ConsoleThreadReceive( console, worker.getId() );
 
-        DEFAULT_WORKER_EVENTS.forEach( ( event ) => {
+        DEFAULT_WORKER_CONSOLE_EVENTS.forEach( ( event ) => {
             worker.on( event, ( ... args: any[] ) => {
                 newConsole[ event ].call( newConsole, ... args );
             });
@@ -31,7 +31,7 @@ export class ConsoleThreadReceive extends ConsoleThreadFormat {
 
     protected constructor(
         private console: ConsoleThreadFormat,
-        private threadId: number | string
+        private threadId: string
     ) {
         super();
     }
@@ -41,7 +41,7 @@ export class ConsoleThreadReceive extends ConsoleThreadFormat {
     }
 
     public getThreadId() {
-        return this.threadId;
+        return this.threadId.match(/\d+/)?.[ 0 ] ?? this.threadId;
     }
 
     public getThreadCode(): string {

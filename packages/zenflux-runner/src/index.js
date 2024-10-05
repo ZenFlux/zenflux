@@ -75,6 +75,10 @@ const defaults = {
     // TODO - Add support for configuration of the following:
     vmContext: global,
 
+    vmModuleEvaluateOptions: {
+        breakOnSigint: true,
+    },
+
     useSwc: true,
     useTsNode: false,
 };

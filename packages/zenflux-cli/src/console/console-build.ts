@@ -13,7 +13,7 @@ abstract class ConsoleBuildBase extends ConsoleThreadFormat {
     }
 
     public getPrefix(): string {
-        return `Thread ${ this.getThreadCode() }-${ this.getThreadId().toString().padEnd( 5 ) }${ this.getName() }`.padEnd( 30 );
+        return `Thread ${ this.getThreadCode() }-${ this.getThreadId().padEnd( 5 ) }${ this.getName() }`.padEnd( 30 );
     }
 
     public getFormatExtended( method: TConsoleLoggerMethod, args: any[] ): string {
