@@ -2,7 +2,7 @@
     "name": "@zenflux/eslint",
     "author": "Leonid Vinikov <leonidvinikov@gmail.com> (https://github.com/iNewLegend)",
     "type": "module",
-    "version": "0.1.2",
+    "version": "0.1.3",
     "main": "src/main.js",
     "types": "types/main.d.ts",
     "bin": {
@@ -17,7 +17,7 @@
         "access": "public"
     },
     "dependencies": {
-        "eslint": "^9.10.0",
+        "eslint": "^9.28.0",
         "@eslint/compat": "latest",
         "@eslint/eslintrc": "latest",
         "typescript-eslint": "latest",
