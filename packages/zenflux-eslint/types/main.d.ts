@@ -1,4 +1,3 @@
-import type { Linter } from "eslint";
 import type { ESLintTSLintCompatible } from "./default-config.js";
 
 export interface ZESLintConfigCache {
@@ -75,3 +74,5 @@ export function zLintGetChildrenConfig( workspaces?: string[] ): Promise<object[
 export function zLintGetConfig( options: ZESLintDefaultOptions ): Promise<ESLintTSLintCompatible[]>;
 
 export function zLintGetProjectsPathsWithConfig( workspaces?: string[] ): Promise<string[]>;
+
+export type * from './default-config.d.ts'

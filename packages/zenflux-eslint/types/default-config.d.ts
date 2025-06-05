@@ -1,5 +1,4 @@
 import type { TSESLint } from "@typescript-eslint/utils";
-import { Linter } from "eslint";
 
 export type ESLintTSLintCompatible = Omit<TSESLint.FlatConfig.Config, "languageOptions"> & {
     languageOptions?: {
