@@ -1,4 +1,5 @@
 import type { Linter } from "eslint";
+import type { ESLintTSLintCompatible } from "./default-config.js";
 
 export interface ZESLintConfigCache {
     zWorkspaces: {
@@ -10,7 +11,7 @@ export interface ZESLintConfigCache {
         [ workspacePath: string ]: {
             configs: object[];
         };
-    }
+    };
 }
 
 export interface ZESLintConfig {
@@ -61,18 +62,16 @@ declare global {
     var __Z_ESLINT_CONFIG__: ZESLintConfig;
 }
 
-
 export function zLintSetRootPackagePath( zRootPackagePath: string ): void;
 
 export function zLintGetWorkspaces( rootPkgPath?: string ): string[];
 
-export function zLintGetBaseConfig( options: ZESLintDefaultOptions ): Linter.Config[];
-
+export function zLintGetBaseConfig( options: ZESLintDefaultOptions ): ESLintTSLintCompatible[];
 
 export function loadPackageESLintConfigs( esLintConfigPaths: string[] ): Promise<object[]>;
 
 export function zLintGetChildrenConfig( workspaces?: string[] ): Promise<object[]>;
 
-export function zLintGetConfig( options: ZESLintDefaultOptions ): Promise<Linter.Config[]>;
+export function zLintGetConfig( options: ZESLintDefaultOptions ): Promise<ESLintTSLintCompatible[]>;
 
 export function zLintGetProjectsPathsWithConfig( workspaces?: string[] ): Promise<string[]>;
