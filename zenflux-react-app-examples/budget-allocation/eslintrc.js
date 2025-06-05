@@ -2,9 +2,9 @@ import reactPlugin from 'eslint-plugin-react';
 import hooksPlugin from 'eslint-plugin-react-hooks';
 import reactRefreshPlugin from 'eslint-plugin-react-refresh';
 
-import { zLintGetDefaultConfig } from '@zenflux/eslint';
+import { zLintDefaultConfig } from '@zenflux/eslint';
 
-const defaultConfig = zLintGetDefaultConfig( [ "." ] ),
+const defaultConfig = zLintDefaultConfig( [ "." ] ),
     { files } = defaultConfig[ 0 ];
 
 const config = [

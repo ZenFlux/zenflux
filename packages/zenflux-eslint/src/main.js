@@ -134,3 +134,5 @@ export async function zLintGetProjectsPathsWithConfig( workspaces ) {
 
     return projectsESLintPath;
 }
+
+export * from './default-config.js'
