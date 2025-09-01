@@ -4,6 +4,8 @@ import TSLint from "typescript-eslint";
 
 import ImportPlugin from "eslint-plugin-import";
 
+import StylisticPlugin from "@stylistic/eslint-plugin"
+
 const ZenFluxPlugin = ( await import( "./plugin.js" ) ).default;
 
 /**
@@ -23,6 +25,9 @@ export function zLintDefaultConfig( files, workspaces ) {
                 parserOptions: {
                     "ecmaVersion": "latest",
                     "sourceType": "module",
+                    "ecmaFeatures": {
+                        "jsx": true
+                    },
 
                     "project": workspaces.map( ( p ) => `${ p }/tsconfig.eslint.json` ),
                 },
@@ -31,6 +36,7 @@ export function zLintDefaultConfig( files, workspaces ) {
             // Specifies ESLint plugins used in this configuration
             plugins: {
                 "@typescript-eslint": TSLint.plugin,
+                "@stylistic": StylisticPlugin,
                 "import": fixupPluginRules( ImportPlugin ),
                 "@zenflux": ZenFluxPlugin,
             },
@@ -178,6 +184,11 @@ export function zLintDefaultConfig( files, workspaces ) {
                         max: 1,
                     },
                 ],
+                // Configure indentation with JSX support
+                "indent": "off",
+                "@stylistic/indent": ["error", 4, {
+                    "SwitchCase": 1,
+                }]
             },
         },
     ];
