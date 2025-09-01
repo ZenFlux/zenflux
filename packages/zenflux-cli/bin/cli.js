@@ -89,10 +89,19 @@ vm.tap( async ( vm ) => {
 
             deepStack.push( import.meta.url );
 
-            err = new ErrorWithMeta( "Error in @zenflux/cli, While running boot script", {
+            // Show the original error message if it's more specific than a generic message
+            const isGenericError = err.message.includes('Error in @zenflux/cli') || 
+                                 err.message.includes('While running boot script');
+            
+            const errorMessage = isGenericError ? 
+                `Error in @zenflux/cli, While running boot script` :
+                `Error in @zenflux/cli: ${err.message}`;
+
+            err = new ErrorWithMeta( errorMessage, {
                 ... err.meta || {},
                 config: vm.config.paths,
-                deepStack
+                deepStack,
+                originalError: err.message
             }, err );
         }
 
