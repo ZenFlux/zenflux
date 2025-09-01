@@ -38,17 +38,7 @@ export const zGetMatchingPathsRecursive = async (
         /**
          * @type {import("fs").Dirent[]}
          */
-        let filesInDirectory;
-        try {
-            filesInDirectory = await fsPromises.readdir( directory, { withFileTypes: true } );
-        } catch ( error ) {
-            if ( error.code === 'ENOENT' ) {
-                // Directory doesn't exist, skip silently
-                return;
-            }
-            // Re-throw other errors with more context
-            throw new Error( `Failed to read directory '${ directory }': ${ error.message }` );
-        }
+        const filesInDirectory = await fsPromises.readdir( directory, { withFileTypes: true } );
 
         await Promise.all( filesInDirectory.map( async dirent => {
             const filePath = join( directory, dirent.name );
