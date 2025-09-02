@@ -19,9 +19,9 @@
     "dependencies": {
         "@eslint/compat": "latest",
         "@eslint/eslintrc": "latest",
-        "@stylistic/eslint-plugin": "^5.2.3",
+        "@stylistic/eslint-plugin": "^5.3.1",
         "@zenflux/utils": "workspace:*",
-        "eslint": "^9.28.0",
+        "eslint": "^9.34.0",
         "eslint-import-resolver-typescript": "latest",
         "eslint-plugin-import": "latest",
         "typescript-eslint": "latest"
