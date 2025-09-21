@@ -80,7 +80,7 @@ function onAddRequest(
 
     // Create a new ChannelItem component with the new channel object as props
     const newChannelComponent = <ChannelItemAccordion{ ... newChannelProps }
-                                                     key={ newChannelProps.meta.id }/>;
+        key={ newChannelProps.meta.id }/>;
 
     const currentState = getChannelsListState();
 
@@ -143,12 +143,13 @@ export function channelsListAccordionInteractions() {
             componentNameUnique: addChannelCommands[ 0 ].componentNameUnique,
         };
 
-        commandsManager.hook( addChannelCommandId, () =>
+        const ownerId = channelsCommands.getId();
+        const handle = commandsManager.hookScoped( addChannelCommandId, ownerId, () =>
             onAddRequest( getChannelsListState, setChannelsListState, channelsCommands )
         );
 
         return () => {
-            commandsManager.unhookWithinComponent( addChannelCommandId.componentNameUnique );
+            commandsManager.unhookHandle( handle );
         };
     }, [ isMounted() ] );
 }

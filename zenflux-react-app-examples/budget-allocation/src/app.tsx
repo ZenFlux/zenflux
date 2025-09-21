@@ -1,14 +1,13 @@
 import React, { useEffect } from "react";
 
-import { Tab, Tabs } from "@nextui-org/tabs";
-
-import { NextUIProvider } from "@nextui-org/system";
-import { Button } from "@nextui-org/button";
-
 import { API } from "@zenflux/react-api/src";
 import commandsManager from "@zenflux/react-commander/commands-manager";
 
 import { useAnyComponentCommands } from "@zenflux/react-commander/use-commands";
+
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@zenflux/app-budget-allocation/src/components/ui/tabs";
+
+import { Button } from "@zenflux/app-budget-allocation/src/components/ui/button";
 
 import Layout from "@zenflux/app-budget-allocation/src/ui-layout/layout";
 
@@ -61,65 +60,67 @@ function App() {
             setTimeout( () => {
                 commandsManager.run( addChannelId, {} );
             }, 1000 );
-        } else if ( location.hash === "#overview" ) {
-            commandsManager.hook( addChannelId, () => {
-                commandsManager.unhookWithinComponent( addChannelId.componentNameUnique );
-
-                location.hash = "#allocation/add-channel";
-
-                setSelectedTab( "allocation" );
-            } );
-        } else {
-            commandsManager.unhookWithinComponent( addChannelId.componentNameUnique );
         }
-
     }, [ location.hash ] );
+
+    useEffect( () => {
+        const addChannel = useAnyComponentCommands( "App/AddChannel" )[ 0 ],
+            addChannelId = {
+                commandName: "App/AddChannel",
+                componentName: "App/AddChannel",
+                componentNameUnique: addChannel.componentNameUnique,
+            };
+
+        const ownerId = "App";
+        const handle = commandsManager.hookScoped( addChannelId, ownerId, () => {
+            location.hash = "#allocation/add-channel";
+
+            setSelectedTab( "allocation" );
+        } );
+
+        return () => {
+            commandsManager.unhookHandle( handle );
+        };
+
+    }, [] );
 
     const items = [
         { id: "allocation", title: "Budget Allocation", content: <LazyLoader ContentComponent={ BudgetAllocation }/> },
         { id: "overview", title: "Budget Overview", content: <LazyLoader ContentComponent={ BudgetOverview }/> },
     ];
 
-    const tabsProps = {
-        items,
-        classNames: {
-            base: "tabs",
-            tabList: "list",
-            tab: "tab",
-            cursor: "cursor",
-        },
-        selectedKey: selectedTab,
-        onSelectionChange: ( id: React.Key ) => {
-            if ( ! location.hash.includes( id.toString() ) ) {
-                setSelectedTab( id.toString() );
-
-                location.hash = id.toString();
-            }
-        }
-    };
-
     return (
-        <NextUIProvider>
+        <>
             <Button onClick={ () => {
                 // Do not let the rescue callback to run
                 window.onbeforeunload = null;
 
                 localStorage.clear();
                 location.reload();
-            } } className="absolute top-0 right-0 border-none" variant="bordered" disableAnimation={ true }
-                    radius={ "none" }>Reset Demo</Button>
+            } } className="absolute top-0 right-0" variant="outline">Reset Demo</Button>
 
             <Layout { ... layoutProps }>
-                <Tabs { ... tabsProps }> {
-                    tabsProps.items.map( ( tab ) => (
-                        <Tab key={ tab.id } title={ tab.title }>
+                <Tabs value={ selectedTab } onValueChange={ ( value ) => {
+                    if ( ! location.hash.includes( value ) ) {
+                        setSelectedTab( value );
+                        location.hash = value;
+                    }
+                } } className="tabs">
+                    <TabsList className="list">
+                        { items.map( ( tab ) => (
+                            <TabsTrigger key={ tab.id } value={ tab.id } className="tab">
+                                { tab.title }
+                            </TabsTrigger>
+                        ) ) }
+                    </TabsList>
+                    { items.map( ( tab ) => (
+                        <TabsContent key={ tab.id } value={ tab.id }>
                             { tab.content }
-                        </Tab>
-                    ) )
-                }
+                        </TabsContent>
+                    ) ) }
                 </Tabs>
             </Layout>
-        </NextUIProvider>
+        </>
     );
 }
 

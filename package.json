@@ -33,6 +33,5 @@
         "@z-flux:react:eslint:ci": "time ( bunx --bun eslint packages-react --cache --cache-strategy content )",
         "@z-flux:react:test:ci": "time ( @z-jest --ci --bail --selectedProjects react-test-renderer,react-cache,react-scheduler,internal-test-utils,react-reconciler )",
         "@z-flux:react:build:ci": "time ( @z-cli @build --workspace \"react-*\" --haltOnDiagnosticError )"
-    },
-    "packageManager": "bun@1.1.29"
+    }
 }

@@ -1,6 +1,6 @@
 import React from "react";
 
-import { Input } from "@nextui-org/input";
+import { Input } from "@zenflux/app-budget-allocation/src/components/ui/input";
 
 import { useCommanderCommand } from "@zenflux/react-commander/use-commands";
 
@@ -16,17 +16,11 @@ import type {
     ChannelBudgetBaselineProps
 } from "@zenflux/app-budget-allocation/src/components/channel/channel-budget-settings/channel-budget-types";
 
-import type { InputProps } from "@nextui-org/input";
+import type { InputProps } from "@zenflux/app-budget-allocation/src/components/ui/input";
 
 const DEFAULT_PROPS: Partial<InputProps> = {
-    classNames: {
-        base: "input",
-        mainWrapper: "wrapper",
-        inputWrapper: "trigger",
-    },
-    type: "string",
-    variant: "bordered",
-    radius: "none",
+    className: "input",
+    type: "text",
 };
 
 export function ChannelBudgetBaseline( props: ChannelBudgetBaselineProps ) {

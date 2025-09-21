@@ -1,6 +1,6 @@
 import React from "react";
 
-import { Select, SelectItem } from "@nextui-org/select";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@zenflux/app-budget-allocation/src/components/ui/select";
 
 import { useCommanderCommand } from "@zenflux/react-commander/use-commands";
 
@@ -8,7 +8,7 @@ import { Info } from "@zenflux/react-ui/src/symbols";
 
 import { UpdateSource } from "@zenflux/app-budget-allocation/src/components/channel/channel-types";
 
-import type { SelectProps } from "@nextui-org/select";
+import type { SelectProps } from "@zenflux/app-budget-allocation/src/components/ui/select";
 
 import type {
     ChannelBudgetFrequencyPossibleValues,
@@ -22,18 +22,7 @@ const DEFAULT_FREQUENCIES: Record<ChannelBudgetFrequencyPossibleValues, string> 
 };
 
 const DEFAULT_PROPS: Partial<SelectProps> = {
-    classNames: {
-        base: "select",
-        trigger: "trigger",
-        mainWrapper: "wrapper",
-        innerWrapper: "inner"
-    },
-    multiple: false,
-    size: "sm",
-    variant: "bordered",
-    radius: "none",
-    disallowEmptySelection: true,
-    "aria-labelledby": "channel-budget-frequency-label",
+    className: "select",
 };
 
 export function getChannelBudgetFrequencyLabel( frequency: ChannelBudgetFrequencyPossibleValues ) {
@@ -45,21 +34,18 @@ export function ChannelBudgetFrequency( props: ChannelBudgetFrequencyProps ) {
 
     const command = useCommanderCommand( "App/ChannelItem/SetFrequency" );
 
-    const selectProps: Partial<SelectProps> = {
-        ... DEFAULT_PROPS,
-
-        selectedKeys: [ frequency ] as any,
-
-        onChange: ( e ) => command.run( { value: e.target.value, source: UpdateSource.FROM_BUDGET_SETTINGS } )
-    };
-
     return (
         <div className="channel-budget-frequency">
             <Info>Budget Frequency</Info>
-            <Select { ... selectProps }>
-                { Object.keys( DEFAULT_FREQUENCIES ).map( key => (
-                    <SelectItem key={ key } value={ key }>{ getChannelBudgetFrequencyLabel( key as any ) }</SelectItem>
-                ) ) }
+            <Select value={ frequency } onValueChange={ ( value ) => command.run( { value, source: UpdateSource.FROM_BUDGET_SETTINGS } ) } { ... DEFAULT_PROPS }>
+                <SelectTrigger className="trigger">
+                    <SelectValue placeholder="Select frequency" />
+                </SelectTrigger>
+                <SelectContent>
+                    { Object.keys( DEFAULT_FREQUENCIES ).map( key => (
+                        <SelectItem key={ key } value={ key }>{ getChannelBudgetFrequencyLabel( key as any ) }</SelectItem>
+                    ) ) }
+                </SelectContent>
             </Select>
         </div>
     );

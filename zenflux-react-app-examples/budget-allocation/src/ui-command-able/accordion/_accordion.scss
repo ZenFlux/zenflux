@@ -3,7 +3,7 @@
 
     &.loaded {
         visibility: visible;
-        @apply animate-appearance-in duration-300;
+        @apply opacity-100 transition-opacity duration-300;
     }
 }
 
