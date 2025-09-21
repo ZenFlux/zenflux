@@ -10,7 +10,7 @@ import { ComponentIdContext } from "@zenflux/react-commander/commands-context";
 
 import commandsManager from "@zenflux/react-commander/commands-manager";
 
-import type { DCommandArgs, DCommandComponentContextProps } from "@zenflux/react-commander/definitions";
+import type { DCommandArgs, DCommandComponentContextProps, DCommandIdArgs } from "@zenflux/react-commander/definitions";
 
 function getSafeContext( componentName: string, context?: DCommandComponentContextProps ) {
     function maybeWrongContext( componentName: string, componentNameUnique: string ) {
@@ -177,5 +177,30 @@ export function useCommanderState<TState>( componentName: string ) {
  */
 export function useAnyComponentCommands( componentName: string ) {
     return core[ GET_INTERNAL_MATCH_SYMBOL ]( componentName + "*" );
+}
+
+export function useCommandId( commandName: string, opts?: { match?: string; index?: number } ): DCommandIdArgs | null {
+    const match = opts?.match ?? commandName;
+    const index = opts?.index ?? 0;
+
+    const [ id, setId ] = React.useState<DCommandIdArgs | null>( null );
+
+    React.useEffect( () => {
+        try {
+            const contexts = useAnyComponentCommands( match );
+            const ctx = contexts[ index ];
+            if ( ctx ) {
+                setId( {
+                    commandName,
+                    componentName: ctx.componentName,
+                    componentNameUnique: ctx.componentNameUnique,
+                } );
+            }
+        } catch ( _e ) {
+            setId( null );
+        }
+    }, [ match, index, commandName ] );
+
+    return id;
 }
 

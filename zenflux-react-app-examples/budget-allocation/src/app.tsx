@@ -3,7 +3,7 @@ import React, { useEffect } from "react";
 import { API } from "@zenflux/react-api/src";
 import commandsManager from "@zenflux/react-commander/commands-manager";
 
-import { useAnyComponentCommands } from "@zenflux/react-commander/use-commands";
+import { useCommandId } from "@zenflux/react-commander/use-commands";
 
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@zenflux/app-budget-allocation/src/components/ui/tabs";
 
@@ -45,13 +45,10 @@ function App() {
 
     const [ selectedTab, setSelectedTab ] = React.useState( location.hash.replace( "#", "" ) );
 
+    const addChannelId = useCommandId( "App/AddChannel" );
+
     useEffect( () => {
-        const addChannel = useAnyComponentCommands( "App/AddChannel" )[ 0 ],
-            addChannelId = {
-                commandName: "App/AddChannel",
-                componentName: "App/AddChannel",
-                componentNameUnique: addChannel.componentNameUnique,
-            };
+        if ( ! addChannelId ) return;
 
         if ( location.hash === "#allocation/add-channel" ) {
             location.hash = "#allocation";
@@ -61,15 +58,10 @@ function App() {
                 commandsManager.run( addChannelId, {} );
             }, 1000 );
         }
-    }, [ location.hash ] );
+    }, [ location.hash, addChannelId ] );
 
     useEffect( () => {
-        const addChannel = useAnyComponentCommands( "App/AddChannel" )[ 0 ],
-            addChannelId = {
-                commandName: "App/AddChannel",
-                componentName: "App/AddChannel",
-                componentNameUnique: addChannel.componentNameUnique,
-            };
+        if ( ! addChannelId ) return;
 
         const ownerId = "App";
         const handle = commandsManager.hookScoped( addChannelId, ownerId, () => {
@@ -82,7 +74,7 @@ function App() {
             commandsManager.unhookHandle( handle );
         };
 
-    }, [] );
+    }, [ addChannelId ] );
 
     const items = [
         { id: "allocation", title: "Budget Allocation", content: <LazyLoader ContentComponent={ BudgetAllocation }/> },
