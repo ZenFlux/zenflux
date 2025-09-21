@@ -3,7 +3,7 @@ import React, { useEffect } from "react";
 import { API } from "@zenflux/react-api/src";
 import commandsManager from "@zenflux/react-commander/commands-manager";
 
-import { useCommandId } from "@zenflux/react-commander/use-commands";
+import { useScopedCommand } from "@zenflux/react-commander/use-commands";
 
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@zenflux/app-budget-allocation/src/components/ui/tabs";
 
@@ -45,36 +45,35 @@ function App() {
 
     const [ selectedTab, setSelectedTab ] = React.useState( location.hash.replace( "#", "" ) );
 
-    const addChannelId = useCommandId( "App/AddChannel" );
+    const addChannel = useScopedCommand( "App/AddChannel" );
 
     useEffect( () => {
-        if ( ! addChannelId ) return;
+        if ( ! addChannel.id ) return;
 
         if ( location.hash === "#allocation/add-channel" ) {
             location.hash = "#allocation";
             setSelectedTab( "allocation" );
 
             setTimeout( () => {
-                commandsManager.run( addChannelId, {} );
+                addChannel.run( {} );
             }, 1000 );
         }
-    }, [ location.hash, addChannelId ] );
+    }, [ location.hash, addChannel.id?.componentNameUnique ] );
 
     useEffect( () => {
-        if ( ! addChannelId ) return;
+        if ( ! addChannel.id ) return;
 
-        const ownerId = "App";
-        const handle = commandsManager.hookScoped( addChannelId, ownerId, () => {
+        const handle = addChannel.hookScoped( () => {
             location.hash = "#allocation/add-channel";
 
             setSelectedTab( "allocation" );
         } );
 
         return () => {
-            commandsManager.unhookHandle( handle );
+            addChannel.unhookHandle( handle );
         };
 
-    }, [ addChannelId ] );
+    }, [ addChannel.id?.componentNameUnique ] );
 
     const items = [
         { id: "allocation", title: "Budget Allocation", content: <LazyLoader ContentComponent={ BudgetAllocation }/> },

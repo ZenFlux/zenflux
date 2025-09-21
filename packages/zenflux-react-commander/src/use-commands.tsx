@@ -7,7 +7,6 @@ import { GET_INTERNAL_SYMBOL, GET_INTERNAL_MATCH_SYMBOL } from "./_internal/cons
 import core from "./_internal/core";
 
 import { ComponentIdContext } from "@zenflux/react-commander/commands-context";
-
 import commandsManager from "@zenflux/react-commander/commands-manager";
 
 import type { DCommandArgs, DCommandComponentContextProps, DCommandIdArgs } from "@zenflux/react-commander/definitions";
@@ -202,5 +201,78 @@ export function useCommandId( commandName: string, opts?: { match?: string; inde
     }, [ match, index, commandName ] );
 
     return id;
+}
+
+export function useScopedCommand( commandName: string, opts?: { match?: string; index?: number } ) {
+    const componentContext = React.useContext( ComponentIdContext );
+    const fallbackId = React.useId();
+    const ownerId = componentContext?.isSet ? componentContext.getNameUnique() : ( "GLOBAL-" + fallbackId );
+
+    const id = useCommandId( commandName, opts );
+
+    const run = React.useCallback( ( args: DCommandArgs, callback?: ( result: unknown ) => void ) => {
+        if ( ! id ) return;
+        return commandsManager.run( id, args, callback );
+    }, [ id ] );
+
+    const hookScoped = React.useCallback( (
+        callback: ( result?: unknown, args?: DCommandArgs ) => void,
+        options?: { __ignoreDuplicatedHookError?: boolean }
+    ) => {
+        if ( ! id ) return { dispose: () => void 0 } as any;
+        return commandsManager.hookScoped( id, ownerId, callback, options );
+    }, [ id, ownerId ] );
+
+    const unhookHandle = React.useCallback( ( handle: { dispose: () => void } ) => {
+        commandsManager.unhookHandle( handle as any );
+    }, [] );
+
+    const hook = React.useCallback( (
+        callback: ( result?: unknown, args?: DCommandArgs ) => void,
+        options?: { __ignoreDuplicatedHookError?: boolean }
+    ) => {
+        if ( ! id ) return;
+        return commandsManager.hook( id, callback, options );
+    }, [ id ] );
+
+    const unhook = React.useCallback( () => {
+        if ( ! id ) return;
+        commandsManager.unhook( id );
+    }, [ id ] );
+
+    return {
+        id,
+        run,
+        hook,
+        unhook,
+        hookScoped,
+        unhookHandle,
+    } as const;
+}
+
+function toAdapterKey( name: string ): string {
+    const last = name.split( "/" ).pop() || name;
+    return last.charAt( 0 ).toLowerCase() + last.slice( 1 );
+}
+
+export function useCommands( input: string[] | Record<string, string> ) {
+    const entries = React.useMemo( () => {
+        if ( Array.isArray( input ) ) {
+            return input.map( ( name ) => [ toAdapterKey( name ), name ] as const );
+        }
+        return Object.entries( input );
+    }, [ input ] );
+
+    const adapters = entries.map( ( [ _key, name ] ) => useScopedCommand( name ) );
+
+    const result = React.useMemo( () => {
+        const out: { [ k: string ]: ReturnType<typeof useScopedCommand> } = {};
+        entries.forEach( ( [ key ], i ) => {
+            out[ key ] = adapters[ i ];
+        } );
+        return out;
+    }, [ entries, adapters ] );
+
+    return result;
 }
 
