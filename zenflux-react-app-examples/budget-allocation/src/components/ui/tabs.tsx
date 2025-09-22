@@ -3,7 +3,60 @@ import * as TabsPrimitive from "@radix-ui/react-tabs";
 
 import { cn } from "@zenflux/app-budget-allocation/src/lib/utils";
 
-const Tabs = TabsPrimitive.Root;
+interface TabsProps extends React.ComponentPropsWithoutRef<typeof TabsPrimitive.Root> {
+    items?: Array<{ id: string; title: string; content: React.ReactNode }>;
+    classNames?: {
+        base?: string;
+        tabList?: string;
+        tab?: string;
+        cursor?: string;
+    };
+    selectedKey?: string;
+    onSelectionChange?: (key: string) => void;
+}
+
+const Tabs = React.forwardRef<
+    React.ElementRef<typeof TabsPrimitive.Root>,
+    TabsProps
+>(({ items, classNames, selectedKey, onSelectionChange, children, ...props }, ref) => {
+    if (items) {
+        return (
+            <TabsPrimitive.Root
+                ref={ref}
+                value={selectedKey}
+                onValueChange={onSelectionChange}
+                className={cn(classNames?.base, props.className)}
+                {...props}
+            >
+                <TabsList className={classNames?.tabList}>
+                    {items.map((item) => (
+                        <TabsTrigger key={item.id} value={item.id} className={classNames?.tab}>
+                            {item.title}
+                        </TabsTrigger>
+                    ))}
+                </TabsList>
+                {items.map((item) => (
+                    <TabsContent key={item.id} value={item.id}>
+                        {item.content}
+                    </TabsContent>
+                ))}
+            </TabsPrimitive.Root>
+        );
+    }
+
+    return (
+        <TabsPrimitive.Root
+            ref={ref}
+            value={selectedKey}
+            onValueChange={onSelectionChange}
+            className={cn(classNames?.base, props.className)}
+            {...props}
+        >
+            {children}
+        </TabsPrimitive.Root>
+    );
+});
+Tabs.displayName = "Tabs";
 
 const TabsList = React.forwardRef<
     React.ElementRef<typeof TabsPrimitive.List>,
@@ -50,4 +103,15 @@ const TabsContent = React.forwardRef<
 ));
 TabsContent.displayName = TabsPrimitive.Content.displayName;
 
-export { Tabs, TabsList, TabsTrigger, TabsContent };
+// NextUI-compatible Tab component
+interface TabProps {
+    key?: string;
+    title: string;
+    children: React.ReactNode;
+}
+
+const Tab: React.FC<TabProps> = ({ title, children }) => {
+    return <>{children}</>;
+};
+
+export { Tabs, TabsList, TabsTrigger, TabsContent, Tab };

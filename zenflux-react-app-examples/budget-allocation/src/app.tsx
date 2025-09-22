@@ -4,7 +4,7 @@ import { API } from "@zenflux/react-api/src";
 
 import { useCommandHook, useCommandRunner } from "@zenflux/react-commander/use-commands";
 
-import { Tab, Tabs } from "@nextui-org/tabs";
+import { Tab, Tabs } from "@zenflux/app-budget-allocation/src/components/ui/tabs";
 
 import { NextUIProvider } from "@nextui-org/system";
 import { Button } from "@zenflux/app-budget-allocation/src/components/ui/button";
