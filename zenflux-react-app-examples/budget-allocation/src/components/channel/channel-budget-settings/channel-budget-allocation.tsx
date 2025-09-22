@@ -1,6 +1,6 @@
 import React from "react";
 
-import { Button } from "@zenflux/app-budget-allocation/src/components/ui/button";
+import { ButtonGroup, Button } from "@nextui-org/button";
 
 import { useCommanderCommand } from "@zenflux/react-commander/use-commands";
 
@@ -8,7 +8,7 @@ import { Info } from "@zenflux/react-ui/src/symbols";
 
 import { UpdateSource } from "@zenflux/app-budget-allocation/src/components/channel/channel-types";
 
-import type { ButtonProps } from "@zenflux/app-budget-allocation/src/components/ui/button";
+import type { ButtonProps } from "@nextui-org/button";
 
 import type {
     BudgetAllocationType,
@@ -55,7 +55,7 @@ export function ChannelBudgetAllocation( props: ChannelBudgetAllocationProps ) {
     return (
         <div className="channel-budget-allocation">
             <Info>Budget Allocation</Info>
-            <div className="button-group flex">
+            <ButtonGroup className="button-group">
                 { Object.keys( DEFAULT_BUDGET_ALLOCATIONS ).map( ( key ) => (
                     <ChannelBudgetAllocationButton
                         key={ key }
@@ -63,7 +63,7 @@ export function ChannelBudgetAllocation( props: ChannelBudgetAllocationProps ) {
                         { ... props }
                     />
                 ) ) }
-            </div>
+            </ButtonGroup>
         </div>
     );
 }
