@@ -8,7 +8,8 @@ import {
     useCommanderComponent,
     useAnyComponentCommands,
     useCommanderState,
-    useCommanderChildrenComponents
+    useChildCommandHook,
+    useChildCommandRunner
 } from "@zenflux/react-commander/use-commands";
 
 import ChannelItemAccordion from "@zenflux/app-budget-allocation/src/components//channel/channel-item-accordion.tsx";
@@ -20,32 +21,23 @@ import type { ChannelItemAccordionComponent } from "@zenflux/app-budget-allocati
 const scheduler = new EventEmitter();
 
 // On channel list, request edit title name
-function onEditRequest(
+function _onEditRequest(
     channel: ChannelItemAccordionComponent,
     setSelected: ( selected: { [ key: string ]: boolean } ) => void,
-    channelsCommands: ReturnType<typeof useCommanderComponent>,
-    accordionItemCommands: ReturnType<typeof useCommanderChildrenComponents>,
+    runAccordionItem: ReturnType<typeof useChildCommandRunner>,
 ) {
     // Select the channel (trigger accordion item selection)
     setSelected( { [ channel.props.meta.id ]: true } );
 
-    const correspondingCommand = accordionItemCommands.find( ( command ) => {
-        return command.getInternalContext().props.itemKey === channel.props.meta.id;
-    } );
+    const enabled = runAccordionItem( channel.props.meta.id, "UI/AccordionItem/EditableTitle", { state: true } );
+    if ( enabled ) return;
 
-    const tryToEnableEdit = ( correspondingCommand: any ) => {
-        // Try tell accordion to enter edit mode
-        correspondingCommand?.run( "UI/AccordionItem/EditableTitle", { state: true } );
-
-        return correspondingCommand;
-    };
-
-    if ( tryToEnableEdit( correspondingCommand ) ) return;
-
-    scheduler.once( `enable-editable-title-${ channel.props.meta.id }`, tryToEnableEdit );
+    scheduler.once( `enable-editable-title-${ channel.props.meta.id }`, () =>
+        runAccordionItem( channel.props.meta.id, "UI/AccordionItem/EditableTitle", { state: true } )
+    );
 }
 
-function onRemoveRequest(
+function _onRemoveRequest(
     channel: ChannelItemAccordionComponent,
     getChannelsListState: ReturnType<typeof useCommanderState<ChannelListState>>[ 0 ],
     setChannelsListState: ReturnType<typeof useCommanderState<ChannelListState>>[ 1 ]
@@ -98,42 +90,33 @@ export function channelsListAccordionInteractions() {
 
     const channelsCommands = useCommanderComponent( "App/ChannelsList" );
 
-    useCommanderChildrenComponents( "UI/AccordionItem", ( accordionItemCommands ) => {
-        if ( ! accordionItemCommands.length ) return;
-
-        // Hook on title changed, run command within the channel list, to inform about the change
-        accordionItemCommands.forEach( ( command ) => {
-            if ( ! command.isAlive() ) return;
-
-            command.hook( "UI/AccordionItem/OnTitleChanged", ( result, args ) => {
-                channelsCommands.run( "App/ChannelsList/SetName", {
-                    id: args!.itemKey,
-                    name: args!.title,
-                } );
+    useChildCommandHook(
+        "UI/AccordionItem",
+        "UI/AccordionItem/OnTitleChanged",
+        ( _result, args: any ) => {
+            channelsCommands.run( "App/ChannelsList/SetName", {
+                id: args.itemKey,
+                name: args.title,
             } );
+        }
+    );
 
-            // This will ensure that the accordion item will enter edit mode, if the channel list requested it
-            const key = `enable-editable-title-${ command.getInternalContext().props.itemKey }`;
-            if ( scheduler.eventNames().includes( key ) ) {
-                scheduler.emit( key, command );
-                scheduler.removeAllListeners( key );
-            }
-        } );
+    const runAccordionItem = useChildCommandRunner(
+        "UI/AccordionItem",
+        ( ctx ) => ctx.props.itemKey
+    );
 
+    React.useEffect( () => {
         channelsCommands.hook( "App/ChannelsList/EditRequest", ( r, args: any ) =>
-            onEditRequest( args.channel, setSelected, channelsCommands, accordionItemCommands ) );
+            _onEditRequest( args.channel, setSelected, runAccordionItem ) );
 
         channelsCommands.hook( "App/ChannelsList/RemoveRequest", ( r, args: any ) =>
-            onRemoveRequest( args.channel, getChannelsListState, setChannelsListState ) );
+            _onRemoveRequest( args.channel, getChannelsListState, setChannelsListState ) );
 
         return () => {
-            accordionItemCommands.forEach( ( command ) => {
-                command.unhook( "UI/AccordionItem/OnTitleChanged" );
-            } );
-
             commandsManager.unhookWithinComponent( channelsCommands.getId() );
         };
-    } );
+    }, [ isMounted() ] );
 
     React.useEffect( () => {
         const addChannelCommands = useAnyComponentCommands( "App/AddChannel" );

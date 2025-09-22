@@ -9,7 +9,7 @@ import core from "./_internal/core";
 import { ComponentIdContext } from "@zenflux/react-commander/commands-context";
 import commandsManager from "@zenflux/react-commander/commands-manager";
 
-import type { DCommandArgs, DCommandComponentContextProps, DCommandIdArgs } from "@zenflux/react-commander/definitions";
+import type { DCommandArgs, DCommandComponentContextProps, DCommandIdArgs, DCommandSingleComponentContext } from "@zenflux/react-commander/definitions";
 
 function getSafeContext( componentName: string, context?: DCommandComponentContextProps ) {
     function maybeWrongContext( componentName: string, componentNameUnique: string ) {
@@ -195,7 +195,7 @@ export function useCommandId( commandName: string, opts?: { match?: string; inde
                     componentNameUnique: ctx.componentNameUnique,
                 } );
             }
-        } catch ( _e ) {
+        } catch {
             setId( null );
         }
     }, [ match, index, commandName ] );
@@ -274,5 +274,86 @@ export function useCommands( input: string[] | Record<string, string> ) {
     }, [ entries, adapters ] );
 
     return result;
+}
+
+export function useCommandRunner( commandName: string, opts?: { match?: string; index?: number } ) {
+    const id = useCommandId( commandName, opts );
+
+    return React.useCallback( ( args: DCommandArgs, callback?: ( result: unknown ) => void ) => {
+        if ( ! id ) return;
+        return commandsManager.run( id, args, callback as any );
+    }, [ id ] );
+}
+
+export function useCommandHook(
+    commandName: string,
+    handler: ( result?: unknown, args?: DCommandArgs ) => void,
+    opts?: { match?: string; index?: number; ignoreDuplicate?: boolean }
+) {
+    const componentContext = React.useContext( ComponentIdContext );
+    const fallbackId = React.useId();
+    const ownerId = componentContext?.isSet ? componentContext.getNameUnique() : ( "GLOBAL-" + fallbackId );
+
+    const id = useCommandId( commandName, opts );
+
+    React.useEffect( () => {
+        if ( ! id ) return;
+
+        const handle = commandsManager.hookScoped( id, ownerId, handler, {
+            __ignoreDuplicatedHookError: !! opts?.ignoreDuplicate,
+        } );
+
+        return () => {
+            commandsManager.unhookHandle( handle );
+        };
+    }, [ id?.componentNameUnique, ownerId, handler ] );
+}
+
+export function useChildCommandHook(
+    childComponentName: string,
+    commandName: string,
+    handler: ( result?: unknown, args?: DCommandArgs ) => void,
+    opts?: { filter?: (ctx: ReturnType<typeof useCommanderComponent>) => boolean; ignoreDuplicate?: boolean }
+) {
+    const children = useCommanderChildrenComponents(childComponentName);
+
+    React.useEffect(() => {
+        const disposers: Array<() => void> = [];
+
+        children.forEach((cmd) => {
+            if (opts?.filter && !opts.filter(cmd)) return;
+            cmd.hook(commandName, handler);
+            disposers.push(() => cmd.unhook(commandName));
+        });
+
+        return () => {
+            disposers.forEach(d => d());
+        };
+    }, [children.map(c => c.getId()).join("|"), commandName, handler]);
+}
+
+export function useChildCommandRunner(
+    childComponentName: string,
+    selector: (ctx: DCommandSingleComponentContext) => string // returns key to match (e.g., itemKey)
+) {
+    const children = useCommanderChildrenComponents(childComponentName);
+
+    const getByKey = React.useCallback((key: string) => {
+        for (const cmd of children) {
+            const ctx = cmd.getInternalContext();
+            const k = selector(ctx);
+            if (k === key) return cmd;
+        }
+        return null;
+    }, [children, selector]);
+
+    const run = React.useCallback((key: string, commandName: string, args: DCommandArgs) => {
+        const cmd = getByKey(key);
+        if (!cmd) return false;
+        cmd.run(commandName, args);
+        return true;
+    }, [getByKey]);
+
+    return run;
 }
 

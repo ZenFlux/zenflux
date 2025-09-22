@@ -279,6 +279,24 @@ class CommandsManager {
         return listeners.length > 0;
     }
 
+    public resolveId( commandName: string, componentName: string, index = 0 ): DCommandIdArgs {
+        const contexts = core.__devGetContextValues?.() || [];
+        const matches = contexts.filter( c => c.componentName === componentName && !!c.commands[ commandName ] );
+        const ctx = matches[ index ];
+        if ( ! ctx ) throw new Error( `Command '${ commandName }' for component '${ componentName }' not found` );
+        return { commandName, componentName, componentNameUnique: ctx.componentNameUnique };
+    }
+
+    public runByName( commandName: string, componentName: string, args: DCommandArgs ) {
+        const id = this.resolveId( commandName, componentName );
+        return this.run( id, args );
+    }
+
+    public hookByNameScoped( params: { commandName: string; componentName: string; ownerId: string }, callback: ( result?: any, args?: DCommandArgs ) => any ) {
+        const id = this.resolveId( params.commandName, params.componentName );
+        return this.hookScoped( id, params.ownerId, callback );
+    }
+
     public isContextRegistered( componentNameUnique: string ) {
         return !! core[ GET_INTERNAL_SYMBOL ]( componentNameUnique, true );
     }
