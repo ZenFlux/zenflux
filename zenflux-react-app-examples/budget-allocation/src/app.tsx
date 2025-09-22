@@ -4,9 +4,10 @@ import { API } from "@zenflux/react-api/src";
 
 import { useCommandHook, useCommandRunner } from "@zenflux/react-commander/use-commands";
 
-import { Tabs, TabsList, TabsTrigger, TabsContent } from "@zenflux/app-budget-allocation/src/components/ui/tabs";
+import { Tab, Tabs } from "@nextui-org/tabs";
 
-import { Button } from "@zenflux/app-budget-allocation/src/components/ui/button";
+import { NextUIProvider } from "@nextui-org/system";
+import { Button } from "@nextui-org/button";
 
 import Layout from "@zenflux/app-budget-allocation/src/ui-layout/layout";
 
@@ -68,38 +69,46 @@ function App() {
         { id: "overview", title: "Budget Overview", content: <LazyLoader ContentComponent={ BudgetOverview }/> },
     ];
 
+    const tabsProps = {
+        items,
+        classNames: {
+            base: "tabs",
+            tabList: "list",
+            tab: "tab",
+            cursor: "cursor",
+        },
+        selectedKey: selectedTab,
+        onSelectionChange: ( id: React.Key ) => {
+            if ( ! location.hash.includes( id.toString() ) ) {
+                setSelectedTab( id.toString() );
+
+                location.hash = id.toString();
+            }
+        }
+    };
+
     return (
-        <>
+        <NextUIProvider>
             <Button onClick={ () => {
                 // Do not let the rescue callback to run
                 window.onbeforeunload = null;
 
                 localStorage.clear();
                 location.reload();
-            } } className="absolute top-0 right-0" variant="outline">Reset Demo</Button>
+            } } className="absolute top-0 right-0 border-none" variant="bordered" disableAnimation={ true }
+                    radius={ "none" }>Reset Demo</Button>
 
             <Layout { ... layoutProps }>
-                <Tabs value={ selectedTab } onValueChange={ ( value ) => {
-                    if ( ! location.hash.includes( value ) ) {
-                        setSelectedTab( value );
-                        location.hash = value;
-                    }
-                } } className="tabs">
-                    <TabsList className="list">
-                        { items.map( ( tab ) => (
-                            <TabsTrigger key={ tab.id } value={ tab.id } className="tab">
-                                { tab.title }
-                            </TabsTrigger>
-                        ) ) }
-                    </TabsList>
-                    { items.map( ( tab ) => (
-                        <TabsContent key={ tab.id } value={ tab.id }>
+                <Tabs { ... tabsProps }> {
+                    tabsProps.items.map( ( tab ) => (
+                        <Tab key={ tab.id } title={ tab.title }>
                             { tab.content }
-                        </TabsContent>
-                    ) ) }
+                        </Tab>
+                    ) )
+                }
                 </Tabs>
             </Layout>
-        </>
+        </NextUIProvider>
     );
 }
 
