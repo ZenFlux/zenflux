@@ -1,6 +1,6 @@
 import React from "react";
 
-import { Button } from "@nextui-org/button";
+import { Button } from "@zenflux/app-budget-allocation/src/components/ui/button";
 
 import { withCommands } from "@zenflux/react-commander/with-commands";
 
