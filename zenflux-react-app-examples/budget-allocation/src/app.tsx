@@ -7,7 +7,7 @@ import { useCommandHook, useCommandRunner } from "@zenflux/react-commander/use-c
 import { Tab, Tabs } from "@nextui-org/tabs";
 
 import { NextUIProvider } from "@nextui-org/system";
-import { Button } from "@nextui-org/button";
+import { Button } from "@zenflux/app-budget-allocation/src/components/ui/button";
 
 import Layout from "@zenflux/app-budget-allocation/src/ui-layout/layout";
 
