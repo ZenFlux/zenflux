@@ -10,9 +10,9 @@ import { CommandBase } from "@zenflux/react-commander/command-base";
 
 import { Plus } from "@zenflux/react-ui/src/symbols";
 
-import type { CommandFunctionComponent } from "@zenflux/react-commander/types";
+import type { DCommandFunctionComponent } from "@zenflux/react-commander/definitions";
 
-const AddChannel: CommandFunctionComponent<void> = () => {
+const AddChannel: DCommandFunctionComponent<void> = () => {
     const command = useCommanderCommand( "App/AddChannel" );
 
     return (

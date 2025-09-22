@@ -17,9 +17,9 @@ import * as commands from "@zenflux/app-budget-allocation/src/components/channel
 
 import type { ChannelItemPropsAccordion, ChannelState } from "@zenflux/app-budget-allocation/src/components/channel/channel-types";
 
-import type { CommandFunctionComponent } from "@zenflux/react-commander/types";
+import type { DCommandFunctionComponent } from "@zenflux/react-commander/definitions";
 
-export const ChannelItemAccordion: CommandFunctionComponent<ChannelItemPropsAccordion, ChannelState> = () => {
+export const ChannelItemAccordion: DCommandFunctionComponent<ChannelItemPropsAccordion, ChannelState> = () => {
     const [ getState ] = useCommanderState<ChannelState>( "App/ChannelItem" );
 
     const { frequency, baseline, allocation } = getState();

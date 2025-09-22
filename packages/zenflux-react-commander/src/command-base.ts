@@ -28,7 +28,7 @@ export abstract class CommandBase<TState = React.ComponentState, TArgs = DComman
         } );
     }
 
-    protected constructor( private args: DCommandRegisterArgs ) {
+    public constructor( private args: DCommandRegisterArgs ) {
         this.commandName = ( new.target as typeof CommandBase ).getName();
     }
 

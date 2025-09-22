@@ -22,7 +22,7 @@ import "@zenflux/app-budget-allocation/src/components/channel/_channel-item-tabl
 import type { ChannelItemProps, ChannelState } from "@zenflux/app-budget-allocation/src/components/channel/channel-types";
 import type { InputProps } from "@nextui-org/input";
 
-import type { CommandFunctionComponent } from "@zenflux/react-commander/types";
+import type { DCommandFunctionComponent } from "@zenflux/react-commander/definitions";
 
 declare global {
     interface Math {
@@ -30,7 +30,7 @@ declare global {
     }
 }
 
-export const ChannelItemTable: CommandFunctionComponent<ChannelItemProps, ChannelState> = ( props ) => {
+export const ChannelItemTable: DCommandFunctionComponent<ChannelItemProps, ChannelState> = ( props ) => {
     const [ getState, _setState , isMounted ] = useCommanderState<ChannelState>( "App/ChannelItem" ),
         state = getState();
 

@@ -10,7 +10,7 @@ import { pickEnforcedKeys } from "@zenflux/app-budget-allocation/src/utils";
 
 import type { ChannelItemAccordionComponent } from "@zenflux/app-budget-allocation/src/components/channel/channel-types";
 
-import type { CommandFunctionComponent } from "@zenflux/react-commander/types";
+import type { DCommandFunctionComponent } from "@zenflux/react-commander/definitions";
 
 import type { ChannelListProps, ChannelListState } from "@zenflux/app-budget-allocation/src/components/channels/channels-types";
 
@@ -18,7 +18,7 @@ const AccordionChannelsList = React.lazy( () => import( "@zenflux/app-budget-all
 
 const TableChannelsList = React.lazy( () => import( "@zenflux/app-budget-allocation/src/components/channels/channels-list-table" ) );
 
-export const ChannelsList: CommandFunctionComponent<ChannelListProps, ChannelListState> = ( props, state ) => {
+export const ChannelsList: DCommandFunctionComponent<ChannelListProps, ChannelListState> = ( props, state ) => {
     let channels: ChannelItemAccordionComponent[] = Array.isArray( props.children ) ? props.children : [ props.children ];
 
     state.channels = channels.map( ( channel ) => {
