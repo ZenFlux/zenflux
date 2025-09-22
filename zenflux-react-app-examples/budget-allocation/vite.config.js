@@ -7,7 +7,7 @@ import svgr from 'vite-plugin-svgr'
 import tailwindcss from 'tailwindcss'
 
 export default defineConfig( {
-    base: '/projects/infinigrow/',
+    base: '',
     plugins: [
         react(),
         svgr({

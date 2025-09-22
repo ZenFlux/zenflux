@@ -17,8 +17,6 @@ import AddChannel from "@zenflux/app-budget-allocation/src/components/add-channe
 
 import "@zenflux/app-budget-allocation/src/app.scss";
 
-// eslint-disable-next-line import/order
-import "@zenflux/app-budget-allocation/src/api/api-fake-data";
 import type { LayoutProps } from "@zenflux/app-budget-allocation/src/ui-layout/layout";
 
 const BudgetAllocation = React.lazy( () => import( "@zenflux/app-budget-allocation/src/budget-allocation" ) ),
