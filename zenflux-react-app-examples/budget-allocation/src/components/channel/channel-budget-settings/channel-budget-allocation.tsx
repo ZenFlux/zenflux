@@ -1,6 +1,7 @@
 import React from "react";
 
-import { ButtonGroup, Button } from "@nextui-org/button";
+import ButtonGroup from "@zenflux/app-budget-allocation/src/components/ui/button-group";
+import { Button } from "@zenflux/app-budget-allocation/src/components/ui/button";
 
 import { useCommanderCommand } from "@zenflux/react-commander/use-commands";
 
@@ -8,7 +9,7 @@ import { Info } from "@zenflux/react-ui/src/symbols";
 
 import { UpdateSource } from "@zenflux/app-budget-allocation/src/components/channel/channel-types";
 
-import type { ButtonProps } from "@nextui-org/button";
+import type { ButtonProps } from "@zenflux/app-budget-allocation/src/components/ui/button";
 
 import type {
     BudgetAllocationType,

@@ -1,42 +1,27 @@
 .channel-item-accordion {
-    .info-label {
-        @apply font-sans text-[#232c4d] text-base font-light;
-    }
 
     .channel-budget-settings {
         grid-template-columns: repeat(3, 0px);
 
         @apply grid gap-[350px];
 
-        .select, .input {
-            .wrapper {
-                @apply pt-[8px];
+
+        > div {
+            @apply flex flex-col gap-2;
+
+
+            .info-label {
+                @apply font-sans text-[#232c4d] text-base font-light;
             }
 
-            .trigger {
-                @apply pt-0 pb-0 border-[#B2BBD57F] min-h-0 h-10;
-            }
-        }
-
-        .button-group {
-            @apply pt-[7px];
-        }
-
-        .button {
-            @apply p-[20px] bg-[rgba(178,187,213,0.36)] shadow-sm border-[rgba(178,187,213,0.50)] text-[#707EA7];
-
-            &:first-child {
-                @apply rounded-l-md;
-            }
-
-            &:last-child {
-                @apply border-l-0 rounded-r-md;
-            }
-
-            &[data-active="true"] {
-                @apply text-[#2A3558] bg-gradient-to-b from-[#FAFAFC] to-white shadow-sm border-[rgba(178,187,213,0.50)];
+            .button-group {
+                @apply mt-1;
+                button {
+                    @apply py-[20px]
+                }
             }
         }
+        
 
         .channel-budget-frequency {
             @apply w-[226px];
@@ -44,6 +29,7 @@
 
         .channel-budget-baseline {
             @apply w-[237px];
+
 
             &[data-disabled="true"] {
                 .trigger {
@@ -83,18 +69,36 @@
                     @apply text-slate-700 text-sm font-normal leading-[21px];
                 }
 
+                .currency-sign {
+                    @apply pl-[12px] pr-[6px] text-[14px] leading-[24px];
+                    @apply text-black;
+                }
+
                 .trigger {
-                    @apply pt-0 pb-0 border-[rgba(178,187,213,0.50)];
-                    @apply min-h-0 h-10 w-[160px];
-                }
+                    @apply flex items-center bg-white w-[160px] h-10;
+                    @apply border-[2px] rounded-[0px];
 
+
+                    input {
+                        @apply flex-1 h-full bg-transparent border-0 outline-none ring-0 ring-offset-0;
+                        @apply text-sm leading-[21px] placeholder:text-[#99A4C2];
+                        @apply text-left;
+                        padding: 0 12px 0 0; /* left padding covered by currency */
+                    }
+                }
+                
+                /* Editable input (Manual) */
                 &[data-disabled="false"] .trigger {
-                    @apply bg-white;
-                    color: #2A3558;
+
+                    border-color: rgba(178,187,213,0.5);
+
                 }
 
+                /* Read-only display (Equal) */
                 &[data-disabled="true"] .trigger {
                     color: #99A4C2;
+
+                    @apply bg-transparent;
                 }
             }
         }

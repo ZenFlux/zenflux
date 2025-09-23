@@ -1,6 +1,6 @@
 import React from "react";
 
-import { Input } from "@nextui-org/input";
+import { Input } from "@zenflux/app-budget-allocation/src/components/ui/input";
 
 import { useCommanderCommand } from "@zenflux/react-commander/use-commands";
 
@@ -16,17 +16,13 @@ import type {
     ChannelBudgetBaselineProps
 } from "@zenflux/app-budget-allocation/src/components/channel/channel-budget-settings/channel-budget-types";
 
-import type { InputProps } from "@nextui-org/input";
+import type { InputProps } from "@zenflux/app-budget-allocation/src/components/ui/input";
 
 const DEFAULT_PROPS: Partial<InputProps> = {
-    classNames: {
-        base: "input",
-        mainWrapper: "wrapper",
-        inputWrapper: "trigger",
-    },
-    type: "string",
-    variant: "bordered",
+    type: "text",
+    variant: "transparent",
     radius: "none",
+    wrapper: "input-wrapper",
 };
 
 export function ChannelBudgetBaseline( props: ChannelBudgetBaselineProps ) {
@@ -50,7 +46,7 @@ export function ChannelBudgetBaseline( props: ChannelBudgetBaselineProps ) {
     return (
         <div className="channel-budget-baseline" data-disabled={ inputProps.disabled }>
             <Info>Baseline [{ frequencyLabel }] Budget</Info>
-            <Input aria-labelledby="baseline" { ... inputProps }></Input>
+            <Input  aria-labelledby="baseline" { ... inputProps } className="rounded-none" />
         </div>
     );
 }

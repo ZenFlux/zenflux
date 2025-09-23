@@ -35,10 +35,12 @@ img.icon {
 }
 
 .tabs {
-    .list  {
+    div[role="tablist"]  {
         @apply bg-transparent;
 
-        .tab {
+
+        button[role="tab"] {
+            @apply mb-[25px];
             @apply text-2xl;
 
             .cursor {
@@ -53,8 +55,6 @@ img.icon {
             @apply underline;
         }
     }
-
-    @apply mb-[20px];
 }
 
 .layout header {

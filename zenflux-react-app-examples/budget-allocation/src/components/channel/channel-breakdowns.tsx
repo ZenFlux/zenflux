@@ -2,7 +2,7 @@ import React from "react";
 
 import moment from "moment";
 
-import { Input } from "@nextui-org/input";
+import { Input } from "@zenflux/app-budget-allocation/src/components/ui/input";
 
 import { useCommanderComponent, useCommanderState } from "@zenflux/react-commander/use-commands";
 
@@ -12,7 +12,7 @@ import { formatNumericStringToFraction } from "@zenflux/app-budget-allocation/sr
 
 import { UpdateSource } from "@zenflux/app-budget-allocation/src/components/channel/channel-types";
 
-import type { InputProps } from "@nextui-org/input";
+import type { InputProps } from "@zenflux/app-budget-allocation/src/components/ui/input";
 
 import type { ChannelState, ChannelBreakData } from "@zenflux/app-budget-allocation/src/components/channel/channel-types";
 
@@ -98,18 +98,21 @@ function getBreakElements(
 
         const inputProps: InputProps = {
             ... DEFAULT_CHANNEL_BREAK_INPUT_PROPS,
-
-            label,
             disabled,
-
             value: formatted,
-
-            onChange: ( e ) => ! disabled && onInputChange( index, e.target.value )
+            onChange: ( e ) => ! disabled && onInputChange( index, e.target.value ),
+            variant: "transparent",
+            radius: "none",
+            uiSize: "default",
         };
 
         return (
             <div className="break" data-disabled={ inputProps.disabled }>
-                <Input { ... inputProps } />
+                <div className="label">{ label }</div>
+                <div className="trigger">
+                    <span className="currency-sign">$</span>
+                    <Input { ... inputProps } className={ `${ inputProps.className || "" }` } />
+                </div>
             </div>
         );
     };
@@ -301,3 +304,4 @@ export const ChannelBreakdowns: React.FC = () => {
         </div>
     );
 };
+
