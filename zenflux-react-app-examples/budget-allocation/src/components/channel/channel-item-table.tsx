@@ -2,7 +2,7 @@ import React from "react";
 
 import moment from "moment";
 
-import { Input } from "@nextui-org/input";
+import { Input } from "@zenflux/app-budget-allocation/src/components/ui/input";
 
 import { ArrowSkinnyRight, Pencil, Save, Cancel } from "@zenflux/react-ui/src/symbols";
 
@@ -20,7 +20,7 @@ import * as commands from "@zenflux/app-budget-allocation/src/components/channel
 import "@zenflux/app-budget-allocation/src/components/channel/_channel-item-table.scss";
 
 import type { ChannelItemProps, ChannelState } from "@zenflux/app-budget-allocation/src/components/channel/channel-types";
-import type { InputProps } from "@nextui-org/input";
+import type { InputProps } from "@zenflux/app-budget-allocation/src/components/ui/input";
 
 import type { DCommandFunctionComponent } from "@zenflux/react-commander/definitions";
 
@@ -145,37 +145,32 @@ export const ChannelItemTable: DCommandFunctionComponent<ChannelItemProps, Chann
 
                         disabled,
 
-                        variant: "flat",
-
                         onChange: ( event ) => {
                             ! disabled && setBreakdown( index, event.target.value );
                         },
-
-                        endContent: ( <span className="control-area">
-                            <Pencil onClick={ () => {
-                                const newIsEditing = [ ... isEditing ];
-
-                                newIsEditing[ index ] = ! isEditing[ index ];
-
-                                setIsEditing( newIsEditing );
-                            } }/>
-
-                            <Save onClick={ () => {
-                                setBreakdown( index, cloneState.breaks![ index ].value, true );
-                            } }/>
-
-                            <Cancel onClick={ () => {
-                                setBreakdown( index, state.breaks![ index ].value, true );
-                            } }/>
-
-                        </span> ),
 
                         value: formatNumericStringToFraction( budgetBreak.value ),
                     };
 
                     return (
                         <div key={ index } className="channel-item-table-budget" data-disabled={ disabled }>
-                            <Input { ... inputProps }/>
+                            <div className="trigger">
+                                <span className="currency-sign">$</span>
+                                <Input { ... inputProps }/>
+                            </div>
+                            <span className="control-area">
+                                <Pencil onClick={ () => {
+                                    const newIsEditing = [ ... isEditing ];
+                                    newIsEditing[ index ] = ! isEditing[ index ];
+                                    setIsEditing( newIsEditing );
+                                } }/>
+                                <Save onClick={ () => {
+                                    setBreakdown( index, cloneState.breaks![ index ].value, true );
+                                } }/>
+                                <Cancel onClick={ () => {
+                                    setBreakdown( index, state.breaks![ index ].value, true );
+                                } }/>
+                            </span>
                         </div>
                     );
                 } ) }

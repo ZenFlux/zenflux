@@ -30,7 +30,9 @@
             left: -8px;
 
             .input {
-                text-align: center;
+                text-align: left;
+                @apply text-black;
+                @apply opacity-100;        
             }
         }
 
@@ -61,6 +63,7 @@
                 .currency-sign {
                     @apply absolute;
                     @apply top-[-4px] left-[8px];
+                    @apply z-10;
                 }
 
                 :after {
@@ -74,13 +77,14 @@
                 display: inline;
                 position: absolute;
                 top: -7px;
-                left: 78px;
+                left: 85px;
+                height: 0;
 
                 .pencil, .cancel, .save {
                     @apply invisible;
 
                     &:hover {
-                        @apply animate-pulse delay-100;
+                        @apply visible;
                     }
                 }
 
@@ -96,7 +100,7 @@
 
             &[data-disabled="true"] {
                 .trigger:hover + .control-area .pencil {
-                            @apply visible;
+                     @apply visible;
                 }
             }
 
