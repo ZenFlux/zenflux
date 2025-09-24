@@ -42,6 +42,7 @@ export function ButtonGroup({ className, children, variant, size, ...props }: Bu
                     "h-10 bg-transparent rounded-none",
                     "[&>*]:h-full [&>*]:px-5 [&>*]:text-[#707EA7] [&>*]:bg-[rgba(178,187,213,0.36)]",
                     "[&>*]:border-[2px] [&>*]:border-[rgba(178,187,213,0.5)]",
+                    "[&>*:not([data-active=true])]:hover:bg-[rgba(178,187,213,0.5)]",
                     "[&>*:not(:first-child)]:-ms-[2px]",
                     "[&>*:first-child]:rounded-l-[6px] [&>*:last-child]:rounded-r-[6px] [&>*]:rounded-none",
                     "[&>*[data-active=true]]:text-[#2A3558] [&>*[data-active=true]]:bg-gradient-to-b [&>*[data-active=true]]:from-[#FAFAFC] [&>*[data-active=true]]:to-white",

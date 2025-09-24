@@ -23,17 +23,12 @@ const buttonVariants = cva(
                 // Production-specific variants
                 bordered:
           "border border-default bg-transparent hover:bg-default-100",
-                allocation:
-          "bg-[rgba(178,187,213,0.36)] text-[#707EA7] border-[2px] border-[rgba(178,187,213,0.5)] hover:bg-[rgba(178,187,213,0.5)]",
-                allocationActive:
-          "text-[#2A3558] bg-gradient-to-b from-[#FAFAFC] to-white border-[2px] border-[rgba(178,187,213,0.5)] shadow-sm",
             },
             size: {
                 default: "h-10 px-4 py-2",
                 sm: "h-9 rounded-md px-3",
                 lg: "h-11 rounded-md px-8",
                 icon: "h-10 w-10",
-                allocation: "h-10 px-5 text-sm font-normal",
             },
             radius: {
                 none: "rounded-none",
@@ -41,9 +36,6 @@ const buttonVariants = cva(
                 md: "rounded-md",
                 lg: "rounded-lg",
                 full: "rounded-full",
-                allocation: "rounded-none",
-                allocationFirst: "rounded-l-[6px]",
-                allocationLast: "rounded-r-[6px]",
             },
         },
         defaultVariants: {

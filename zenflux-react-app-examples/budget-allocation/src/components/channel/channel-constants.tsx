@@ -43,7 +43,7 @@ export const CHANNEL_LIST_STATE_DATA_WITH_META: EnforceKeys<ChannelState> = {
 export const DEFAULT_CHANNEL_BREAK_INPUT_PROPS: InputProps = {
     className: "input",
     type: "text",
-    variant: "flat",
+    variant: "transparent",
     radius: "none",
     placeholder: "0",
     withWrapper: false,
