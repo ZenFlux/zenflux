@@ -1,0 +1,56 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "demo-app:dev",
+            "type": "shell",
+            "command": "bun",
+            "args": ["run", "demo-app:dev"],
+            "group": "build",
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "focus": false,
+                "panel": "shared"
+            },
+            "options": {
+                "cwd": "${workspaceFolder}/zenflux-react-app-examples/budget-allocation"
+            },
+            "problemMatcher": []
+        },
+        {
+            "label": "demo-app:build",
+            "type": "shell",
+            "command": "bun",
+            "args": ["run", "demo-app:build"],
+            "group": "build",
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "focus": false,
+                "panel": "shared"
+            },
+            "options": {
+                "cwd": "${workspaceFolder}/zenflux-react-app-examples/budget-allocation"
+            },
+            "problemMatcher": []
+        },
+        {
+            "label": "demo-app:lint",
+            "type": "shell",
+            "command": "bun",
+            "args": ["run", "demo-app:lint"],
+            "group": "test",
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "focus": false,
+                "panel": "shared"
+            },
+            "options": {
+                "cwd": "${workspaceFolder}/zenflux-react-app-examples/budget-allocation"
+            },
+            "problemMatcher": []
+        }
+    ]
+}

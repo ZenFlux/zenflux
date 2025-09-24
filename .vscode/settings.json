@@ -1,0 +1,35 @@
+{
+    "editor.codeActionsOnSave": {
+        "source.fixAll.eslint": "explicit"
+    },
+    "editor.formatOnSave": false,
+    "eslint.validate": [
+        "javascript",
+        "javascriptreact",
+        "typescript",
+        "typescriptreact"
+    ],
+    "files.associations": {
+        "*.ts": "typescript",
+        "*.tsx": "typescriptreact",
+        "*.js": "javascript",
+        "*.jsx": "javascriptreact"
+    },
+    "npm.packageManager": "bun",
+    "npm.autoDetect": "off",
+    "yarn.enableTelemetry": false,
+    "yarn.autoDetect": "off",
+    "corepack.enable": false,
+    "packageManager.autoDetect": "off",
+    "packageManager.preferBun": true,
+    "terminal.integrated.defaultProfile.linux": "zsh",
+    "terminal.integrated.profiles.linux": {
+        "zsh": {
+            "path": "/usr/bin/zsh",
+            "args": ["-l"]
+        }
+    },
+    "typescript.preferences.includePackageJsonAutoImports": "on",
+    "typescript.suggest.autoImports": true,
+    "typescript.updateImportsOnFileMove.enabled": "always"
+}

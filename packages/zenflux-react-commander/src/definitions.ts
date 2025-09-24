@@ -152,3 +152,14 @@ export interface DCommandOptions<TState> {
 
 export type DCommandNewInstanceWithArgs<TState = undefined> = ( new ( args: DCommandRegisterArgs ) => CommandBase<TState> );
 
+/**
+ * Handle returned by scoped hook registration, allowing precise unsubscription
+ * of the listener that was added by a specific owner.
+ */
+export interface DCommandHookHandle {
+    componentNameUnique: string;
+    commandName: string;
+    ownerId: string;
+    dispose: () => void;
+}
+

@@ -10,7 +10,7 @@ export function Info( props: {
     const { width = 12, height = 12, color = "99A4C2" } = props;
 
     return (
-        <>
+        <div className="info">
             { props.children && <span className="info-label">{ props.children }</span> }
             <span className="info-icon">
                 <svg width={ width } height={ height } viewBox={ `0 0 ${ width } ${ height }` } fill="none"
@@ -20,6 +20,6 @@ export function Info( props: {
                       fill={`#${ color }`}/>
                 </svg>
             </span>
-        </>
+        </div>
     );
 }

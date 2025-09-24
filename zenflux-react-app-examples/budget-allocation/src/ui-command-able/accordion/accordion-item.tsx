@@ -10,7 +10,7 @@ import { UIThemeAccordionItem } from "@zenflux/react-ui/src/accordion/ui-theme-a
 
 import { AccordionItemMenu } from "@zenflux/app-budget-allocation/src/ui-command-able/accordion/accordion-item-menu";
 
-import type { CommandFunctionComponent } from "@zenflux/react-commander/types";
+import type { DCommandFunctionComponent } from "@zenflux/react-commander/definitions";
 
 import type { UIThemeAccordionItemProps } from "@zenflux/react-ui/src/accordion/ui-theme-accordion-types";
 
@@ -150,7 +150,7 @@ const AccordionItemEditableTitle = React.forwardRef<HTMLSpanElement, Omit<Accord
     </span>;
 });
 
-const AccordionItem: CommandFunctionComponent<AccordionItemProps> = ( props ) => {
+const AccordionItem: DCommandFunctionComponent<AccordionItemProps> = ( props ) => {
     const { itemKey, heading = {}, menu = {} } = props;
 
     const onAction = ( key: React.Key ) => {

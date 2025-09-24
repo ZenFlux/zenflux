@@ -17,9 +17,9 @@ import * as commands from "@zenflux/app-budget-allocation/src/components/channel
 
 import type { ChannelItemPropsAccordion, ChannelState } from "@zenflux/app-budget-allocation/src/components/channel/channel-types";
 
-import type { CommandFunctionComponent } from "@zenflux/react-commander/types";
+import type { DCommandFunctionComponent } from "@zenflux/react-commander/definitions";
 
-export const ChannelItemAccordion: CommandFunctionComponent<ChannelItemPropsAccordion, ChannelState> = () => {
+export const ChannelItemAccordion: DCommandFunctionComponent<ChannelItemPropsAccordion, ChannelState> = () => {
     const [ getState ] = useCommanderState<ChannelState>( "App/ChannelItem" );
 
     const { frequency, baseline, allocation } = getState();
@@ -32,10 +32,10 @@ export const ChannelItemAccordion: CommandFunctionComponent<ChannelItemPropsAcco
                 <ChannelBudgetAllocation allocation={ allocation }/>
             </div>
 
-            <div className="channel-budget-breakdowns">
+            <div className="channel-budget-breakdowns mt-[50px] p-[24px] min-w-[1200px] min-h-[300px] bg-[#F5F6FA] bg-gradient-to-r from-[50%] to-[#B2BBD580] rounded border border-slate-300 border-opacity-50">
                 <div className="header">
                     <p className="fs-2">Budget Breakdown</p>
-                    <p className="description">By default, your budget will be equally divided throughout the year. You
+                    <p className="description text-slate-400 text-sm leading-[21px] font-thin">By default, your budget will be equally divided throughout the year. You
                         can manually change the budget allocation, either now or later.</p>
 
                     <ChannelBreakdowns/>

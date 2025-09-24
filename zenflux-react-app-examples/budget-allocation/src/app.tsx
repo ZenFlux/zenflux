@@ -1,14 +1,12 @@
 import React, { useEffect } from "react";
 
-import { Tab, Tabs } from "@nextui-org/tabs";
-
-import { NextUIProvider } from "@nextui-org/system";
-import { Button } from "@nextui-org/button";
-
 import { API } from "@zenflux/react-api/src";
-import commandsManager from "@zenflux/react-commander/commands-manager";
 
-import { useAnyComponentCommands } from "@zenflux/react-commander/use-commands";
+import { useCommandHook, useCommandRunner } from "@zenflux/react-commander/use-commands";
+
+import { Tab, Tabs } from "@zenflux/app-budget-allocation/src/components/ui/tabs";
+
+import { Button } from "@zenflux/app-budget-allocation/src/components/ui/button";
 
 import Layout from "@zenflux/app-budget-allocation/src/ui-layout/layout";
 
@@ -18,8 +16,6 @@ import AddChannel from "@zenflux/app-budget-allocation/src/components/add-channe
 
 import "@zenflux/app-budget-allocation/src/app.scss";
 
-// eslint-disable-next-line import/order
-import "@zenflux/app-budget-allocation/src/api/api-fake-data";
 import type { LayoutProps } from "@zenflux/app-budget-allocation/src/ui-layout/layout";
 
 const BudgetAllocation = React.lazy( () => import( "@zenflux/app-budget-allocation/src/budget-allocation" ) ),
@@ -46,34 +42,24 @@ function App() {
 
     const [ selectedTab, setSelectedTab ] = React.useState( location.hash.replace( "#", "" ) );
 
-    useEffect( () => {
-        const addChannel = useAnyComponentCommands( "App/AddChannel" )[ 0 ],
-            addChannelId = {
-                commandName: "App/AddChannel",
-                componentName: "App/AddChannel",
-                componentNameUnique: addChannel.componentNameUnique,
-            };
+    const runAddChannel = useCommandRunner( "App/AddChannel" );
 
+    useEffect( () => {
         if ( location.hash === "#allocation/add-channel" ) {
             location.hash = "#allocation";
             setSelectedTab( "allocation" );
 
             setTimeout( () => {
-                commandsManager.run( addChannelId, {} );
+                runAddChannel( {} );
             }, 1000 );
-        } else if ( location.hash === "#overview" ) {
-            commandsManager.hook( addChannelId, () => {
-                commandsManager.unhookWithinComponent( addChannelId.componentNameUnique );
-
-                location.hash = "#allocation/add-channel";
-
-                setSelectedTab( "allocation" );
-            } );
-        } else {
-            commandsManager.unhookWithinComponent( addChannelId.componentNameUnique );
         }
-
     }, [ location.hash ] );
+
+    useCommandHook( "App/AddChannel", () => {
+        location.hash = "#allocation/add-channel";
+
+        setSelectedTab( "allocation" );
+    } );
 
     const items = [
         { id: "allocation", title: "Budget Allocation", content: <LazyLoader ContentComponent={ BudgetAllocation }/> },
@@ -99,7 +85,7 @@ function App() {
     };
 
     return (
-        <NextUIProvider>
+        <>
             <Button onClick={ () => {
                 // Do not let the rescue callback to run
                 window.onbeforeunload = null;
@@ -107,7 +93,7 @@ function App() {
                 localStorage.clear();
                 location.reload();
             } } className="absolute top-0 right-0 border-none" variant="bordered" disableAnimation={ true }
-                    radius={ "none" }>Reset Demo</Button>
+            radius={ "none" }>Reset Demo</Button>
 
             <Layout { ... layoutProps }>
                 <Tabs { ... tabsProps }> {
@@ -119,7 +105,7 @@ function App() {
                 }
                 </Tabs>
             </Layout>
-        </NextUIProvider>
+        </>
     );
 }
 

@@ -2,12 +2,12 @@ import React from "react";
 
 import moment from "moment";
 
-import { Input } from "@nextui-org/input";
-
 import { ArrowSkinnyRight, Pencil, Save, Cancel } from "@zenflux/react-ui/src/symbols";
 
 import { withCommands } from "@zenflux/react-commander/with-commands";
 import { useCommanderState, useCommanderComponent } from "@zenflux/react-commander/use-commands";
+
+import { Input } from "@zenflux/app-budget-allocation/src/components/ui/input";
 
 import { formatNumericStringToFraction } from "@zenflux/app-budget-allocation/src/utils";
 
@@ -20,9 +20,9 @@ import * as commands from "@zenflux/app-budget-allocation/src/components/channel
 import "@zenflux/app-budget-allocation/src/components/channel/_channel-item-table.scss";
 
 import type { ChannelItemProps, ChannelState } from "@zenflux/app-budget-allocation/src/components/channel/channel-types";
-import type { InputProps } from "@nextui-org/input";
+import type { InputProps } from "@zenflux/app-budget-allocation/src/components/ui/input";
 
-import type { CommandFunctionComponent } from "@zenflux/react-commander/types";
+import type { DCommandFunctionComponent } from "@zenflux/react-commander/definitions";
 
 declare global {
     interface Math {
@@ -30,7 +30,7 @@ declare global {
     }
 }
 
-export const ChannelItemTable: CommandFunctionComponent<ChannelItemProps, ChannelState> = ( props ) => {
+export const ChannelItemTable: DCommandFunctionComponent<ChannelItemProps, ChannelState> = ( props ) => {
     const [ getState, _setState , isMounted ] = useCommanderState<ChannelState>( "App/ChannelItem" ),
         state = getState();
 
@@ -145,37 +145,32 @@ export const ChannelItemTable: CommandFunctionComponent<ChannelItemProps, Channe
 
                         disabled,
 
-                        variant: "flat",
-
                         onChange: ( event ) => {
                             ! disabled && setBreakdown( index, event.target.value );
                         },
-
-                        endContent: ( <span className="control-area">
-                            <Pencil onClick={ () => {
-                                const newIsEditing = [ ... isEditing ];
-
-                                newIsEditing[ index ] = ! isEditing[ index ];
-
-                                setIsEditing( newIsEditing );
-                            } }/>
-
-                            <Save onClick={ () => {
-                                setBreakdown( index, cloneState.breaks![ index ].value, true );
-                            } }/>
-
-                            <Cancel onClick={ () => {
-                                setBreakdown( index, state.breaks![ index ].value, true );
-                            } }/>
-
-                        </span> ),
 
                         value: formatNumericStringToFraction( budgetBreak.value ),
                     };
 
                     return (
                         <div key={ index } className="channel-item-table-budget" data-disabled={ disabled }>
-                            <Input { ... inputProps }/>
+                            <div className="trigger">
+                                <span className="currency-sign">$</span>
+                                <Input { ... inputProps } />
+                            </div>
+                            <span className="control-area">
+                                <Pencil onClick={ () => {
+                                    const newIsEditing = [ ... isEditing ];
+                                    newIsEditing[ index ] = ! isEditing[ index ];
+                                    setIsEditing( newIsEditing );
+                                } }/>
+                                <Save onClick={ () => {
+                                    setBreakdown( index, cloneState.breaks![ index ].value, true );
+                                } }/>
+                                <Cancel onClick={ () => {
+                                    setBreakdown( index, state.breaks![ index ].value, true );
+                                } }/>
+                            </span>
                         </div>
                     );
                 } ) }
@@ -185,13 +180,13 @@ export const ChannelItemTable: CommandFunctionComponent<ChannelItemProps, Channe
 };
 
 const $$ = withCommands<ChannelItemProps, ChannelState>( "App/ChannelItem", ChannelItemTable, {
-        frequency: "annually",
-        baseline: "0",
-        allocation: "equal",
-        breaks: [],
-    }, [
-        commands.SetBreakdown,
-    ]
+    frequency: "annually",
+    baseline: "0",
+    allocation: "equal",
+    breaks: [],
+}, [
+    commands.SetBreakdown,
+]
 );
 
 export default $$;

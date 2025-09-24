@@ -1,8 +1,8 @@
 import React from "react";
 
-import { Dropdown, DropdownTrigger, DropdownMenu, DropdownItem } from "@nextui-org/dropdown";
-
 import { ThreeDots } from "@zenflux/react-ui/src/symbols";
+
+import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem } from "@zenflux/app-budget-allocation/src/components/ui/dropdown-menu";
 
 import "@zenflux/app-budget-allocation/src/ui-command-able/accordion/_accordion-item-menu.scss";
 
@@ -13,15 +13,15 @@ const AccordionDropdownTrigger: React.FC<{
     onMouseEnter: () => void,
     onMouseLeave: () => void
 }> = ( { onPointerUp, onMouseEnter, onMouseLeave } ) => (
-        <DropdownTrigger
-                onPointerUp={ onPointerUp }
-                onMouseEnter={ onMouseEnter }
-                onMouseLeave={ onMouseLeave }
-        >
-            <span>
-                <ThreeDots className="menu-trigger"/>
-            </span>
-        </DropdownTrigger>
+    <DropdownMenuTrigger
+        onPointerUp={ onPointerUp }
+        onMouseEnter={ onMouseEnter }
+        onMouseLeave={ onMouseLeave }
+    >
+        <span>
+            <ThreeDots className="menu-trigger"/>
+        </span>
+    </DropdownMenuTrigger>
 );
 
 const AccordionDropdownMenu: React.FC<{
@@ -31,24 +31,21 @@ const AccordionDropdownMenu: React.FC<{
     menuItems: NonNullable<AccordionItemProps[ "menu" ]>
 }> = ( { onMouseEnter, onMouseLeave, onAction, menuItems } ) => {
     return (
-            <DropdownMenu
-                    onMouseEnter={ onMouseEnter }
-                    onMouseLeave={ onMouseLeave }
-                    onAction={ onAction }
-                    aria-label={ "accordion-item-menu" }
-            >
-                { Object.entries( menuItems ).map( ( [ key, { label, color } ] ) => (
-                        <DropdownItem
-                                key={ key }
-                                color={ color ?? "default" }
-                                className={ color ? "text-${color}" : "" }
-                                ria-label={ "accordion-item-menu-dropdown" }
-                                onPointerUp={ onMouseLeave }
-                        >
-                            { label }
-                        </DropdownItem>
-                ) ) }
-            </DropdownMenu>
+        <DropdownMenuContent
+            onMouseEnter={ onMouseEnter }
+            onMouseLeave={ onMouseLeave }
+            aria-label={ "accordion-item-menu" }
+        >
+            { Object.entries( menuItems ).map( ( [ key, { label, color } ] ) => (
+                <DropdownMenuItem
+                    key={ key }
+                    className={ color ? `text-${color}` : "" }
+                    onSelect={ () => onAction( key ) }
+                >
+                    { label }
+                </DropdownMenuItem>
+            ) ) }
+        </DropdownMenuContent>
     );
 };
 
@@ -98,18 +95,18 @@ export function AccordionItemMenu( args: {
     };
 
     return (
-            <Dropdown isOpen={ isOpen }>
-                <AccordionDropdownTrigger
-                        onPointerUp={ handlePointerUp }
-                        onMouseEnter={ handleMouseEnter }
-                        onMouseLeave={ handleMouseLeave }
-                />
-                <AccordionDropdownMenu
-                        onMouseEnter={ () => handleMouseEnter( true ) }
-                        onMouseLeave={ () => setIsOpen( false ) }
-                        onAction={ onAction }
-                        menuItems={ menuItems }
-                />
-            </Dropdown>
+        <DropdownMenu open={ isOpen } onOpenChange={ setIsOpen }>
+            <AccordionDropdownTrigger
+                onPointerUp={ handlePointerUp }
+                onMouseEnter={ handleMouseEnter }
+                onMouseLeave={ handleMouseLeave }
+            />
+            <AccordionDropdownMenu
+                onMouseEnter={ () => handleMouseEnter( true ) }
+                onMouseLeave={ () => setIsOpen( false ) }
+                onAction={ onAction }
+                menuItems={ menuItems }
+            />
+        </DropdownMenu>
     );
 }

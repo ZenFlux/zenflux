@@ -1,14 +1,13 @@
-import React from "react";
-
-import { ButtonGroup, Button } from "@nextui-org/button";
-
 import { useCommanderCommand } from "@zenflux/react-commander/use-commands";
 
 import { Info } from "@zenflux/react-ui/src/symbols";
 
+import ButtonGroup from "@zenflux/app-budget-allocation/src/components/ui/button-group";
+import { Button } from "@zenflux/app-budget-allocation/src/components/ui/button";
+
 import { UpdateSource } from "@zenflux/app-budget-allocation/src/components/channel/channel-types";
 
-import type { ButtonProps } from "@nextui-org/button";
+import type { ButtonProps } from "@zenflux/app-budget-allocation/src/components/ui/button";
 
 import type {
     BudgetAllocationType,
@@ -24,10 +23,8 @@ export function getChannelBudgetAllocationLabel( budgetAllocation: BudgetAllocat
     return DEFAULT_BUDGET_ALLOCATIONS[ budgetAllocation ];
 }
 
-const DEFAULT_PROPS: ButtonProps = {
-    className: "button",
-    variant: "ghost",
-    radius: "none"
+const DEFAULT_PROPS: Partial<ButtonProps> = {
+    className: "button"
 };
 
 export function ChannelBudgetAllocationButton( props: ButtonProps & {
@@ -55,7 +52,7 @@ export function ChannelBudgetAllocation( props: ChannelBudgetAllocationProps ) {
     return (
         <div className="channel-budget-allocation">
             <Info>Budget Allocation</Info>
-            <ButtonGroup className="button-group">
+            <ButtonGroup variant="flat" className="button-group">
                 { Object.keys( DEFAULT_BUDGET_ALLOCATIONS ).map( ( key ) => (
                     <ChannelBudgetAllocationButton
                         key={ key }

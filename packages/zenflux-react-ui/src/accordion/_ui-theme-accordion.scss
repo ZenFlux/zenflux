@@ -11,7 +11,7 @@
     @apply ps-2 pe-2;
 
     /* Add bottom border only for last child of heading */
-    @apply [&>*:last-child]:border-b-1;
+    @apply [&>*:last-child]:border-b;
 }
 
 .accordion-content-container {
@@ -78,7 +78,6 @@
         }
 
         .accordion-title {
-            @apply text-medium;
             @apply font-medium;
             @apply text-base;
         }

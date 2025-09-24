@@ -3,13 +3,34 @@
  */
 import util from "node:util";
 import process from "node:process";
+import path from "node:path";
+import fs from "node:fs";
+import os from "node:os";
 
 import { ConsoleManager } from "@zenflux/cli/src/managers/console-manager";
 
 import packageJSON from "@zenflux/cli/package.json" assert { type: "json" };
 
+function ensureZenfluxConfigDirectory() {
+    const zConfigDir = path.resolve( os.homedir(), ".z" );
+
+    if ( ! fs.existsSync( zConfigDir ) ) {
+        ConsoleManager.$.log( `Creating .z config directory at: '${ zConfigDir }'` );
+
+        try {
+            fs.mkdirSync( zConfigDir, { recursive: true } );
+        } catch {
+            // If we can't create the directory, we'll let the error be handled later
+            // This ensures the CLI doesn't fail on permission issues
+        }
+    }
+}
+
 export default async function boot( args = process.argv.slice( 2 ) ) {
     ConsoleManager.$.log( `(${ packageJSON.name }~v${ packageJSON.version }) Starting...`);
+
+    // Ensure .z config directory exists
+    ensureZenfluxConfigDirectory();
 
     const commands = {
         "@watch": {

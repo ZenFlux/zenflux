@@ -30,8 +30,8 @@ export function ComponentIdProvider(props: {
 }) {
     const { children, context } = props;
     return (
-            <ComponentIdContext.Provider value={context}>
-                {children}
-            </ComponentIdContext.Provider>
+        <ComponentIdContext.Provider value={context}>
+            {children}
+        </ComponentIdContext.Provider>
     );
 }

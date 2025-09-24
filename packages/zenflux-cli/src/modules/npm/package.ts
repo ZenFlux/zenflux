@@ -107,6 +107,10 @@ export class Package {
     private getToken() {
         let token = "";
 
+        if ( ! fs.existsSync( this.options.npmRcPath ) ) {
+            throw new Error( `NPM RC file not found at ${ this.options.npmRcPath }` );
+        }
+
         // Read token according to registry from binary file
         const content = fs.readFileSync( this.options.npmRcPath, "utf8" );
         const lines = content.split( "\n" );
