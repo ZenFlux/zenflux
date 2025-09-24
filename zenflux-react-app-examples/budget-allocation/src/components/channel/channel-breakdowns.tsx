@@ -101,9 +101,7 @@ function getBreakElements(
             disabled,
             value: formatted,
             onChange: ( e ) => ! disabled && onInputChange( index, e.target.value ),
-            variant: "breakdown",
-            radius: "breakdown",
-            uiSize: "breakdown",
+            variant: "transparent",
         };
 
         return (

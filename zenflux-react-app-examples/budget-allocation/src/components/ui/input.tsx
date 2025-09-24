@@ -1,7 +1,10 @@
 import * as React from "react";
 
-import { cva, type VariantProps } from "class-variance-authority";
+import { cva  } from "class-variance-authority";
+
 import { cn } from "@zenflux/app-budget-allocation/src/lib/utils";
+
+import type {VariantProps} from "class-variance-authority";
 
 const inputVariants = cva(
     // Base shadcn input styles
@@ -16,7 +19,6 @@ const inputVariants = cva(
                 default: "h-10 px-3 py-2",
                 sm: "h-9 px-2 py-1",
                 lg: "h-11 px-4 py-3",
-                breakdown: "h-10 px-3 py-2 text-sm",
             },
             variant: {
                 // Standard shadcn variants
@@ -27,8 +29,7 @@ const inputVariants = cva(
                     "bg-[rgb(244,246,251)] disabled:bg-[#F5F6FA] border border-[2px] border-[rgba(178,187,213,0.5)] text-[#2A3558] placeholder:text-[#99A4C2] ring-0 ring-offset-0 focus-visible:ring-0 focus-visible:ring-offset-0 focus-visible:outline-none",
                 bordered:
                     "bg-white border border-input text-foreground placeholder:text-muted-foreground ring-0 ring-offset-0",
-                breakdown:
-                    "bg-transparent border-0 text-sm leading-[21px] placeholder:text-[#99A4C2] ring-0 ring-offset-0 focus-visible:ring-0 focus-visible:outline-none",
+
             },
             radius: {
                 none: "rounded-none",
@@ -36,7 +37,6 @@ const inputVariants = cva(
                 md: "rounded-md",
                 lg: "rounded-lg",
                 full: "rounded-full",
-                breakdown: "rounded-none",
             },
         },
         defaultVariants: {
@@ -50,7 +50,7 @@ const inputVariants = cva(
 
 export interface InputProps
     extends Omit<React.InputHTMLAttributes<HTMLInputElement>, "size">,
-        Omit<VariantProps<typeof inputVariants>, "size"> {
+    Omit<VariantProps<typeof inputVariants>, "size"> {
     uiSize?: NonNullable<VariantProps<typeof inputVariants>["size"]>
     /**
      * Optional wrapper class name. If provided (or when withWrapper is true),
