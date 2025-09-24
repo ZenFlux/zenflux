@@ -1,11 +1,8 @@
-import { nextui } from "@nextui-org/theme";
-
 /** @type {import('tailwindcss').Config} */
 module.exports = {
     content: [
         "./index.html",
         "./src/**/*.{js,ts,jsx,tsx}",
-        "../../node_modules/@nextui-org/theme/dist/**/*.{js,ts,jsx,tsx}",
     ],
     theme: {
         extend: {
@@ -43,11 +40,20 @@ module.exports = {
                     DEFAULT: "hsl(var(--card))",
                     foreground: "hsl(var(--card-foreground))",
                 },
+                // Production-specific colors
+                default: {
+                    DEFAULT: "rgba(178, 187, 213, 0.36)",
+                    100: "rgba(178, 187, 213, 0.1)",
+                },
             },
             borderRadius: {
                 lg: "var(--radius)",
                 md: "calc(var(--radius) - 2px)",
                 sm: "calc(var(--radius) - 4px)",
+                none: "0",
+                allocation: "0",
+                allocationFirst: "6px 0 0 6px",
+                allocationLast: "0 6px 6px 0",
             },
             animation: {
                 'appearance-in': 'appearance-in 0.3s ease-in-out',
@@ -60,6 +66,6 @@ module.exports = {
             },
         },
     },
-    plugins: [nextui()],
+    plugins: [],
     darkMode: "class",
 };

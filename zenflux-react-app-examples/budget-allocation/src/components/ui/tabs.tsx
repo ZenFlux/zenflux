@@ -145,7 +145,6 @@ const TabsContent = React.forwardRef<
 ));
 TabsContent.displayName = TabsPrimitive.Content.displayName;
 
-// NextUI-compatible Tab component
 interface TabProps {
     key?: string;
     title: string;

@@ -48,27 +48,28 @@ const inputVariants = cva(
     }
 );
 
-export interface InputProps
-    extends Omit<React.InputHTMLAttributes<HTMLInputElement>, "size">,
-    Omit<VariantProps<typeof inputVariants>, "size"> {
-    uiSize?: NonNullable<VariantProps<typeof inputVariants>["size"]>
-    /**
-     * Optional wrapper class name. If provided (or when withWrapper is true),
-     * the input is wrapped in a div that mimics the legacy `.input-wrapper` and `.trigger` styles.
-     */
+type InputPropsBase = Omit<React.InputHTMLAttributes<HTMLInputElement>, "size"> & VariantProps<typeof inputVariants>;
+
+type InputPropsWithWrapper = InputPropsBase & {
+    withWrapper: true;
     wrapper?: string;
     wrapperClassName?: string;
-    /** When true, render an outer wrapper with production-like border/height and disabled bg */
-    withWrapper?: boolean;
-    width?: NonNullable<VariantProps<typeof inputVariants>["width"]>;
-}
+};
+
+type InputPropsWithoutWrapper = InputPropsBase & {
+    withWrapper?: false;
+    wrapper?: never;
+    wrapperClassName?: never;
+};
+
+export type InputProps = InputPropsWithWrapper | InputPropsWithoutWrapper;
 
 const Input = React.forwardRef<HTMLInputElement, InputProps>(
-    ({ className, type = "text", uiSize, variant, radius, width, wrapper, wrapperClassName, withWrapper, disabled, ...props }, ref) => {
+    ({ className, type = "text", size, variant, radius, width, wrapper, wrapperClassName, withWrapper, disabled, ...props }, ref) => {
         const inputElement = (
             <input
                 type={ type }
-                className={ cn(inputVariants({ size: uiSize, variant, radius, width }), className) }
+                className={ cn(inputVariants({ size, variant, radius, width }), className) }
                 ref={ ref }
                 disabled={ disabled }
                 { ...props }

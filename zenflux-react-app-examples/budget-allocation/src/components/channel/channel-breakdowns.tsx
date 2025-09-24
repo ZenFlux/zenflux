@@ -109,7 +109,7 @@ function getBreakElements(
                 <div className="label">{ label }</div>
                 <div className="trigger">
                     <span className="currency-sign">$</span>
-                    <Input { ... inputProps } className={ `${ inputProps.className || "" }` } />
+                    <Input { ... inputProps } />
                 </div>
             </div>
         );

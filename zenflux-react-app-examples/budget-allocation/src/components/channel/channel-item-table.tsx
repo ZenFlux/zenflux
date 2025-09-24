@@ -2,12 +2,12 @@ import React from "react";
 
 import moment from "moment";
 
-import { Input } from "@zenflux/app-budget-allocation/src/components/ui/input";
-
 import { ArrowSkinnyRight, Pencil, Save, Cancel } from "@zenflux/react-ui/src/symbols";
 
 import { withCommands } from "@zenflux/react-commander/with-commands";
 import { useCommanderState, useCommanderComponent } from "@zenflux/react-commander/use-commands";
+
+import { Input } from "@zenflux/app-budget-allocation/src/components/ui/input";
 
 import { formatNumericStringToFraction } from "@zenflux/app-budget-allocation/src/utils";
 
@@ -156,7 +156,7 @@ export const ChannelItemTable: DCommandFunctionComponent<ChannelItemProps, Chann
                         <div key={ index } className="channel-item-table-budget" data-disabled={ disabled }>
                             <div className="trigger">
                                 <span className="currency-sign">$</span>
-                                <Input { ... inputProps }/>
+                                <Input { ... inputProps } />
                             </div>
                             <span className="control-area">
                                 <Pencil onClick={ () => {
@@ -180,13 +180,13 @@ export const ChannelItemTable: DCommandFunctionComponent<ChannelItemProps, Chann
 };
 
 const $$ = withCommands<ChannelItemProps, ChannelState>( "App/ChannelItem", ChannelItemTable, {
-        frequency: "annually",
-        baseline: "0",
-        allocation: "equal",
-        breaks: [],
-    }, [
-        commands.SetBreakdown,
-    ]
+    frequency: "annually",
+    baseline: "0",
+    allocation: "equal",
+    breaks: [],
+}, [
+    commands.SetBreakdown,
+]
 );
 
 export default $$;

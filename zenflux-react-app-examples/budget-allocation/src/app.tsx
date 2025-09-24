@@ -4,8 +4,6 @@ import { API } from "@zenflux/react-api/src";
 
 import { useCommandHook, useCommandRunner } from "@zenflux/react-commander/use-commands";
 
-import { NextUIProvider } from "@nextui-org/system";
-
 import { Tab, Tabs } from "@zenflux/app-budget-allocation/src/components/ui/tabs";
 
 import { Button } from "@zenflux/app-budget-allocation/src/components/ui/button";
@@ -87,7 +85,7 @@ function App() {
     };
 
     return (
-        <NextUIProvider>
+        <>
             <Button onClick={ () => {
                 // Do not let the rescue callback to run
                 window.onbeforeunload = null;
@@ -107,7 +105,7 @@ function App() {
                 }
                 </Tabs>
             </Layout>
-        </NextUIProvider>
+        </>
     );
 }
 
