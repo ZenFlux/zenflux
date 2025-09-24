@@ -48,7 +48,9 @@ const inputVariants = cva(
     }
 );
 
-type InputPropsBase = Omit<React.InputHTMLAttributes<HTMLInputElement>, "size"> & VariantProps<typeof inputVariants>;
+type InputPropsBase = Omit<React.InputHTMLAttributes<HTMLInputElement>, "size"> & VariantProps<typeof inputVariants> & {
+    withWrapper?: boolean;
+};
 
 type InputPropsWithWrapper = InputPropsBase & {
     withWrapper: true;
@@ -57,7 +59,7 @@ type InputPropsWithWrapper = InputPropsBase & {
 };
 
 type InputPropsWithoutWrapper = InputPropsBase & {
-    withWrapper?: false;
+    withWrapper: false;
     wrapper?: never;
     wrapperClassName?: never;
 };

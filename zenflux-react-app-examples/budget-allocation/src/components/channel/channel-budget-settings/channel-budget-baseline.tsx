@@ -19,12 +19,12 @@ import type {
 
 import type { InputProps } from "@zenflux/app-budget-allocation/src/components/ui/input";
 
-const DEFAULT_PROPS: Partial<InputProps> = {
+const DEFAULT_PROPS = {
     type: "text",
     variant: "flat",
     radius: "none",
     withWrapper: false,
-};
+} as const;
 
 export function ChannelBudgetBaseline( props: ChannelBudgetBaselineProps ) {
     const { frequency, allocation, baseline } = props;
