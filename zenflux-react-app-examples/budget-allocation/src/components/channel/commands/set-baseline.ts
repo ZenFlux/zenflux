@@ -2,14 +2,14 @@ import { formatNumericStringWithCommas } from "@zenflux/app-budget-allocation/sr
 
 import { CommandBudgetBase } from "@zenflux/app-budget-allocation/src/components/channel/commands/command-budget-base";
 
-import type { CommandArgs } from "@zenflux/react-commander/types";
+import type { DCommandArgs } from "@zenflux/react-commander/definitions";
 
 export class SetBaseline extends CommandBudgetBase {
     public static getName() {
         return "App/ChannelItem/SetBaseline";
     }
 
-    protected async apply( args: CommandArgs ) {
+    protected async apply( args: DCommandArgs ) {
         const { value } = args;
 
         const formatted = formatNumericStringWithCommas( value );
