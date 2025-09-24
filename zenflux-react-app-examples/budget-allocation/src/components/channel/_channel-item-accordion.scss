@@ -70,21 +70,14 @@
                 }
 
                 .currency-sign {
-                    @apply pl-[12px] pr-[6px] text-[14px] leading-[24px];
+                    @apply pl-[12px] pr-[0px] text-[14px] leading-[24px];
                     @apply text-black;
+                    @apply relative left-[5px]
                 }
 
                 .trigger {
                     @apply flex items-center bg-white w-[160px] h-10;
                     @apply border-[2px] rounded-[0px];
-
-
-                    input {
-                        @apply flex-1 h-full bg-transparent border-0 outline-none ring-0 ring-offset-0;
-                        @apply text-sm leading-[21px] placeholder:text-[#99A4C2];
-                        @apply text-left;
-                        padding: 0 12px 0 0; /* left padding covered by currency */
-                    }
                 }
                 
                 /* Editable input (Manual) */

@@ -4,8 +4,8 @@ import { cva, type VariantProps } from "class-variance-authority";
 import { cn } from "@zenflux/app-budget-allocation/src/lib/utils";
 
 const inputVariants = cva(
-    // Base reset and accessibility
-    "flex text-sm file:border-0 file:bg-transparent file:text-sm file:font-medium focus-visible:outline-none disabled:cursor-not-allowed",
+    // Base shadcn input styles
+    "flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50",
     {
         variants: {
             width: {
@@ -13,19 +13,22 @@ const inputVariants = cva(
                 auto: "w-auto",
             },
             size: {
-                default: "h-[36px] leading-[20px] px-3",
-                sm: "h-8 leading-[18px] px-2",
-                lg: "h-11 leading-[22px] px-4",
+                default: "h-10 px-3 py-2",
+                sm: "h-9 px-2 py-1",
+                lg: "h-11 px-4 py-3",
+                breakdown: "h-10 px-3 py-2 text-sm",
             },
             variant: {
-                // Transparent, borderless – useful for inline currency inputs
-                transparent: "bg-transparent border-0 ring-0 ring-offset-0",
-                // Flat, subtle background and soft border – closer to production baseline
+                // Standard shadcn variants
+                default: "border-input bg-background text-foreground",
+                // Production-specific variants
+                transparent: "bg-transparent border-0 ring-0 ring-offset-0 focus-visible:ring-0 focus-visible:ring-offset-0 focus-visible:outline-none",
                 flat:
-                    "bg-[rgb(244,246,251)] disabled:bg-[#F5F6FA] border border-[2px] border-[rgba(178,187,213,0.5)] rounded-[4px] text-[#2A3558] placeholder:text-[#99A4C2] ring-0 ring-offset-0 focus-visible:ring-0 focus-visible:outline-none",
-                // Standard bordered input
+                    "bg-[rgb(244,246,251)] disabled:bg-[#F5F6FA] border border-[2px] border-[rgba(178,187,213,0.5)] text-[#2A3558] placeholder:text-[#99A4C2] ring-0 ring-offset-0 focus-visible:ring-0 focus-visible:ring-offset-0 focus-visible:outline-none",
                 bordered:
                     "bg-white border border-input text-foreground placeholder:text-muted-foreground ring-0 ring-offset-0",
+                breakdown:
+                    "bg-transparent border-0 text-sm leading-[21px] placeholder:text-[#99A4C2] ring-0 ring-offset-0 focus-visible:ring-0 focus-visible:outline-none",
             },
             radius: {
                 none: "rounded-none",
@@ -33,12 +36,13 @@ const inputVariants = cva(
                 md: "rounded-md",
                 lg: "rounded-lg",
                 full: "rounded-full",
+                breakdown: "rounded-none",
             },
         },
         defaultVariants: {
             width: "full",
             size: "default",
-            variant: "flat",
+            variant: "default",
             radius: "md",
         },
     }

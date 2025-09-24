@@ -2,9 +2,9 @@ import React from "react";
 
 import moment from "moment";
 
-import { Input } from "@zenflux/app-budget-allocation/src/components/ui/input";
-
 import { useCommanderComponent, useCommanderState } from "@zenflux/react-commander/use-commands";
+
+import { Input } from "@zenflux/app-budget-allocation/src/components/ui/input";
 
 import { DEFAULT_CHANNEL_BREAK_INPUT_PROPS } from "@zenflux/app-budget-allocation/src/components/channel/channel-constants.tsx";
 
@@ -101,9 +101,9 @@ function getBreakElements(
             disabled,
             value: formatted,
             onChange: ( e ) => ! disabled && onInputChange( index, e.target.value ),
-            variant: "transparent",
-            radius: "none",
-            uiSize: "default",
+            variant: "breakdown",
+            radius: "breakdown",
+            uiSize: "breakdown",
         };
 
         return (

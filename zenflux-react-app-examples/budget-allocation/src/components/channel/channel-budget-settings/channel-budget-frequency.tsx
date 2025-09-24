@@ -1,14 +1,10 @@
-import React from "react";
-
-import { Select, SelectItem } from "@zenflux/app-budget-allocation/src/components/ui/select";
-
 import { useCommanderCommand } from "@zenflux/react-commander/use-commands";
 
 import { Info } from "@zenflux/react-ui/src/symbols";
 
-import { UpdateSource } from "@zenflux/app-budget-allocation/src/components/channel/channel-types";
+import { Select, SelectItem } from "@zenflux/app-budget-allocation/src/components/ui/select";
 
-// Using local shadcn-based Select wrapper
+import { UpdateSource } from "@zenflux/app-budget-allocation/src/components/channel/channel-types";
 
 import type {
     ChannelBudgetFrequencyPossibleValues,
@@ -22,11 +18,10 @@ const DEFAULT_FREQUENCIES: Record<ChannelBudgetFrequencyPossibleValues, string> 
 };
 
 const DEFAULT_PROPS = {
+    variant: "flat",
     classNames: {
         base: "select",
         trigger: "trigger",
-        mainWrapper: "wrapper",
-        innerWrapper: "inner"
     },
     "aria-labelledby": "channel-budget-frequency-label",
 } as const;

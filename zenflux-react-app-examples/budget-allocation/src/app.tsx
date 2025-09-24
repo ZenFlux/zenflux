@@ -4,9 +4,10 @@ import { API } from "@zenflux/react-api/src";
 
 import { useCommandHook, useCommandRunner } from "@zenflux/react-commander/use-commands";
 
+import { NextUIProvider } from "@nextui-org/system";
+
 import { Tab, Tabs } from "@zenflux/app-budget-allocation/src/components/ui/tabs";
 
-import { NextUIProvider } from "@nextui-org/system";
 import { Button } from "@zenflux/app-budget-allocation/src/components/ui/button";
 
 import Layout from "@zenflux/app-budget-allocation/src/ui-layout/layout";
@@ -94,7 +95,7 @@ function App() {
                 localStorage.clear();
                 location.reload();
             } } className="absolute top-0 right-0 border-none" variant="bordered" disableAnimation={ true }
-                    radius={ "none" }>Reset Demo</Button>
+            radius={ "none" }>Reset Demo</Button>
 
             <Layout { ... layoutProps }>
                 <Tabs { ... tabsProps }> {
