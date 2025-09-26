@@ -20,7 +20,7 @@
     "workspaces": [
         "packages/*",
         "packages-react/*",
-        "zenflux-react-app-examples/*"
+        "apps-example/*"
     ],
     "scripts": {
         "@z-flux:eslint": "eslint .",
@@ -32,6 +32,9 @@
         "@z-flux:react-reconciler-dev": "@z-cli @watch --workspace react-reconciler --dev",
         "@z-flux:react:eslint:ci": "time ( bunx --bun eslint packages-react --cache --cache-strategy content )",
         "@z-flux:react:test:ci": "time ( @z-jest --ci --bail --selectedProjects react-test-renderer,react-cache,react-scheduler,internal-test-utils,react-reconciler )",
-        "@z-flux:react:build:ci": "time ( @z-cli @build --workspace \"react-*\" --haltOnDiagnosticError )"
+        "@z-flux:react:build:ci": "time ( @z-cli @build --workspace \"react-*\" --haltOnDiagnosticError )",
+
+        "@z-examples:budget-allocation:dev": "cd apps-example/budget-allocation && bun run demo-app:dev",
+        "@z-examples:budget-allocation-server:dev": "cd apps-example/budget-allocation-server && bun run start:dev"
     }
 }
