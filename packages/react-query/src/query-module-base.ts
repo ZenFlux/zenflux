@@ -1,3 +1,5 @@
+import { QueryRouterBase } from "@zenflux/react-query/src/query-router";
+
 import type { DCommandSingleComponentContext, DCommandFunctionComponent } from "@zenflux/react-commander/definitions";
 import type { QueryClient } from "@zenflux/react-query/src/query-client";
 import type { QueryComponent } from "@zenflux/react-query/src/query-component";
@@ -11,9 +13,15 @@ interface Route {
     }
 }
 
+class SimpleQueryRouter<T extends Record<string, unknown>> extends QueryRouterBase<T, QueryModuleBase> {
+    public constructor( api: QueryClient, resource: string, model: QueryModuleBase ) { super( api, resource, model ); }
+}
+
+// Rename to QueryModelBase
 export abstract class QueryModuleBase {
 
     protected api: QueryClient;
+    protected router: QueryRouterBase<Record<string, unknown>, QueryModuleBase>;
 
     private routes: Map<RequestInit["method"], Map<Route["path"], Route>> = new Map();
 
@@ -23,7 +31,10 @@ export abstract class QueryModuleBase {
 
     public constructor( api: QueryClient ) {
         this.api = api;
+        this.router = new SimpleQueryRouter<Record<string, unknown>>( api, this.getResourceName(), this );
     }
+
+    protected abstract getResourceName(): string;
 
     public onLoadInternal( component: QueryComponent, context: DCommandSingleComponentContext ) {
         this.load?.( component, context );
@@ -96,7 +107,5 @@ export abstract class QueryModuleBase {
         prevState: any,
         snapshot: any,
     } ): void;
-
-    // protected onStateUpdateExternal?( component: QueryComponent, context: DCommandSingleComponentContext, prevState: any, currentState: any ): void;
 }
 
