@@ -29,8 +29,8 @@
         "@types/react": "^18.2.37",
         "@types/react-dom": "^18.2.15",
         "@vitejs/plugin-react": "^4.2.0",
-        "@zenflux/react-api": "workspace:*",
         "@zenflux/react-commander": "workspace:*",
+        "@zenflux/react-query": "workspace:*",
         "autoprefixer": "^10.4.16",
         "bun-types": "latest",
         "eslint-plugin-react": "^7.33.2",
@@ -192,6 +192,17 @@
         "react": "^18.2.0",
       },
     },
+    "packages/react-query": {
+      "name": "@zenflux/react-query",
+      "version": "0.0.1-dev",
+      "dependencies": {
+        "@zenflux/react-commander": "workspace:*",
+      },
+      "peerDependencies": {
+        "react": "^18.2.0",
+        "react-dom": "^18.2.0",
+      },
+    },
     "packages/zenflux-cli": {
       "name": "@zenflux/cli",
       "version": "0.1.2",
@@ -274,17 +285,6 @@
       },
       "peerDependencies": {
         "@zenflux/core": "workspace:*",
-      },
-    },
-    "packages/zenflux-react-api": {
-      "name": "@zenflux/react-api",
-      "version": "0.0.1-dev",
-      "dependencies": {
-        "@zenflux/react-commander": "workspace:*",
-      },
-      "peerDependencies": {
-        "react": "^18.2.0",
-        "react-dom": "^18.2.0",
       },
     },
     "packages/zenflux-react-commander": {
@@ -1665,8 +1665,6 @@
 
     "@zenflux/logging": ["@zenflux/logging@workspace:packages/zenflux-logging"],
 
-    "@zenflux/react-api": ["@zenflux/react-api@workspace:packages/zenflux-react-api"],
-
     "@zenflux/react-cache": ["@zenflux/react-cache@workspace:packages-react/react-cache"],
 
     "@zenflux/react-commander": ["@zenflux/react-commander@workspace:packages/zenflux-react-commander"],
@@ -1678,6 +1676,8 @@
     "@zenflux/react-jest": ["@zenflux/react-jest@workspace:packages-react/react-jest"],
 
     "@zenflux/react-noop-renderer": ["@zenflux/react-noop-renderer@workspace:packages-react/react-noop-renderer"],
+
+    "@zenflux/react-query": ["@zenflux/react-query@workspace:packages/react-query"],
 
     "@zenflux/react-reconciler": ["@zenflux/react-reconciler@workspace:packages-react/react-reconciler"],
 

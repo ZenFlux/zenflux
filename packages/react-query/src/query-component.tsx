@@ -8,41 +8,41 @@ import {
     INTERNAL_PROPS
 } from "@zenflux/react-commander/constants";
 
-import { wrapPromiseSuspendable } from "@zenflux/react-api/src/api-utils";
+import { wrapPromiseSuspendable } from "@zenflux/react-query/src/query-utils";
 
-import type { APICore } from "@zenflux/react-api/src/api-core";
+import type { QueryClient } from "@zenflux/react-query/src/query-client";
 
-import type { APIModuleBase } from "@zenflux/react-api/src/api-module-base";
-import type { APIComponentProps } from "@zenflux/react-api/src/api-types";
+import type { QueryModuleBase } from "@zenflux/react-query/src/query-module-base";
+import type { QueryComponentProps } from "@zenflux/react-query/src/query-types";
 
-export class APIComponent extends React.PureComponent<APIComponentProps> {
-    private static api: APICore;
+export class QueryComponent extends React.PureComponent<QueryComponentProps> {
+    private static client: QueryClient;
 
-    private readonly api: APICore;
+    private readonly client: QueryClient;
 
-    private readonly apiModule: APIModuleBase;
+    private readonly queryModule: QueryModuleBase;
 
     private readonly element;
 
-    public static setAPI( api: APICore ) {
-        this.api = api;
+    public static setClient( query: QueryClient ) {
+        this.client = query;
     }
 
-    public constructor( props: APIComponentProps ) {
+    public constructor( props: QueryComponentProps ) {
         super( props );
 
-        this.api = ( this.constructor as typeof APIComponent ).api;
+        this.client = ( this.constructor as typeof QueryComponent ).client;
 
         if ( ! this.props.module ) {
-            throw new Error( "Parent <API.Component> should have 'module' prop" );
+            throw new Error( "Parent <Query.Component> should have 'module' prop" );
         }
 
-        this.apiModule = this.api.getModule( this.props.module );
+        this.queryModule = this.client.getModule( this.props.module );
 
         const chainProps = props.chainProps || {};
 
         this.element = async () => {
-            const props = await this.apiModule.getProps( this.props.type, this );
+            const props = await this.queryModule.getProps( this.props.type, this );
 
             return React.createElement( this.props.type, { ... props, ... chainProps } );
         };
@@ -50,7 +50,7 @@ export class APIComponent extends React.PureComponent<APIComponentProps> {
 
     public render() {
         if ( Array.isArray( this.props.children ) ) {
-            throw new Error( "API.Component should have only one child" );
+            throw new Error( "Query.Component should have only one child" );
         }
 
         const getComponentPromise = async () => {
@@ -59,7 +59,7 @@ export class APIComponent extends React.PureComponent<APIComponentProps> {
             const parent = await this.element();
 
             const children = await Promise.all( parent.props.children.map( async ( child: any ) => {
-                const childProps = await this.apiModule.getProps( child.type, this, child );
+                const childProps = await this.queryModule.getProps( child.type, this, child );
 
                 return React.createElement( childrenType, childProps );
             } ) );
@@ -83,10 +83,10 @@ export class APIComponent extends React.PureComponent<APIComponentProps> {
                 // Hooking lifecycle methods
                 [ INTERNAL_PROPS ]: {
                     handlers: {
-                        [ INTERNAL_ON_LOAD ]: ( context: any ) => this.apiModule.onLoadInternal( this, context ),
-                        [ INTERNAL_ON_MOUNT ]: ( context: any ) => this.apiModule.onMountInternal( this, context ),
-                        [ INTERNAL_ON_UNMOUNT ]: ( context: any ) => this.apiModule.onUnmountInternal( this, context ),
-                        [ INTERNAL_ON_UPDATE ]: ( context: any, state: any ) => this.apiModule.onUpdateInternal( this, context, state ),
+                        [ INTERNAL_ON_LOAD ]: ( context: any ) => this.queryModule.onLoadInternal( this, context ),
+                        [ INTERNAL_ON_MOUNT ]: ( context: any ) => this.queryModule.onMountInternal( this, context ),
+                        [ INTERNAL_ON_UNMOUNT ]: ( context: any ) => this.queryModule.onUnmountInternal( this, context ),
+                        [ INTERNAL_ON_UPDATE ]: ( context: any, state: any ) => this.queryModule.onUpdateInternal( this, context, state ),
                     }
                 }
             };

@@ -1,16 +1,16 @@
 import React, { useEffect } from "react";
 
-import { API } from "@zenflux/react-api/src";
+import { QueryClient } from "@zenflux/react-query/src/query-client.tsx";
 
 import { useCommandHook, useCommandRunner } from "@zenflux/react-commander/use-commands";
+
+import { APIChannelsModule } from "@zenflux/app-budget-allocation/src/api/api-channels-module.ts";
 
 import { Tab, Tabs } from "@zenflux/app-budget-allocation/src/components/ui/tabs";
 
 import { Button } from "@zenflux/app-budget-allocation/src/components/ui/button";
 
 import Layout from "@zenflux/app-budget-allocation/src/ui-layout/layout";
-
-import { APIChannelsModule } from "@zenflux/app-budget-allocation/src/api/api-channels-module";
 
 import AddChannel from "@zenflux/app-budget-allocation/src/components/add-channel/add-channel";
 
@@ -21,7 +21,9 @@ import type { LayoutProps } from "@zenflux/app-budget-allocation/src/ui-layout/l
 const BudgetAllocation = React.lazy( () => import( "@zenflux/app-budget-allocation/src/budget-allocation" ) ),
     BudgetOverview = React.lazy( () => import( "@zenflux/app-budget-allocation/src/budget-overview" ) );
 
-API.register( APIChannelsModule );
+const client = new QueryClient( "http://localhost:3002" );
+
+client.registerModule( APIChannelsModule );
 
 function LazyLoader( props: { ContentComponent: typeof BudgetAllocation | typeof BudgetOverview } ) {
     const { ContentComponent } = props;

@@ -1,6 +1,6 @@
 import type { DCommandSingleComponentContext, DCommandFunctionComponent } from "@zenflux/react-commander/definitions";
-import type { APICore } from "@zenflux/react-api/src/api-core";
-import type { APIComponent } from "@zenflux/react-api/src/api-component";
+import type { QueryClient } from "@zenflux/react-query/src/query-client";
+import type { QueryComponent } from "@zenflux/react-query/src/query-component";
 
 interface Route {
     path: string;
@@ -11,9 +11,9 @@ interface Route {
     }
 }
 
-export abstract class APIModuleBase {
+export abstract class QueryModuleBase {
 
-    protected api: APICore;
+    protected api: QueryClient;
 
     private routes: Map<RequestInit["method"], Map<Route["path"], Route>> = new Map();
 
@@ -21,27 +21,27 @@ export abstract class APIModuleBase {
         throw new Error( "Please extend APIModuleBase and implement static getName()" );
     }
 
-    public constructor( api: APICore ) {
+    public constructor( api: QueryClient ) {
         this.api = api;
     }
 
-    public onLoadInternal( component: APIComponent, context: DCommandSingleComponentContext ) {
+    public onLoadInternal( component: QueryComponent, context: DCommandSingleComponentContext ) {
         this.load?.( component, context );
     }
 
-    public onUnmountInternal( component: APIComponent, context: DCommandSingleComponentContext ) {
+    public onUnmountInternal( component: QueryComponent, context: DCommandSingleComponentContext ) {
         this.onUnmount?.( component, context );
     }
 
-        public onMountInternal( component: APIComponent, context: DCommandSingleComponentContext ) {
+    public onMountInternal( component: QueryComponent, context: DCommandSingleComponentContext ) {
         this.onMount?.( component, context );
     }
 
-    public onUpdateInternal( component: APIComponent, context: DCommandSingleComponentContext, state: any ) {
+    public onUpdateInternal( component: QueryComponent, context: DCommandSingleComponentContext, state: any ) {
         this.onUpdate?.( component, context, state );
     }
 
-    public async getProps( element: DCommandFunctionComponent, component: APIComponent, args?: any ) {
+    public async getProps( element: DCommandFunctionComponent, component: QueryComponent, args?: any ) {
         let componentName: string;
 
         componentName = element.getName!();
@@ -79,17 +79,17 @@ export abstract class APIModuleBase {
         this.routes.get( method )!.set( name, route );
     }
 
-    protected abstract responseHandler( component: APIComponent, element: DCommandFunctionComponent, response: Response ): Promise<any>;
+    protected abstract responseHandler( component: QueryComponent, element: DCommandFunctionComponent, response: Response ): Promise<any>;
 
-    protected abstract requestHandler( component: APIComponent, element: DCommandFunctionComponent, request: any ): Promise<any>;
+    protected abstract requestHandler( component: QueryComponent, element: DCommandFunctionComponent, request: any ): Promise<any>;
 
-    protected load?( component: APIComponent, context: DCommandSingleComponentContext ): void;
+    protected load?( component: QueryComponent, context: DCommandSingleComponentContext ): void;
 
-    protected onMount?( component: APIComponent, context: DCommandSingleComponentContext ): void;
+    protected onMount?( component: QueryComponent, context: DCommandSingleComponentContext ): void;
 
-    protected onUnmount?( component: APIComponent, context: DCommandSingleComponentContext ): void;
+    protected onUnmount?( component: QueryComponent, context: DCommandSingleComponentContext ): void;
 
-    protected onUpdate?( component: APIComponent, context: DCommandSingleComponentContext, state: {
+    protected onUpdate?( component: QueryComponent, context: DCommandSingleComponentContext, state: {
         currentProps: any,
         currentState: any,
         prevProps: any,
@@ -97,6 +97,6 @@ export abstract class APIModuleBase {
         snapshot: any,
     } ): void;
 
-    // protected onStateUpdateExternal?( component: APIComponent, context: DCommandSingleComponentContext, prevState: any, currentState: any ): void;
+    // protected onStateUpdateExternal?( component: QueryComponent, context: DCommandSingleComponentContext, prevState: any, currentState: any ): void;
 }
 

@@ -3,19 +3,19 @@
  */
 import commandsManager from "@zenflux/react-commander/commands-manager";
 
-import { APIModuleBase } from "@zenflux/react-api/src/api-module-base.ts";
+import { QueryModuleBase } from "@zenflux/react-query/src/query-module-base.ts";
 
 import { CHANNEL_LIST_STATE_DATA_WITH_META } from "@zenflux/app-budget-allocation/src/components/channel/channel-constants";
 
 import { pickEnforcedKeys } from "@zenflux/app-budget-allocation/src/utils";
 
-import type { APIComponent } from "@zenflux/react-api/src/api-component.tsx";
+import type { QueryComponent } from "@zenflux/react-query/src/query-component.tsx";
 
 import type { DCommandFunctionComponent, DCommandSingleComponentContext } from "@zenflux/react-commander/definitions";
 
-import type { APICore } from "@zenflux/react-api/src/api-core.tsx";
+import type { QueryClient } from "@zenflux/react-query/src/query-client.tsx";
 
-export class APIChannelsModule extends APIModuleBase {
+export class APIChannelsModule extends QueryModuleBase {
     private channelsItemState: Record<string, any> = {};
 
     private lastChannelsItemState: Record<string, any> = {};
@@ -24,8 +24,8 @@ export class APIChannelsModule extends APIModuleBase {
     private autosaveDebounceTimer: Timer | undefined;
     private autosaveHandler: ( ( immediate?: boolean ) => boolean ) | undefined;
 
-    public constructor( api: APICore ) {
-        super( api );
+    public constructor( core: QueryClient ) {
+        super( core );
 
         this.registerEndpoints();
 
@@ -70,18 +70,18 @@ export class APIChannelsModule extends APIModuleBase {
         this.register( "POST", "App/ChannelItem", "v1/channels/:key" );
     }
 
-    protected async requestHandler( component: APIComponent, element: DCommandFunctionComponent, request: any ): Promise<any> {
+    protected async requestHandler( component: QueryComponent, element: DCommandFunctionComponent, request: any ): Promise<any> {
         return request;
     }
 
-    protected async responseHandler( component: APIComponent, element: DCommandFunctionComponent, response: Response ): Promise<any> {
+    protected async responseHandler( component: QueryComponent, element: DCommandFunctionComponent, response: Response ): Promise<any> {
         const result = await response.json();
 
         return this.handleResponseBasedOnElementName( element.getName!(), result, component );
     }
 
     // Handle the mounting of the component. This involves different handling depending on the component name.
-    protected onMount( component: APIComponent, context: DCommandSingleComponentContext ) {
+    protected onMount( component: QueryComponent, context: DCommandSingleComponentContext ) {
         switch ( context.componentName ) {
             case "App/ChannelsList":
                 this.onChannelsListMount( component, context );
@@ -94,7 +94,7 @@ export class APIChannelsModule extends APIModuleBase {
         }
     }
 
-    protected onUnmount( component: APIComponent, context: DCommandSingleComponentContext ) {
+    protected onUnmount( component: QueryComponent, context: DCommandSingleComponentContext ) {
         switch ( context.componentName ) {
             case "App/ChannelsList":
                 this.onChannelsListUnmount( component, context );
@@ -108,7 +108,7 @@ export class APIChannelsModule extends APIModuleBase {
     }
 
     // Handle the updating of the component. This involves different handling depending on the component name.
-    protected onUpdate( component: APIComponent, context: DCommandSingleComponentContext, state: {
+    protected onUpdate( component: QueryComponent, context: DCommandSingleComponentContext, state: {
         currentState: any,
         prevState: any,
         currentProps: any
@@ -149,7 +149,7 @@ export class APIChannelsModule extends APIModuleBase {
     }
 
     // Handle the API response based on the element name. This allows different handling for different types of responses.
-    private handleResponseBasedOnElementName( elementName: string, result: any, component: APIComponent ) {
+    private handleResponseBasedOnElementName( elementName: string, result: any, component: QueryComponent ) {
         switch ( elementName ) {
             case "App/ChannelsList":
                 return this.handleChannelsListResponse( result, component );
@@ -161,7 +161,7 @@ export class APIChannelsModule extends APIModuleBase {
     }
 
     // Handle the response for the channels list. This involves mapping over the result and creating a new object for each item.
-    private handleChannelsListResponse( result: any, component: APIComponent ) {
+    private handleChannelsListResponse( result: any, component: QueryComponent ) {
         return {
             children: result.map( ( i: any ) => {
                 const key = i.key;
@@ -188,7 +188,7 @@ export class APIChannelsModule extends APIModuleBase {
 
     // Handle the mounting of the channels list. This involves setting up a timer to auto save channels every 5 seconds.
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    private onChannelsListMount( component: APIComponent, context: DCommandSingleComponentContext ) {
+    private onChannelsListMount( component: QueryComponent, context: DCommandSingleComponentContext ) {
         const commands = commandsManager.get( "UI/Accordion", true );
 
         if ( ! commands ) return;
@@ -205,7 +205,7 @@ export class APIChannelsModule extends APIModuleBase {
     }
 
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    private onChannelsListUnmount( component: APIComponent, context: DCommandSingleComponentContext ) {
+    private onChannelsListUnmount( component: QueryComponent, context: DCommandSingleComponentContext ) {
         // Save immediately when the channels list is unmounted.
         this.saveChannels();
 
@@ -221,7 +221,7 @@ export class APIChannelsModule extends APIModuleBase {
     }
 
     // Handle the mounting of an individual channel item. This involves fetching the channel data from the API and updating the state if necessary.
-    private async onChannelItemMount( component: APIComponent, context: DCommandSingleComponentContext ) {
+    private async onChannelItemMount( component: QueryComponent, context: DCommandSingleComponentContext ) {
         // if ( Object.keys( this.channelsItemState ).length === 0 ) return;
 
         const key = context.props.meta.id;
@@ -244,7 +244,7 @@ export class APIChannelsModule extends APIModuleBase {
         }
     }
 
-    private async onChannelItemUnmount( component: APIComponent, context: DCommandSingleComponentContext ) {
+    private async onChannelItemUnmount( component: QueryComponent, context: DCommandSingleComponentContext ) {
         // If state is the same as the last known state, then it is safe to remove it.
         if ( Object.values( this.lastChannelsItemStateUpdated ).find( l => l === context.getState() ) ) {
             delete this.lastChannelsItemState[ context.props.meta.id ];
@@ -370,6 +370,7 @@ export class APIChannelsModule extends APIModuleBase {
                 } );
 
             } );
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
         } catch ( error ) {
             this.autosaveHandler?.();
         }

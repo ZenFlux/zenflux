@@ -1,13 +1,13 @@
 {
     "$schema": "https://raw.githubusercontent.com/SchemaStore/schemastore/master/src/schemas/json/package.json",
-    "name": "@zenflux/react-api",
+    "name": "@zenflux/react-query",
     "author": "Leonid Vinikov <leonidvinikov@gmail.com> (https://github.com/iNewLegend)",
     "version": "0.0.1-dev",
     "type": "module",
     "repository": {
         "type": "git",
         "url": "https://github.com/zenflux/zenflux.git",
-        "directory": "packages/zenflux-react-api"
+        "directory": "packages/react-query"
     },
     "dependencies": {
         "@zenflux/react-commander": "workspace:*"
