@@ -10,7 +10,8 @@
         "directory": "packages/react-query"
     },
     "dependencies": {
-        "@zenflux/react-commander": "workspace:*"
+        "@zenflux/react-commander": "workspace:*",
+        "@tanstack/react-query": "^5.59.13"
     },
     "peerDependencies": {
         "react": "^18.2.0",

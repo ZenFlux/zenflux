@@ -34,33 +34,52 @@ export abstract class QueryRouterBase<Resource, Model extends QueryModel = Query
         await this.api.fetch( "DELETE", `v1/${ this.resource }/${ key }`, {}, ( r ) => r.json() );
     };
 
+    protected queryKeyList(): readonly unknown[] {
+        return [ this.resource, "list" ] as const;
+    }
+
+    protected queryKeyItem( key: string ): readonly unknown[] {
+        return [ this.resource, "item", key ] as const;
+    }
+
     public async list(): Promise<Resource[]> {
-        if ( ! this.listCache ) this.listCache = this.fetchList();
-        return this.listCache;
+        return this.api.tanstack.fetchQuery( {
+            queryKey: this.queryKeyList(),
+            queryFn: this.fetchList,
+        } );
     }
 
     public async item( key: string ): Promise<Resource> {
-        let cached = this.itemCache.get( key );
-        if ( ! cached ) {
-            cached = this.fetchItem( key );
-            this.itemCache.set( key, cached );
-        }
-        return cached;
+        return this.api.tanstack.fetchQuery( {
+            queryKey: this.queryKeyItem( key ),
+            queryFn: () => this.fetchItem( key ),
+        } );
     }
 
     public async save( input: Resource & { key: string } ): Promise<void> {
         await this.saveItem( input );
-        this.invalidate( input.key );
+        await this.api.tanstack.invalidateQueries( { queryKey: [ this.resource ] } );
     }
 
     public async remove( key: string ): Promise<void> {
         await this.deleteItem( key );
-        this.invalidate( key );
+        await this.api.tanstack.invalidateQueries( { queryKey: [ this.resource ] } );
     }
 
     protected invalidate( key?: string ) {
         this.listCache = undefined;
         if ( key ) this.itemCache.delete( key );
+    }
+
+    public async queryPrefetchItem( key: string ): Promise<void> {
+        await this.api.tanstack.prefetchQuery( {
+            queryKey: this.queryKeyItem( key ),
+            queryFn: () => this.fetchItem( key ),
+        } );
+    }
+
+    public queryGetCachedItem( key: string ): Resource | undefined {
+        return this.api.tanstack.getQueryData( this.queryKeyItem( key ) ) as Resource | undefined;
     }
 }
 

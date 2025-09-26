@@ -1,11 +1,17 @@
 import { QueryComponent } from "@zenflux/react-query/src/query-component";
 
+import { queryTanstackClient } from "@zenflux/react-query/src/query-tanstack-adapter";
+
 import type { DQueryModuleBaseStatic } from "@zenflux/react-query/src/query-definitions";
 
 import type { QueryModuleBase } from "@zenflux/react-query/src/query-module-base";
 
+import type { QueryTanstackClient } from "@zenflux/react-query/src/query-tanstack-adapter";
+
 export class QueryClient {
     private modules: Record<string, QueryModuleBase> = {};
+
+    private readonly tanstackClientRef: QueryTanstackClient = queryTanstackClient;
 
     public constructor( private baseURL: string ) {
         QueryComponent.setClient( this );
@@ -52,5 +58,9 @@ export class QueryClient {
 
     public get Component() {
         return QueryComponent;
+    }
+
+    public get tanstack() {
+        return this.tanstackClientRef;
     }
 }

@@ -2,6 +2,9 @@ import commandsManager from "@zenflux/react-commander/commands-manager";
 
 import { QueryModuleBase } from "@zenflux/react-query/src/query-module-base.ts";
 
+import { queryCreateAutoSaveManager } from "@zenflux/react-query/src/query-auto-save-manager";
+import { queryDiffById } from "@zenflux/react-query/src/query-list-diff";
+
 import { CHANNEL_LIST_STATE_DATA_WITH_META } from "@zenflux/app-budget-allocation/src/components/channel/channel-constants";
 
 import { pickEnforcedKeys } from "@zenflux/app-budget-allocation/src/utils";
@@ -12,47 +15,25 @@ import type { DCommandFunctionComponent, DCommandSingleComponentContext } from "
 import type { QueryClient } from "@zenflux/react-query/src/query-client.tsx";
 
 export class ChannelsQueryModule extends QueryModuleBase {
-    private channelsItemState: Record<string, any> = {};
-
-    private lastChannelsItemState: Record<string, any> = {};
-    private lastChannelsItemStateUpdated: Record<string, any> = {};
-
-    private autosaveDebounceTimer: Timer | undefined;
-    private autosaveHandler: ( ( immediate?: boolean ) => boolean ) | undefined;
+    private autosave: ReturnType<typeof queryCreateAutoSaveManager<Record<string, unknown>, { key: string } & Record<string, unknown>>>;
 
     public constructor( core: QueryClient ) {
         super( core );
         this.registerEndpoints();
 
-        this.initializeAutosaveHandler();
-
-        const dataRescuerCallback = () => {
-            console.log( "ChannelsQueryModule: dataRescuerCallback()", {
-                autoSaveHandler: this.autosaveHandler,
-                lastChannelsItemState: this.lastChannelsItemState,
-            } );
-
-            if ( this.autosaveHandler ) {
-                // Save immediately when the page is closed.
-                this.autosaveHandler( true );
-            }
-
-            if ( Object.keys( this.lastChannelsItemState ).length > 0 ) {
-                return false;
-            }
-
-            return true;
-        };
-
-        window.onbeforeunload = function () {
-            const result = dataRescuerCallback();
-
-            if ( ! result ) {
-                return "Changes you made may not be saved.";
-            }
-
-            return undefined;
-        };
+        this.autosave = queryCreateAutoSaveManager<Record<string, unknown>, { key: string } & Record<string, unknown>>( {
+            getKey: ( state ) => ( state as { meta: { id: string } } ).meta.id,
+            pickToSave: ( state ) => {
+                const s = state as { meta: { id: string } } & Record<string, unknown>;
+                const payload = pickEnforcedKeys( s, CHANNEL_LIST_STATE_DATA_WITH_META ) as Record<string, unknown>;
+                return { key: s.meta.id, ... payload } as { key: string } & Record<string, unknown>;
+            },
+            save: async ( input ) => {
+                await this.router.save( input );
+            },
+            debounceMs: 800,
+            intervalMs: 5000,
+        } );
     }
 
     public static getName(): string {
@@ -120,30 +101,10 @@ export class ChannelsQueryModule extends QueryModuleBase {
                 }
                 break;
             case "App/ChannelItem":
-                this.channelsItemState[ state.currentProps.meta.id ] = state;
-                this.lastChannelsItemState[ state.currentProps.meta.id ] = state;
+                void this.autosave.queryUpsert( { ... state.currentProps, ... state.currentState } );
                 break;
             default:
                 throw new Error( `ChannelsQueryModule: onUpdate() - Unknown component: ${ context.componentName }` );
-        }
-    }
-
-    private initializeAutosaveHandler() {
-        if ( ! this.autosaveHandler ) {
-            this.autosaveHandler = ( immediate?: boolean ) => {
-                if ( immediate ) {
-                    this.saveChannels();
-                    return true;
-                } else {
-                    this.autoSaveChannels();
-                }
-
-                return false;
-            };
-
-            setInterval( () => {
-                this.autosaveHandler?.();
-            }, 5000 );
         }
     }
 
@@ -196,7 +157,7 @@ export class ChannelsQueryModule extends QueryModuleBase {
             onSelectionDetached = commands[ "UI/Accordion/onSelectionDetached" ];
 
         const saveChannelsCallback = () => {
-            this.autoSaveChannels();
+            void this.autosave.queryFlush();
         };
 
         onSelectionAttached.global().globalHook( saveChannelsCallback );
@@ -205,8 +166,7 @@ export class ChannelsQueryModule extends QueryModuleBase {
 
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     private onChannelsListUnmount( component: QueryComponent, context: DCommandSingleComponentContext ) {
-        // Save immediately when the channels list is unmounted.
-        this.saveChannels();
+        void this.autosave.queryFlush();
 
         const commands = commandsManager.get( "UI/Accordion", true );
 
@@ -221,38 +181,23 @@ export class ChannelsQueryModule extends QueryModuleBase {
 
     // Handle the mounting of an individual channel item. This involves fetching the channel data from the API and updating the state if necessary.
     private async onChannelItemMount( component: QueryComponent, context: DCommandSingleComponentContext ) {
-        // if ( Object.keys( this.channelsItemState ).length === 0 ) return;
-
         const key = context.props.meta.id;
 
         try {
-            const apiData = await this.router.item( key );
+            await this.router.queryPrefetchItem( key );
+            const cached = this.router.queryGetCachedItem( key );
 
-            // Set current for next code execution.
-            this.channelsItemState[ key ] = {
-                currentProps: context.props,
-                currentState: context.getState(),
-            };
-
-            if ( context.isMounted() && this.shouldUpdateStateFromRemote( apiData, key, context ) ) {
-                this.updateStateFromRemote( apiData, context );
+            if ( cached && context.isMounted() ) {
+                const normalized = this.handleChannelItemResponse( { ... cached } );
+                context.setState( normalized );
             }
-
         } catch ( error ) {
             console.warn( "An error occurred while fetching API data, the state will not be updated, this area considered to be safe", error );
         }
     }
 
     private async onChannelItemUnmount( component: QueryComponent, context: DCommandSingleComponentContext ) {
-        // If state is the same as the last known state, then it is safe to remove it.
-        if ( Object.values( this.lastChannelsItemStateUpdated ).find( l => l === context.getState() ) ) {
-            delete this.lastChannelsItemState[ context.props.meta.id ];
-            delete this.lastChannelsItemStateUpdated[ context.props.meta.id ];
-
-            return;
-        }
-
-        this.autosaveHandler?.( true );
+        await this.autosave.queryFlushKey( context.props.meta.id );
     }
 
     // Handle when the channels change. This involves comparing the previous and current channels and updating the meta data if necessary.
@@ -268,29 +213,17 @@ export class ChannelsQueryModule extends QueryModuleBase {
             }
         }
 
-        const prevKeys = prevChannels.map( channel => channel.props.meta.id );
-        const currentKeys = currentChannels.map( channel => channel.props.meta.id );
+        const { added, removed } = queryDiffById( prevChannels, currentChannels, c => c.props.meta.id );
 
-        const addedKeys = currentKeys.filter( key => ! prevKeys.includes( key ) );
+        for ( const ch of added ) {
+            this.onChannelAdded( ch );
+        }
+        if ( added.length > 0 ) return;
 
-        for ( const key of addedKeys ) {
-            const newChannel = currentChannels.find( channel => channel.props.meta.id === key );
-
-            if ( newChannel && newChannel.props && newChannel.props.meta ) {
-                this.onChannelAdded( newChannel );
-            }
+        for ( const ch of removed ) {
+            this.onChannelRemoved( ch.props.meta.id );
         }
-        if ( addedKeys.length > 0 ) {
-            return;
-        }
-
-        const removedKeys = prevKeys.filter( key => ! currentKeys.includes( key ) );
-        for ( const key of removedKeys ) {
-            this.onChannelRemoved( key );
-        }
-        if ( removedKeys.length > 0 ) {
-            return;
-        }
+        if ( removed.length > 0 ) return;
     }
 
     private onChannelAdded( newChannel: any ) {
@@ -302,101 +235,12 @@ export class ChannelsQueryModule extends QueryModuleBase {
     }
 
     private onChannelRemoved( key: string ) {
-        this.router.remove( key ).then( () => {
-
-            delete this.channelsItemState[ key ];
-
-            // Safe removed.
-            delete this.lastChannelsItemState[ key ];
-        } );
+        void this.router.remove( key );
     }
 
     // Handle when the meta data of a channel changes. This involves sending a POST request to the API with the new meta data.
     private onChannelsMetaDataChanged( key: string, currentMeta: any, _prevMeta: any ) {
-        if ( this.channelsItemState[ key ]?.currentState?.meta ) {
-            this.channelsItemState[ key ].currentState.meta = currentMeta;
-        }
-
-        if ( this.lastChannelsItemState[ key ]?.currentState?.meta ) {
-            this.lastChannelsItemState[ key ].currentState.meta = currentMeta;
-        }
-
         this.router.save( { key, meta: currentMeta } as any );
-    }
-
-    private async autoSaveChannels(): Promise<true> {
-        if ( this.autosaveDebounceTimer ) {
-            clearTimeout( this.autosaveDebounceTimer );
-        }
-
-        // This will ensure that the channels are saved once per x requests during the debounce period.
-        return new Promise( ( resolve ) => {
-            this.autosaveDebounceTimer = setTimeout( () => {
-                this.saveChannels();
-                resolve( true );
-            }, 800 );
-        } );
-    }
-
-    // Save the channels. This involves finding all the channel item contexts and sending a POST request to the API with the state of each channel.
-    private saveChannels() {
-        const lastKnownStates = Object.values( this.lastChannelsItemState );
-
-        if ( ! lastKnownStates.length ) return;
-
-        try {
-            console.log( "ChannelsQueryModule: saveChannels()" );
-
-            lastKnownStates.forEach( ( state: any ) => {
-                const key = (state.props || state.currentProps).meta.id;
-
-                const stateToSave = pickEnforcedKeys( { ... state.currentProps, ... state.currentState },
-                    CHANNEL_LIST_STATE_DATA_WITH_META
-                );
-
-                console.log( "ChannelsQueryModule: saveChannels() - stateToSave", stateToSave );
-
-                this.router.save( { key, ... stateToSave } as any ).then( () => {
-                    this.lastChannelsItemStateUpdated[ key ] = stateToSave;
-
-                    delete this.lastChannelsItemState[ key ];
-                } );
-
-            } );
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
-        } catch ( error ) {
-            this.autosaveHandler?.();
-        }
-    }
-
-    // Update the state with the data from the API.
-    private updateStateFromRemote( apiData: any, context: DCommandSingleComponentContext ) {
-        console.log( "%c ChannelsQueryModule: updateStateFromRemote()", "font-weight:bold;", apiData );
-
-        if ( apiData.breaks ) {
-            apiData.breaks = apiData.breaks.map( ( i: any ) => ( {
-                ... i,
-                date: new Date( i.date ),
-            } ) );
-        }
-
-        context.setState( apiData );
-    }
-
-    // Determine whether the state should be updated. This involves comparing the current state with the data from the API.
-    private shouldUpdateStateFromRemote( apiData: any, key: string, context: DCommandSingleComponentContext ) {
-        const currentItemState = this.channelsItemState[ key ];
-
-        // If the current item state is not available, then you cannot update the state.
-        if ( ! currentItemState.currentProps ) return false;
-
-        const vdom = pickEnforcedKeys( { ... currentItemState.currentProps, ... context.getState() },
-            CHANNEL_LIST_STATE_DATA_WITH_META
-        );
-
-        const api = pickEnforcedKeys( apiData, CHANNEL_LIST_STATE_DATA_WITH_META );
-
-        return JSON.stringify( vdom ) !== JSON.stringify( api );
     }
 }
 
