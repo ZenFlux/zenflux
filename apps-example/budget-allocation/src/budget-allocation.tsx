@@ -10,10 +10,10 @@ export default function BudgetAllocation() {
         <QueryComponent
             fallback={ <div className="loading">Loading <span className="dots">◌</span></div> }
             module={ ChannelsQueryModule }
-            type={ ChannelsList }
-            chainProps={ { view: "accordion" } }
+            component={ ChannelsList }
+            props={ { view: "accordion" } }
         >
-            <QueryComponent type={ ChannelItemAccordion }/>
+            <QueryComponent component={ ChannelItemAccordion }/>
         </QueryComponent>
     );
 }

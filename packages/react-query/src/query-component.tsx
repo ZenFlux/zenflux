@@ -13,9 +13,9 @@ import { wrapPromiseSuspendable } from "@zenflux/react-query/src/query-utils";
 import type { QueryClient } from "@zenflux/react-query/src/query-client";
 
 import type { QueryModuleBase } from "@zenflux/react-query/src/query-module-base";
-import type { QueryComponentProps } from "@zenflux/react-query/src/query-types";
+import type { DQueryComponentProps } from "@zenflux/react-query/src/query-definitions";
 
-export class QueryComponent extends React.PureComponent<QueryComponentProps> {
+export class QueryComponent extends React.PureComponent<DQueryComponentProps> {
     private static client: QueryClient;
 
     private readonly client: QueryClient;
@@ -28,7 +28,7 @@ export class QueryComponent extends React.PureComponent<QueryComponentProps> {
         this.client = query;
     }
 
-    public constructor( props: QueryComponentProps ) {
+    public constructor( props: DQueryComponentProps ) {
         super( props );
 
         this.client = ( this.constructor as typeof QueryComponent ).client;
@@ -39,12 +39,12 @@ export class QueryComponent extends React.PureComponent<QueryComponentProps> {
 
         this.queryModule = this.client.getModule( this.props.module );
 
-        const chainProps = props.chainProps || {};
+        const chainProps = props.props || {};
 
         this.element = async () => {
-            const props = await this.queryModule.getProps( this.props.type, this );
+            const props = await this.queryModule.getProps( this.props.component, this );
 
-            return React.createElement( this.props.type, { ... props, ... chainProps } );
+            return React.createElement( this.props.component, { ... props, ... chainProps } );
         };
     }
 
@@ -54,12 +54,11 @@ export class QueryComponent extends React.PureComponent<QueryComponentProps> {
         }
 
         const getComponentPromise = async () => {
-            const childrenType = this.props.children!.props.type;
-
+            const childrenType = this.props.children!.props.component;
             const parent = await this.element();
 
             const children = await Promise.all( parent.props.children.map( async ( child: any ) => {
-                const childProps = await this.queryModule.getProps( child.type, this, child );
+                const childProps = await this.queryModule.getProps( childrenType, this, child );
 
                 return React.createElement( childrenType, childProps );
             } ) );

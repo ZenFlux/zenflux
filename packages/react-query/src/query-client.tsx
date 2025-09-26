@@ -1,6 +1,6 @@
 import { QueryComponent } from "@zenflux/react-query/src/query-component";
 
-import type { QueryModuleBaseStatic } from "@zenflux/react-query/src/query-types";
+import type { DQueryModuleBaseStatic } from "@zenflux/react-query/src/query-definitions";
 
 import type { QueryModuleBase } from "@zenflux/react-query/src/query-module-base";
 
@@ -29,7 +29,7 @@ export class QueryClient {
         return promise.then( handler );
     }
 
-    public getModule( module: QueryModuleBaseStatic ) {
+    public getModule( module: DQueryModuleBaseStatic ) {
         const moduleName = module.getName();
 
         if ( ! this.modules[ moduleName ] ) {
@@ -38,7 +38,7 @@ export class QueryClient {
 
         return this.modules[ moduleName ];
     }
-    public registerModule( module: QueryModuleBaseStatic ) {
+    public registerModule( module: DQueryModuleBaseStatic ) {
 
         const moduleName = module.getName();
 

@@ -6,16 +6,16 @@ import type { QueryClient } from "@zenflux/react-query/src/query-client";
 
 import type { QueryModuleBase } from "@zenflux/react-query/src/query-module-base";
 
-export interface QueryModuleBaseStatic {
+export interface DQueryModuleBaseStatic {
     new( query: QueryClient ): QueryModuleBase;
 
     getName(): string;
 }
 
-export interface QueryComponentProps {
+export interface DQueryComponentProps {
     children?: React.ReactElement;
-    module?: QueryModuleBaseStatic;
+    module?: DQueryModuleBaseStatic;
     fallback?: React.ReactElement;
-    type: DCommandFunctionComponent;
-    chainProps?: any;
+    component: DCommandFunctionComponent;
+    props?: any;
 }

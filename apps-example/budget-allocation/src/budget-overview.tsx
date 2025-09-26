@@ -10,10 +10,10 @@ export default function BudgetOverview() {
         <QueryComponent
             fallback={ <div className="loading">Loading <span className="dots">◌</span></div> }
             module={ ChannelsQueryModule }
-            type={ ChannelsList }
-            chainProps={ { view: "table" } }
+            component={ ChannelsList }
+            props={ { view: "table" } }
         >
-            <QueryComponent type={ ChannelItemTable }/>
+            <QueryComponent component={ ChannelItemTable }/>
         </QueryComponent>
     );
 }
