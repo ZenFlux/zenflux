@@ -43,12 +43,7 @@
 
         //Used to specify a list of types to be included in the compile.
         "types": [
-            "node",
-            "lib.dom",
-            "react",
-            "react-dom",
-            "react-scripts",
-            "vite/client"
+            "node"
         ],
 
         // Specify multiple type root directories.
