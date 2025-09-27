@@ -8,12 +8,12 @@ import {
     INTERNAL_PROPS
 } from "@zenflux/react-commander/constants";
 
-import { wrapPromiseSuspendable } from "@zenflux/react-query/src/query-utils";
+import { wrapPromiseSuspendable } from "@zenflux/react-commander/query/utils";
 
-import type { QueryClient } from "@zenflux/react-query/src/query-client";
+import type { QueryClient } from "@zenflux/react-commander/query/client";
 
-import type { QueryModuleBase } from "@zenflux/react-query/src/query-module-base";
-import type { DQueryComponentProps } from "@zenflux/react-query/src/query-definitions";
+import type { QueryModuleBase } from "@zenflux/react-commander/query/module-base";
+import type { DQueryComponentProps } from "@zenflux/react-commander/query/definitions";
 
 export class QueryComponent extends React.PureComponent<DQueryComponentProps> {
     private static client: QueryClient;

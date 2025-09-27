@@ -1,12 +1,12 @@
-import { QueryComponent } from "@zenflux/react-query/src/query-component";
+import { QueryComponent } from "@zenflux/react-commander/query/component";
 
-import { queryCreateMemoryCache } from "@zenflux/react-query/src/query-cache";
+import { queryCreateMemoryCache } from "@zenflux/react-commander/query/cache";
 
-import type { DQueryModuleBaseStatic } from "@zenflux/react-query/src/query-definitions";
+import type { DQueryModuleBaseStatic } from "@zenflux/react-commander/query/definitions";
 
-import type { QueryModuleBase } from "@zenflux/react-query/src/query-module-base";
+import type { QueryModuleBase } from "@zenflux/react-commander/query/module-base";
 
-import type { QueryCache } from "@zenflux/react-query/src/query-cache";
+import type { QueryCache } from "@zenflux/react-commander/query/cache";
 
 export class QueryClient {
     private modules: Record<string, QueryModuleBase> = {};

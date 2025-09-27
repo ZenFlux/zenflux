@@ -1,8 +1,8 @@
-import { QueryRouterBase } from "@zenflux/react-query/src/query-router";
+import { QueryRouterBase } from "@zenflux/react-commander/query/router";
 
 import type { DCommandSingleComponentContext, DCommandFunctionComponent } from "@zenflux/react-commander/definitions";
-import type { QueryClient } from "@zenflux/react-query/src/query-client";
-import type { QueryComponent } from "@zenflux/react-query/src/query-component";
+import type { QueryClient } from "@zenflux/react-commander/query/client";
+import type { QueryComponent } from "@zenflux/react-commander/query/component";
 
 interface Route {
     path: string;

@@ -1,6 +1,6 @@
 import React, { useEffect } from "react";
 
-import { QueryClient } from "@zenflux/react-query/src/query-client.tsx";
+import { QueryClient } from "@zenflux/react-commander/query/client";
 
 import { useCommandHook, useCommandRunner } from "@zenflux/react-commander/use-commands";
 

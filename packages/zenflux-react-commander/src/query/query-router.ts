@@ -1,4 +1,4 @@
-import type { QueryClient } from "@zenflux/react-query/src/query-client";
+import type { QueryClient } from "@zenflux/react-commander/query/client";
 
 export interface QueryModel {
 }

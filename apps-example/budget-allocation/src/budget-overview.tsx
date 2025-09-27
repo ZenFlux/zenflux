@@ -1,4 +1,4 @@
-import { QueryComponent } from "@zenflux/react-query/src/query-component.tsx";
+import { QueryComponent } from "@zenflux/react-commander/query/component";
 
 import ChannelsList from "@zenflux/app-budget-allocation/src/components/channels/channels-list";
 import ChannelItemTable from "@zenflux/app-budget-allocation/src/components/channel/channel-item-table";

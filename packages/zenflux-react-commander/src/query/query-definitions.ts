@@ -2,9 +2,9 @@ import type { DCommandFunctionComponent } from "@zenflux/react-commander/definit
 
 import type React from "react";
 
-import type { QueryClient } from "@zenflux/react-query/src/query-client";
+import type { QueryClient } from "@zenflux/react-commander/query/client";
 
-import type { QueryModuleBase } from "@zenflux/react-query/src/query-module-base";
+import type { QueryModuleBase } from "@zenflux/react-commander/query/module-base";
 
 export interface DQueryModuleBaseStatic {
     new( query: QueryClient ): QueryModuleBase;

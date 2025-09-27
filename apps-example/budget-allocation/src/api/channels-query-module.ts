@@ -1,18 +1,18 @@
 import commandsManager from "@zenflux/react-commander/commands-manager";
 
-import { QueryModuleBase } from "@zenflux/react-query/src/query-module-base.ts";
+import { QueryModuleBase } from "@zenflux/react-commander/query/module-base";
 
-import { queryCreateAutoSaveManager } from "@zenflux/react-query/src/query-auto-save-manager";
-import { queryDiffById } from "@zenflux/react-query/src/query-list-diff";
+import { queryCreateAutoSaveManager } from "@zenflux/react-commander/query/auto-save-manager";
+import { queryDiffById } from "@zenflux/react-commander/query/list-diff";
 
 import { CHANNEL_LIST_STATE_DATA_WITH_META } from "@zenflux/app-budget-allocation/src/components/channel/channel-constants";
 
 import { pickEnforcedKeys } from "@zenflux/app-budget-allocation/src/utils";
 
-import type { QueryComponent } from "@zenflux/react-query/src/query-component.tsx";
+import type { QueryComponent } from "@zenflux/react-commander/query/component";
 import type { DCommandFunctionComponent, DCommandSingleComponentContext } from "@zenflux/react-commander/definitions";
 
-import type { QueryClient } from "@zenflux/react-query/src/query-client.tsx";
+import type { QueryClient } from "@zenflux/react-commander/query/client";
 
 export class ChannelsQueryModule extends QueryModuleBase {
     private autosave: ReturnType<typeof queryCreateAutoSaveManager<Record<string, unknown>, { key: string } & Record<string, unknown>>>;
