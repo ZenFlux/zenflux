@@ -43,14 +43,14 @@ export abstract class QueryRouterBase<Resource, Model extends QueryModel = Query
     }
 
     public async list(): Promise<Resource[]> {
-        return this.api.tanstack.fetchQuery( {
+        return this.api.cache.fetchQuery( {
             queryKey: this.queryKeyList(),
             queryFn: this.fetchList,
         } );
     }
 
     public async item( key: string ): Promise<Resource> {
-        return this.api.tanstack.fetchQuery( {
+        return this.api.cache.fetchQuery( {
             queryKey: this.queryKeyItem( key ),
             queryFn: () => this.fetchItem( key ),
         } );
@@ -58,12 +58,12 @@ export abstract class QueryRouterBase<Resource, Model extends QueryModel = Query
 
     public async save( input: Resource & { key: string } ): Promise<void> {
         await this.saveItem( input );
-        await this.api.tanstack.invalidateQueries( { queryKey: [ this.resource ] } );
+        await this.api.cache.invalidateQueries( { queryKey: [ this.resource ] } );
     }
 
     public async remove( key: string ): Promise<void> {
         await this.deleteItem( key );
-        await this.api.tanstack.invalidateQueries( { queryKey: [ this.resource ] } );
+        await this.api.cache.invalidateQueries( { queryKey: [ this.resource ] } );
     }
 
     protected invalidate( key?: string ) {
@@ -72,14 +72,14 @@ export abstract class QueryRouterBase<Resource, Model extends QueryModel = Query
     }
 
     public async queryPrefetchItem( key: string ): Promise<void> {
-        await this.api.tanstack.prefetchQuery( {
+        await this.api.cache.prefetchQuery( {
             queryKey: this.queryKeyItem( key ),
             queryFn: () => this.fetchItem( key ),
         } );
     }
 
     public queryGetCachedItem( key: string ): Resource | undefined {
-        return this.api.tanstack.getQueryData( this.queryKeyItem( key ) ) as Resource | undefined;
+        return this.api.cache.getQueryData<Resource>( this.queryKeyItem( key ) ) as Resource | undefined;
     }
 }
 

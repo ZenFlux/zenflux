@@ -1,20 +1,21 @@
 import { QueryComponent } from "@zenflux/react-query/src/query-component";
 
-import { queryTanstackClient } from "@zenflux/react-query/src/query-tanstack-adapter";
+import { queryCreateMemoryCache } from "@zenflux/react-query/src/query-cache";
 
 import type { DQueryModuleBaseStatic } from "@zenflux/react-query/src/query-definitions";
 
 import type { QueryModuleBase } from "@zenflux/react-query/src/query-module-base";
 
-import type { QueryTanstackClient } from "@zenflux/react-query/src/query-tanstack-adapter";
+import type { QueryCache } from "@zenflux/react-query/src/query-cache";
 
 export class QueryClient {
     private modules: Record<string, QueryModuleBase> = {};
 
-    private readonly tanstackClientRef: QueryTanstackClient = queryTanstackClient;
+    private readonly cacheRef: QueryCache;
 
-    public constructor( private baseURL: string ) {
+    public constructor( private baseURL: string, cache?: QueryCache ) {
         QueryComponent.setClient( this );
+        this.cacheRef = cache ?? queryCreateMemoryCache();
     }
 
     public fetch( method: string, route: string, args: any, handler: ( response: Response ) => any ) {
@@ -60,7 +61,7 @@ export class QueryClient {
         return QueryComponent;
     }
 
-    public get tanstack() {
-        return this.tanstackClientRef;
+    public get cache() {
+        return this.cacheRef;
     }
 }
