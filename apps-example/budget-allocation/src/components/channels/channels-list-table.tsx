@@ -1,6 +1,6 @@
 import React from "react";
 
-import { useCommanderState } from "@zenflux/react-commander/use-commands";
+import { useCommandState } from "@zenflux/react-commander/use-commands";
 
 import ChannelItemTable from "@zenflux/app-budget-allocation/src/components/channel/channel-item-table.tsx";
 
@@ -9,7 +9,7 @@ import "@zenflux/app-budget-allocation/src/components/channels/_channels-list-ta
 import type { ChannelListState } from "@zenflux/app-budget-allocation/src/components/channels/channels-types.ts";
 
 export const ChannelsListTable: React.FC = () => {
-    const [ getChannelsListState ] = useCommanderState<ChannelListState>( "App/ChannelsList" );
+    const [ getChannelsListState ] = useCommandState<ChannelListState>( "App/ChannelsList" );
 
     const channelsListState = getChannelsListState();
 

@@ -1,4 +1,4 @@
-import { useCommanderCommand } from "@zenflux/react-commander/use-commands";
+import { useCommand } from "@zenflux/react-commander/use-commands";
 
 import { Info } from "@zenflux/react-ui/src/symbols";
 
@@ -33,7 +33,7 @@ export function ChannelBudgetAllocationButton( props: ButtonProps & {
 } ) {
     const { current, allocation, ... buttonProps } = props;
 
-    const command = useCommanderCommand( "App/ChannelItem/SetAllocation" );
+    const command = useCommand( "App/ChannelItem/SetAllocation" );
 
     return (
         <Button

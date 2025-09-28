@@ -2,7 +2,7 @@ import React from "react";
 
 import moment from "moment";
 
-import { useCommanderComponent, useCommanderState } from "@zenflux/react-commander/use-commands";
+import { useComponent, useCommandState } from "@zenflux/react-commander/use-commands";
 
 import { Input } from "@zenflux/app-budget-allocation/src/components/ui/input";
 
@@ -168,8 +168,8 @@ function getBreakElements(
 }
 
 export const ChannelBreakdowns: React.FC = () => {
-    const commands = useCommanderComponent( "App/ChannelItem" ),
-        [ getState, setState, isMounted ] = useCommanderState<ChannelState>( "App/ChannelItem" );
+    const commands = useComponent( "App/ChannelItem" ),
+        [ getState, setState, isMounted ] = useCommandState<ChannelState>( "App/ChannelItem" );
 
     const onceRef = React.useRef( false );
 

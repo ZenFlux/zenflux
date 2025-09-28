@@ -4,7 +4,7 @@ import { withCommands } from "@zenflux/react-commander/with-commands";
 
 import { CommandBase } from "@zenflux/react-commander/command-base";
 
-import { useCommanderCommand } from "@zenflux/react-commander/use-commands";
+import { useCommand } from "@zenflux/react-commander/use-commands";
 
 import { UIThemeAccordionItem } from "@zenflux/react-ui/src/accordion/ui-theme-accordion";
 
@@ -34,8 +34,8 @@ const AccordionItemEditableTitle = React.forwardRef<HTMLSpanElement, Omit<Accord
     const [ isEditing, setIsEditing ] = React.useState( false ),
         [ isFocusCaptured, setIsFocusCaptured ] = React.useState( false );
 
-    const editableCommand = useCommanderCommand( "UI/AccordionItem/EditableTitle" ),
-        onTitleChangedCommand = useCommanderCommand( "UI/AccordionItem/OnTitleChanged" );
+    const editableCommand = useCommand( "UI/AccordionItem/EditableTitle" ),
+        onTitleChangedCommand = useCommand( "UI/AccordionItem/OnTitleChanged" );
 
     const isCollapsed = React.useMemo( () => {
         return props.collapsedState === "detached";

@@ -65,7 +65,7 @@ function useCommandId( commandName: string, opts?: { match?: string; index?: num
 
     React.useEffect( () => {
         try {
-            const contexts = useAnyComponentCommands( match );
+            const contexts = useCommandMatch( match );
             const ctx = contexts[ index ];
             if ( ctx ) {
                 setId( {
@@ -88,10 +88,10 @@ function useCommandId( commandName: string, opts?: { match?: string; index?: num
  *
  * Parameters
  * - componentName: string
- * - onChildrenUpdate?: (adapters: Array<ReturnType<typeof useCommanderComponent>>) => (() => void) | void
+ * - onChildrenUpdate?: (adapters: Array<ReturnType<typeof useComponent>>) => (() => void) | void
  *
  * Returns
- * - Array of adapters from `useCommanderComponent`
+ * - Array of adapters from `useComponent`
  *
  * Notes
  * - Reactively recomputes when the descendant structure changes.
@@ -112,11 +112,11 @@ function useCommandId( commandName: string, opts?: { match?: string; index?: num
  */
 function useCommanderChildrenComponents(
     componentName: string,
-    onChildrenUpdate?: ( commands: ReturnType<typeof useCommanderComponent>[] ) => ( () => void ) | void,
+    onChildrenUpdate?: ( commands: ReturnType<typeof useComponent>[] ) => ( () => void ) | void,
 ) {
     const componentContext = React.useContext( ComponentIdContext );
 
-    const [ childrenComponents, setChildrenComponents ] = React.useState<ReturnType<typeof useCommanderComponent>[]>( [] );
+    const [ childrenComponents, setChildrenComponents ] = React.useState<ReturnType<typeof useComponent>[]>( [] );
 
     function getDescendantsKeys( context: DCommandComponentContextProps ) {
         let keys: string[] = [];
@@ -145,14 +145,14 @@ function useCommanderChildrenComponents(
             throw new Error( `Current component: '${ componentContext.getComponentName() }' cannot find: '${ componentName }' children` );
         }
 
-        const newChildrenComponents: ReturnType<typeof useCommanderComponent>[] = [];
+        const newChildrenComponents: ReturnType<typeof useComponent>[] = [];
 
         const loopChildren = ( children: { [ x: string ]: DCommandComponentContextProps; } ) => {
             for ( const childName in children ) {
                 const child = children[ childName ];
 
                 if ( child.getComponentName() === componentName ) {
-                    const childComponent = useCommanderComponent( componentName, child );
+                    const childComponent = useComponent( componentName, child );
 
                     newChildrenComponents.push( childComponent );
                 }
@@ -198,10 +198,10 @@ function useCommanderChildrenComponents(
  *
  * Example
  * ```tsx
- * import { useCommanderCommand } from "@zenflux/react-commander/use-commands";
+ * import { useCommand } from "@zenflux/react-commander/use-commands";
  *
  * function SaveButton() {
- *   const save = useCommanderCommand("Save");
+ *   const save = useCommand("Save");
  *
  *   return (
  *     <button onClick={() => save.run({ force: false })}>Save</button>
@@ -209,7 +209,7 @@ function useCommanderChildrenComponents(
  * }
  * ```
  */
-export function useCommanderCommand( commandName: string ) {
+export function useCommand( commandName: string ) {
     const componentContext = React.useContext( ComponentIdContext );
 
     // Get component context
@@ -250,7 +250,7 @@ export function useCommanderCommand( commandName: string ) {
  * - { run, hook, unhook, getId, getKey, isAlive, getInternalContext, getContext, getState }
  *
  * Notes
- * - Unlike `useCommanderCommand`, you can target a different component instance by passing a context.
+ * - Unlike `useCommand`, you can target a different component instance by passing a context.
  * - `getState<TState>()` reads the component’s injected state (when provided by `withCommands`).
  * - Differs from `useScopedCommand` (resolves by search and adds owner-scoped hooks).
  *
@@ -259,7 +259,7 @@ export function useCommanderCommand( commandName: string ) {
  * import type { DCommandComponentContextProps } from "@zenflux/react-commander/definitions";
  *
  * function SelectItem({ childContext }: { childContext: DCommandComponentContextProps }) {
- *   const item = useCommanderComponent("Item", childContext);
+ *   const item = useComponent("Item", childContext);
  *
  *   return (
  *     <button onClick={() => item.run("Select", { id: "a1" })}>
@@ -269,7 +269,7 @@ export function useCommanderCommand( commandName: string ) {
  * }
  * ```
  */
-export function useCommanderComponent( componentName: string, context?: DCommandComponentContextProps, options = { silent: false } ) {
+export function useComponent( componentName: string, context?: DCommandComponentContextProps, options = { silent: false } ) {
     if ( ! options.silent ) {
         context = getSafeContext( componentName, context );
     }
@@ -310,7 +310,7 @@ export function useCommanderComponent( componentName: string, context?: DCommand
  * Example
  * ```tsx
  * function IncCounter() {
- *   const [getState, setState] = useCommanderState<{ count: number }>("Counter");
+ *   const [getState, setState] = useCommandState<{ count: number }>("Counter");
  *
  *   return (
  *     <button onClick={() => setState({ count: getState().count + 1 })}>
@@ -320,7 +320,7 @@ export function useCommanderComponent( componentName: string, context?: DCommand
  * }
  * ```
  */
-export function useCommanderState<TState>( componentName: string ) {
+export function useCommandState<TState>( componentName: string ) {
     const componentContext = getSafeContext( componentName );
 
     const id = componentContext.getNameUnique();
@@ -339,7 +339,7 @@ export function useCommanderState<TState>( componentName: string ) {
  * Unsafe, this command should be used carefully, since it can be used to run commands from any component.
  * It should be used only in cases where you are sure that there are no conflicts, and there are no other ways to do it.
  */
-export function useAnyComponentCommands( componentName: string ) {
+export function useCommandMatch( componentName: string ) {
     return core[ GET_INTERNAL_MATCH_SYMBOL ]( componentName + "*" );
 }
 
@@ -455,7 +455,7 @@ export function useChildCommandHook(
     childComponentName: string,
     commandName: string,
     handler: ( result?: unknown, args?: DCommandArgs ) => void,
-    opts?: { filter?: (ctx: ReturnType<typeof useCommanderComponent>) => boolean; ignoreDuplicate?: boolean }
+    opts?: { filter?: (ctx: ReturnType<typeof useComponent>) => boolean; ignoreDuplicate?: boolean }
 ) {
     const children = useCommanderChildrenComponents(childComponentName);
 

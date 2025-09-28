@@ -1,6 +1,6 @@
 import React from "react";
 
-import { useCommanderCommand } from "@zenflux/react-commander/use-commands";
+import { useCommand } from "@zenflux/react-commander/use-commands";
 
 import { Info } from "@zenflux/react-ui/src/symbols";
 
@@ -29,7 +29,7 @@ const DEFAULT_PROPS = {
 export function ChannelBudgetBaseline( props: ChannelBudgetBaselineProps ) {
     const { frequency, allocation, baseline } = props;
 
-    const command = useCommanderCommand( "App/ChannelItem/SetBaseline" );
+    const command = useCommand( "App/ChannelItem/SetBaseline" );
 
     const inputProps: InputProps = {
         ... DEFAULT_PROPS,

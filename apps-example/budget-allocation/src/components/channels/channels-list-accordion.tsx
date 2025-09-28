@@ -1,6 +1,6 @@
 import React from "react";
 
-import { useCommanderComponent, useCommanderState } from "@zenflux/react-commander/use-commands";
+import { useComponent, useCommandState } from "@zenflux/react-commander/use-commands";
 
 import { channelsListAccordionInteractions } from "@zenflux/app-budget-allocation/src/components/channels/channels-list-accordion-interactions";
 
@@ -17,7 +17,7 @@ import type { AccordionItemProps } from "@zenflux/app-budget-allocation/src/ui-c
 
 export function toAccordionItem(
     channel: ChannelItemAccordionComponent,
-    channelsCommands: ReturnType<typeof useCommanderComponent>,
+    channelsCommands: ReturnType<typeof useComponent>,
     index: number,
 ): React.ReactComponentElement<typeof AccordionItem> {
     // Omit `collapsedState` and `setCollapsedState` those are extended by `renderExtendAccordionItem`
@@ -57,9 +57,9 @@ export function toAccordionItem(
 }
 
 export const ChannelsListAccordion: React.FC = () => {
-    const [ getChannelsListState, setChannelsListState ] = useCommanderState<ChannelListState>( "App/ChannelsList" );
+    const [ getChannelsListState, setChannelsListState ] = useCommandState<ChannelListState>( "App/ChannelsList" );
 
-    const channelsCommands = useCommanderComponent( "App/ChannelsList" );
+    const channelsCommands = useComponent( "App/ChannelsList" );
 
     const channelsListState = getChannelsListState();
 

@@ -5,7 +5,7 @@ import moment from "moment";
 import { ArrowSkinnyRight, Pencil, Save, Cancel } from "@zenflux/react-ui/src/symbols";
 
 import { withCommands } from "@zenflux/react-commander/with-commands";
-import { useCommanderState, useCommanderComponent } from "@zenflux/react-commander/use-commands";
+import { useCommandState, useComponent } from "@zenflux/react-commander/use-commands";
 
 import { Input } from "@zenflux/app-budget-allocation/src/components/ui/input";
 
@@ -31,7 +31,7 @@ declare global {
 }
 
 export const ChannelItemTable: DCommandFunctionComponent<ChannelItemProps, ChannelState> = ( props ) => {
-    const [ getState, _setState , isMounted ] = useCommanderState<ChannelState>( "App/ChannelItem" ),
+    const [ getState, _setState , isMounted ] = useCommandState<ChannelState>( "App/ChannelItem" ),
         state = getState();
 
     const [ isEditing, setIsEditing ] = React.useState<boolean[]>( new Array( state.breaks!.length ).fill( false ) );
@@ -51,7 +51,7 @@ export const ChannelItemTable: DCommandFunctionComponent<ChannelItemProps, Chann
 
     const tableRef = React.useRef<HTMLDivElement>( null );
 
-    const commands = useCommanderComponent( "App/ChannelItem" );
+    const commands = useComponent( "App/ChannelItem" );
 
     const setBreakdown = ( index: number, value: string, force = false ) => {
         if ( ! force ) {

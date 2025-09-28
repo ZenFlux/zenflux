@@ -1,7 +1,7 @@
 import React from "react";
 
 import { withCommands } from "@zenflux/react-commander/with-commands";
-import { useCommanderState } from "@zenflux/react-commander/use-commands";
+import { useCommandState } from "@zenflux/react-commander/use-commands";
 
 import "@zenflux/app-budget-allocation/src/components/channel/_channel-item-accordion.scss";
 
@@ -20,7 +20,7 @@ import type { ChannelItemPropsAccordion, ChannelState } from "@zenflux/app-budge
 import type { DCommandFunctionComponent } from "@zenflux/react-commander/definitions";
 
 export const ChannelItemAccordion: DCommandFunctionComponent<ChannelItemPropsAccordion, ChannelState> = () => {
-    const [ getState ] = useCommanderState<ChannelState>( "App/ChannelItem" );
+    const [ getState ] = useCommandState<ChannelState>( "App/ChannelItem" );
 
     const { frequency, baseline, allocation } = getState();
 

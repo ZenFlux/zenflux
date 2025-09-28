@@ -4,7 +4,7 @@ import { Button } from "@zenflux/app-budget-allocation/src/components/ui/button"
 
 import { withCommands } from "@zenflux/react-commander/with-commands";
 
-import { useCommanderCommand } from "@zenflux/react-commander/use-commands";
+import { useCommand } from "@zenflux/react-commander/use-commands";
 
 import { CommandBase } from "@zenflux/react-commander/command-base";
 
@@ -13,7 +13,7 @@ import { Plus } from "@zenflux/react-ui/src/symbols";
 import type { DCommandFunctionComponent } from "@zenflux/react-commander/definitions";
 
 const AddChannel: DCommandFunctionComponent<void> = () => {
-    const command = useCommanderCommand( "App/AddChannel" );
+    const command = useCommand( "App/AddChannel" );
 
     return (
         <div>

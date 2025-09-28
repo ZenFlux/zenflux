@@ -1,4 +1,4 @@
-import { useCommanderCommand } from "@zenflux/react-commander/use-commands";
+import { useCommand } from "@zenflux/react-commander/use-commands";
 
 import { Info } from "@zenflux/react-ui/src/symbols";
 
@@ -33,7 +33,7 @@ export function getChannelBudgetFrequencyLabel( frequency: ChannelBudgetFrequenc
 export function ChannelBudgetFrequency( props: ChannelBudgetFrequencyProps ) {
     const { frequency } = props;
 
-    const command = useCommanderCommand( "App/ChannelItem/SetFrequency" );
+    const command = useCommand( "App/ChannelItem/SetFrequency" );
 
     const selectProps = {
         ... DEFAULT_PROPS,

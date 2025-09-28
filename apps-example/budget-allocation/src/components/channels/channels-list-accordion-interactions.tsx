@@ -5,9 +5,9 @@ import React from "react";
 import commandsManager from "@zenflux/react-commander/commands-manager";
 
 import {
-    useCommanderComponent,
-    useAnyComponentCommands,
-    useCommanderState,
+    useComponent,
+    useCommandMatch,
+    useCommandState,
     useChildCommandHook,
     useChildCommandRunner
 } from "@zenflux/react-commander/use-commands";
@@ -39,8 +39,8 @@ function _onEditRequest(
 
 function _onRemoveRequest(
     channel: ChannelItemAccordionComponent,
-    getChannelsListState: ReturnType<typeof useCommanderState<ChannelListState>>[ 0 ],
-    setChannelsListState: ReturnType<typeof useCommanderState<ChannelListState>>[ 1 ]
+    getChannelsListState: ReturnType<typeof useCommandState<ChannelListState>>[ 0 ],
+    setChannelsListState: ReturnType<typeof useCommandState<ChannelListState>>[ 1 ]
 ) {
     const newList = getChannelsListState().channels.filter( ( c ) => c.props.meta.id !== channel.props.meta.id );
 
@@ -52,9 +52,9 @@ function _onRemoveRequest(
 }
 
 function onAddRequest(
-    getChannelsListState: ReturnType<typeof useCommanderState<ChannelListState>>[ 0 ],
-    setChannelsListState: ReturnType<typeof useCommanderState<ChannelListState>>[ 1 ],
-    channelsCommands: ReturnType<typeof useCommanderComponent>
+    getChannelsListState: ReturnType<typeof useCommandState<ChannelListState>>[ 0 ],
+    setChannelsListState: ReturnType<typeof useCommandState<ChannelListState>>[ 1 ],
+    channelsCommands: ReturnType<typeof useComponent>
 ) {
     const id = `channel-${ Math.random().toString( 16 ).slice( 2 ) }`;
 
@@ -84,11 +84,11 @@ function onAddRequest(
 }
 
 export function channelsListAccordionInteractions() {
-    const [ getChannelsListState, setChannelsListState, isMounted ] = useCommanderState<ChannelListState>( "App/ChannelsList" );
+    const [ getChannelsListState, setChannelsListState, isMounted ] = useCommandState<ChannelListState>( "App/ChannelsList" );
 
     const setSelected = ( selected: { [ key: string ]: boolean } ) => setChannelsListState( { selected } );
 
-    const channelsCommands = useCommanderComponent( "App/ChannelsList" );
+    const channelsCommands = useComponent( "App/ChannelsList" );
 
     useChildCommandHook(
         "UI/AccordionItem",
@@ -119,7 +119,7 @@ export function channelsListAccordionInteractions() {
     }, [ isMounted() ] );
 
     React.useEffect( () => {
-        const addChannelCommands = useAnyComponentCommands( "App/AddChannel" );
+        const addChannelCommands = useCommandMatch( "App/AddChannel" );
         const addChannelCommandId = {
             commandName: "App/AddChannel",
             componentName: "App/AddChannel",
