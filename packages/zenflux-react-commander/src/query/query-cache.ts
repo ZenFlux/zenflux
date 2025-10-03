@@ -18,6 +18,7 @@ function keyStartsWith( key: string, prefix: string ): boolean {
 
 export function queryCreateMemoryCache(): QueryCache {
     const data = new Map<string, unknown>();
+    const inFlight = new Map<string, Promise<unknown>>();
 
     const get = <T>( key: QueryCacheKey ): T | undefined => {
         return data.get( serializeKey( key ) ) as T | undefined;
@@ -28,19 +29,48 @@ export function queryCreateMemoryCache(): QueryCache {
     };
 
     const fetchQuery = async <T>( options: { queryKey: QueryCacheKey; queryFn: () => Promise<T> } ): Promise<T> => {
+        const serialized = serializeKey( options.queryKey );
         const cached = get<T>( options.queryKey );
         if ( cached !== undefined ) return cached;
 
-        const value = await options.queryFn();
-        set( options.queryKey, value );
-        return value;
+        const existing = inFlight.get( serialized );
+        if ( existing ) return existing as Promise<T>;
+
+        const promise = options.queryFn().then( value => {
+            set( options.queryKey, value );
+            inFlight.delete( serialized );
+            return value;
+        } ).catch( error => {
+            inFlight.delete( serialized );
+            throw error;
+        } );
+
+        inFlight.set( serialized, promise );
+        return promise;
     };
 
     const prefetchQuery = async <T>( options: { queryKey: QueryCacheKey; queryFn: () => Promise<T> } ): Promise<void> => {
+        const serialized = serializeKey( options.queryKey );
         const cached = get<T>( options.queryKey );
         if ( cached !== undefined ) return;
-        const value = await options.queryFn();
-        set( options.queryKey, value );
+
+        const existing = inFlight.get( serialized );
+        if ( existing ) {
+            await existing;
+            return;
+        }
+
+        const promise = options.queryFn().then( value => {
+            set( options.queryKey, value );
+            inFlight.delete( serialized );
+            return value;
+        } ).catch( error => {
+            inFlight.delete( serialized );
+            throw error;
+        } );
+
+        inFlight.set( serialized, promise );
+        await promise;
     };
 
     const getQueryData = <T>( queryKey: QueryCacheKey ): T | undefined => {
@@ -58,5 +88,4 @@ export function queryCreateMemoryCache(): QueryCache {
 
     return { fetchQuery, prefetchQuery, getQueryData, invalidateQueries };
 }
-
 

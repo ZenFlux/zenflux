@@ -65,8 +65,13 @@ export abstract class QueryModuleBase {
 
         const request = await route.handlers.requestHandler!( component, element, args );
 
-        return this.api.fetch( "GET", route.path, request, ( response ) => {
-            return route.handlers.responseHandler!( component, element, response );
+        const queryKey = [ this.getResourceName(), "getProps", componentName, JSON.stringify( request ) ] as const;
+
+        return this.api.cache.fetchQuery( {
+            queryKey,
+            queryFn: () => this.api.fetch( "GET", route.path, request, ( response ) => {
+                return route.handlers.responseHandler!( component, element, response );
+            } )
         } );
     }
 
