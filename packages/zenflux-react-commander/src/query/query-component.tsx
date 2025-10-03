@@ -42,9 +42,9 @@ export class QueryComponent extends React.PureComponent<DQueryComponentProps> {
         const chainProps = props.props || {};
 
         this.element = async () => {
-            const props = await this.queryModule.getProps( this.props.component, this );
+            const $data = await this.queryModule.getData( this.props.component );
 
-            return React.createElement( this.props.component, { ... props, ... chainProps } );
+            return React.createElement( this.props.component, { $data, ... chainProps } );
         };
     }
 
@@ -55,12 +55,17 @@ export class QueryComponent extends React.PureComponent<DQueryComponentProps> {
 
         const getComponentPromise = async () => {
             const childrenType = this.props.children!.props.component;
+            const childrenModule = this.props.children!.props.module;
             const parent = await this.element();
 
-            const children = await Promise.all( parent.props.children.map( async ( child: any ) => {
-                const childProps = await this.queryModule.getProps( childrenType, this, child );
+            const parentData = parent.props.$data as unknown[];
 
-                return React.createElement( childrenType, childProps );
+            const childQueryModule = childrenModule ? this.client.getModule( childrenModule ) : this.queryModule;
+
+            const children = await Promise.all( parentData.map( async ( childData: unknown ) => {
+                const child$data = await childQueryModule.getData( childrenType, childData as Record<string, unknown> );
+
+                return React.createElement( childrenType, { $data: child$data } );
             } ) );
 
             return {
@@ -82,10 +87,10 @@ export class QueryComponent extends React.PureComponent<DQueryComponentProps> {
                 // Hooking lifecycle methods
                 [ INTERNAL_PROPS ]: {
                     handlers: {
-                        [ INTERNAL_ON_LOAD ]: ( context: any ) => this.queryModule.onLoadInternal( this, context ),
-                        [ INTERNAL_ON_MOUNT ]: ( context: any ) => this.queryModule.onMountInternal( this, context ),
-                        [ INTERNAL_ON_UNMOUNT ]: ( context: any ) => this.queryModule.onUnmountInternal( this, context ),
-                        [ INTERNAL_ON_UPDATE ]: ( context: any, state: any ) => this.queryModule.onUpdateInternal( this, context, state ),
+                        [ INTERNAL_ON_LOAD ]: ( context: any ) => this.queryModule.onLoadInternal( context ),
+                        [ INTERNAL_ON_MOUNT ]: ( context: any ) => this.queryModule.onMountInternal( context ),
+                        [ INTERNAL_ON_UNMOUNT ]: ( context: any ) => this.queryModule.onUnmountInternal( context ),
+                        [ INTERNAL_ON_UPDATE ]: ( context: any, state: any ) => this.queryModule.onUpdateInternal( context, state ),
                     }
                 }
             };

@@ -2,7 +2,7 @@ import { ChannelsService } from "@zenflux/budget-allocation-server/src/channels/
 
 import type { FastifyInstance, FastifyPluginOptions } from "fastify";
 
-import type { CreateChannelDto, UpdateChannelDto } from "@zenflux/budget-allocation-server/src/channels/channel.interface";
+import type { CreateChannelDto, UpdateChannelDto, UpdateChannelsListDto } from "@zenflux/budget-allocation-server/src/channels/channel.interface";
 
 const channelsService = new ChannelsService();
 
@@ -17,6 +17,16 @@ export async function channelsRoutes(
     fastify.post("/channels/reset", async (request, reply) => {
         channelsService.reset();
         return channelsService.findAll();
+    });
+
+    fastify.post<{ Body: UpdateChannelsListDto }>("/channels/list", async (request, reply) => {
+        const updateListDto = request.body;
+
+        fastify.log.info({ channels: updateListDto.channels.length }, "Updating channels list");
+
+        const updatedChannels = channelsService.updateList(updateListDto);
+
+        return { ok: true, channels: updatedChannels };
     });
 
     fastify.get<{ Params: { key: string } }>("/channels/:key", async (request, reply) => {

@@ -1,6 +1,6 @@
 import { defaultChannels } from "@zenflux/budget-allocation-server/src/channels/channels.defaults";
 
-import type { Channel, CreateChannelDto, UpdateChannelDto } from "@zenflux/budget-allocation-server/src/channels/channel.interface";
+import type { Channel, CreateChannelDto, UpdateChannelDto, UpdateChannelsListDto } from "@zenflux/budget-allocation-server/src/channels/channel.interface";
 
 export class ChannelsService {
     private channels: Map<string, Channel> = new Map();
@@ -70,5 +70,28 @@ export class ChannelsService {
     public reset(): void {
         this.channels.clear();
         this.initializeDefaultChannels();
+    }
+
+    public updateList(updateListDto: UpdateChannelsListDto): Channel[] {
+        updateListDto.channels.forEach(channelData => {
+            const key = channelData.meta.id;
+            const existingChannel = this.channels.get(key);
+
+            if (existingChannel) {
+                const updatedChannel: Channel = {
+                    ...existingChannel,
+                    meta: { ...existingChannel.meta, ...channelData.meta },
+                    allocation: channelData.allocation ?? existingChannel.allocation,
+                    baseline: channelData.baseline ?? existingChannel.baseline,
+                    frequency: channelData.frequency ?? existingChannel.frequency,
+                    breaks: channelData.breaks ?? existingChannel.breaks,
+                    key,
+                };
+
+                this.channels.set(key, updatedChannel);
+            }
+        });
+
+        return this.findAll();
     }
 }

@@ -3,7 +3,8 @@ import { QueryComponent } from "@zenflux/react-commander/query/component";
 import ChannelsList from "@zenflux/app-budget-allocation/src/components/channels/channels-list";
 import ChannelItemTable from "@zenflux/app-budget-allocation/src/components/channel/channel-item-table";
 
-import { ChannelsQueryModule } from "@zenflux/app-budget-allocation/src/api/channels-query-module.ts";
+import { ChannelsQueryModule } from "@zenflux/app-budget-allocation/src/api/channels-query-module";
+import { ChannelQueryModule } from "@zenflux/app-budget-allocation/src/api/channel-query-module";
 
 export default function BudgetOverview() {
     return (
@@ -13,7 +14,7 @@ export default function BudgetOverview() {
             component={ ChannelsList }
             props={ { view: "table" } }
         >
-            <QueryComponent component={ ChannelItemTable }/>
+            <QueryComponent module={ ChannelQueryModule } component={ ChannelItemTable }/>
         </QueryComponent>
     );
 }

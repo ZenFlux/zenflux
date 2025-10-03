@@ -7,29 +7,58 @@ import { queryDiffById } from "@zenflux/react-commander/query/list-diff";
 
 import { CHANNEL_LIST_STATE_DATA_WITH_META } from "@zenflux/app-budget-allocation/src/components/channel/channel-constants";
 
+import { transformChannelFromApi } from "@zenflux/app-budget-allocation/src/api/channels-domain";
+
 import { pickEnforcedKeys } from "@zenflux/app-budget-allocation/src/utils";
 
-import type { QueryComponent } from "@zenflux/react-commander/query/component";
 import type { DCommandFunctionComponent, DCommandSingleComponentContext } from "@zenflux/react-commander/definitions";
 
 import type { QueryClient } from "@zenflux/react-commander/query/client";
 
-export class ChannelsQueryModule extends QueryModuleBase {
-    private autosave: ReturnType<typeof queryCreateAutoSaveManager<Record<string, unknown>, { key: string } & Record<string, unknown>>>;
+import type {
+    Channel,
+    ChannelListApiResponse
+} from "@zenflux/app-budget-allocation/src/api/channels-domain";
+
+interface ChannelsListState extends Record<string, Channel[] | Record<string, boolean>> {
+    channels: Channel[];
+    selected: Record<string, boolean>;
+}
+
+interface ChannelsListSavePayload {
+    key: string;
+    channels: Channel[];
+    [ key: string ]: string | Channel[];
+}
+
+export class ChannelsQueryModule extends QueryModuleBase<Channel> {
+    private autosave: ReturnType<typeof queryCreateAutoSaveManager<ChannelsListState, ChannelsListSavePayload>>;
 
     public constructor( core: QueryClient ) {
         super( core );
         this.registerEndpoints();
 
-        this.autosave = queryCreateAutoSaveManager<Record<string, unknown>, { key: string } & Record<string, unknown>>( {
-            getKey: ( state ) => ( state as { meta: { id: string } } ).meta.id,
+        this.autosave = queryCreateAutoSaveManager<ChannelsListState, ChannelsListSavePayload>( {
+            getKey: () => "channels-list",
             pickToSave: ( state ) => {
-                const s = state as { meta: { id: string } } & Record<string, unknown>;
-                const payload = pickEnforcedKeys( s, CHANNEL_LIST_STATE_DATA_WITH_META ) as Record<string, unknown>;
-                return { key: s.meta.id, ... payload } as { key: string } & Record<string, unknown>;
+                const channels = state.channels.map( ( channel ) =>
+                    pickEnforcedKeys( channel, CHANNEL_LIST_STATE_DATA_WITH_META ) as Channel
+                );
+
+                return {
+                    key: "channels-list",
+                    channels
+                };
             },
             save: async ( input ) => {
-                await this.router.save( input );
+                const payload: Record<string, string | Channel[]> = {
+                    key: input.key,
+                    channels: input.channels
+                };
+
+                await this.api.fetch( "POST", "v1/channels/list", payload, async ( response ) => {
+                    return await response.json();
+                } );
             },
             debounceMs: 800,
             intervalMs: 5000,
@@ -45,111 +74,53 @@ export class ChannelsQueryModule extends QueryModuleBase {
     }
 
     private registerEndpoints(): void {
-        this.register( "GET", "App/ChannelsList", "v1/channels" );
-        this.register( "GET", "App/ChannelItem", "v1/channels/:key" );
-        this.register( "POST", "App/ChannelItem", "v1/channels/:key" );
+        this.defineEndpoint<ChannelListApiResponse[], Channel[]>( "App/ChannelsList", {
+            method: "GET",
+            path: "v1/channels",
+            prepareData: ( apiResponse ) => apiResponse.map( ( item ) => transformChannelFromApi( {
+                meta: item.meta,
+                frequency: item.frequency,
+                baseline: item.baseline,
+                allocation: item.allocation,
+                breaks: item.breaks,
+            } ) )
+        } );
+
+        this.register( "POST", "App/ChannelsListSave", "v1/channels/list" );
         this.register( "POST", "App/ChannelsReset", "v1/channels/reset" );
     }
 
-    protected async requestHandler( component: QueryComponent, element: DCommandFunctionComponent, request: any ): Promise<any> {
+    protected async requestHandler( element: DCommandFunctionComponent, request: Record<string, unknown> ): Promise<Record<string, unknown>> {
         return request;
     }
 
-    protected async responseHandler( component: QueryComponent, element: DCommandFunctionComponent, response: Response ): Promise<any> {
-        const result = await response.json();
-
-        return this.handleResponseBasedOnElementName( element.getName!(), result, component );
+    protected async responseHandler( element: DCommandFunctionComponent, response: Response ): Promise<unknown> {
+        return await response.json();
     }
 
-    // Handle the mounting of the component. This involves different handling depending on the component name.
-    protected onMount( component: QueryComponent, context: DCommandSingleComponentContext ) {
-        switch ( context.componentName ) {
-            case "App/ChannelsList":
-                this.onChannelsListMount( component, context );
-                break;
-            case "App/ChannelItem":
-                this.onChannelItemMount( component, context );
-                break;
-            default:
-                throw new Error( `ChannelsQueryModule: onMount() - Unknown component: ${ context.componentName }` );
-        }
+    protected onMount( context: DCommandSingleComponentContext ) {
+        this.onChannelsListMount( context );
     }
 
-    protected onUnmount( component: QueryComponent, context: DCommandSingleComponentContext ) {
-        switch ( context.componentName ) {
-            case "App/ChannelsList":
-                this.onChannelsListUnmount( component, context );
-                break;
-            case "App/ChannelItem":
-                this.onChannelItemUnmount( component, context );
-                break;
-            default:
-                throw new Error( `ChannelsQueryModule: onUnmount() - Unknown component: ${ context.componentName }` );
-        }
+    protected onUnmount( context: DCommandSingleComponentContext ) {
+        this.onChannelsListUnmount( context );
     }
 
-    // Handle the updating of the component. This involves different handling depending on the component name.
-    protected onUpdate( component: QueryComponent, context: DCommandSingleComponentContext, state: {
-        currentState: any,
-        prevState: any,
-        currentProps: any
+    protected onUpdate( context: DCommandSingleComponentContext, state: {
+        currentState: Readonly<ChannelsListState>,
+        prevState: Readonly<ChannelsListState>,
+        currentProps: Readonly<Record<string, string>>,
+        prevProps: Readonly<Record<string, string>>,
+        snapshot: never
     } ) {
         const { currentState, prevState } = state;
-        switch ( context.componentName ) {
-            case "App/ChannelsList":
-                if ( currentState.channels !== prevState.channels ) {
-                    this.onChannelsChanged( prevState.channels, currentState.channels );
-                }
-                break;
-            case "App/ChannelItem":
-                void this.autosave.queryUpsert( { ... state.currentProps, ... state.currentState } );
-                break;
-            default:
-                throw new Error( `ChannelsQueryModule: onUpdate() - Unknown component: ${ context.componentName }` );
+
+        if ( currentState.channels !== prevState.channels ) {
+            this.onChannelsChanged( prevState.channels, currentState.channels );
         }
     }
 
-    // Handle the API response based on the element name. This allows different handling for different types of responses.
-    private handleResponseBasedOnElementName( elementName: string, result: any, component: QueryComponent ) {
-        switch ( elementName ) {
-            case "App/ChannelsList":
-                return this.handleChannelsListResponse( result, component );
-            case "App/ChannelItem":
-                return this.handleChannelItemResponse( result );
-            default:
-                return result;
-        }
-    }
-
-    // Handle the response for the channels list. This involves mapping over the result and creating a new object for each item.
-    private handleChannelsListResponse( result: any, component: QueryComponent ) {
-        return {
-            children: result.map( ( i: any ) => {
-                const key = i.key;
-                delete i.key;
-                return {
-                    key,
-                    props: i,
-                    type: component.props.children!.props.type,
-                };
-            } ),
-        };
-    }
-
-    // Handle the response for an individual channel item. This involves creating a new object with the key and breaks properties modified.
-    private handleChannelItemResponse( result: any ) {
-        if ( result.breaks ) {
-            result.breaks = result.breaks.map( ( i: any ) => ( {
-                ... i,
-                date: new Date( i.date ),
-            } ) );
-        }
-        return result;
-    }
-
-    // Handle the mounting of the channels list. This involves setting up a timer to auto save channels every 5 seconds.
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    private onChannelsListMount( component: QueryComponent, context: DCommandSingleComponentContext ) {
+    private onChannelsListMount( context: DCommandSingleComponentContext ) {
         const commands = commandsManager.get( "UI/Accordion", true );
 
         if ( ! commands ) return;
@@ -157,17 +128,20 @@ export class ChannelsQueryModule extends QueryModuleBase {
         const onSelectionAttached = commands[ "UI/Accordion/onSelectionAttached" ],
             onSelectionDetached = commands[ "UI/Accordion/onSelectionDetached" ];
 
-        const saveChannelsCallback = () => {
-            void this.autosave.queryFlush();
+        const saveChannelsCallback = async () => {
+            const state = context.getState<ChannelsListState>();
+
+            this.autosave.queryUpsert( state );
+
+            await this.autosave.queryFlush();
         };
 
         onSelectionAttached.global().globalHook( saveChannelsCallback );
         onSelectionDetached.global().globalHook( saveChannelsCallback );
     }
 
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    private onChannelsListUnmount( component: QueryComponent, context: DCommandSingleComponentContext ) {
-        void this.autosave.queryFlush();
+    private async onChannelsListUnmount( _context: DCommandSingleComponentContext ) {
+        await this.autosave.queryFlush();
 
         const commands = commandsManager.get( "UI/Accordion", true );
 
@@ -180,41 +154,19 @@ export class ChannelsQueryModule extends QueryModuleBase {
         onSelectionDetached.global().globalUnhook();
     }
 
-    // Handle the mounting of an individual channel item. This involves fetching the channel data from the API and updating the state if necessary.
-    private async onChannelItemMount( component: QueryComponent, context: DCommandSingleComponentContext ) {
-        const key = context.props.meta.id;
-
-        try {
-            await this.router.queryPrefetchItem( key );
-            const cached = this.router.queryGetCachedItem( key );
-
-            if ( cached && context.isMounted() ) {
-                const normalized = this.handleChannelItemResponse( { ... cached } );
-                context.setState( normalized );
-            }
-        } catch ( error ) {
-            console.warn( "An error occurred while fetching API data, the state will not be updated, this area considered to be safe", error );
-        }
-    }
-
-    private async onChannelItemUnmount( component: QueryComponent, context: DCommandSingleComponentContext ) {
-        await this.autosave.queryFlushKey( context.props.meta.id );
-    }
-
-    // Handle when the channels change. This involves comparing the previous and current channels and updating the meta data if necessary.
-    private onChannelsChanged( prevChannels: any[], currentChannels: any[] ) {
+    private onChannelsChanged( prevChannels: Channel[], currentChannels: Channel[] ) {
         for ( let i = 0 ; i < currentChannels.length ; i++ ) {
             if ( ! prevChannels[ i ] || ! currentChannels[ i ] ) continue;
-            if ( prevChannels[ i ].props.meta !== currentChannels[ i ].props.meta ) {
+            if ( prevChannels[ i ].meta !== currentChannels[ i ].meta ) {
                 this.onChannelsMetaDataChanged(
-                    currentChannels[ i ].props.meta.id!,
-                    currentChannels[ i ].props.meta,
-                    prevChannels[ i ].props.meta
+                    currentChannels[ i ].meta.id,
+                    currentChannels[ i ].meta,
+                    prevChannels[ i ].meta
                 );
             }
         }
 
-        const { added, removed } = queryDiffById( prevChannels, currentChannels, c => c.props.meta.id );
+        const { added, removed } = queryDiffById( prevChannels, currentChannels, c => c.meta.id );
 
         for ( const ch of added ) {
             this.onChannelAdded( ch );
@@ -222,26 +174,24 @@ export class ChannelsQueryModule extends QueryModuleBase {
         if ( added.length > 0 ) return;
 
         for ( const ch of removed ) {
-            this.onChannelRemoved( ch.props.meta.id );
+            this.onChannelRemoved( ch.meta.id );
         }
         if ( removed.length > 0 ) return;
     }
 
-    private onChannelAdded( newChannel: any ) {
-        // Send a POST request to the API to create the new channel
-        this.router.save( {
-            key: newChannel.props.meta.id,
-            meta: newChannel.props.meta,
-        } );
+    private onChannelAdded( newChannel: Channel ) {
+        void this.router.save( {
+            key: newChannel.meta.id,
+            ... newChannel,
+        } as Channel & { key: string } );
     }
 
     private onChannelRemoved( key: string ) {
         void this.router.remove( key );
     }
 
-    // Handle when the meta data of a channel changes. This involves sending a POST request to the API with the new meta data.
-    private onChannelsMetaDataChanged( key: string, currentMeta: any, _prevMeta: any ) {
-        this.router.save( { key, meta: currentMeta } as any );
+    private onChannelsMetaDataChanged( key: string, currentMeta: Channel["meta"], _prevMeta: Channel["meta"] ) {
+        void this.router.save( { key, meta: currentMeta } as Channel & { key: string } );
     }
 }
 

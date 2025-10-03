@@ -1,81 +1,92 @@
 import { QueryRouterBase } from "@zenflux/react-commander/query/router";
 
-import type { DCommandSingleComponentContext, DCommandFunctionComponent } from "@zenflux/react-commander/definitions";
+import type { DCommandFunctionComponent } from "@zenflux/react-commander/definitions";
 import type { QueryClient } from "@zenflux/react-commander/query/client";
-import type { QueryComponent } from "@zenflux/react-commander/query/component";
+import type { DQueryReadOnlyContext, DQueryEndpointConfig } from "@zenflux/react-commander/query/definitions";
 
-interface Route {
+interface Route<TApiResponse, TData> {
     path: string;
-
     handlers: {
-        requestHandler?: ( ... args: any[] ) => Promise<any>;
-        responseHandler?: ( ... args: any[] ) => Promise<any>;
+        requestHandler?: ( element: DCommandFunctionComponent, request: Record<string, unknown> ) => Promise<Record<string, unknown>>;
+        responseHandler?: ( element: DCommandFunctionComponent, response: Response ) => Promise<TApiResponse>;
+        prepareData?: ( apiResponse: TApiResponse ) => TData;
     }
 }
 
-class SimpleQueryRouter<T extends Record<string, unknown>> extends QueryRouterBase<T, QueryModuleBase> {
-    public constructor( api: QueryClient, resource: string, model: QueryModuleBase ) { super( api, resource, model ); }
+class SimpleQueryRouter<TResource extends Record<string, unknown>> extends QueryRouterBase<TResource, QueryModuleBase<TResource>> {
+    public constructor( api: QueryClient, resource: string, model: QueryModuleBase<TResource> ) {
+        super( api, resource, model );
+    }
 }
 
-// Rename to QueryModelBase
-export abstract class QueryModuleBase {
+export abstract class QueryModuleBase<TResource extends Record<string, unknown> = Record<string, unknown>> {
 
     protected api: QueryClient;
-    protected router: QueryRouterBase<Record<string, unknown>, QueryModuleBase>;
+    protected router: QueryRouterBase<TResource, QueryModuleBase<TResource>>;
 
-    private routes: Map<RequestInit["method"], Map<Route["path"], Route>> = new Map();
+    private routes: Map<RequestInit["method"], Map<Route<unknown, unknown>["path"], Route<unknown, unknown>>> = new Map();
 
     public static getName(): string {
-        throw new Error( "Please extend APIModuleBase and implement static getName()" );
+        throw new Error( "Please extend QueryModuleBase and implement static getName()" );
     }
 
     public constructor( api: QueryClient ) {
         this.api = api;
-        this.router = new SimpleQueryRouter<Record<string, unknown>>( api, this.getResourceName(), this );
+        this.router = new SimpleQueryRouter<TResource>( api, this.getResourceName(), this );
     }
 
     protected abstract getResourceName(): string;
 
-    public onLoadInternal( component: QueryComponent, context: DCommandSingleComponentContext ) {
-        this.load?.( component, context );
+    public onLoadInternal( context: DQueryReadOnlyContext ) {
+        this.load?.( context );
     }
 
-    public onUnmountInternal( component: QueryComponent, context: DCommandSingleComponentContext ) {
-        this.onUnmount?.( component, context );
+    public onUnmountInternal( context: DQueryReadOnlyContext ) {
+        this.onUnmount?.( context );
     }
 
-    public onMountInternal( component: QueryComponent, context: DCommandSingleComponentContext ) {
-        this.onMount?.( component, context );
+    public onMountInternal( context: DQueryReadOnlyContext ) {
+        this.onMount?.( context );
     }
 
-    public onUpdateInternal( component: QueryComponent, context: DCommandSingleComponentContext, state: any ) {
-        this.onUpdate?.( component, context, state );
+    public onUpdateInternal( context: DQueryReadOnlyContext, state: {
+        currentProps: Readonly<Record<string, unknown>>;
+        currentState: Readonly<Record<string, unknown>>;
+        prevProps: Readonly<Record<string, unknown>>;
+        prevState: Readonly<Record<string, unknown>>;
+        snapshot: unknown;
+    } ) {
+        this.onUpdate?.( context, state );
     }
 
-    public async getProps( element: DCommandFunctionComponent, component: QueryComponent, args?: any ) {
-        let componentName: string;
+    public async getData<TData>( element: DCommandFunctionComponent, args?: Record<string, unknown> ): Promise<TData> {
+        const componentName = element.getName!();
 
-        componentName = element.getName!();
-
-        const route = this.routes.get( "GET" )?.get( componentName );
+        const route = this.routes.get( "GET" )?.get( componentName ) as Route<unknown, TData> | undefined;
 
         if ( ! route ) {
             throw new Error( `Cannot find route for ${ componentName }` );
         }
 
-        const request = await route.handlers.requestHandler!( component, element, args );
+        const request = await route.handlers.requestHandler!( element, args || {} );
 
-        const queryKey = [ this.getResourceName(), "getProps", componentName, JSON.stringify( request ) ] as const;
+        const queryKey = [ this.getResourceName(), "getData", componentName, JSON.stringify( request ) ] as const;
 
-        return this.api.cache.fetchQuery( {
+        const apiResponse = await this.api.cache.fetchQuery( {
             queryKey,
             queryFn: () => this.api.fetch( "GET", route.path, request, ( response ) => {
-                return route.handlers.responseHandler!( component, element, response );
+                return route.handlers.responseHandler!( element, response );
             } )
         } );
+
+        if ( route.handlers.prepareData ) {
+            return route.handlers.prepareData( apiResponse );
+        }
+
+        return apiResponse as TData;
     }
 
-    protected register( method: string, name: string, route: Route | string ): void {
+    protected register( method: string, name: string, route: Route<unknown, unknown> | string ): void {
         if ( ! this.routes.has( method ) ) {
             this.routes.set( method, new Map() );
         }
@@ -95,22 +106,38 @@ export abstract class QueryModuleBase {
         this.routes.get( method )!.set( name, route );
     }
 
-    protected abstract responseHandler( component: QueryComponent, element: DCommandFunctionComponent, response: Response ): Promise<any>;
+    protected defineEndpoint<TApiResponse, TData>(
+        name: string,
+        config: DQueryEndpointConfig<TApiResponse, TData>
+    ): void {
+        const route: Route<TApiResponse, TData> = {
+            path: config.path,
+            handlers: {
+                requestHandler: this.requestHandler.bind( this ),
+                responseHandler: this.responseHandler.bind( this ) as ( element: DCommandFunctionComponent, response: Response ) => Promise<TApiResponse>,
+                prepareData: config.prepareData,
+            }
+        };
 
-    protected abstract requestHandler( component: QueryComponent, element: DCommandFunctionComponent, request: any ): Promise<any>;
+        this.register( config.method, name, route as Route<unknown, unknown> );
+    }
 
-    protected load?( component: QueryComponent, context: DCommandSingleComponentContext ): void;
+    protected abstract responseHandler( element: DCommandFunctionComponent, response: Response ): Promise<unknown>;
 
-    protected onMount?( component: QueryComponent, context: DCommandSingleComponentContext ): void;
+    protected abstract requestHandler( element: DCommandFunctionComponent, request: Record<string, unknown> ): Promise<Record<string, unknown>>;
 
-    protected onUnmount?( component: QueryComponent, context: DCommandSingleComponentContext ): void;
+    protected load?( context: DQueryReadOnlyContext ): void;
 
-    protected onUpdate?( component: QueryComponent, context: DCommandSingleComponentContext, state: {
-        currentProps: any,
-        currentState: any,
-        prevProps: any,
-        prevState: any,
-        snapshot: any,
+    protected onMount?( context: DQueryReadOnlyContext ): void;
+
+    protected onUnmount?( context: DQueryReadOnlyContext ): void;
+
+    protected onUpdate?( context: DQueryReadOnlyContext, state: {
+        currentProps: Readonly<Record<string, unknown>>;
+        currentState: Readonly<Record<string, unknown>>;
+        prevProps: Readonly<Record<string, unknown>>;
+        prevState: Readonly<Record<string, unknown>>;
+        snapshot: unknown;
     } ): void;
 }
 

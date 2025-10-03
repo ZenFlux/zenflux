@@ -35,3 +35,14 @@ export interface UpdateChannelDto {
     frequency?: string;
     breaks?: ChannelBreak[];
 }
+
+export interface UpdateChannelsListDto {
+    key: string;
+    channels: Array<{
+        meta: ChannelMeta;
+        allocation?: string;
+        baseline?: string;
+        frequency?: string;
+        breaks?: ChannelBreak[];
+    }>;
+}

@@ -9,7 +9,7 @@ import type { QueryModuleBase } from "@zenflux/react-commander/query/module-base
 import type { QueryCache } from "@zenflux/react-commander/query/cache";
 
 export class QueryClient {
-    private modules: Record<string, QueryModuleBase> = {};
+    private modules: Record<string, QueryModuleBase<Record<string, unknown>>> = {};
 
     private readonly cacheRef: QueryCache;
 
@@ -18,11 +18,11 @@ export class QueryClient {
         this.cacheRef = cache ?? queryCreateMemoryCache();
     }
 
-    public fetch( method: string, route: string, args: any, handler: ( response: Response ) => any ) {
+    public fetch( method: string, route: string, args: Record<string, unknown>, handler: ( response: Response ) => Promise<unknown> ) {
         const url = new URL( `${ this.baseURL }/${ route }` );
 
         for ( const key in args ) {
-            url.pathname = url.pathname.replace( `:${ key }`, args[ key ] );
+            url.pathname = url.pathname.replace( `:${ key }`, String( args[ key ] ) );
         }
 
         const promise = globalThis.fetch( url.toString(), {
@@ -36,25 +36,25 @@ export class QueryClient {
         return promise.then( handler );
     }
 
-    public getModule( module: DQueryModuleBaseStatic ) {
+    public getModule<TResource extends Record<string, unknown> = Record<string, unknown>>( module: DQueryModuleBaseStatic<TResource> ): QueryModuleBase<TResource> {
         const moduleName = module.getName();
 
         if ( ! this.modules[ moduleName ] ) {
             throw new Error( `Query module ${ moduleName } not registered` );
         }
 
-        return this.modules[ moduleName ];
+        return this.modules[ moduleName ] as QueryModuleBase<TResource>;
     }
-    public registerModule( module: DQueryModuleBaseStatic ) {
+
+    public registerModule<TResource extends Record<string, unknown> = Record<string, unknown>>( module: DQueryModuleBaseStatic<TResource> ) {
 
         const moduleName = module.getName();
 
         if ( this.modules[ moduleName ] ) {
-            // TODO: Enable when hot reloading is implementedd
             throw new Error(`Query module ${moduleName} already registered`);
         }
 
-        this.modules[ moduleName ] = new module( this );
+        this.modules[ moduleName ] = new module( this ) as QueryModuleBase<Record<string, unknown>>;
     }
 
     public get Component() {

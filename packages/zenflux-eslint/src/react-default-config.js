@@ -35,6 +35,9 @@ export function zLintReactDefaultConfig( files, workspaces ) {
             rules: {
                 ...reactPlugin.configs.recommended.rules,
                 ...reactPlugin.configs[ "jsx-runtime" ].rules,
+                // Disable prop-types validation for TypeScript projects
+                // TypeScript already provides compile-time type checking
+                "react/prop-types": "off",
             },
             settings: {
                 react: {

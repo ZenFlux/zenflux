@@ -2,7 +2,7 @@ import React from "react";
 
 import { useComponent, useCommandState } from "@zenflux/react-commander/use-commands";
 
-import { channelsListAccordionInteractions } from "@zenflux/app-budget-allocation/src/components/channels/channels-list-accordion-interactions";
+import { useChannelsListAccordionInteractions } from "@zenflux/app-budget-allocation/src/components/channels/channels-list-accordion-interactions";
 
 import Accordion from "@zenflux/app-budget-allocation/src/ui-command-able/accordion/accordion";
 import AccordionItem from "@zenflux/app-budget-allocation/src/ui-command-able/accordion/accordion-item";
@@ -11,32 +11,31 @@ import ChannelItemAccordion from "@zenflux/app-budget-allocation/src/components/
 
 import type { ChannelListState } from "@zenflux/app-budget-allocation/src/components/channels/channels-types";
 
-import type { ChannelItemAccordionComponent } from "@zenflux/app-budget-allocation/src/components/channel/channel-types";
+import type { Channel } from "@zenflux/app-budget-allocation/src/api/channels-domain";
 
 import type { AccordionItemProps } from "@zenflux/app-budget-allocation/src/ui-command-able/accordion/accordion-item";
 
 export function toAccordionItem(
-    channel: ChannelItemAccordionComponent,
+    channel: Channel,
     channelsCommands: ReturnType<typeof useComponent>,
     index: number,
 ): React.ReactComponentElement<typeof AccordionItem> {
-    // Omit `collapsedState` and `setCollapsedState` those are extended by `renderExtendAccordionItem`
     const accordionProps: Omit<AccordionItemProps, "collapsedState" | "setCollapsedState"> = {
-        itemKey: channel.props.meta.id,
+        itemKey: channel.meta.id,
 
-        onRender: channel.props.onRender,
+        onRender: () => {},
 
-        children: <ChannelItemAccordion { ... channel.props } key={ channel.props.meta.id }/>,
+        children: <ChannelItemAccordion $data={ channel } key={ channel.meta.id }/>,
         heading: {
-            title: channel.props.meta.name,
-            icon: channel.props.meta.icon,
+            title: channel.meta.name,
+            icon: channel.meta.icon,
         },
         menu: {
             edit: {
                 label: "Edit",
                 action: () => channelsCommands.run(
                     "App/ChannelsList/EditRequest",
-                    { channel, }
+                    { channel }
                 ),
             },
             remove: {
@@ -44,7 +43,7 @@ export function toAccordionItem(
                 color: "danger",
                 action: () => channelsCommands.run(
                     "App/ChannelsList/RemoveRequest",
-                    { channel, }
+                    { channel }
                 ),
             },
         },
@@ -52,8 +51,10 @@ export function toAccordionItem(
 
     const { children, ... withoutChildren } = accordionProps;
 
-    return <AccordionItem children={ children } { ... withoutChildren }
-                          key={ "channel-" + channel.props.meta.id + "-accordion-item-" + index.toString() }/>;
+    return <AccordionItem { ... withoutChildren }
+        key={ "channel-" + channel.meta.id + "-accordion-item-" + index.toString() }>
+        { children }
+    </AccordionItem>;
 }
 
 export const ChannelsListAccordion: React.FC = () => {
@@ -67,7 +68,7 @@ export const ChannelsListAccordion: React.FC = () => {
         setChannelsListState( { selected } );
     };
 
-    channelsListAccordionInteractions();
+    useChannelsListAccordionInteractions();
 
     return (
         <Accordion selected={ channelsListState.selected } setSelected={ setSelected }>

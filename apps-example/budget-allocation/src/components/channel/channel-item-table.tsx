@@ -19,8 +19,9 @@ import * as commands from "@zenflux/app-budget-allocation/src/components/channel
 
 import "@zenflux/app-budget-allocation/src/components/channel/_channel-item-table.scss";
 
-import type { ChannelItemProps, ChannelState } from "@zenflux/app-budget-allocation/src/components/channel/channel-types";
+import type { ChannelState } from "@zenflux/app-budget-allocation/src/components/channel/channel-types";
 import type { InputProps } from "@zenflux/app-budget-allocation/src/components/ui/input";
+import type { Channel } from "@zenflux/app-budget-allocation/src/api/channels-domain";
 
 import type { DCommandFunctionComponent } from "@zenflux/react-commander/definitions";
 
@@ -30,7 +31,7 @@ declare global {
     }
 }
 
-export const ChannelItemTable: DCommandFunctionComponent<ChannelItemProps, ChannelState> = ( props ) => {
+export const ChannelItemTable: DCommandFunctionComponent<{ $data: Channel }, ChannelState> = ( props ) => {
     const [ getState, _setState , isMounted ] = useCommandState<ChannelState>( "App/ChannelItem" ),
         state = getState();
 
@@ -179,7 +180,7 @@ export const ChannelItemTable: DCommandFunctionComponent<ChannelItemProps, Chann
     );
 };
 
-const $$ = withCommands<ChannelItemProps, ChannelState>( "App/ChannelItem", ChannelItemTable, {
+const $$ = withCommands<{ $data: Channel }, ChannelState>( "App/ChannelItem", ChannelItemTable, {
     frequency: "annually",
     baseline: "0",
     allocation: "equal",

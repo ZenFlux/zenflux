@@ -15,11 +15,13 @@ import { ChannelBreakdowns } from "@zenflux/app-budget-allocation/src/components
 
 import * as commands from "@zenflux/app-budget-allocation/src/components/channel/commands";
 
-import type { ChannelItemPropsAccordion, ChannelState } from "@zenflux/app-budget-allocation/src/components/channel/channel-types";
+import type { ChannelState } from "@zenflux/app-budget-allocation/src/components/channel/channel-types";
+
+import type { Channel } from "@zenflux/app-budget-allocation/src/api/channels-domain";
 
 import type { DCommandFunctionComponent } from "@zenflux/react-commander/definitions";
 
-export const ChannelItemAccordion: DCommandFunctionComponent<ChannelItemPropsAccordion, ChannelState> = () => {
+export const ChannelItemAccordion: DCommandFunctionComponent<{ $data: Channel }, ChannelState> = () => {
     const [ getState ] = useCommandState<ChannelState>( "App/ChannelItem" );
 
     const { frequency, baseline, allocation } = getState();
@@ -45,7 +47,7 @@ export const ChannelItemAccordion: DCommandFunctionComponent<ChannelItemPropsAcc
     );
 };
 
-const $$ = withCommands<ChannelItemPropsAccordion, ChannelState>( "App/ChannelItem", ChannelItemAccordion, {
+const $$ = withCommands<{ $data: Channel }, ChannelState>( "App/ChannelItem", ChannelItemAccordion, {
     frequency: "annually",
     baseline: "0",
     allocation: "equal",

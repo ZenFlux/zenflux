@@ -4,6 +4,7 @@ import ChannelsList from "@zenflux/app-budget-allocation/src/components/channels
 import ChannelItemAccordion from "@zenflux/app-budget-allocation/src/components/channel/channel-item-accordion";
 
 import { ChannelsQueryModule } from "@zenflux/app-budget-allocation/src/api/channels-query-module";
+import { ChannelQueryModule } from "@zenflux/app-budget-allocation/src/api/channel-query-module";
 
 export default function BudgetAllocation() {
     return (
@@ -13,7 +14,7 @@ export default function BudgetAllocation() {
             component={ ChannelsList }
             props={ { view: "accordion" } }
         >
-            <QueryComponent component={ ChannelItemAccordion }/>
+            <QueryComponent module={ ChannelQueryModule } component={ ChannelItemAccordion }/>
         </QueryComponent>
     );
 }

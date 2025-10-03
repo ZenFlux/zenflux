@@ -14,8 +14,7 @@ export const ChannelsListTable: React.FC = () => {
     const channelsListState = getChannelsListState();
 
     const channelsRenderer = channelsListState.channels.filter(
-        // @ts-ignore
-        ( channel ) => channel.props.breaks?.length > 0
+        ( channel ) => channel.breaks && channel.breaks.length > 0
     );
 
     return (
@@ -35,13 +34,13 @@ export const ChannelsListTable: React.FC = () => {
                                 </div>
 
                                 <div className="channel-list-table-heading-title">
-                                    <img src={ channel.props.meta.icon } alt={ channel.props.meta.name }/>
-                                    <span>{ channel.props.meta.name }</span>
+                                    <img src={ channel.meta.icon } alt={ channel.meta.name }/>
+                                    <span>{ channel.meta.name }</span>
                                 </div>
                             </div>
                             <div className="channel-list-table-separator"/>
 
-                            <ChannelItemTable { ... channel.props } key={ channel.props.meta.id }/>
+                            <ChannelItemTable $data={ channel } key={ channel.meta.id }/>
                         </div>
                     );
                 } )

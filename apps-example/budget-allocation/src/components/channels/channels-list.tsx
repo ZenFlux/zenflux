@@ -8,25 +8,23 @@ import { META_DATA_KEYS } from "@zenflux/app-budget-allocation/src/components/ch
 
 import { pickEnforcedKeys } from "@zenflux/app-budget-allocation/src/utils";
 
-import type { ChannelItemAccordionComponent } from "@zenflux/app-budget-allocation/src/components/channel/channel-types";
-
 import type { DCommandFunctionComponent } from "@zenflux/react-commander/definitions";
 
 import type { ChannelListProps, ChannelListState } from "@zenflux/app-budget-allocation/src/components/channels/channels-types";
+
+import type { Channel } from "@zenflux/app-budget-allocation/src/api/channels-domain";
 
 const AccordionChannelsList = React.lazy( () => import( "@zenflux/app-budget-allocation/src/components/channels/channels-list-accordion" ) );
 
 const TableChannelsList = React.lazy( () => import( "@zenflux/app-budget-allocation/src/components/channels/channels-list-table" ) );
 
-export const ChannelsList: DCommandFunctionComponent<ChannelListProps, ChannelListState> = ( props, state ) => {
-    let channels: ChannelItemAccordionComponent[] = Array.isArray( props.children ) ? props.children : [ props.children ];
+export const ChannelsList: DCommandFunctionComponent<ChannelListProps & { $data: Channel[] }, ChannelListState> = ( props, state ) => {
+    const channels = props.$data;
 
     state.channels = channels.map( ( channel ) => {
         return {
             ... channel,
-
-            // Exposing meta, for commands to use
-            meta: pickEnforcedKeys( channel.props.meta, META_DATA_KEYS )
+            meta: pickEnforcedKeys( channel.meta, META_DATA_KEYS )
         };
     } );
 
@@ -42,7 +40,7 @@ export const ChannelsList: DCommandFunctionComponent<ChannelListProps, ChannelLi
     }
 };
 
-const $$ = withCommands<ChannelListProps, ChannelListState>( "App/ChannelsList", ChannelsList, {
+const $$ = withCommands( "App/ChannelsList", ChannelsList, {
     channels: [],
     selected: {},
 }, [
@@ -62,20 +60,16 @@ const $$ = withCommands<ChannelListProps, ChannelListState>( "App/ChannelsList",
         }
 
         public apply( args: { id: string, name: string } ) {
-            const channels = [ ... this.state.channels ]; // Create a copy of the channels array
+            const channels = [ ... this.state.channels ];
 
-            const channelIndex = channels.findIndex( ( c ) => c.props.meta.id === args.id );
+            const channelIndex = channels.findIndex( ( c ) => c.meta.id === args.id );
 
             if ( channelIndex !== -1 ) {
-                // Create a new channel object with the updated data & replace it in the channels array
                 channels[ channelIndex ] = {
                     ... channels[ channelIndex ],
-                    props: {
-                        meta: {
-                            ... channels[ channelIndex ].props.meta,
-                            name: args.name,
-                        },
-                        onRender: () => {},
+                    meta: {
+                        ... channels[ channelIndex ].meta,
+                        name: args.name,
                     },
                 };
 
