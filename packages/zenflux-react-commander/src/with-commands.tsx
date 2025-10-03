@@ -359,6 +359,8 @@ export function withCommands(
             handleAncestorContexts( context, parentContext );
         }, [ context ] );
 
+        React.useImperativeHandle( _ref, () => componentRef.current, [ componentRef.current ] );
+
         return (
             <ComponentIdProvider context={ context }>
                 <WrappedComponent { ... props } ref={ componentRef } $$key={ performance.now() }/>

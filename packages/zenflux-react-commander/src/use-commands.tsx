@@ -9,7 +9,7 @@ import core from "./_internal/core";
 import { ComponentIdContext } from "@zenflux/react-commander/commands-context";
 import commandsManager from "@zenflux/react-commander/commands-manager";
 
-import type { DCommandArgs, DCommandComponentContextProps, DCommandIdArgs, DCommandSingleComponentContext } from "@zenflux/react-commander/definitions";
+import type { DCommandArgs, DCommandComponentContextProps, DCommandHookHandle, DCommandIdArgs, DCommandSingleComponentContext } from "@zenflux/react-commander/definitions";
 
 /**
  * Ensures the effective component context matches the expected `componentName`.
@@ -35,39 +35,33 @@ function getSafeContext( componentName: string, context?: DCommandComponentConte
 
     return componentContext;
 }
-
-/**
- * Resolve a concrete command id across mounted contexts, optionally filtering by component name pattern and index.
- *
- * Purpose
- * - Non-hooking; just resolves identity for later runs/hooks.
- *
- * Parameters
- * - commandName: string
- * - opts?: { match?: string; index?: number }
- *
- * Returns
- * - DCommandIdArgs | null
- *
- * Notes
- * - Returns null when not found; consumers must handle null.
- *
- * Example
- * ```tsx
- * const id = useCommandId("Delete", { match: "Item", index: 0 });
- * ```
- */
-function useCommandId( commandName: string, opts?: { match?: string; index?: number } ): DCommandIdArgs | null {
+export function useCommandId(commandName: string, opts?: { match?: string; index?: number; waitForRef?: React.RefObject<any> } ): DCommandIdArgs | null {
     const match = opts?.match ?? commandName;
     const index = opts?.index ?? 0;
+    const waitForRef = opts?.waitForRef;
 
     const [ id, setId ] = React.useState<DCommandIdArgs | null>( null );
 
     React.useEffect( () => {
+        // If we need to wait for a ref, don't resolve until it's ready
+        if ( waitForRef && ! waitForRef.current ) {
+            setId( null );
+            return;
+        }
+
         try {
             const contexts = useCommandMatch( match );
             const ctx = contexts[ index ];
             if ( ctx ) {
+                // If we have a ref, make sure it matches the component's ref
+                if ( waitForRef ) {
+                    const componentRef = ctx.getComponentContext().getComponentRef();
+                    if ( componentRef?.current !== waitForRef.current ) {
+                        setId( null );
+                        return;
+                    }
+                }
+
                 setId( {
                     commandName,
                     componentName: ctx.componentName,
@@ -77,9 +71,55 @@ function useCommandId( commandName: string, opts?: { match?: string; index?: num
         } catch {
             setId( null );
         }
-    }, [ match, index, commandName ] );
+    }, [ match, index, commandName, waitForRef?.current ] );
 
     return id;
+}
+
+export function useComponentWithRef(componentName: string, ref: React.RefObject<any> ): ReturnType<typeof useComponent> | null {
+    const [ id, setId ] = React.useState<ReturnType<typeof useComponent> | null>( null );
+
+    React.useEffect( () => {
+        try {
+            const contexts = useCommandMatch( componentName );
+
+            const currentContext = contexts.find( ( ctx ) => ctx.getComponentContext().getComponentRef().current === ref.current );
+
+            if ( currentContext ) {
+                setId( useComponent( componentName, currentContext.getComponentContext() ) );
+            }
+        } catch {
+            setId( null );
+        }
+
+    }, [ componentName, ref.current ] );
+
+    return id;
+}
+
+export function useCommandWithRef(commandName: string, componentRef: React.RefObject<any> ) {
+    const [ command, setCommand ] = React.useState<ReturnType<typeof useCommand> & { unhookHandle: ( handle: DCommandHookHandle ) => void } | null>( null );
+
+    const componentName = commandsManager.getComponentName( commandName );
+
+    const component = useComponentWithRef( componentName, componentRef );
+
+    React.useEffect( () => {
+        if ( ! component ) {
+            setCommand( null );
+            return;
+        }
+
+        setCommand( {
+            run: ( args: DCommandArgs, callback?: ( result: any ) => void ) => component.run( commandName, args, callback ),
+            hook: ( callback: ( result: any, args?: DCommandArgs ) => void ) => component.hook( commandName, callback ),
+            unhook: () => component.unhook( commandName ),
+            unhookHandle: ( handle: DCommandHookHandle ) => component.unhookHandle( handle ),
+            getInternalContext: () => component.getInternalContext(),
+        } );
+    }, [ component ] );
+
+    return command;
 }
 
 /**
@@ -283,6 +323,8 @@ export function useComponent( componentName: string, context?: DCommandComponent
             commandsManager.hook( { commandName, componentName, componentNameUnique: id }, callback ),
         unhook: ( commandName: string ) =>
             commandsManager.unhook( { commandName, componentName, componentNameUnique: id } ),
+        unhookHandle: ( handle: DCommandHookHandle ) =>
+            commandsManager.unhookHandle( handle ),
 
         // TODO: Remove.
         getId: () => id,
@@ -404,25 +446,45 @@ export function useCommandRunner( commandName: string, opts?: { match?: string; 
 export function useCommandHook(
     commandName: string,
     handler: ( result?: unknown, args?: DCommandArgs ) => void,
-    opts?: { match?: string; index?: number; ignoreDuplicate?: boolean }
+    ref?: React.RefObject<any>,
 ) {
-    const componentContext = React.useContext( ComponentIdContext );
-    const fallbackId = React.useId();
-    const ownerId = componentContext?.isSet ? componentContext.getNameUnique() : ( "GLOBAL-" + fallbackId );
+    const ownerIdRef = React.useRef<string | null>( null );
 
-    const id = useCommandId( commandName, opts );
+    if ( ! ownerIdRef.current ) {
+        ownerIdRef.current = `${ commandName }:${ Math.random().toString( 36 ).slice( 2 ) }`;
+    }
+
+    const command = ref ? useCommandWithRef( commandName, ref ) : null;
+    const id = ref ? null : useCommandId( commandName );
 
     React.useEffect( () => {
-        if ( ! id ) return;
+        if ( ref ) {
+            if ( ! command ) return;
 
-        const handle = commandsManager.hookScoped( id, ownerId, handler, {
-            __ignoreDuplicatedHookError: !! opts?.ignoreDuplicate,
-        } );
+            const ctx = command.getInternalContext?.();
+            if ( ! ctx ) return;
 
-        return () => {
-            commandsManager.unhookHandle( handle );
-        };
-    }, [ id?.componentNameUnique, ownerId, handler ] );
+            const resolvedId = {
+                commandName,
+                componentName: ctx.componentName,
+                componentNameUnique: ctx.componentNameUnique,
+            } as DCommandIdArgs;
+
+            const handle = commandsManager.hookScoped( resolvedId, ownerIdRef.current as string, handler, { __ignoreDuplicatedHookError: true } );
+
+            return () => {
+                handle?.dispose();
+            };
+        } else {
+            if ( ! id ) return;
+
+            const handle = commandsManager.hookScoped( id, ownerIdRef.current as string, handler, { __ignoreDuplicatedHookError: true } );
+
+            return () => {
+                handle?.dispose();
+            };
+        }
+    }, [ ref?.current, command, id, handler ] );
 }
 
 /**

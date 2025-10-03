@@ -1,19 +1,18 @@
 // eslint-disable-next-line no-restricted-imports, @zenflux/no-relative-imports
+import { GET_INTERNAL_SYMBOL } from "./_internal/constants";
+// eslint-disable-next-line no-restricted-imports, @zenflux/no-relative-imports
 import core from "./_internal/core.ts";
 
-// eslint-disable-next-line no-restricted-imports, @zenflux/no-relative-imports
-import { GET_INTERNAL_SYMBOL } from "./_internal/constants";
+import type { CommandBase } from "@zenflux/react-commander/command-base";
 
 import type {
     DCommandArgs,
+    DCommandHookHandle,
+    DCommandIdArgs,
     DCommandNewInstanceWithArgs,
     DCommandRegisterArgs,
-    DCommandIdArgs,
-    DCommandSingleComponentContext,
-    DCommandHookHandle
+    DCommandSingleComponentContext
 } from "@zenflux/react-commander/definitions";
-
-import type { CommandBase } from "@zenflux/react-commander/command-base";
 
 class CommandsManager {
     private commands: {
@@ -26,6 +25,10 @@ class CommandsManager {
         [ componentNameUnique: string ]: {
             [ commandName: string ]: Array<{ ownerId: string; original: ( result?: any, args?: DCommandArgs ) => any; wrapped: ( result?: any, args?: DCommandArgs ) => any; }>
         }
+    } = {};
+
+    private commandToComponentMap: {
+        [ commandName: string ]: string;
     } = {};
 
     public register( args: DCommandRegisterArgs ) {
@@ -45,6 +48,7 @@ class CommandsManager {
             const commandInstance = new ( command as unknown as DCommandNewInstanceWithArgs )( args );
 
             this.commands[ componentName ][ commandName ] = commandInstance;
+            this.commandToComponentMap[ commandName ] = componentName;
 
             createdCommands.push( commandInstance );
         } );
@@ -86,6 +90,13 @@ class CommandsManager {
     public unregister( componentName: string ) {
         this.unhookWithinComponent( componentName );
 
+        // Clean up command to component mapping
+        Object.keys( this.commandToComponentMap ).forEach( commandName => {
+            if ( this.commandToComponentMap[ commandName ] === componentName ) {
+                delete this.commandToComponentMap[ commandName ];
+            }
+        } );
+
         delete this.commands[ componentName ];
     }
 
@@ -120,7 +131,16 @@ class CommandsManager {
             }
         }
 
-        return singleComponentContext.emitter.on( commandName, callback );
+        singleComponentContext.emitter.on( commandName, callback );
+
+        return {
+            componentNameUnique,
+            commandName,
+            callback,
+            dispose: () => {
+                singleComponentContext.emitter.off( commandName, callback );
+            }
+        };
     }
 
     public hookScoped( id: DCommandIdArgs, ownerId: string, callback: ( result?: any, args?: DCommandArgs ) => any, options?: {
@@ -261,6 +281,10 @@ class CommandsManager {
         return this.commands[ componentName ];
     }
 
+    public getComponentName( commandName: string ) {
+        return this.commandToComponentMap[ commandName ];
+    }
+
     public getCommands() {
         return this.commands;
     }
@@ -300,12 +324,76 @@ class CommandsManager {
     public isContextRegistered( componentNameUnique: string ) {
         return !! core[ GET_INTERNAL_SYMBOL ]( componentNameUnique, true );
     }
+
+    public devShowComponents() {
+        console.group( "🔧 CommandsManager Dev Info" );
+
+        console.log( "📋 Registered Commands:" );
+        Object.entries( this.commands ).forEach( ( [ componentName, commands ] ) => {
+            console.group( `  ${ componentName }` );
+            Object.keys( commands ).forEach( commandName => {
+                console.log( `    - ${ commandName }` );
+            } );
+            console.groupEnd();
+        } );
+
+        console.log( "🗺️ Command to Component Mapping:" );
+        Object.entries( this.commandToComponentMap ).forEach( ( [ commandName, componentName ] ) => {
+            console.log( `  ${ commandName } → ${ componentName }` );
+        } );
+
+        console.log( "🔗 Scoped Hooks:" );
+        Object.entries( this.scopedHooks ).forEach( ( [ componentNameUnique, commandHooks ] ) => {
+            console.group( `  ${ componentNameUnique }` );
+            Object.entries( commandHooks ).forEach( ( [ commandName, hooks ] ) => {
+                console.log( `    ${ commandName }: ${ hooks.length } hook(s)` );
+                hooks.forEach( ( hook, index ) => {
+                    console.log( `      [${ index }] owner: ${ hook.ownerId }` );
+                } );
+            } );
+            console.groupEnd();
+        } );
+
+        console.log( "🌐 Non-Scoped Hooks:" );
+        const contextKeys = core.__devGetContextKeys();
+        contextKeys.forEach( key => {
+            const context = core[ GET_INTERNAL_SYMBOL ]( key, true );
+            const hasNonScopedHooks = Object.keys( context.commands ).some( commandName => {
+                const listeners = context.emitter.listeners( commandName );
+                return listeners.length > 0;
+            } );
+
+            if ( hasNonScopedHooks ) {
+                console.group( `  ${ key }` );
+                Object.keys( context.commands ).forEach( commandName => {
+                    const listeners = context.emitter.listeners( commandName );
+                    if ( listeners.length > 0 ) {
+                        console.log( `    ${ commandName }: ${ listeners.length } listener(s)` );
+                        listeners.forEach( ( listener, index ) => {
+                            console.log( `      [${ index }] ${ listener.name || "anonymous" }` );
+                        } );
+                    }
+                } );
+                console.groupEnd();
+            }
+        } );
+
+        console.log( "🏗️ Core Context:" );
+        console.log( `  Total components: ${ contextKeys.length }` );
+        contextKeys.forEach( key => {
+            const context = core[ GET_INTERNAL_SYMBOL ]( key, true );
+            console.log( `    ${ key }: ${ context.commands.length } command(s)` );
+        } );
+
+        console.groupEnd();
+    }
 }
 
 export const commands = new CommandsManager();
 
 if ( import.meta.env.DEV ) {
     ( window as any ).$$commands = commands;
+    ( window as any ).$$dev = () => commands.devShowComponents();
 }
 
 export default commands;
