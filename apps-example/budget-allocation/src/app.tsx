@@ -1,8 +1,8 @@
-import React, { useEffect } from "react";
+import React from "react";
 
 import { QueryClient } from "@zenflux/react-commander/query/client";
 
-import { useCommandHook, useCommandRunner } from "@zenflux/react-commander/use-commands";
+import { useCommandRunner, useCommandHook, useCommandWithRef } from "@zenflux/react-commander/use-commands";
 
 import { ChannelsQueryModule } from "@zenflux/app-budget-allocation/src/api/channels-query-module.ts";
 
@@ -42,26 +42,24 @@ function App() {
         }
     };
 
-    const [ selectedTab, setSelectedTab ] = React.useState( location.hash.replace( "#", "" ) );
+    const tabsRef = React.useRef<HTMLDivElement>( null );
 
     const runAddChannel = useCommandRunner( "App/AddChannel" );
+    const selectCommand = useCommandWithRef("UI/Tabs/Select", tabsRef);
 
-    useEffect( () => {
-        if ( location.hash === "#allocation/add-channel" ) {
-            location.hash = "#allocation";
-            setSelectedTab( "allocation" );
+    useCommandHook( "App/AddChannel", () => {
+        if ( location.hash === "#overview" ) {
+            selectCommand?.run({ key: "allocation" });
 
             setTimeout( () => {
                 runAddChannel( {} );
-            }, 1000 );
+            }, 1200 );
         }
-    }, [ location.hash ] );
-
-    useCommandHook( "App/AddChannel", () => {
-        location.hash = "#allocation/add-channel";
-
-        setSelectedTab( "allocation" );
     } );
+
+    useCommandHook( "UI/Tabs/Select", ( _result, args ) => {
+        location.hash = `#${ args?.key }`;
+    }, tabsRef );
 
     const items = [
         { id: "allocation", title: "Budget Allocation", content: <LazyLoader ContentComponent={ BudgetAllocation }/> },
@@ -76,29 +74,24 @@ function App() {
             tab: "tab",
             cursor: "cursor",
         },
-        selectedKey: selectedTab,
-        onSelectionChange: ( id: React.Key ) => {
-            if ( ! location.hash.includes( id.toString() ) ) {
-                setSelectedTab( id.toString() );
-
-                location.hash = id.toString();
-            }
-        }
+        defaultValue: location.hash.replace( "#", "" ),
     };
 
     return (
         <>
-            <Button onClick={ () => {
-                // Do not let the rescue callback to run
+            <Button onClick={ async () => {
                 window.onbeforeunload = null;
 
-                localStorage.clear();
+                await client.fetch( "POST", "v1/channels/reset", {}, ( response ) => response.json() );
+
                 location.reload();
             } } className="absolute top-0 right-0 border-none" variant="bordered" disableAnimation={ true }
-            radius={ "none" }>Reset Demo</Button>
+            radius={ "none" }>
+                Reset Demo
+            </Button>
 
             <Layout { ... layoutProps }>
-                <Tabs { ... tabsProps }> {
+                <Tabs ref={ tabsRef } { ... tabsProps }> {
                     tabsProps.items.map( ( tab ) => (
                         <Tab key={ tab.id } title={ tab.title }>
                             { tab.content }

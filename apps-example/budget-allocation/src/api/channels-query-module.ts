@@ -48,6 +48,7 @@ export class ChannelsQueryModule extends QueryModuleBase {
         this.register( "GET", "App/ChannelsList", "v1/channels" );
         this.register( "GET", "App/ChannelItem", "v1/channels/:key" );
         this.register( "POST", "App/ChannelItem", "v1/channels/:key" );
+        this.register( "POST", "App/ChannelsReset", "v1/channels/reset" );
     }
 
     protected async requestHandler( component: QueryComponent, element: DCommandFunctionComponent, request: any ): Promise<any> {

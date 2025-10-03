@@ -1,27 +1,23 @@
 {
-  "name": "budget-allocation-server",
+  "name": "@zenflux/budget-allocation-server",
   "version": "1.0.0",
-  "description": "NestJS server for budget allocation app",
+  "description": "Fastify server for budget allocation app",
   "main": "dist/main.js",
   "scripts": {
-    "build": "nest build",
-    "start": "nest start",
-    "start:dev": "nest start --watch",
-    "start:debug": "nest start --debug --watch",
-    "start:prod": "node dist/main"
+    "build": "tsc",
+    "start": "bun dist/main.js",
+    "start:dev": "tsc --watch & nodemon",
+    "start:prod": "bun dist/main.js"
   },
   "private": true,
   "devDependencies": {
     "@types/bun": "latest",
     "@types/node": "^24.5.2",
+    "nodemon": "^3.1.10",
     "typescript": "^5.9.2"
   },
   "dependencies": {
-    "@nestjs/cli": "^11.0.10",
-    "@nestjs/common": "^11.1.6",
-    "@nestjs/core": "^11.1.6",
-    "@nestjs/platform-express": "^11.1.6",
-    "reflect-metadata": "^0.2.2",
-    "rxjs": "^7.8.2"
+    "@fastify/cors": "^10.0.1",
+    "fastify": "^5.2.0"
   }
 }
