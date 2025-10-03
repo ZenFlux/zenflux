@@ -75,4 +75,7 @@ export function zLintGetConfig( options: ZESLintDefaultOptions ): Promise<ESLint
 
 export function zLintGetProjectsPathsWithConfig( workspaces?: string[] ): Promise<string[]>;
 
+export function zLintReactDefaultConfig( files: string[], workspaces: string[] ): ESLintTSLintCompatible[];
+
 export type * from './default-config.d.ts'
+

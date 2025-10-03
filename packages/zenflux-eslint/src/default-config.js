@@ -188,7 +188,8 @@ export function zLintDefaultConfig( files, workspaces ) {
                 "indent": "off",
                 "@stylistic/indent": ["error", 4, {
                     "SwitchCase": 1,
-                }]
+                }],
+                "@stylistic/object-curly-spacing": ["error", "always"]
             },
         },
     ];
