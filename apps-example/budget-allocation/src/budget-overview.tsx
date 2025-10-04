@@ -6,15 +6,21 @@ import ChannelItemTable from "@zenflux/app-budget-allocation/src/components/chan
 import { ChannelsQueryModule } from "@zenflux/app-budget-allocation/src/api/channels-query-module";
 import { ChannelQueryModule } from "@zenflux/app-budget-allocation/src/api/channel-query-module";
 
+import type { Channel } from "@zenflux/app-budget-allocation/src/api/channels-domain";
+import type { ChannelListProps } from "@zenflux/app-budget-allocation/src/components/channels/channels-types";
+
 export default function BudgetOverview() {
     return (
-        <QueryComponent
+        <QueryComponent<Channel[], ChannelListProps, Channel>
             fallback={ <div className="loading">Loading <span className="dots">◌</span></div> }
             module={ ChannelsQueryModule }
             component={ ChannelsList }
-            props={ { view: "table" } }
+            props={ { view: "table" } as const }
         >
-            <QueryComponent module={ ChannelQueryModule } component={ ChannelItemTable }/>
+            <QueryComponent<Channel, { $data: Channel }, Channel>
+                module={ ChannelQueryModule }
+                component={ ChannelItemTable }
+            />
         </QueryComponent>
     );
 }

@@ -15,12 +15,16 @@ import type { QueryClient } from "@zenflux/react-commander/query/client";
 import type { QueryModuleBase } from "@zenflux/react-commander/query/module-base";
 import type { DQueryComponentProps } from "@zenflux/react-commander/query/definitions";
 
-export class QueryComponent extends React.PureComponent<DQueryComponentProps> {
+export class QueryComponent<
+    TData = Record<string, unknown>,
+    TProps = Record<string, unknown>,
+    TResource extends Record<string, unknown> = Record<string, unknown>
+> extends React.PureComponent<DQueryComponentProps<TData, TProps, TResource>> {
     private static client: QueryClient;
 
     private readonly client: QueryClient;
 
-    private readonly queryModule: QueryModuleBase;
+    private readonly queryModule: QueryModuleBase<TResource>;
 
     private readonly element;
 
@@ -28,7 +32,7 @@ export class QueryComponent extends React.PureComponent<DQueryComponentProps> {
         this.client = query;
     }
 
-    public constructor( props: DQueryComponentProps ) {
+    public constructor( props: DQueryComponentProps<TData, TProps, TResource> ) {
         super( props );
 
         this.client = ( this.constructor as typeof QueryComponent ).client;
@@ -42,9 +46,9 @@ export class QueryComponent extends React.PureComponent<DQueryComponentProps> {
         const chainProps = props.props || {};
 
         this.element = async () => {
-            const $data = await this.queryModule.getData( this.props.component );
+            const $data = await this.queryModule.getData( this.props.component ) as TData;
 
-            return React.createElement( this.props.component, { $data, ... chainProps } );
+            return React.createElement( this.props.component, { $data, ... chainProps } as TProps & { $data: TData } );
         };
     }
 
@@ -58,11 +62,13 @@ export class QueryComponent extends React.PureComponent<DQueryComponentProps> {
             const childrenModule = this.props.children!.props.module;
             const parent = await this.element();
 
-            const parentData = parent.props.$data as unknown[];
+            const parentData = (parent.props as TProps & { $data: TData }).$data;
 
             const childQueryModule = childrenModule ? this.client.getModule( childrenModule ) : this.queryModule;
 
-            const children = await Promise.all( parentData.map( async ( childData: unknown ) => {
+            const dataArray = Array.isArray(parentData) ? parentData : [parentData];
+
+            const children = await Promise.all( dataArray.map( async ( childData ) => {
                 const child$data = await childQueryModule.getData( childrenType, childData as Record<string, unknown> );
 
                 return React.createElement( childrenType, { $data: child$data } );

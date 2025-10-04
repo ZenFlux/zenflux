@@ -12,9 +12,9 @@ export interface DQueryModuleBaseStatic<TResource extends Record<string, unknown
     getName(): string;
 }
 
-export interface DQueryComponentProps<TData = unknown, TProps = Record<string, unknown>> {
+export interface DQueryComponentProps<TData = Record<string, unknown>, TProps = Record<string, unknown>, TResource extends Record<string, unknown> = Record<string, unknown>> {
     children?: React.ReactElement;
-    module?: DQueryModuleBaseStatic;
+    module?: DQueryModuleBaseStatic<TResource>;
     fallback?: React.ReactElement;
     component: DCommandFunctionComponent<TProps & { $data: TData }>;
     props?: TProps;
