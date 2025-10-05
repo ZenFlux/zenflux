@@ -1,7 +1,7 @@
 import React from "react";
 
 import { withCommands } from "@zenflux/react-commander/with-commands";
-import { useCommandState } from "@zenflux/react-commander/use-commands";
+import { useCommandStateSelector } from "@zenflux/react-commander/use-commands";
 
 import "@zenflux/app-budget-allocation/src/components/channel-item/_channel-item-accordion.scss";
 
@@ -22,17 +22,33 @@ import type { Channel } from "@zenflux/app-budget-allocation/src/api/channels-do
 import type { DCommandFunctionComponent } from "@zenflux/react-commander/definitions";
 
 export const ChannelItemAccordion: DCommandFunctionComponent<{ $data: Channel }, ChannelState> = () => {
-    const [ getState ] = useCommandState<ChannelState>( "App/ChannelItem" );
+    const ChannelBudgetSettings = () => {
+        // Subscribe to all budget settings for automatic re-rendering
+        const [state] = useCommandStateSelector<ChannelState, {
+            frequency: ChannelState["frequency"];
+            baseline: ChannelState["baseline"];
+            allocation: ChannelState["allocation"]
+        }>(
+            "App/ChannelItem",
+            (state) => ({
+                frequency: state.frequency,
+                baseline: state.baseline,
+                allocation: state.allocation
+            })
+        );
 
-    const { frequency, baseline, allocation } = getState();
+        return (
+            <div className="channel-budget-settings">
+                <ChannelBudgetFrequency frequency={ state.frequency }/>
+                <ChannelBudgetBaseline frequency={ state.frequency } baseline={ state.baseline } allocation={ state.allocation }/>
+                <ChannelBudgetAllocation allocation={ state.allocation }/>
+            </div>
+        );
+    };
 
     return (
         <div className="channel-item-accordion">
-            <div className="channel-budget-settings">
-                <ChannelBudgetFrequency frequency={ frequency }/>
-                <ChannelBudgetBaseline frequency={ frequency } baseline={ baseline } allocation={ allocation }/>
-                <ChannelBudgetAllocation allocation={ allocation }/>
-            </div>
+            <ChannelBudgetSettings/>
 
             <div className="channel-budget-breakdowns mt-[50px] p-[24px] min-w-[1200px] min-h-[300px] bg-[#F5F6FA] bg-gradient-to-r from-[50%] to-[#B2BBD580] rounded border border-slate-300 border-opacity-50">
                 <div className="header">
@@ -51,6 +67,8 @@ const $$ = withCommands<{ $data: Channel }, ChannelState>( "App/ChannelItem", Ch
     frequency: "annually",
     baseline: "0",
     allocation: "equal",
+    breaks: [],
+    breakElements: [],
 }, [
     commands.SetAllocation,
     commands.SetBaseline,

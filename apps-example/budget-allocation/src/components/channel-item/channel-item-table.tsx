@@ -32,23 +32,12 @@ declare global {
 }
 
 export const ChannelItemTable: DCommandFunctionComponent<{ $data: Channel }, ChannelState> = ( props ) => {
-    const [ getState, _setState , isMounted ] = useCommandState<ChannelState>( "App/ChannelItem" ),
+    const [ getState, _setState , _isMounted ] = useCommandState<ChannelState>( "App/ChannelItem" ),
         state = getState();
 
     const [ isEditing, setIsEditing ] = React.useState<boolean[]>( new Array( state.breaks!.length ).fill( false ) );
     const [ arrowRightOrLeft, setArrowRightOrLeft ] = React.useState<"right" | "left">( "right" );
     const [ cloneState, setCloneState ] = React.useState( state );
-
-    React.useEffect( () => {
-        if ( isMounted() ) {
-            setCloneState( {
-                ... state,
-            } );
-        }
-    }, [ isMounted() ] );
-
-    // @ts-ignore - Handles issue with state not being set on first render, when page loaded on overview.
-    if ( ! state.breaks?.length && props.breaks.length ) state.breaks = props.breaks;
 
     const tableRef = React.useRef<HTMLDivElement>( null );
 
