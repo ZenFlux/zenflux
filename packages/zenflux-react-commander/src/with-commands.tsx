@@ -264,14 +264,6 @@ export function withCommands(
 
             this.registerInternalContext();
 
-            this.store?.subscribe( ( _state ) => {
-                if ( ! this.context.getComponentRef()?.current ) {
-                    return;
-                }
-
-                this.forceUpdate();
-            } );
-
             core[ SET_TO_CONTEXT_SYMBOL ]( id, { props: this.props } );
 
             if ( this.$$commander.lifecycleHandlers[ INTERNAL_ON_MOUNT ] ) {
