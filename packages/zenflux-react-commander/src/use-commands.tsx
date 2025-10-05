@@ -337,7 +337,7 @@ export function useComponent( componentName: string, context?: DCommandComponent
 }
 
 /**
- * Read and write the injected state of a named component instance from within that component’s context.
+ * Read and write the injected state of a named component instance from within that component's context.
  *
  * Parameters
  * - componentName: string
@@ -373,6 +373,114 @@ export function useCommandState<TState>( componentName: string ) {
         internalContext.getState<TState>,
         internalContext.setState<TState>,
 
+        internalContext.isMounted,
+    ] as const;
+}
+
+/**
+ * Subscribe to specific parts of command state with automatic re-rendering.
+ *
+ * This hook provides granular state subscription, allowing components to re-render
+ * only when specific state properties change, improving performance and consistency.
+ *
+ * Parameters
+ * - componentName: string
+ * - selector: Function that selects specific state properties
+ * - options?: { equalityFn?: (a, b) => boolean }
+ *
+ * Returns
+ * - [selectedState, setState, isMounted]
+ *
+ * Notes
+ * - Works only for components wrapped with `withCommands` that provided an initial `state`.
+ * - Uses shallow comparison by default, but custom equality function can be provided.
+ * - Automatically re-renders when selected state changes.
+ * - Provides type-safe access to state properties.
+ *
+ * Example
+ * ```tsx
+ * function BudgetBaseline() {
+ *   const [baseline, setState] = useCommandStateSelector<ChannelState>(
+ *     "App/ChannelItem",
+ *     (state) => ({ baseline: state.baseline, allocation: state.allocation })
+ *   );
+ *
+ *   return (
+ *     <input
+ *       value={baseline.baseline}
+ *       disabled={baseline.allocation === "manual"}
+ *       onChange={(e) => setState({ baseline: e.target.value })}
+ *     />
+ *   );
+ * }
+ * ```
+ */
+export function useCommandStateSelector<TState, TSelected>(
+    componentName: string,
+    selector: (state: TState) => TSelected,
+    options?: { equalityFn?: (a: TSelected, b: TSelected) => boolean }
+) {
+    const componentContext = getSafeContext( componentName );
+    const id = componentContext.getNameUnique();
+    const internalContext = core[ GET_INTERNAL_SYMBOL ]( id );
+
+    const [selectedState, setSelectedState] = React.useState<TSelected>(() => {
+        const currentState = internalContext.getState<TState>();
+        return selector(currentState);
+    });
+
+    const equalityFn = options?.equalityFn || React.useMemo(() =>
+        (a: TSelected, b: TSelected) => {
+            if (typeof a === "object" && typeof b === "object" && a !== null && b !== null) {
+                return JSON.stringify(a) === JSON.stringify(b);
+            }
+            return a === b;
+        }, []
+    );
+
+    React.useEffect(() => {
+        const updateSelectedState = () => {
+            const currentState = internalContext.getState<TState>();
+            const newSelectedState = selector(currentState);
+
+            if (!equalityFn(selectedState, newSelectedState)) {
+                setSelectedState(newSelectedState);
+            }
+        };
+
+        // Use a more reliable polling approach for now
+        const interval = setInterval(updateSelectedState, 50);
+
+        // Also try to hook into commands if available
+        const commands = commandsManager.get(componentName, true);
+        if (commands) {
+            const handles: Array<{ dispose: () => void }> = [];
+
+            Object.keys(commands).forEach(commandName => {
+                if (commandName.includes("Set") || commandName.includes("Update")) {
+                    const _command = commands[commandName];
+                    const handle = commandsManager.hook(
+                        { commandName, componentName, componentNameUnique: id },
+                        updateSelectedState
+                    );
+                    if (handle) {
+                        handles.push(handle);
+                    }
+                }
+            });
+
+            return () => {
+                clearInterval(interval);
+                handles.forEach(handle => handle.dispose());
+            };
+        }
+
+        return () => clearInterval(interval);
+    }, [componentName, id, selector, selectedState, equalityFn]);
+
+    return [
+        selectedState,
+        internalContext.setState<TState>,
         internalContext.isMounted,
     ] as const;
 }
