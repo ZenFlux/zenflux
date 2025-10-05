@@ -188,15 +188,15 @@ const ChannelBreakdownsContent: React.FC = React.memo(() => {
 ChannelBreakdownsContent.displayName = "ChannelBreakdownsContent";
 
 export const ChannelBreakdowns: React.FC = () => {
-    const commands = useComponent( "App/ChannelItem" );
+    const component = useComponent( "App/ChannelItem" );
     const [ _getState, setState ] = useCommandState<ChannelState>( "App/ChannelItem" );
 
     const onBreakdownInputChange = ( index: number, value: string ) => {
-        commands.run( "App/ChannelItem/SetBreakdown", { index, value, source: UpdateSource.FROM_BUDGET_BREAKS } );
+        component.run( "App/ChannelItem/SetBreakdown", { index, value, source: UpdateSource.FROM_BUDGET_BREAKS } );
     };
 
     const updateBreakdownElements = () => {
-        const currentState = commands.getState<ChannelState>();
+        const currentState = component.getState<ChannelState>();
 
         // Always ensure we have breaks
         let breaks = currentState.breaks;
@@ -217,7 +217,7 @@ export const ChannelBreakdowns: React.FC = () => {
     };
 
     const handleBudgetSettingsChange = async () => {
-        const currentState = commands.getState<ChannelState>();
+        const currentState = component.getState<ChannelState>();
         const newBreaks = generateBreaks( currentState.frequency, currentState.baseline );
 
         // Update breaks and then generate new break elements
@@ -248,19 +248,19 @@ export const ChannelBreakdowns: React.FC = () => {
     };
 
     React.useEffect( () => {
-        commands.hook( "App/ChannelItem/SetBaseline", handleBudgetSettingsChange );
-        commands.hook( "App/ChannelItem/SetFrequency", handleBudgetSettingsChange );
-        commands.hook( "App/ChannelItem/SetAllocation", handleBudgetSettingsChange );
-        commands.hook( "App/ChannelItem/SetBreakdown", handleBreakdownSum );
+        component.hook( "App/ChannelItem/SetBaseline", handleBudgetSettingsChange );
+        component.hook( "App/ChannelItem/SetFrequency", handleBudgetSettingsChange );
+        component.hook( "App/ChannelItem/SetAllocation", handleBudgetSettingsChange );
+        component.hook( "App/ChannelItem/SetBreakdown", handleBreakdownSum );
 
         return () => {
-            commands.unhook( "App/ChannelItem/SetBaseline" );
-            commands.unhook( "App/ChannelItem/SetFrequency" );
-            commands.unhook( "App/ChannelItem/SetAllocation" );
-            commands.unhook( "App/ChannelItem/SetBreakdown" );
+            component.unhook( "App/ChannelItem/SetBaseline" );
+            component.unhook( "App/ChannelItem/SetFrequency" );
+            component.unhook( "App/ChannelItem/SetAllocation" );
+            component.unhook( "App/ChannelItem/SetBreakdown" );
         };
-    }, [ commands ] );
-https://127.0.0.1:63131/lol-game-data/assets/ASSETS/Regalia/BannerSkins/Spirit_Blossom_Banner.ACCESSORIES_15_9.png
+    }, [ component ] );
+    https://127.0.0.1:63131/lol-game-data/assets/ASSETS/Regalia/BannerSkins/Spirit_Blossom_Banner.ACCESSORIES_15_9.png
     React.useEffect( () => {
         updateBreakdownElements();
     }, [] );
