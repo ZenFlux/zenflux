@@ -1,6 +1,6 @@
 import { formatNumericStringWithCommas } from "@zenflux/app-budget-allocation/src/utils";
 
-import { CommandBudgetBase } from "@zenflux/app-budget-allocation/src/components/channel/commands/command-budget-base";
+import { CommandBudgetBase } from "@zenflux/app-budget-allocation/src/components/channel-item/commands/command-budget-base";
 
 import type { DCommandArgs } from "@zenflux/react-commander/definitions";
 

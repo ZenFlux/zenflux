@@ -4,8 +4,9 @@ import { QueryClient } from "@zenflux/react-commander/query/client";
 
 import { useCommandRunner, useCommandHook, useCommandWithRef } from "@zenflux/react-commander/use-commands";
 
-import { ChannelsQueryModule } from "@zenflux/app-budget-allocation/src/api/channels-query-module.ts";
-import { ChannelQueryModule } from "@zenflux/app-budget-allocation/src/api/channel-query-module.ts";
+import { ChannelItemQuery } from "@zenflux/app-budget-allocation/src/api/channel-item-query.ts";
+
+import { ChannelsListQuery } from "@zenflux/app-budget-allocation/src/api/channels-list-query.ts";
 
 import { Tab, Tabs } from "@zenflux/app-budget-allocation/src/components/ui/tabs";
 
@@ -24,8 +25,8 @@ const BudgetAllocation = React.lazy( () => import( "@zenflux/app-budget-allocati
 
 const client = new QueryClient( "http://localhost:3002" );
 
-client.registerModule( ChannelsQueryModule );
-client.registerModule( ChannelQueryModule );
+client.registerModule( ChannelsListQuery );
+client.registerModule( ChannelItemQuery );
 
 function LazyLoader( props: { ContentComponent: typeof BudgetAllocation | typeof BudgetOverview } ) {
     const { ContentComponent } = props;

@@ -11,15 +11,15 @@ import { Input } from "@zenflux/app-budget-allocation/src/components/ui/input";
 
 import { formatNumericStringToFraction } from "@zenflux/app-budget-allocation/src/utils";
 
-import { DEFAULT_CHANNEL_BREAK_INPUT_PROPS } from "@zenflux/app-budget-allocation/src/components/channel/channel-constants";
+import { DEFAULT_CHANNEL_BREAK_INPUT_PROPS } from "@zenflux/app-budget-allocation/src/components/channel-item/channel-constants";
 
-import { UpdateSource } from "@zenflux/app-budget-allocation/src/components/channel/channel-types";
+import { UpdateSource } from "@zenflux/app-budget-allocation/src/components/channel-item/channel-types";
 
-import * as commands from "@zenflux/app-budget-allocation/src/components/channel/commands";
+import * as commands from "@zenflux/app-budget-allocation/src/components/channel-item/commands";
 
-import "@zenflux/app-budget-allocation/src/components/channel/_channel-item-table.scss";
+import "@zenflux/app-budget-allocation/src/components/channel-item/_channel-item-table.scss";
 
-import type { ChannelState } from "@zenflux/app-budget-allocation/src/components/channel/channel-types";
+import type { ChannelState } from "@zenflux/app-budget-allocation/src/components/channel-item/channel-types";
 import type { InputProps } from "@zenflux/app-budget-allocation/src/components/ui/input";
 import type { Channel } from "@zenflux/app-budget-allocation/src/api/channels-domain";
 

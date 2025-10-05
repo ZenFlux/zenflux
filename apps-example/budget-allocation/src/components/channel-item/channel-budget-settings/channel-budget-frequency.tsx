@@ -4,12 +4,12 @@ import { Info } from "@zenflux/react-ui/src/symbols";
 
 import { Select, SelectItem } from "@zenflux/app-budget-allocation/src/components/ui/select";
 
-import { UpdateSource } from "@zenflux/app-budget-allocation/src/components/channel/channel-types";
+import { UpdateSource } from "@zenflux/app-budget-allocation/src/components/channel-item/channel-types";
 
 import type {
     ChannelBudgetFrequencyPossibleValues,
     ChannelBudgetFrequencyProps
-} from "@zenflux/app-budget-allocation/src/components/channel/channel-budget-settings/channel-budget-types";
+} from "@zenflux/app-budget-allocation/src/components/channel-item/channel-budget-settings/channel-budget-types";
 
 const DEFAULT_FREQUENCIES: Record<ChannelBudgetFrequencyPossibleValues, string> = {
     annually: "Annually",

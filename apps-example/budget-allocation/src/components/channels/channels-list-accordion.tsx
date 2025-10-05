@@ -7,7 +7,7 @@ import { useChannelsListAccordionInteractions } from "@zenflux/app-budget-alloca
 import Accordion from "@zenflux/app-budget-allocation/src/ui-command-able/accordion/accordion";
 import AccordionItem from "@zenflux/app-budget-allocation/src/ui-command-able/accordion/accordion-item";
 
-import ChannelItemAccordion from "@zenflux/app-budget-allocation/src/components/channel/channel-item-accordion";
+import ChannelItemAccordion from "@zenflux/app-budget-allocation/src/components/channel-item/channel-item-accordion";
 
 import type { ChannelListState } from "@zenflux/app-budget-allocation/src/components/channels/channels-types";
 

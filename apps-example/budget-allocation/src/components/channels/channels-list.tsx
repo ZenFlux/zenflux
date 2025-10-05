@@ -4,7 +4,7 @@ import { CommandBase } from "@zenflux/react-commander/command-base";
 
 import { withCommands } from "@zenflux/react-commander/with-commands";
 
-import { META_DATA_KEYS } from "@zenflux/app-budget-allocation/src/components/channel/channel-constants";
+import { META_DATA_KEYS } from "@zenflux/app-budget-allocation/src/components/channel-item/channel-constants";
 
 import { pickEnforcedKeys } from "@zenflux/app-budget-allocation/src/utils";
 

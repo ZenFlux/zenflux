@@ -5,7 +5,7 @@ import { QueryModuleBase } from "@zenflux/react-commander/query/module-base";
 import { queryCreateAutoSaveManager } from "@zenflux/react-commander/query/auto-save-manager";
 import { queryDiffById } from "@zenflux/react-commander/query/list-diff";
 
-import { CHANNEL_LIST_STATE_DATA_WITH_META } from "@zenflux/app-budget-allocation/src/components/channel/channel-constants";
+import { CHANNEL_LIST_STATE_DATA_WITH_META } from "@zenflux/app-budget-allocation/src/components/channel-item/channel-constants";
 
 import { transformChannelFromApi } from "@zenflux/app-budget-allocation/src/api/channels-domain";
 
@@ -31,7 +31,7 @@ interface ChannelsListSavePayload {
     [ key: string ]: string | Channel[];
 }
 
-export class ChannelsQueryModule extends QueryModuleBase<Channel> {
+export class ChannelsListQuery extends QueryModuleBase<Channel> {
     private autosave: ReturnType<typeof queryCreateAutoSaveManager<ChannelsListState, ChannelsListSavePayload>>;
 
     public constructor( core: QueryClient ) {

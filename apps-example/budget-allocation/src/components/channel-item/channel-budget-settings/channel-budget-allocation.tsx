@@ -5,14 +5,14 @@ import { Info } from "@zenflux/react-ui/src/symbols";
 import ButtonGroup from "@zenflux/app-budget-allocation/src/components/ui/button-group";
 import { Button } from "@zenflux/app-budget-allocation/src/components/ui/button";
 
-import { UpdateSource } from "@zenflux/app-budget-allocation/src/components/channel/channel-types";
+import { UpdateSource } from "@zenflux/app-budget-allocation/src/components/channel-item/channel-types";
 
 import type { ButtonProps } from "@zenflux/app-budget-allocation/src/components/ui/button";
 
 import type {
     BudgetAllocationType,
     ChannelBudgetAllocationProps
-} from "@zenflux/app-budget-allocation/src/components/channel/channel-budget-settings/channel-budget-types";
+} from "@zenflux/app-budget-allocation/src/components/channel-item/channel-budget-settings/channel-budget-types";
 
 const DEFAULT_BUDGET_ALLOCATIONS: Record<BudgetAllocationType, string> = {
     "equal": "Equal",

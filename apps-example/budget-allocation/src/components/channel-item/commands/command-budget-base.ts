@@ -1,6 +1,6 @@
 import { CommandBase } from "@zenflux/react-commander/command-base";
 
-import type { ChannelState } from "@zenflux/app-budget-allocation/src/components/channel/channel-types";
+import type { ChannelState } from "@zenflux/app-budget-allocation/src/components/channel-item/channel-types";
 
 import type { CommandArgs } from "@zenflux/react-commander/types";
 

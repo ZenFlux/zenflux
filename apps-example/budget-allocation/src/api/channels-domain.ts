@@ -1,4 +1,4 @@
-import type { ChannelMetaData, ChannelBreakData, ChannelState } from "@zenflux/app-budget-allocation/src/components/channel/channel-types";
+import type { ChannelMetaData, ChannelBreakData, ChannelState } from "@zenflux/app-budget-allocation/src/components/channel-item/channel-types";
 
 export interface Channel extends ChannelState {
     meta: ChannelMetaData;
@@ -46,6 +46,8 @@ export function transformChannelFromApi( apiResponse: ChannelItemApiResponse ): 
         breaks,
     };
 }
+
+
 
 
 

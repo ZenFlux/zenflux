@@ -6,18 +6,18 @@ import { useComponent, useCommandState } from "@zenflux/react-commander/use-comm
 
 import { Input } from "@zenflux/app-budget-allocation/src/components/ui/input";
 
-import { DEFAULT_CHANNEL_BREAK_INPUT_PROPS } from "@zenflux/app-budget-allocation/src/components/channel/channel-constants.tsx";
+import { DEFAULT_CHANNEL_BREAK_INPUT_PROPS } from "@zenflux/app-budget-allocation/src/components/channel-item/channel-constants.tsx";
 
 import { formatNumericStringToFraction } from "@zenflux/app-budget-allocation/src/utils";
 import { cn } from "@zenflux/app-budget-allocation/src/lib/utils";
 
-import { UpdateSource } from "@zenflux/app-budget-allocation/src/components/channel/channel-types";
+import { UpdateSource } from "@zenflux/app-budget-allocation/src/components/channel-item/channel-types";
 
 import type { InputProps } from "@zenflux/app-budget-allocation/src/components/ui/input";
 
-import type { ChannelState, ChannelBreakData } from "@zenflux/app-budget-allocation/src/components/channel/channel-types";
+import type { ChannelState, ChannelBreakData } from "@zenflux/app-budget-allocation/src/components/channel-item/channel-types";
 
-import type { ChannelBudgetFrequencyProps } from "@zenflux/app-budget-allocation/src/components/channel/channel-budget-settings";
+import type { ChannelBudgetFrequencyProps } from "@zenflux/app-budget-allocation/src/components/channel-item/channel-budget-settings";
 
 function generateBreaks(
     frequency: ChannelBudgetFrequencyProps["frequency"],

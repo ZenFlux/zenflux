@@ -7,15 +7,15 @@ import { Info } from "@zenflux/react-ui/src/symbols";
 import { Input } from "@zenflux/app-budget-allocation/src/components/ui/input";
 import { cn } from "@zenflux/app-budget-allocation/src/lib/utils";
 
-import { UpdateSource } from "@zenflux/app-budget-allocation/src/components/channel/channel-types";
+import { UpdateSource } from "@zenflux/app-budget-allocation/src/components/channel-item/channel-types";
 
 import {
     getChannelBudgetFrequencyLabel
-} from "@zenflux/app-budget-allocation/src/components/channel/channel-budget-settings/channel-budget-frequency";
+} from "@zenflux/app-budget-allocation/src/components/channel-item/channel-budget-settings/channel-budget-frequency";
 
 import type {
     ChannelBudgetBaselineProps
-} from "@zenflux/app-budget-allocation/src/components/channel/channel-budget-settings/channel-budget-types";
+} from "@zenflux/app-budget-allocation/src/components/channel-item/channel-budget-settings/channel-budget-types";
 
 import type { InputProps } from "@zenflux/app-budget-allocation/src/components/ui/input";
 

@@ -3,7 +3,7 @@ import React from "react";
 import type { InputProps } from "@zenflux/app-budget-allocation/src/components/ui/input";
 
 import type { EnforceKeys } from "@zenflux/app-budget-allocation/src/utils";
-import type { ChannelMetaData, ChannelState } from "@zenflux/app-budget-allocation/src/components/channel/channel-types";
+import type { ChannelMetaData, ChannelState } from "@zenflux/app-budget-allocation/src/components/channel-item/channel-types";
 
 export const META_DATA_KEYS: EnforceKeys<ChannelMetaData> = {
     id: true,

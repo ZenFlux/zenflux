@@ -2,7 +2,7 @@ import React from "react";
 
 import { useCommandState } from "@zenflux/react-commander/use-commands";
 
-import ChannelItemTable from "@zenflux/app-budget-allocation/src/components/channel/channel-item-table.tsx";
+import ChannelItemTable from "@zenflux/app-budget-allocation/src/components/channel-item/channel-item-table.tsx";
 
 import "@zenflux/app-budget-allocation/src/components/channels/_channels-list-table.scss";
 

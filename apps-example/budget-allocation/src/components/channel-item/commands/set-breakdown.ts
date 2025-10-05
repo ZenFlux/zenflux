@@ -1,19 +1,19 @@
 import { formatNumericStringWithCommas } from "@zenflux/app-budget-allocation/src/utils";
 
-import { CommandBudgetBase } from "@zenflux/app-budget-allocation/src/components/channel/commands/command-budget-base";
+import { CommandBudgetBase } from "@zenflux/app-budget-allocation/src/components/channel-item/commands/command-budget-base";
 
-import { UpdateSource } from "@zenflux/app-budget-allocation/src/components/channel/channel-types";
+import { UpdateSource } from "@zenflux/app-budget-allocation/src/components/channel-item/channel-types";
 
-import type { ChannelState } from "@zenflux/app-budget-allocation/src/components/channel/channel-types";
+import type { ChannelState } from "@zenflux/app-budget-allocation/src/components/channel-item/channel-types";
 
-import type { CommandArgs } from "@zenflux/react-commander/types";
+import type { DCommandArgs } from "@zenflux/react-commander/definitions";
 
 export class SetBreakdown extends CommandBudgetBase {
     public static getName() {
         return "App/ChannelItem/SetBreakdown";
     }
 
-    protected async apply( args: CommandArgs ) {
+    protected async apply( args: DCommandArgs ) {
         const { index, value, setState = this.setState.bind( this ) } = args;
 
         const formatted = formatNumericStringWithCommas( value );

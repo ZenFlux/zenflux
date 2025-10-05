@@ -3,19 +3,19 @@ import React from "react";
 import { withCommands } from "@zenflux/react-commander/with-commands";
 import { useCommandState } from "@zenflux/react-commander/use-commands";
 
-import "@zenflux/app-budget-allocation/src/components/channel/_channel-item-accordion.scss";
+import "@zenflux/app-budget-allocation/src/components/channel-item/_channel-item-accordion.scss";
 
 import {
     ChannelBudgetFrequency,
     ChannelBudgetBaseline,
     ChannelBudgetAllocation
-} from "@zenflux/app-budget-allocation/src/components/channel/channel-budget-settings";
+} from "@zenflux/app-budget-allocation/src/components/channel-item/channel-budget-settings";
 
-import { ChannelBreakdowns } from "@zenflux/app-budget-allocation/src/components/channel/channel-breakdowns";
+import { ChannelBreakdowns } from "@zenflux/app-budget-allocation/src/components/channel-item/channel-breakdowns";
 
-import * as commands from "@zenflux/app-budget-allocation/src/components/channel/commands";
+import * as commands from "@zenflux/app-budget-allocation/src/components/channel-item/commands";
 
-import type { ChannelState } from "@zenflux/app-budget-allocation/src/components/channel/channel-types";
+import type { ChannelState } from "@zenflux/app-budget-allocation/src/components/channel-item/channel-types";
 
 import type { Channel } from "@zenflux/app-budget-allocation/src/api/channels-domain";
 

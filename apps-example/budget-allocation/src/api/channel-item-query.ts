@@ -2,7 +2,7 @@ import { QueryModuleBase } from "@zenflux/react-commander/query/module-base";
 
 import { queryCreateAutoSaveManager } from "@zenflux/react-commander/query/auto-save-manager";
 
-import { CHANNEL_LIST_STATE_DATA_WITH_META } from "@zenflux/app-budget-allocation/src/components/channel/channel-constants";
+import { CHANNEL_LIST_STATE_DATA_WITH_META } from "@zenflux/app-budget-allocation/src/components/channel-item/channel-constants";
 
 import { transformChannelFromApi } from "@zenflux/app-budget-allocation/src/api/channels-domain";
 
@@ -14,7 +14,7 @@ import type { QueryClient } from "@zenflux/react-commander/query/client";
 
 import type { Channel, ChannelItemApiResponse } from "@zenflux/app-budget-allocation/src/api/channels-domain";
 
-export class ChannelQueryModule extends QueryModuleBase<Channel> {
+export class ChannelItemQuery extends QueryModuleBase<Channel> {
     private autosave: ReturnType<typeof queryCreateAutoSaveManager<Channel, Channel & { key: string }>>;
 
     public constructor( core: QueryClient ) {

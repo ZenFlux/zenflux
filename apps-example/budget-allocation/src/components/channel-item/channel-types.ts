@@ -1,11 +1,11 @@
 import type React from "react";
 
-import type { ChannelItemAccordion } from "@zenflux/app-budget-allocation/src/components/channel/channel-item-accordion.tsx";
+import type { ChannelItemAccordion } from "@zenflux/app-budget-allocation/src/components/channel-item/channel-item-accordion.tsx";
 
 import type {
     ChannelBudgetFrequencyProps,
     BudgetAllocationType
-} from "@zenflux/app-budget-allocation/src/components/channel/channel-budget-settings";
+} from "@zenflux/app-budget-allocation/src/components/channel-item/channel-budget-settings";
 
 export type ChannelItemAccordionComponent = React.ReactComponentElement<typeof ChannelItemAccordion>;
 
