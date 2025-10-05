@@ -16,6 +16,8 @@ import {
     INTERNAL_ON_UPDATE,
     INTERNAL_ON_LOAD
 } from "./_internal/constants";
+// eslint-disable-next-line no-restricted-imports, @zenflux/no-relative-imports
+import { INTERNAL_STATE_UPDATED_EVENT } from "./_internal/constants";
 
 // eslint-disable-next-line no-restricted-imports, @zenflux/no-relative-imports
 import core from "./_internal/core";
@@ -231,6 +233,11 @@ export function withCommands(
                         },
                         ! this.isMounted(),
                     );
+
+                    if ( this.isMounted() ) {
+                        const ctx = core[ GET_INTERNAL_SYMBOL ]( this.context.getNameUnique() );
+                        ctx.emitter.emit( INTERNAL_STATE_UPDATED_EVENT );
+                    }
 
                     if ( callback ) {
                         callback( this.store.getState() );

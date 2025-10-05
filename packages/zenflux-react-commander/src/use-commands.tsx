@@ -1,7 +1,7 @@
 import React from "react";
 
 // eslint-disable-next-line no-restricted-imports, @zenflux/no-relative-imports
-import { GET_INTERNAL_SYMBOL, GET_INTERNAL_MATCH_SYMBOL } from "./_internal/constants";
+import { GET_INTERNAL_SYMBOL, GET_INTERNAL_MATCH_SYMBOL, INTERNAL_STATE_UPDATED_EVENT } from "./_internal/constants";
 
 // eslint-disable-next-line no-restricted-imports, @zenflux/no-relative-imports
 import core from "./_internal/core";
@@ -424,59 +424,58 @@ export function useCommandStateSelector<TState, TSelected>(
     const id = componentContext.getNameUnique();
     const internalContext = core[ GET_INTERNAL_SYMBOL ]( id );
 
-    const [selectedState, setSelectedState] = React.useState<TSelected>(() => {
-        const currentState = internalContext.getState<TState>();
-        return selector(currentState);
-    });
-
-    const equalityFn = options?.equalityFn || React.useMemo(() =>
-        (a: TSelected, b: TSelected) => {
-            if (typeof a === "object" && typeof b === "object" && a !== null && b !== null) {
-                return JSON.stringify(a) === JSON.stringify(b);
+    const equalityFn = options?.equalityFn || React.useMemo(() => {
+        function shallowEqualArray(a: {}[], b: {}[]): boolean {
+            if (a.length !== b.length) return false;
+            for (let i = 0; i < a.length; i++) {
+                if (!Object.is(a[i], b[i])) return false;
             }
-            return a === b;
-        }, []
-    );
-
-    React.useEffect(() => {
-        const updateSelectedState = () => {
-            const currentState = internalContext.getState<TState>();
-            const newSelectedState = selector(currentState);
-
-            if (!equalityFn(selectedState, newSelectedState)) {
-                setSelectedState(newSelectedState);
-            }
-        };
-
-        // Use a more reliable polling approach for now
-        const interval = setInterval(updateSelectedState, 50);
-
-        // Also try to hook into commands if available
-        const commands = commandsManager.get(componentName, true);
-        if (commands) {
-            const handles: Array<{ dispose: () => void }> = [];
-
-            Object.keys(commands).forEach(commandName => {
-                if (commandName.includes("Set") || commandName.includes("Update")) {
-                    const _command = commands[commandName];
-                    const handle = commandsManager.hook(
-                        { commandName, componentName, componentNameUnique: id },
-                        updateSelectedState
-                    );
-                    if (handle) {
-                        handles.push(handle);
-                    }
-                }
-            });
-
-            return () => {
-                clearInterval(interval);
-                handles.forEach(handle => handle.dispose());
-            };
+            return true;
         }
 
-        return () => clearInterval(interval);
-    }, [componentName, id, selector, selectedState, equalityFn]);
+        function shallowEqualObject(a: Record<string, {}>, b: Record<string, {}>): boolean {
+            const aKeys = Object.keys(a);
+            const bKeys = Object.keys(b);
+            if (aKeys.length !== bKeys.length) return false;
+            for (const key of aKeys) {
+                if (!Object.prototype.hasOwnProperty.call(b, key)) return false;
+                if (!Object.is(a[key], (b as Record<string, {}>)[key])) return false;
+            }
+            return true;
+        }
+
+        return (a: TSelected, b: TSelected) => {
+            if (Object.is(a, b)) return true;
+            if (Array.isArray(a) && Array.isArray(b)) return shallowEqualArray(a as {}[], b as {}[]);
+            if (typeof a === "object" && a !== null && typeof b === "object" && b !== null) {
+                return shallowEqualObject(a as Record<string, {}>, b as Record<string, {}>);
+            }
+            return false;
+        };
+    }, []);
+
+    const lastSelectedRef = React.useRef<TSelected>(selector(internalContext.getState<TState>()));
+
+    const getSnapshot = React.useCallback(() => {
+        const currentState = internalContext.getState<TState>();
+        const nextSelected = selector(currentState);
+        if (!equalityFn(lastSelectedRef.current, nextSelected)) {
+            lastSelectedRef.current = nextSelected;
+        }
+        return lastSelectedRef.current;
+    }, [internalContext, selector, equalityFn]);
+
+    const subscribe = React.useCallback((onStoreChange: () => void) => {
+        const handler = () => onStoreChange();
+        internalContext.emitter.on(INTERNAL_STATE_UPDATED_EVENT, handler);
+        return () => internalContext.emitter.off(INTERNAL_STATE_UPDATED_EVENT, handler);
+    }, [internalContext]);
+
+    const selectedState = React.useSyncExternalStore(
+        subscribe,
+        getSnapshot,
+        getSnapshot,
+    );
 
     return [
         selectedState,
@@ -578,7 +577,7 @@ export function useCommandHook(
                 componentNameUnique: ctx.componentNameUnique,
             } as DCommandIdArgs;
 
-            const handle = commandsManager.hookScoped( resolvedId, ownerIdRef.current as string, handler, { __ignoreDuplicatedHookError: true } );
+            const handle = commandsManager.hookScoped( resolvedId, ownerIdRef.current as string, handler );
 
             return () => {
                 handle?.dispose();
@@ -586,7 +585,7 @@ export function useCommandHook(
         } else {
             if ( ! id ) return;
 
-            const handle = commandsManager.hookScoped( id, ownerIdRef.current as string, handler, { __ignoreDuplicatedHookError: true } );
+            const handle = commandsManager.hookScoped( id, ownerIdRef.current as string, handler );
 
             return () => {
                 handle?.dispose();

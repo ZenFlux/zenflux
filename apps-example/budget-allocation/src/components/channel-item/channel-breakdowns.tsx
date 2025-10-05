@@ -2,7 +2,7 @@ import React from "react";
 
 import moment from "moment";
 
-import { useComponent, useCommandState, useCommandStateSelector } from "@zenflux/react-commander/use-commands";
+import { useComponent, useCommandState, useCommandStateSelector, useCommandHook } from "@zenflux/react-commander/use-commands";
 
 import { Input } from "@zenflux/app-budget-allocation/src/components/ui/input";
 
@@ -168,7 +168,7 @@ function getBreakElements(
 }
 
 // Optimized content component that only re-renders when breakElements change
-const ChannelBreakdownsContent: React.FC = React.memo(() => {
+const ChannelBreakdownsContent: React.FC<{ ref: React.RefObject<HTMLDivElement> }> = React.memo(({ ref }) => {
     const [state] = useCommandStateSelector<ChannelState, {
         breakElements: React.JSX.Element[]
     }>(
@@ -179,7 +179,7 @@ const ChannelBreakdownsContent: React.FC = React.memo(() => {
     );
 
     return (
-        <div className="content p-[24px] grid grid-cols-6 gap-[20px]">
+        <div ref={ ref } className="content p-[24px] grid grid-cols-6 gap-[20px]">
             { state.breakElements }
         </div>
     );
@@ -190,7 +190,7 @@ ChannelBreakdownsContent.displayName = "ChannelBreakdownsContent";
 export const ChannelBreakdowns: React.FC = () => {
     const component = useComponent( "App/ChannelItem" );
     const [ _getState, setState ] = useCommandState<ChannelState>( "App/ChannelItem" );
-
+    const ref = React.useRef<HTMLDivElement>( null );
     const onBreakdownInputChange = ( index: number, value: string ) => {
         component.run( "App/ChannelItem/SetBreakdown", { index, value, source: UpdateSource.FROM_BUDGET_BREAKS } );
     };
@@ -247,25 +247,16 @@ export const ChannelBreakdowns: React.FC = () => {
         setState( { baseline: sum! } );
     };
 
-    React.useEffect( () => {
-        component.hook( "App/ChannelItem/SetBaseline", handleBudgetSettingsChange );
-        component.hook( "App/ChannelItem/SetFrequency", handleBudgetSettingsChange );
-        component.hook( "App/ChannelItem/SetAllocation", handleBudgetSettingsChange );
-        component.hook( "App/ChannelItem/SetBreakdown", handleBreakdownSum );
+    useCommandHook( "App/ChannelItem/SetBaseline", handleBudgetSettingsChange, );
+    useCommandHook( "App/ChannelItem/SetFrequency", handleBudgetSettingsChange );
+    useCommandHook( "App/ChannelItem/SetAllocation", handleBudgetSettingsChange );
+    useCommandHook( "App/ChannelItem/SetBreakdown", handleBreakdownSum );
 
-        return () => {
-            component.unhook( "App/ChannelItem/SetBaseline" );
-            component.unhook( "App/ChannelItem/SetFrequency" );
-            component.unhook( "App/ChannelItem/SetAllocation" );
-            component.unhook( "App/ChannelItem/SetBreakdown" );
-        };
-    }, [ component ] );
-    https://127.0.0.1:63131/lol-game-data/assets/ASSETS/Regalia/BannerSkins/Spirit_Blossom_Banner.ACCESSORIES_15_9.png
     React.useEffect( () => {
         updateBreakdownElements();
     }, [] );
 
     // This component handles all the logic but delegates rendering to the optimized content component
-    return <ChannelBreakdownsContent />;
+    return <ChannelBreakdownsContent ref={ ref } />;
 };
 

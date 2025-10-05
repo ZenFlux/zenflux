@@ -143,9 +143,7 @@ class CommandsManager {
         };
     }
 
-    public hookScoped( id: DCommandIdArgs, ownerId: string, callback: ( result?: any, args?: DCommandArgs ) => any, options?: {
-        __ignoreDuplicatedHookError?: boolean;
-    } ): DCommandHookHandle {
+    public hookScoped( id: DCommandIdArgs, ownerId: string, callback: ( result?: any, args?: DCommandArgs ) => any ): DCommandHookHandle {
         const { componentNameUnique, componentName, commandName } = id;
 
         if ( ! this.commands[ componentName ] ) {
@@ -157,25 +155,6 @@ class CommandsManager {
         if ( ! singleComponentContext.commands[ commandName ] ) {
             throw new Error( `Command '${ commandName }' not registered for component '${ componentNameUnique }'` );
         }
-
-        const listeners = singleComponentContext.emitter.listeners( commandName );
-        if ( ! options?.__ignoreDuplicatedHookError ) {
-            if ( listeners.length > 0 && listeners.find( l => l.name === callback.name ) ) {
-                console.warn(
-                    `Probably duplicated hook in '${ commandName }'\n` +
-                    `callback '${ callback.name }()' already hooked for component '${ componentNameUnique }'` +
-                    "The hook will be ignored, to avoid this error bound the callback or pass options: { __ignoreDuplicatedHookError: true }"
-                );
-
-                return {
-                    componentNameUnique,
-                    commandName,
-                    ownerId,
-                    dispose: () => void 0,
-                };
-            }
-        }
-
         const wrapped = ( result?: any, args?: DCommandArgs ) => callback( result, args );
         singleComponentContext.emitter.on( commandName, wrapped );
 
@@ -250,27 +229,6 @@ class CommandsManager {
         } );
 
         delete this.scopedHooks[ componentNameUnique ];
-    }
-
-    public unhookWithinComponentByOwner( componentNameUnique: string, ownerId: string ) {
-        const singleComponentContext = core[ GET_INTERNAL_SYMBOL ]( componentNameUnique, true ) as DCommandSingleComponentContext;
-        if ( ! singleComponentContext ) return;
-
-        const perCommand = this.scopedHooks[ componentNameUnique ];
-        if ( ! perCommand ) return;
-
-        Object.keys( perCommand ).forEach( ( commandName ) => {
-            const records = perCommand[ commandName ];
-            const remaining: typeof records = [];
-            records.forEach( ( record ) => {
-                if ( record.ownerId === ownerId ) {
-                    singleComponentContext.emitter.off( commandName, record.wrapped );
-                } else {
-                    remaining.push( record );
-                }
-            } );
-            perCommand[ commandName ] = remaining;
-        } );
     }
 
     public get( componentName: string, shouldSilentError = false ) {

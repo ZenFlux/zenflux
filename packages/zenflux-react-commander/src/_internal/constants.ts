@@ -13,3 +13,5 @@ export const INTERNAL_ON_UNMOUNT = "__internalOnUnmount" + randomKey;
 export const INTERNAL_ON_UPDATE = "__internalOnUpdate" + randomKey;
 
 export const INTERNAL_PROPS = "__internalProps" + randomKey;
+
+export const INTERNAL_STATE_UPDATED_EVENT = "__internalStateUpdated" + randomKey;
