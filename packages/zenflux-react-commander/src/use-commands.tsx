@@ -36,7 +36,7 @@ function getSafeContext( componentName: string, context?: DCommandComponentConte
     return componentContext;
 }
 export function useCommandId(commandName: string, opts?: { match?: string; index?: number; waitForRef?: React.RefObject<any> } ): DCommandIdArgs | null {
-    const match = opts?.match ?? commandName;
+    const match = opts?.match ?? commandsManager.getComponentName( commandName );
     const index = opts?.index ?? 0;
     const waitForRef = opts?.waitForRef;
 
@@ -50,6 +50,10 @@ export function useCommandId(commandName: string, opts?: { match?: string; index
         }
 
         try {
+            if ( ! match ) {
+                setId( null );
+                return;
+            }
             const contexts = useCommandMatch( match );
             const ctx = contexts[ index ];
             if ( ctx ) {
@@ -583,13 +587,24 @@ export function useCommandHook(
                 handle?.dispose();
             };
         } else {
-            if ( ! id ) return;
+            if ( id ) {
+                const handle = commandsManager.hookScoped( id, ownerIdRef.current as string, handler );
+                return () => {
+                    handle?.dispose();
+                };
+            }
 
-            const handle = commandsManager.hookScoped( id, ownerIdRef.current as string, handler );
+            const componentName = commandsManager.getComponentName( commandName );
+            if ( ! componentName ) return;
 
-            return () => {
-                handle?.dispose();
-            };
+            try {
+                const handle = commandsManager.hookByNameScoped( { commandName, componentName, ownerId: ownerIdRef.current as string }, handler );
+                return () => {
+                    handle?.dispose();
+                };
+            } catch {
+                return;
+            }
         }
     }, [ ref?.current, command, id, handler ] );
 }

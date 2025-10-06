@@ -14,10 +14,9 @@ import {
     SET_TO_CONTEXT_SYMBOL,
     INTERNAL_ON_MOUNT,
     INTERNAL_ON_UPDATE,
-    INTERNAL_ON_LOAD
+    INTERNAL_ON_LOAD,
+    INTERNAL_STATE_UPDATED_EVENT
 } from "./_internal/constants";
-// eslint-disable-next-line no-restricted-imports, @zenflux/no-relative-imports
-import { INTERNAL_STATE_UPDATED_EVENT } from "./_internal/constants";
 
 // eslint-disable-next-line no-restricted-imports, @zenflux/no-relative-imports
 import core from "./_internal/core";
@@ -78,12 +77,16 @@ export function withCommands(
         return str;
     }
 
-    const comparedObjects = new WeakMap();
+    const comparedObjects = new WeakMap<object, object>();
 
     function compareObjects( obj1: any, obj2: any, level: number ): boolean {
-        // Check if the objects have already been compared
-        if ( comparedObjects.has(obj1) && comparedObjects.get(obj1) === obj2 ) {
-            return true;
+        const isObj1Object = typeof obj1 === "object" && obj1 !== null;
+        const isObj2Object = typeof obj2 === "object" && obj2 !== null;
+
+        if ( isObj1Object && isObj2Object ) {
+            if ( comparedObjects.has( obj1 ) && comparedObjects.get( obj1 ) === obj2 ) {
+                return true;
+            }
         }
 
         const strObj1 = stringifyToLevel( obj1, level );
@@ -91,10 +94,9 @@ export function withCommands(
 
         const isEqual = strObj1 === strObj2;
 
-        // If the objects are equal, store them in the WeakMap
-        if ( isEqual ) {
-            comparedObjects.set(obj1, obj2);
-            comparedObjects.set(obj2, obj1);
+        if ( isEqual && isObj1Object && isObj2Object ) {
+            comparedObjects.set( obj1, obj2 );
+            comparedObjects.set( obj2, obj1 );
         }
 
         return isEqual;
@@ -279,6 +281,11 @@ export function withCommands(
         }
 
         public componentDidUpdate( prevProps: any, prevState: any, snapshot?: any ) {
+            if ( this.store.hasChanged?.() ) {
+                const ctx = core[ GET_INTERNAL_SYMBOL ]( this.context.getNameUnique() );
+                ctx.emitter.emit( INTERNAL_STATE_UPDATED_EVENT );
+            }
+
             if ( this.$$commander.lifecycleHandlers[ INTERNAL_ON_UPDATE ] ) {
                 const context = core[ GET_INTERNAL_SYMBOL ]( this.context.getNameUnique() );
 

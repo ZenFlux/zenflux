@@ -168,7 +168,7 @@ function getBreakElements(
 }
 
 // Optimized content component that only re-renders when breakElements change
-const ChannelBreakdownsContent: React.FC<{ ref: React.RefObject<HTMLDivElement> }> = React.memo(({ ref }) => {
+const ChannelBreakdownsContent = React.memo(() => {
     const [state] = useCommandStateSelector<ChannelState, {
         breakElements: React.JSX.Element[]
     }>(
@@ -179,7 +179,7 @@ const ChannelBreakdownsContent: React.FC<{ ref: React.RefObject<HTMLDivElement> 
     );
 
     return (
-        <div ref={ ref } className="content p-[24px] grid grid-cols-6 gap-[20px]">
+        <div className="content p-[24px] grid grid-cols-6 gap-[20px]">
             { state.breakElements }
         </div>
     );
@@ -190,7 +190,6 @@ ChannelBreakdownsContent.displayName = "ChannelBreakdownsContent";
 export const ChannelBreakdowns: React.FC = () => {
     const component = useComponent( "App/ChannelItem" );
     const [ _getState, setState ] = useCommandState<ChannelState>( "App/ChannelItem" );
-    const ref = React.useRef<HTMLDivElement>( null );
     const onBreakdownInputChange = ( index: number, value: string ) => {
         component.run( "App/ChannelItem/SetBreakdown", { index, value, source: UpdateSource.FROM_BUDGET_BREAKS } );
     };
@@ -257,6 +256,6 @@ export const ChannelBreakdowns: React.FC = () => {
     }, [] );
 
     // This component handles all the logic but delegates rendering to the optimized content component
-    return <ChannelBreakdownsContent ref={ ref } />;
+    return <ChannelBreakdownsContent />;
 };
 
