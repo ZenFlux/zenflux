@@ -24,7 +24,7 @@ export interface ChannelState extends React.ComponentState {
     meta?: ChannelMetaData;
     breaks?: ChannelBreakData[];
 
-    breakElements?: any[];
+    breakElements?: React.JSX.Element[];
 }
 
 export interface ChannelMetaData {

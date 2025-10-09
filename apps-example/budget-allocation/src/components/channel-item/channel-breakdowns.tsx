@@ -167,29 +167,11 @@ function getBreakElements(
     return breakElements;
 }
 
-// Optimized content component that only re-renders when breakElements change
-const ChannelBreakdownsContent = React.memo(() => {
-    const [state] = useCommandStateSelector<ChannelState, {
-        breakElements: React.JSX.Element[]
-    }>(
-        "App/ChannelItem",
-        (state) => ({
-            breakElements: state.breakElements || []
-        })
-    );
-
-    return (
-        <div className="content p-[24px] grid grid-cols-6 gap-[20px]">
-            { state.breakElements }
-        </div>
-    );
-});
-
-ChannelBreakdownsContent.displayName = "ChannelBreakdownsContent";
-
 export const ChannelBreakdowns: React.FC = () => {
     const component = useComponent( "App/ChannelItem" );
+
     const [ _getState, setState ] = useCommandState<ChannelState>( "App/ChannelItem" );
+
     const onBreakdownInputChange = ( index: number, value: string ) => {
         component.run( "App/ChannelItem/SetBreakdown", { index, value, source: UpdateSource.FROM_BUDGET_BREAKS } );
     };
@@ -255,7 +237,19 @@ export const ChannelBreakdowns: React.FC = () => {
         updateBreakdownElements();
     }, [] );
 
-    // This component handles all the logic but delegates rendering to the optimized content component
-    return <ChannelBreakdownsContent />;
+    const [ state ] = useCommandStateSelector<ChannelState, {
+        breakElements: React.JSX.Element[]
+    }>(
+        "App/ChannelItem",
+        (state) => ({
+            breakElements: state.breakElements || []
+        })
+    );
+
+    return (
+        <div className="content p-[24px] grid grid-cols-6 gap-[20px]">
+            { state.breakElements }
+        </div>
+    );
 };
 
