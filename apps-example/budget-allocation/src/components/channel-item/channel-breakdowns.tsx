@@ -1,28 +1,23 @@
-import React from "react";
+import React, { useCallback } from "react";
 
 import moment from "moment";
 
 import { useComponent, useCommandState, useCommandStateSelector, useCommandHook } from "@zenflux/react-commander/use-commands";
 
-import { Input } from "@zenflux/app-budget-allocation/src/components/ui/input";
-
-import { DEFAULT_CHANNEL_BREAK_INPUT_PROPS } from "@zenflux/app-budget-allocation/src/components/channel-item/channel-constants.tsx";
-
 import { formatNumericStringToFraction } from "@zenflux/app-budget-allocation/src/utils";
-import { cn } from "@zenflux/app-budget-allocation/src/lib/utils";
+
+import { ChannelBreak } from "@zenflux/app-budget-allocation/src/components/channel-item/channel-break";
 
 import { UpdateSource } from "@zenflux/app-budget-allocation/src/components/channel-item/channel-types";
-
-import type { InputProps } from "@zenflux/app-budget-allocation/src/components/ui/input";
 
 import type { ChannelState, ChannelBreakData } from "@zenflux/app-budget-allocation/src/components/channel-item/channel-types";
 
 import type { ChannelBudgetFrequencyProps } from "@zenflux/app-budget-allocation/src/components/channel-item/channel-budget-settings";
 
-function generateBreaks(
+const generateBreaks = (
     frequency: ChannelBudgetFrequencyProps["frequency"],
     baseline: string,
-) {
+) => {
     const breaks: ChannelBreakData[] = [];
 
     const baselineParsed = parseFloat( baseline.toString().replace( /,/g, "" ) );
@@ -77,53 +72,19 @@ function generateBreaks(
     }
 
     return breaks;
-}
+};
 
-function getBreakElements(
+const getBreakElements = (
     breaks: ChannelBreakData[],
     breaksElements: React.JSX.Element[],
     allocation: ChannelState["allocation"],
     onInputChange: ( index: number, value: string ) => void
-) {
+) => {
     if ( ! breaks.length ) {
         throw new Error( "Breaks state is empty" );
     }
 
     const breakElements: React.JSX.Element[] = [];
-
-    const Break: React.FC<{ label: string; value: string, index: number, allocation: ChannelState["allocation"] }> = ( props ) => {
-        const { label, index } = props,
-            formatted = formatNumericStringToFraction( props.value );
-
-        const disabled = allocation === "equal";
-
-        const inputProps: InputProps = {
-            ... DEFAULT_CHANNEL_BREAK_INPUT_PROPS,
-            disabled,
-            value: formatted,
-            onChange: ( e ) => ! disabled && onInputChange( index, e.target.value ),
-            variant: "transparent",
-            className: cn(
-                "w-full h-10 bg-transparent border-0 outline-none px-3 py-0 text-sm",
-                disabled ? "text-[#99A4C2] placeholder:text-[#99A4C2]" : "text-[#2A3558] placeholder:text-[#99A4C2]"
-            )
-        };
-
-        const triggerClassName = cn(
-            "trigger flex items-center w-[160px] h-10 border-[2px] rounded-[0px] border-[#b2bbd580]",
-            disabled ? "bg-transparent text-[#99A4C2]" : "bg-white"
-        );
-
-        return (
-            <div className="break flex flex-col gap-2" data-disabled={ inputProps.disabled }>
-                <div className="label text-slate-700 text-sm font-normal leading-[21px]">{ label }</div>
-                <div className={ triggerClassName }>
-                    <span className="currency-sign pl-[12px] pr-[0px] text-[14px] leading-[24px] text-black relative left-[5px]">$</span>
-                    <Input { ... inputProps } />
-                </div>
-            </div>
-        );
-    };
 
     function formatDate( date: Date ) {
         return moment( date ).format( "MMM D" );
@@ -159,31 +120,33 @@ function getBreakElements(
             value: value.toString(),
         };
 
-        breakElements.push( <Break key={ date.getTime() } { ... props } /> );
+        breakElements.push( <ChannelBreak key={ date.getTime() } { ... props } onInputChange={ onInputChange } /> );
 
         index++;
     }
 
     return breakElements;
-}
+};
 
 export const ChannelBreakdowns: React.FC = () => {
     const component = useComponent( "App/ChannelItem" );
 
     const [ _getState, setState ] = useCommandState<ChannelState>( "App/ChannelItem" );
 
-    const onBreakdownInputChange = ( index: number, value: string ) => {
+    const onBreakdownInputChange = useCallback( ( index: number, value: string ) => {
         component.run( "App/ChannelItem/SetBreakdown", { index, value, source: UpdateSource.FROM_BUDGET_BREAKS } );
-    };
+    }, [ component ] );
 
-    const updateBreakdownElements = () => {
+    const updateBreakdownElements = useCallback( () => {
         const currentState = component.getState<ChannelState>();
 
         // Always ensure we have breaks
         let breaks = currentState.breaks;
+        let shouldUpdateBreaks = false;
+
         if ( ! breaks?.length ) {
             breaks = generateBreaks( currentState.frequency, currentState.baseline );
-            setState( { breaks } );
+            shouldUpdateBreaks = true;
         }
 
         // Generate break elements from the breaks
@@ -194,8 +157,16 @@ export const ChannelBreakdowns: React.FC = () => {
             onBreakdownInputChange
         );
 
-        setState( { breakElements: newBreakElements } );
-    };
+        // Only update state if breaks changed or break elements changed
+        const hasBreakElementsChanged = JSON.stringify( currentState.breakElements ) !== JSON.stringify( newBreakElements );
+
+        if ( shouldUpdateBreaks || hasBreakElementsChanged ) {
+            setState( {
+                ...( shouldUpdateBreaks ? { breaks } : {} ),
+                breakElements: newBreakElements
+            } );
+        }
+    }, [ component, setState, onBreakdownInputChange ] );
 
     const handleBudgetSettingsChange = async () => {
         const currentState = component.getState<ChannelState>();
@@ -235,7 +206,7 @@ export const ChannelBreakdowns: React.FC = () => {
 
     React.useEffect( () => {
         updateBreakdownElements();
-    }, [] );
+    }, [ updateBreakdownElements ] );
 
     const [ state ] = useCommandStateSelector<ChannelState, {
         breakElements: React.JSX.Element[]
