@@ -65,11 +65,25 @@ const UIThemeAccordionItemCollapse = ( props: {
     collapsedState: UIThemeAccordionCollapseStates
     collapsedStateRef: React.MutableRefObject<HTMLDivElement | null>,
     setCollapsedState: React.Dispatch<React.SetStateAction<UIThemeAccordionCollapseStates>>,
-    setIsTransitioning: React.Dispatch<React.SetStateAction<boolean>>
+    setIsTransitioning: React.Dispatch<React.SetStateAction<boolean>>,
+    unmount?: boolean,
 } ): React.JSX.Element => {
     const { children, height, collapsedState, collapsedStateRef, setIsTransitioning } = props;
 
     const isOpen = collapsedState === "attached";
+
+    const [ renderChildren, setRenderChildren ] = React.useState<boolean>( ! props.unmount || isOpen );
+
+    React.useEffect( () => {
+        if ( ! props.unmount ) {
+            setRenderChildren( true );
+            return;
+        }
+
+        if ( collapsedState === "attached" ) {
+            setRenderChildren( true );
+        }
+    }, [ collapsedState, props.unmount ] );
 
     return (
         <motion.div
@@ -77,13 +91,18 @@ const UIThemeAccordionItemCollapse = ( props: {
             style={ { overflow: "hidden" } }
             initial={ false }
             animate={ { maxHeight: isOpen ? height : 0, opacity: isOpen ? 1 : 0 } }
-            transition={ { type: "spring", stiffness: 220, damping: 28 } }
+            transition={ { type: "spring", stiffness: 120, damping: 28 } }
             onAnimationStart={ () => setIsTransitioning( true ) }
-            onAnimationComplete={ () => setIsTransitioning( false ) }
+            onAnimationComplete={ () => {
+                setIsTransitioning( false );
+                if ( props.unmount && ! isOpen ) {
+                    setRenderChildren( false );
+                }
+            } }
             layout="size"
         >
             <motion.div className="accordion-content" ref={ collapsedStateRef } layout>
-                { children }
+                { renderChildren ? children : null }
             </motion.div>
         </motion.div>
     );
@@ -101,6 +120,7 @@ const UIThemeAccordionItemContent = ( props: UIThemeAccordionItemProps ) => {
         collapsedStateRef,
         setCollapsedState,
         setIsTransitioning: props.setIsTransitioning!,
+        unmount: props.unmount,
     };
 
     return ( <UIThemeAccordionItemCollapse { ... args } >

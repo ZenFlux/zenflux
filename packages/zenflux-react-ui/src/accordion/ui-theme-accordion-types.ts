@@ -12,6 +12,8 @@ export type UIThemeAccordionCollapseStates = "initial" | "detached" | "attached"
  */
 export type UIThemeAccordionItemProps = {
     itemKey: React.Key,
+    
+    unmount?: boolean,
 
     children: React.ReactNode,
 

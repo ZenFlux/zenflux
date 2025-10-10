@@ -30,6 +30,7 @@ function toAccordionItem(
 
         children: (
             <QueryComponent<Channel, { meta: Channel["meta"] }, Channel>
+                fallback={ <div className="loading">Loading <span className="dots">◌</span></div> }
                 module={ ChannelItemQuery }
                 component={ ChannelItemAccordion }
                 props={ { meta: channel.meta } }
@@ -61,6 +62,7 @@ function toAccordionItem(
     const { children, ... withoutChildren } = accordionProps;
 
     return <AccordionItem
+        unmount
         key={ "channel-" + channel.meta.id + "-accordion-item-" + index.toString() }
         { ... withoutChildren }
     >

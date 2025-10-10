@@ -149,6 +149,7 @@ const AccordionItemEditableTitle = React.forwardRef<HTMLSpanElement, Omit<Accord
         { props.heading?.title }
     </span>;
 });
+AccordionItemEditableTitle.displayName = "AccordionItemEditableTitle";
 
 const AccordionItem: DCommandFunctionComponent<AccordionItemProps> = ( props ) => {
     const { itemKey, heading = {}, menu = {} } = props;
