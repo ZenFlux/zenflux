@@ -1,6 +1,6 @@
 import React from "react";
 
-import { AnimatePresence, motion } from "framer-motion";
+import { LayoutGroup, motion } from "framer-motion";
 
 import "@zenflux/react-ui/src/accordion/_ui-theme-accordion.scss";
 
@@ -10,6 +10,8 @@ import {
     accordionHandleSelection,
     accordionHandleExternalSelection
 } from "@zenflux/react-ui/src/accordion/ui-theme-accordion-handle-selection";
+
+import { useMeasuredMaxHeight } from "@zenflux/react-ui/src/hooks/use-measured-max-height";
 
 import type {
     UIThemeAccordionItemProps,
@@ -65,92 +67,33 @@ const UIThemeAccordionItemCollapse = ( props: {
     setCollapsedState: React.Dispatch<React.SetStateAction<UIThemeAccordionCollapseStates>>,
     setIsTransitioning: React.Dispatch<React.SetStateAction<boolean>>
 } ): React.JSX.Element => {
-    const { children, height, collapsedState, collapsedStateRef, setCollapsedState, setIsTransitioning } = props;
+    const { children, height, collapsedState, collapsedStateRef, setIsTransitioning } = props;
 
-    const [ shouldRenderCollapse, setShouldRenderCollapse ] = React.useState<null | boolean>( null );
+    const isOpen = collapsedState === "attached";
 
-    const memoCollapsedStateChanged = React.useMemo( () => {
-        return collapsedState;
-    }, [ collapsedState ] );
-
-    React.useEffect( () => {
-        switch ( collapsedState ) {
-            case "initial":
-                setShouldRenderCollapse( true );
-                setCollapsedState( "re-render" );
-                break;
-
-            case "re-render":
-                setShouldRenderCollapse( false );
-                setCollapsedState( "detached" );
-                break;
-
-            case "attached":
-                setShouldRenderCollapse( true );
-                break;
-
-            default:
-                setShouldRenderCollapse( false );
-        }
-
-    }, [ collapsedState ] );
-
-    const Component = () => {
-        const renderCollapse = () => {
-            // Initial render rendering collapse for getting the height
-            const isInitialRender = memoCollapsedStateChanged === "initial" && shouldRenderCollapse === null;
-
-            if ( ! isInitialRender && ! shouldRenderCollapse ) {
-                return null;
-            }
-
-            return (
-                <motion.div
-                    className="accordion-collapse"
-                    initial={ { maxHeight: 0 } }
-                    animate={ { maxHeight: height, display: "block" } }
-                    exit={ { maxHeight: 0 } }
-                    transition={ { duration: 0.3 } }
-                    onAnimationStart={ () => setIsTransitioning( true ) }
-                    onAnimationComplete={ () => setIsTransitioning( false ) }
-                >
-                    <div className="accordion-content" ref={ collapsedStateRef }>
-                        { children }
-                    </div>
-                </motion.div>
-            );
-        };
-
-        return (
-            <AnimatePresence>
-                { renderCollapse() }
-            </AnimatePresence>
-        );
-    };
-
-    return Component();
+    return (
+        <motion.div
+            className="accordion-collapse"
+            style={ { overflow: "hidden" } }
+            initial={ false }
+            animate={ { maxHeight: isOpen ? height : 0, opacity: isOpen ? 1 : 0 } }
+            transition={ { type: "spring", stiffness: 220, damping: 28 } }
+            onAnimationStart={ () => setIsTransitioning( true ) }
+            onAnimationComplete={ () => setIsTransitioning( false ) }
+            layout="size"
+        >
+            <motion.div className="accordion-content" ref={ collapsedStateRef } layout>
+                { children }
+            </motion.div>
+        </motion.div>
+    );
 };
 
 const UIThemeAccordionItemContent = ( props: UIThemeAccordionItemProps ) => {
     const { children, collapsedState, setCollapsedState } = props;
 
-    const [ height, setHeight ] = React.useState( 0 );
     const collapsedStateRef = React.useRef<null | HTMLDivElement>( null );
-
-    React.useEffect( () => {
-        if ( collapsedStateRef.current && collapsedState === "initial" ) {
-            const contentHeight = collapsedStateRef.current.clientHeight;
-
-            if ( contentHeight > 0 ) {
-                // Set the height for the animation
-                setHeight( contentHeight );
-
-                // Hide the content
-                collapsedStateRef.current.style.height = "0px";
-                collapsedStateRef.current.style.display = "none";
-            }
-        }
-    }, [] );
+    const height = useMeasuredMaxHeight( collapsedStateRef as React.RefObject<HTMLDivElement> );
 
     const args = {
         height,
@@ -171,8 +114,8 @@ export const UIThemeAccordionItem = ( props: UIThemeAccordionItemProps ) => {
     return (
         <>
             <h2 className="accordion-heading">
-                <button className="accordion-button" onClick={ () => {
-                    return props.onClick?.( event as any, props.itemKey.toString(), props.collapsedState );
+                <button className="accordion-button" onClick={ ( e ) => {
+                    return props.onClick?.( e as any, props.itemKey.toString(), props.collapsedState );
                 } }>
                     <UIThemeAccordionHeading { ... propsWithoutChildren }>
                         { props.heading.title }
@@ -181,7 +124,7 @@ export const UIThemeAccordionItem = ( props: UIThemeAccordionItemProps ) => {
                 { props.heading.extra || null }
             </h2>
 
-            <div className="accardion-content-container">
+            <div className="accordion-content-container">
                 <UIThemeAccordionItemContent { ... propsWithoutChildren }>
                     { children }
                 </UIThemeAccordionItemContent>
@@ -228,6 +171,16 @@ const NormalizeAccordionItem = ( props: any ) => {
 
     sharedProps[ itemProps.itemKey.toString() ] = itemProps;
 
+    React.useEffect( () => {
+        if ( collapsedState === "initial" ) {
+            setCollapsedState( "detached" );
+
+            if ( ref.current ) {
+                ref.current.setAttribute( "data-collapsed", "detached" );
+            }
+        }
+    }, [] );
+
     return (
         <div className="group accordion-item" data-collapsed={ "initial" } ref={ ref }>
             { <item.type { ... itemProps }/> }
@@ -269,18 +222,20 @@ export const UIThemeAccordion = React.memo( ( props: UIThemeAccordionProps ) => 
     } );
 
     return (
-        <div className="accordion">
-            { children.map( ( item ) =>
-                <NormalizeAccordionItem
-                    key={ item.props.itemKey }
-                    item={ item }
-                    selected={ selected }
-                    setSelected={ setSelected }
-                    sharedProps={ sharedProps }
-                    isTransitioning={ isTransitioning }
-                    setIsTransitioning={ setIsTransitioning }
-                    onClick={ props.onClick }/>
-            ) }
-        </div>
+        <LayoutGroup>
+            <div className="accordion">
+                { children.map( ( item ) =>
+                    <NormalizeAccordionItem
+                        key={ item.props.itemKey }
+                        item={ item }
+                        selected={ selected }
+                        setSelected={ setSelected }
+                        sharedProps={ sharedProps }
+                        isTransitioning={ isTransitioning }
+                        setIsTransitioning={ setIsTransitioning }
+                        onClick={ props.onClick }/>
+                ) }
+            </div>
+        </LayoutGroup>
     );
 } );

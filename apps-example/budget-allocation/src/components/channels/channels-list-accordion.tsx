@@ -2,12 +2,15 @@ import React from "react";
 
 import { useComponent, useCommandState } from "@zenflux/react-commander/use-commands";
 
+import { QueryComponent } from "@zenflux/react-commander/query/component";
+
 import { useChannelsListAccordionInteractions } from "@zenflux/app-budget-allocation/src/components/channels/channels-list-accordion-interactions";
 
 import Accordion from "@zenflux/app-budget-allocation/src/ui-command-able/accordion/accordion";
 import AccordionItem from "@zenflux/app-budget-allocation/src/ui-command-able/accordion/accordion-item";
 
 import ChannelItemAccordion from "@zenflux/app-budget-allocation/src/components/channel-item/channel-item-accordion";
+import { ChannelItemQuery } from "@zenflux/app-budget-allocation/src/api/channel-item-query";
 
 import type { ChannelListState } from "@zenflux/app-budget-allocation/src/components/channels/channels-types";
 
@@ -25,7 +28,13 @@ function toAccordionItem(
 
         onRender: () => {},
 
-        children: <ChannelItemAccordion $data={ channel } key={ channel.meta.id }/>,
+        children: (
+            <QueryComponent<Channel, { meta: Channel["meta"] }, Channel>
+                module={ ChannelItemQuery }
+                component={ ChannelItemAccordion }
+                props={ { meta: channel.meta } }
+            />
+        ),
         heading: {
             title: channel.meta.name,
             icon: channel.meta.icon,
