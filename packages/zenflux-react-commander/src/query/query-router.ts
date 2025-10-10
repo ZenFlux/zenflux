@@ -19,11 +19,11 @@ export abstract class QueryRouterBase<Resource, Model extends QueryModel = Query
     }
 
     protected fetchList = async (): Promise<Resource[]> => {
-        return this.api.fetch( "GET", `v1/${ this.resource }`, {}, ( r ) => r.json() );
+        return this.api.fetch( "GET", `v1/${ this.resource }`, {}, ( r ) => r.json() ) as Promise<Resource[]>;
     };
 
     protected fetchItem = async ( key: string ): Promise<Resource> => {
-        return this.api.fetch( "GET", `v1/${ this.resource }/:key`, { key }, ( r ) => r.json() );
+        return this.api.fetch( "GET", `v1/${ this.resource }/:key`, { key }, ( r ) => r.json() ) as Promise<Resource>;
     };
 
     protected saveItem = async ( input: Resource & { key: string } ): Promise<void> => {

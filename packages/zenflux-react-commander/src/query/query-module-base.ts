@@ -13,13 +13,13 @@ interface Route<TApiResponse, TData> {
     }
 }
 
-class SimpleQueryRouter<TResource extends Record<string, unknown>> extends QueryRouterBase<TResource, QueryModuleBase<TResource>> {
+class SimpleQueryRouter<TResource extends object> extends QueryRouterBase<TResource, QueryModuleBase<TResource>> {
     public constructor( api: QueryClient, resource: string, model: QueryModuleBase<TResource> ) {
         super( api, resource, model );
     }
 }
 
-export abstract class QueryModuleBase<TResource extends Record<string, unknown> = Record<string, unknown>> {
+export abstract class QueryModuleBase<TResource extends object = object> {
 
     protected api: QueryClient;
     protected router: QueryRouterBase<TResource, QueryModuleBase<TResource>>;
@@ -41,12 +41,12 @@ export abstract class QueryModuleBase<TResource extends Record<string, unknown> 
         this.load?.( context );
     }
 
-    public onUnmountInternal( context: DQueryReadOnlyContext ) {
-        this.onUnmount?.( context );
+    public onUnmountInternal( context: DQueryReadOnlyContext, resource: TResource ) {
+        this.onUnmount?.( context, resource );
     }
 
-    public onMountInternal( context: DQueryReadOnlyContext ) {
-        this.onMount?.( context );
+    public onMountInternal( context: DQueryReadOnlyContext, resource: TResource ) {
+        this.onMount?.( context, resource );
     }
 
     public onUpdateInternal( context: DQueryReadOnlyContext, state: {
@@ -132,9 +132,9 @@ export abstract class QueryModuleBase<TResource extends Record<string, unknown> 
 
     protected load?( context: DQueryReadOnlyContext ): void;
 
-    protected onMount?( context: DQueryReadOnlyContext ): void;
+    protected onMount?( context: DQueryReadOnlyContext, resource?: TResource ): void;
 
-    protected onUnmount?( context: DQueryReadOnlyContext ): void;
+    protected onUnmount?( context: DQueryReadOnlyContext, resource?: TResource ): void;
 
     protected onUpdate?( context: DQueryReadOnlyContext, state: {
         currentProps: Readonly<Record<string, unknown>>;

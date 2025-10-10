@@ -6,13 +6,13 @@ import type { QueryClient } from "@zenflux/react-commander/query/client";
 
 import type { QueryModuleBase } from "@zenflux/react-commander/query/module-base";
 
-export interface DQueryModuleBaseStatic<TResource extends Record<string, unknown> = Record<string, unknown>> {
+export interface DQueryModuleBaseStatic<TResource extends object = object> {
     new( query: QueryClient ): QueryModuleBase<TResource>;
 
     getName(): string;
 }
 
-export interface DQueryComponentProps<TData = Record<string, unknown>, TProps = Record<string, unknown>, TResource extends Record<string, unknown> = Record<string, unknown>> {
+export interface DQueryComponentProps<TData = Record<string, unknown>, TProps = Record<string, unknown>, TResource extends object = object> {
     children?: React.ReactElement;
     module?: DQueryModuleBaseStatic<TResource>;
     fallback?: React.ReactElement;

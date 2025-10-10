@@ -9,7 +9,7 @@ import type { QueryModuleBase } from "@zenflux/react-commander/query/module-base
 import type { QueryCache } from "@zenflux/react-commander/query/cache";
 
 export class QueryClient {
-    private modules: Record<string, QueryModuleBase<Record<string, unknown>>> = {};
+    private modules: Record<string, QueryModuleBase<object>> = {};
 
     private readonly cacheRef: QueryCache;
 
@@ -36,17 +36,17 @@ export class QueryClient {
         return promise.then( handler );
     }
 
-    public getModule<TResource extends Record<string, unknown> = Record<string, unknown>>( module: DQueryModuleBaseStatic<TResource> ): QueryModuleBase<TResource> {
+    public getModule<TResource extends object = object>( module: DQueryModuleBaseStatic<TResource> ): QueryModuleBase<TResource> {
         const moduleName = module.getName();
 
         if ( ! this.modules[ moduleName ] ) {
             throw new Error( `Query module ${ moduleName } not registered` );
         }
 
-        return this.modules[ moduleName ] as QueryModuleBase<TResource>;
+        return this.modules[ moduleName ] as unknown as QueryModuleBase<TResource>;
     }
 
-    public registerModule<TResource extends Record<string, unknown> = Record<string, unknown>>( module: DQueryModuleBaseStatic<TResource> ) {
+    public registerModule<TResource extends object = object>( module: DQueryModuleBaseStatic<TResource> ) {
 
         const moduleName = module.getName();
 
@@ -54,7 +54,7 @@ export class QueryClient {
             throw new Error(`Query module ${moduleName} already registered`);
         }
 
-        this.modules[ moduleName ] = new module( this ) as QueryModuleBase<Record<string, unknown>>;
+        this.modules[ moduleName ] = new module( this ) as unknown as QueryModuleBase<object>;
     }
 
     public get Component() {
