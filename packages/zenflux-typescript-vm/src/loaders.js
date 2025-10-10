@@ -245,14 +245,16 @@ export class Loaders {
 
                 if ( ! sourceModuleOptions.initializeImportMeta ) {
                     sourceModuleOptions.initializeImportMeta = ( meta, module ) => {
-                        meta.url = path.startsWith( "file://" ) ? path : "file://" + path;
+                        if ( meta ) {
+                            meta.url = path.startsWith( "file://" ) ? path : "file://" + path;
 
-                        const referer = options.moduleLocalTextSourceOptions?.referencingModule?.identifier;
+                            const referer = options.moduleLocalTextSourceOptions?.referencingModule?.identifier;
 
-                        if ( referer ) {
-                            meta.refererUrl = referer.startsWith( "file://" ) ? referer : "file://" + referer;
+                            if ( referer ) {
+                                meta.refererUrl = referer.startsWith( "file://" ) ? referer : "file://" + referer;
 
-                            this.moduleRefererCache.set( meta.url, meta.refererUrl );
+                                this.moduleRefererCache.set( meta.url, meta.refererUrl );
+                            }
                         }
                     };
                 }
