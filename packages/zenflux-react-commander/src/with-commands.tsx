@@ -40,6 +40,12 @@ export function withCommands<TProps = any, TState = undefined>(
     commands: DCommandNewInstanceWithArgs<TState>[]
 ): DCommandFunctionComponent<TProps, TState>;
 
+export function withCommands<TProps>(
+    componentName: string,
+    Component: DCommandFunctionComponent<TProps>,
+    commands: DCommandNewInstanceWithArgs[]
+): DCommandFunctionComponent<TProps>;
+
 export function withCommands(
     componentName: string,
     Component: DCommandFunctionComponent,
