@@ -8,6 +8,9 @@ export interface Channel extends ChannelState {
 export interface ChannelListApiResponse {
     key: string;
     meta: ChannelMetaData;
+}
+
+export interface ChannelItemApiResponseBase {
     frequency: Channel["frequency"];
     baseline: string;
     allocation: Channel["allocation"];
@@ -17,15 +20,8 @@ export interface ChannelListApiResponse {
     }>;
 }
 
-export interface ChannelItemApiResponse {
+export interface ChannelItemApiResponse extends ChannelItemApiResponseBase {
     meta: ChannelMetaData;
-    frequency: Channel["frequency"];
-    baseline: string;
-    allocation: Channel["allocation"];
-    breaks?: Array<{
-        date: string;
-        value: string;
-    }>;
 }
 
 export interface ChannelListData {
@@ -47,7 +43,15 @@ export function transformChannelFromApi( apiResponse: ChannelItemApiResponse ): 
     };
 }
 
-
+export function transformChannelFromListApi( apiResponse: ChannelListApiResponse ): Channel {
+    return {
+        meta: apiResponse.meta,
+        frequency: "monthly",
+        baseline: "0",
+        allocation: "0",
+        breaks: [],
+    };
+}
 
 
 

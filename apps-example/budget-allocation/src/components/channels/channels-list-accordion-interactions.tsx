@@ -12,7 +12,7 @@ import {
     useChildCommandRunner
 } from "@zenflux/react-commander/use-commands";
 
-import type { Channel } from "@zenflux/app-budget-allocation/src/api/channels-domain";
+import type { Channel } from "@zenflux/app-budget-allocation/src/query/channels-domain";
 
 import type { ChannelListState } from "@zenflux/app-budget-allocation/src/components/channels/channels-types";
 

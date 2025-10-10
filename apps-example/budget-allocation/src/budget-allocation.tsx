@@ -2,9 +2,9 @@ import { QueryComponent } from "@zenflux/react-commander/query/component";
 
 import ChannelsList from "@zenflux/app-budget-allocation/src/components/channels/channels-list";
 
-import { ChannelsListQuery } from "@zenflux/app-budget-allocation/src/api/channels-list-query";
+import { ChannelsListQuery } from "@zenflux/app-budget-allocation/src/components/channels/channels-list-query";
 
-import type { Channel } from "@zenflux/app-budget-allocation/src/api/channels-domain";
+import type { Channel } from "@zenflux/app-budget-allocation/src/query/channels-domain";
 import type { ChannelListProps } from "@zenflux/app-budget-allocation/src/components/channels/channels-types";
 
 export default function BudgetAllocation() {

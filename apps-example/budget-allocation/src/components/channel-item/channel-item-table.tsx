@@ -21,7 +21,7 @@ import "@zenflux/app-budget-allocation/src/components/channel-item/_channel-item
 
 import type { ChannelState } from "@zenflux/app-budget-allocation/src/components/channel-item/channel-types";
 import type { InputProps } from "@zenflux/app-budget-allocation/src/components/ui/input";
-import type { Channel } from "@zenflux/app-budget-allocation/src/api/channels-domain";
+import type { Channel } from "@zenflux/app-budget-allocation/src/query/channels-domain";
 
 import type { DCommandFunctionComponent } from "@zenflux/react-commander/definitions";
 

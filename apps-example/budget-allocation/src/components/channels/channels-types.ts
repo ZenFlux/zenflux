@@ -2,7 +2,7 @@ import type { ChannelsListAccordion } from "@zenflux/app-budget-allocation/src/c
 
 import type React from "react";
 
-import type { Channel } from "@zenflux/app-budget-allocation/src/api/channels-domain";
+import type { Channel } from "@zenflux/app-budget-allocation/src/query/channels-domain";
 
 export type ChannelsListViewAccordionComponent = React.ReactComponentElement<typeof ChannelsListAccordion>;
 

@@ -6,11 +6,11 @@ import { withCommands } from "@zenflux/react-commander/with-commands";
 
 import { CommandBase } from "@zenflux/react-commander/command-base";
 
-import { useChildCommandHook, useCommand, useComponentHook, useComponent } from "@zenflux/react-commander/use-commands";
+import { useChildCommandHook, useCommand, useComponent } from "@zenflux/react-commander/use-commands";
 
 import { cn } from "@zenflux/app-budget-allocation/src/lib/utils";
 
-import type {VariantProps} from "class-variance-authority";
+import type { VariantProps } from "class-variance-authority";
 
 const tabsVariants = cva(
     // Base shadcn tabs styles

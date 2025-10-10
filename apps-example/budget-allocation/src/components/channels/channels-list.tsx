@@ -4,30 +4,15 @@ import { CommandBase } from "@zenflux/react-commander/command-base";
 
 import { withCommands } from "@zenflux/react-commander/with-commands";
 
-import { META_DATA_KEYS } from "@zenflux/app-budget-allocation/src/components/channel-item/channel-constants";
-
-import { pickEnforcedKeys } from "@zenflux/app-budget-allocation/src/utils";
-
 import type { DCommandFunctionComponent } from "@zenflux/react-commander/definitions";
 
 import type { ChannelListProps, ChannelListState } from "@zenflux/app-budget-allocation/src/components/channels/channels-types";
-
-import type { Channel } from "@zenflux/app-budget-allocation/src/api/channels-domain";
 
 const AccordionChannelsList = React.lazy( () => import( "@zenflux/app-budget-allocation/src/components/channels/channels-list-accordion" ) );
 
 const TableChannelsList = React.lazy( () => import( "@zenflux/app-budget-allocation/src/components/channels/channels-list-table" ) );
 
-export const ChannelsList: DCommandFunctionComponent<ChannelListProps & { $data: Channel[] }, ChannelListState> = ( props, state ) => {
-    const channels = props.$data;
-
-    state.channels = channels.map( ( channel ) => {
-        return {
-            ... channel,
-            meta: pickEnforcedKeys( channel.meta, META_DATA_KEYS )
-        };
-    } );
-
+export const ChannelsList: DCommandFunctionComponent<ChannelListProps, ChannelListState> = ( props ) => {
     switch ( props.view ) {
         case "accordion":
             return <AccordionChannelsList />;

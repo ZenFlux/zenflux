@@ -7,7 +7,7 @@ import { queryDiffById } from "@zenflux/react-commander/query/list-diff";
 
 import { CHANNEL_LIST_STATE_DATA_WITH_META } from "@zenflux/app-budget-allocation/src/components/channel-item/channel-constants";
 
-import { transformChannelFromListApi } from "@zenflux/app-budget-allocation/src/api/channels-domain";
+import { transformChannelFromListApi } from "@zenflux/app-budget-allocation/src/query/channels-domain";
 
 import { pickEnforcedKeys } from "@zenflux/app-budget-allocation/src/utils";
 
@@ -18,7 +18,7 @@ import type { QueryClient } from "@zenflux/react-commander/query/client";
 import type {
     Channel,
     ChannelListApiResponse
-} from "@zenflux/app-budget-allocation/src/api/channels-domain";
+} from "@zenflux/app-budget-allocation/src/query/channels-domain";
 
 interface ChannelsListState extends Record<string, Channel[] | Record<string, boolean>> {
     channels: Channel[];
@@ -31,7 +31,7 @@ interface ChannelsListSavePayload {
     [ key: string ]: string | Channel[];
 }
 
-export class ChannelsListQuery extends QueryListModuleBase<Channel> {
+export class ChannelsListQuery extends QueryListModuleBase<Channel, DCommandSingleComponentContext> {
     private autosave: ReturnType<typeof queryCreateAutoSaveManager<ChannelsListState, ChannelsListSavePayload>>;
 
     public constructor( core: QueryClient ) {

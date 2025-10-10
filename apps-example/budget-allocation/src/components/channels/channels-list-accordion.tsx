@@ -14,7 +14,7 @@ import { ChannelItemQuery } from "@zenflux/app-budget-allocation/src/api/channel
 
 import type { ChannelListState } from "@zenflux/app-budget-allocation/src/components/channels/channels-types";
 
-import type { Channel } from "@zenflux/app-budget-allocation/src/api/channels-domain";
+import type { Channel } from "@zenflux/app-budget-allocation/src/query/channels-domain";
 
 import type { AccordionItemProps } from "@zenflux/app-budget-allocation/src/ui-command-able/accordion/accordion-item";
 

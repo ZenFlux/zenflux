@@ -17,7 +17,7 @@ import * as commands from "@zenflux/app-budget-allocation/src/components/channel
 
 import type { ChannelState } from "@zenflux/app-budget-allocation/src/components/channel-item/channel-types";
 
-import type { Channel } from "@zenflux/app-budget-allocation/src/api/channels-domain";
+import type { Channel } from "@zenflux/app-budget-allocation/src/query/channels-domain";
 
 import type { DCommandFunctionComponent } from "@zenflux/react-commander/definitions";
 
