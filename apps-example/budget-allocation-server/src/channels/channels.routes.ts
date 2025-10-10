@@ -13,7 +13,7 @@ export async function channelsRoutes(
     _options: FastifyPluginOptions
 ) {
     fastify.get("/channels", async (_request, _reply) => {
-        return DelayUtil.withDelay(() => channelsService.findAll(), {
+        return DelayUtil.withDelay(() => channelsService.findAllMetaOnly(), {
             ...serverConfig.delays.endpoints.getChannels,
             enabled: serverConfig.delays.enabled
         });

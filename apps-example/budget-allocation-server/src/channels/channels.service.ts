@@ -1,6 +1,6 @@
 import { defaultChannels } from "@zenflux/budget-allocation-server/src/channels/channels.defaults";
 
-import type { Channel, CreateChannelDto, UpdateChannelDto, UpdateChannelsListDto } from "@zenflux/budget-allocation-server/src/channels/channel.interface";
+import type { Channel, ChannelMetaOnly, CreateChannelDto, UpdateChannelDto, UpdateChannelsListDto } from "@zenflux/budget-allocation-server/src/channels/channel.interface";
 
 export class ChannelsService {
     private channels: Map<string, Channel> = new Map();
@@ -19,6 +19,15 @@ export class ChannelsService {
         return Array.from(this.channels.values()).sort((a, b) =>
             a.meta.createdAt - b.meta.createdAt
         );
+    }
+
+    public findAllMetaOnly(): ChannelMetaOnly[] {
+        return Array.from(this.channels.values())
+            .sort((a, b) => a.meta.createdAt - b.meta.createdAt)
+            .map(channel => ({
+                key: channel.key,
+                meta: channel.meta
+            }));
     }
 
     public findOne(key: string): Channel | undefined {
