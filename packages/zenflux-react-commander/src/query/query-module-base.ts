@@ -59,6 +59,10 @@ export abstract class QueryModuleBase<TResource extends Record<string, unknown> 
         this.onUpdate?.( context, state );
     }
 
+    public onContextStateUpdatedInternal( context: DQueryReadOnlyContext, hasChanged: boolean ) {
+        this.onContextStateUpdated?.( context, hasChanged );
+    }
+
     public async getData<TData>( element: DCommandFunctionComponent, args?: Record<string, unknown> ): Promise<TData> {
         const componentName = element.getName!();
 
@@ -139,5 +143,7 @@ export abstract class QueryModuleBase<TResource extends Record<string, unknown> 
         prevState: Readonly<Record<string, unknown>>;
         snapshot: unknown;
     } ): void;
+
+    protected onContextStateUpdated?( context: DQueryReadOnlyContext, hasChanged: boolean ): void;
 }
 

@@ -1,12 +1,14 @@
 import React from "react";
 
+// eslint-disable-next-line no-restricted-imports, @zenflux/no-relative-imports
 import {
     INTERNAL_ON_LOAD,
     INTERNAL_ON_MOUNT,
     INTERNAL_ON_UNMOUNT,
     INTERNAL_ON_UPDATE,
+    INTERNAL_ON_CONTEXT_STATE_UPDATED,
     INTERNAL_PROPS
-} from "@zenflux/react-commander/constants";
+} from "../_internal/constants";
 
 import { wrapPromiseSuspendable } from "@zenflux/react-commander/query/utils";
 
@@ -102,9 +104,10 @@ export class QueryComponent<
                 [ INTERNAL_PROPS ]: {
                     handlers: {
                         [ INTERNAL_ON_LOAD ]: ( context: any ) => this.queryModule.onLoadInternal( context ),
-                        [ INTERNAL_ON_MOUNT ]: ( context: any ) => this.queryModule.onMountInternal( context ),
-                        [ INTERNAL_ON_UNMOUNT ]: ( context: any ) => this.queryModule.onUnmountInternal( context ),
+                        [ INTERNAL_ON_MOUNT ]: ( context: any ) => this.queryModule.onMountInternal( context, response.data ),
+                        [ INTERNAL_ON_UNMOUNT ]: ( context: any ) => this.queryModule.onUnmountInternal( context, response.data ),
                         [ INTERNAL_ON_UPDATE ]: ( context: any, state: any ) => this.queryModule.onUpdateInternal( context, state ),
+                        [ INTERNAL_ON_CONTEXT_STATE_UPDATED ]: ( context: any, hasChanged: boolean ) => this.queryModule.onContextStateUpdatedInternal( context, hasChanged ),
                     }
                 }
             };

@@ -15,6 +15,7 @@ import {
     INTERNAL_ON_MOUNT,
     INTERNAL_ON_UPDATE,
     INTERNAL_ON_LOAD,
+    INTERNAL_ON_CONTEXT_STATE_UPDATED,
     INTERNAL_STATE_UPDATED_EVENT
 } from "./_internal/constants";
 
@@ -287,9 +288,16 @@ export function withCommands(
         }
 
         public componentDidUpdate( prevProps: any, prevState: any, snapshot?: any ) {
-            if ( this.store.hasChanged?.() ) {
-                const ctx = core[ GET_INTERNAL_SYMBOL ]( this.context.getNameUnique() );
+            const hasChanged = this.store.hasChanged?.();
+
+            const ctx = core[ GET_INTERNAL_SYMBOL ]( this.context.getNameUnique() );
+
+            if ( hasChanged ) {
                 ctx.emitter.emit( INTERNAL_STATE_UPDATED_EVENT );
+            }
+
+            if ( this.$$commander.lifecycleHandlers[ INTERNAL_ON_CONTEXT_STATE_UPDATED ] ) {
+                this.$$commander.lifecycleHandlers[ INTERNAL_ON_CONTEXT_STATE_UPDATED ]( ctx, hasChanged );
             }
 
             if ( this.$$commander.lifecycleHandlers[ INTERNAL_ON_UPDATE ] ) {
