@@ -15,7 +15,7 @@ import type { Channel } from "@zenflux/app-budget-allocation/src/api/channels-do
 
 import type { AccordionItemProps } from "@zenflux/app-budget-allocation/src/ui-command-able/accordion/accordion-item";
 
-export function toAccordionItem(
+function toAccordionItem(
     channel: Channel,
     channelsCommands: ReturnType<typeof useComponent>,
     index: number,
@@ -51,8 +51,10 @@ export function toAccordionItem(
 
     const { children, ... withoutChildren } = accordionProps;
 
-    return <AccordionItem { ... withoutChildren }
-        key={ "channel-" + channel.meta.id + "-accordion-item-" + index.toString() }>
+    return <AccordionItem
+        key={ "channel-" + channel.meta.id + "-accordion-item-" + index.toString() }
+        { ... withoutChildren }
+    >
         { children }
     </AccordionItem>;
 }
@@ -64,8 +66,12 @@ export const ChannelsListAccordion: React.FC = () => {
 
     const channelsListState = getChannelsListState();
 
-    const setSelected = ( selected: { key: boolean } ) => {
-        setChannelsListState( { selected } );
+    const setSelected: React.Dispatch<React.SetStateAction<{ [ key: string ]: boolean }>> = ( value ) => {
+        const next = typeof value === "function"
+            ? value( getChannelsListState().selected || {} )
+            : value;
+
+        setChannelsListState( { selected: next } );
     };
 
     useChannelsListAccordionInteractions();

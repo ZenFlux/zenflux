@@ -12,9 +12,9 @@ import { AccordionItemMenu } from "@zenflux/app-budget-allocation/src/ui-command
 
 import type { DCommandFunctionComponent } from "@zenflux/react-commander/definitions";
 
-import type { UIThemeAccordionItemProps } from "@zenflux/react-ui/src/accordion/ui-theme-accordion-types";
+import type { UIThemeAccordionItemProps, UIThemeAccordionCollapseStates } from "@zenflux/react-ui/src/accordion/ui-theme-accordion-types";
 
-export interface AccordionItemProps extends Omit<UIThemeAccordionItemProps, "heading"> {
+export interface AccordionItemProps extends Omit<UIThemeAccordionItemProps, "heading" | "collapsedState" | "setCollapsedState"> {
     heading: {
         icon?: string,
         iconAlt?: string,
@@ -30,7 +30,7 @@ export interface AccordionItemProps extends Omit<UIThemeAccordionItemProps, "hea
     onRender?: () => void,
 }
 
-const AccordionItemEditableTitle = React.forwardRef<HTMLSpanElement, Omit<AccordionItemProps, "children">>((props, refForParent ) => {
+const AccordionItemEditableTitle = React.forwardRef<HTMLSpanElement, Omit<AccordionItemProps, "children"> & { collapsedState?: UIThemeAccordionCollapseStates }>((props, refForParent ) => {
     const [ isEditing, setIsEditing ] = React.useState( false ),
         [ isFocusCaptured, setIsFocusCaptured ] = React.useState( false );
 
