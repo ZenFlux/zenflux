@@ -5,9 +5,9 @@ import "@zenflux/app-budget-allocation/src/ui-layout/_layout.scss";
 import Header from "@zenflux/app-budget-allocation/src/ui-layout/header";
 
 export interface LayoutProps {
-    children?: React.JSX.Element;
+    children?: React.ReactNode;
     header : {
-        end: React.JSX.Element;
+        end: React.ReactNode;
     }
 }
 

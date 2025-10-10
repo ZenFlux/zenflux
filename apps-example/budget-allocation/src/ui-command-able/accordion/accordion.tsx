@@ -38,7 +38,7 @@ const Accordion: DCommandFunctionComponent<AccordionProps> = ( props ) => {
 
     // If `ReactFragment` is used as children, then pop it out.
     if ( children.length === 1 && children[ 0 ].type === React.Fragment ) {
-        children = children[ 0 ].props.children!;
+        children = children[ 0 ].props.children as AccordionItemComponent[];
     }
 
     const commands = useComponent( "UI/Accordion" );

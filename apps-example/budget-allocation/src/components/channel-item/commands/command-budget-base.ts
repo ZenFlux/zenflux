@@ -2,10 +2,10 @@ import { CommandBase } from "@zenflux/react-commander/command-base";
 
 import type { ChannelState } from "@zenflux/app-budget-allocation/src/components/channel-item/channel-types";
 
-import type { CommandArgs } from "@zenflux/react-commander/types";
+import type { DCommandArgs } from "@zenflux/react-commander/definitions";
 
 export abstract class CommandBudgetBase<TState = ChannelState> extends CommandBase<TState> {
-    protected validateArgs( args: CommandArgs ) {
+    protected validateArgs( args: DCommandArgs ) {
         const { source, value } = args;
 
         if ( ! source ) {

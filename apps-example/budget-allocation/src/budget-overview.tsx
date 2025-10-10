@@ -9,7 +9,7 @@ import type { ChannelListProps } from "@zenflux/app-budget-allocation/src/compon
 
 export default function BudgetOverview() {
     return (
-        <QueryComponent<Channel[], ChannelListProps, Channel>
+        <QueryComponent<Channel[], ChannelListProps, Channel[]>
             fallback={ <div className="loading">Loading <span className="dots">◌</span></div> }
             module={ ChannelsListQuery }
             component={ ChannelsList }
