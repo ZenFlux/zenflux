@@ -31,10 +31,10 @@ These commands are designed to help you manage and build your projects efficient
 * Utilizing multithreading, the tool can build multiple packages simultaneously, improving performance.
 
 
-- **CLI Commands**: `@build` `@watch`
+- **CLI Commands**: `@build` `@watch` `@typecheck`
   <br /><br />
 
-- **Default Behavior** ( without  arguments ): `@z-cli @build` `@z-cli @watch`
+- **Default Behavior** ( without  arguments ): `@z-cli @build` `@z-cli @watch` `@z-cli @typecheck`
     - Current working directory is **workspace**: Builds all packages in the workspace
     - Current working directory is **package**: Build the current package
       <br /><br />
@@ -229,6 +229,55 @@ These commands are designed to help you manage and build your projects efficient
           <br />&nbsp;&nbsp;&nbsp;The debounce function works by delaying the execution of the build process until a certain amount of time has passed without any new changes being detected. This ensures that if multiple changes are made in quick succession, the build process will only be triggered once, after the last change.
           <br /><br />
 </details>
+
+---
+
+### Type Checking Projects
+
+The CLI tool provides a command for performing TypeScript type checking across workspace packages without building or generating declarations.
+
+* The `@typecheck` command runs TypeScript's type checking on your code to catch type errors early in development.
+* It supports checking all packages in a workspace or specific packages using workspace filtering.
+* For single packages, it runs type checking synchronously for faster feedback.
+* For multiple packages, it utilizes parallel execution to check packages simultaneously, improving performance.
+* The command uses the main `tsconfig.json` file in each package (not format-specific configs).
+
+- **CLI Commands**: `@typecheck`
+  <br /><br />
+
+- **Default Behavior**: `@z-cli @typecheck`
+    - Current working directory is **workspace**: Typechecks all packages in the workspace
+    - Current working directory is **package**: Typecheck the current package
+      <br /><br />
+
+- **CLI Options**
+    - **--workspace:**
+        - Description: Run for a specific workspace
+        - Examples:
+            - `--workspace <company@package-name>`
+            - `--workspace <package-name>`
+            - `--workspace <package-name-a>, <package-name-b>`
+            - `--workspace "prefix-*", "react-*"`
+              <br /><br />
+
+    - **--haltOnDiagnosticError:**
+        - Description: Halt on typescript diagnostic error
+        - Behaviors:
+            - Kill the process if typescript diagnostic error occurred
+              <br /><br />
+
+    - **--config:**
+        - Description: Specify a custom config file
+        - Examples:
+            - `--config <config-file-name>`
+            - `--config zenflux.test.config.ts`
+              <br /><br />
+
+- **Examples**
+    - `@z-cli @typecheck` - Typecheck all packages in workspace
+    - `@z-cli @typecheck --workspace "react-*"` - Typecheck packages matching pattern
+    - `@z-cli @typecheck --workspace zenflux-cli` - Typecheck specific package
+    - `@z-cli @typecheck --haltOnDiagnosticError` - Stop on first type error
 
 ---
 
