@@ -147,3 +147,22 @@ export abstract class QueryModuleBase<TResource extends object = object> {
     protected onContextStateUpdated?( context: DQueryReadOnlyContext, hasChanged: boolean ): void;
 }
 
+export abstract class QueryItemModuleBase<TEntity extends object> extends QueryModuleBase<TEntity> {
+}
+
+export abstract class QueryListModuleBase<TEntity extends object> extends QueryModuleBase<TEntity[]> {
+    protected readonly itemRouter: QueryRouterBase<TEntity, QueryModuleBase<TEntity[]>>;
+
+    protected constructor( api: QueryClient ) {
+        super( api );
+
+        class SimpleItemRouter<TEntity2 extends object> extends QueryRouterBase<TEntity2, QueryModuleBase<TEntity2[]>> {
+            public constructor( api2: QueryClient, resource: string, model: QueryModuleBase<TEntity2[]> ) {
+                super( api2, resource, model );
+            }
+        }
+
+        this.itemRouter = new SimpleItemRouter<TEntity>( api, this.getResourceName(), this );
+    }
+}
+

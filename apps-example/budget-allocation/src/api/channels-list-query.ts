@@ -1,13 +1,13 @@
 import commandsManager from "@zenflux/react-commander/commands-manager";
 
-import { QueryModuleBase } from "@zenflux/react-commander/query/module-base";
+import { QueryListModuleBase } from "@zenflux/react-commander/query/module-base";
 
 import { queryCreateAutoSaveManager } from "@zenflux/react-commander/query/auto-save-manager";
 import { queryDiffById } from "@zenflux/react-commander/query/list-diff";
 
 import { CHANNEL_LIST_STATE_DATA_WITH_META } from "@zenflux/app-budget-allocation/src/components/channel-item/channel-constants";
 
-import { transformChannelFromApi } from "@zenflux/app-budget-allocation/src/api/channels-domain";
+import { transformChannelFromListApi } from "@zenflux/app-budget-allocation/src/api/channels-domain";
 
 import { pickEnforcedKeys } from "@zenflux/app-budget-allocation/src/utils";
 
@@ -31,7 +31,7 @@ interface ChannelsListSavePayload {
     [ key: string ]: string | Channel[];
 }
 
-export class ChannelsListQuery extends QueryModuleBase<Channel> {
+export class ChannelsListQuery extends QueryListModuleBase<Channel> {
     private autosave: ReturnType<typeof queryCreateAutoSaveManager<ChannelsListState, ChannelsListSavePayload>>;
 
     public constructor( core: QueryClient ) {
@@ -39,7 +39,7 @@ export class ChannelsListQuery extends QueryModuleBase<Channel> {
         this.registerEndpoints();
 
         this.autosave = queryCreateAutoSaveManager<ChannelsListState, ChannelsListSavePayload>( {
-            getKey: () => "channels-list",
+            getKey: ( _state ) => "channels-list",
             pickToSave: ( state ) => {
                 const channels = state.channels.map( ( channel ) =>
                     pickEnforcedKeys( channel, CHANNEL_LIST_STATE_DATA_WITH_META ) as Channel
@@ -77,13 +77,7 @@ export class ChannelsListQuery extends QueryModuleBase<Channel> {
         this.defineEndpoint<ChannelListApiResponse[], Channel[]>( "App/ChannelsList", {
             method: "GET",
             path: "v1/channels",
-            prepareData: ( apiResponse ) => apiResponse.map( ( item ) => transformChannelFromApi( {
-                meta: item.meta,
-                frequency: item.frequency,
-                baseline: item.baseline,
-                allocation: item.allocation,
-                breaks: item.breaks,
-            } ) )
+            prepareData: ( apiResponse ) => apiResponse.map( ( item ) => transformChannelFromListApi( item ) )
         } );
 
         this.register( "POST", "App/ChannelsListSave", "v1/channels/list" );
@@ -98,12 +92,44 @@ export class ChannelsListQuery extends QueryModuleBase<Channel> {
         return await response.json();
     }
 
-    protected onMount( context: DCommandSingleComponentContext ) {
-        this.onChannelsListMount( context );
+    protected onMount( context: DCommandSingleComponentContext, resource?: ChannelsListState["channels"] ) {
+        const component = commandsManager.get( "UI/Accordion", true );
+
+        if ( ! component ) return;
+
+        context.setState( {
+            ... context.getState<ChannelsListState>(),
+            channels: resource
+        } );
+
+        const onSelectionAttached = component[ "UI/Accordion/onSelectionAttached" ],
+            onSelectionDetached = component[ "UI/Accordion/onSelectionDetached" ];
+
+        const saveChannelsCallback = async () => {
+            const state = context.getState<ChannelsListState>();
+
+            this.autosave.queryUpsert( state );
+
+            await this.autosave.queryFlush();
+        };
+
+        onSelectionAttached.global().globalHook( saveChannelsCallback );
+        onSelectionDetached.global().globalHook( saveChannelsCallback );
     }
 
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     protected onUnmount( context: DCommandSingleComponentContext ) {
-        this.onChannelsListUnmount( context );
+        void this.autosave.queryFlush();
+
+        const component = commandsManager.get( "UI/Accordion", true );
+
+        if ( ! component ) return;
+
+        const onSelectionAttached = component[ "UI/Accordion/onSelectionAttached" ],
+            onSelectionDetached = component[ "UI/Accordion/onSelectionDetached" ];
+
+        onSelectionAttached.global().globalUnhook();
+        onSelectionDetached.global().globalUnhook();
     }
 
     protected onUpdate( context: DCommandSingleComponentContext, state: {
@@ -118,40 +144,6 @@ export class ChannelsListQuery extends QueryModuleBase<Channel> {
         if ( currentState.channels !== prevState.channels ) {
             this.onChannelsChanged( prevState.channels, currentState.channels );
         }
-    }
-
-    private onChannelsListMount( context: DCommandSingleComponentContext ) {
-        const commands = commandsManager.get( "UI/Accordion", true );
-
-        if ( ! commands ) return;
-
-        const onSelectionAttached = commands[ "UI/Accordion/onSelectionAttached" ],
-            onSelectionDetached = commands[ "UI/Accordion/onSelectionDetached" ];
-
-        const saveChannelsCallback = async () => {
-            const state = context.getState<ChannelsListState>();
-
-            this.autosave.queryUpsert( state );
-
-            await this.autosave.queryFlush();
-        };
-
-        onSelectionAttached.global().globalHook( saveChannelsCallback );
-        onSelectionDetached.global().globalHook( saveChannelsCallback );
-    }
-
-    private async onChannelsListUnmount( _context: DCommandSingleComponentContext ) {
-        await this.autosave.queryFlush();
-
-        const commands = commandsManager.get( "UI/Accordion", true );
-
-        if ( ! commands ) return;
-
-        const onSelectionAttached = commands[ "UI/Accordion/onSelectionAttached" ],
-            onSelectionDetached = commands[ "UI/Accordion/onSelectionDetached" ];
-
-        onSelectionAttached.global().globalUnhook();
-        onSelectionDetached.global().globalUnhook();
     }
 
     private onChannelsChanged( prevChannels: Channel[], currentChannels: Channel[] ) {
@@ -180,18 +172,18 @@ export class ChannelsListQuery extends QueryModuleBase<Channel> {
     }
 
     private onChannelAdded( newChannel: Channel ) {
-        void this.router.save( {
+        void this.itemRouter.save( {
             key: newChannel.meta.id,
             ... newChannel,
         } as Channel & { key: string } );
     }
 
     private onChannelRemoved( key: string ) {
-        void this.router.remove( key );
+        void this.itemRouter.remove( key );
     }
 
     private onChannelsMetaDataChanged( key: string, currentMeta: Channel["meta"], _prevMeta: Channel["meta"] ) {
-        void this.router.save( { key, meta: currentMeta } as Channel & { key: string } );
+        void this.itemRouter.save( { key, meta: currentMeta } as Channel & { key: string } );
     }
 }
 

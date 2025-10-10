@@ -26,6 +26,8 @@
         "./query/definitions": "./src/query/query-definitions.ts",
         "./query/list-diff": "./src/query/query-list-diff.ts",
         "./query/module-base": "./src/query/query-module-base.ts",
+        "./query/item-module-base": "./src/query/query-item-module-base.ts",
+        "./query/list-module-base": "./src/query/query-list-module-base.ts",
         "./query/router": "./src/query/query-router.ts",
         "./query/utils": "./src/query/query-utils.ts"
     },
