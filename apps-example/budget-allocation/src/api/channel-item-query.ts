@@ -1,10 +1,10 @@
-import { QueryItemModuleBase } from "@zenflux/react-commander/query/module-base";
+import { QueryModuleBase } from "@zenflux/react-commander/query/module-base";
 
 import { queryCreateAutoSaveManager } from "@zenflux/react-commander/query/auto-save-manager";
 
-import { CHANNEL_LIST_STATE_DATA, CHANNEL_LIST_STATE_DATA_WITH_META } from "@zenflux/app-budget-allocation/src/components/channel-item/channel-constants";
+import { CHANNEL_LIST_STATE_DATA } from "@zenflux/app-budget-allocation/src/components/channel-item/channel-constants";
 
-import { transformChannelFromApi } from "@zenflux/app-budget-allocation/src/api/channels-domain";
+import { transformChannelFromApi } from "@zenflux/app-budget-allocation/src/query/channels-domain";
 
 import { pickEnforcedKeys } from "@zenflux/app-budget-allocation/src/utils";
 
@@ -12,9 +12,9 @@ import type { DCommandFunctionComponent, DCommandSingleComponentContext } from "
 
 import type { QueryClient } from "@zenflux/react-commander/query/client";
 
-import type { Channel, ChannelItemApiResponse } from "@zenflux/app-budget-allocation/src/api/channels-domain";
+import type { Channel, ChannelItemApiResponse } from "@zenflux/app-budget-allocation/src/query/channels-domain";
 
-export class ChannelItemQuery extends QueryItemModuleBase<Channel, DCommandSingleComponentContext> {
+export class ChannelItemQuery extends QueryModuleBase<Channel> {
     private autosave: ReturnType<typeof queryCreateAutoSaveManager<Channel, Channel & { key: string }>>;
 
     public constructor( core: QueryClient ) {
@@ -36,7 +36,7 @@ export class ChannelItemQuery extends QueryItemModuleBase<Channel, DCommandSingl
     }
 
     public static getName(): string {
-        return "Query/ChannelItemQuery";
+        return "channel";
     }
 
     protected getResourceName(): string {
@@ -60,30 +60,48 @@ export class ChannelItemQuery extends QueryItemModuleBase<Channel, DCommandSingl
     }
 
     protected async responseHandler( element: DCommandFunctionComponent, response: Response ): Promise<unknown> {
-        const result = await response.json();
-
-        return pickEnforcedKeys( result, CHANNEL_LIST_STATE_DATA_WITH_META );
+        return await response.json();
     }
 
-    protected onMount( context: DCommandSingleComponentContext, resource?: Channel ) {
-        if ( resource ) {
-            context.setState( {
-                ... context.getState(),
-                ... resource,
-            } );
-        }
+    protected async onMount( context: DCommandSingleComponentContext, resource: Channel ) {
+        debugger;
+        // const result = await this.router.item( context.props.meta.id );
+
+        // const channel = pickEnforcedKeys( result, CHANNEL_LIST_STATE_DATA ) as ChannelItemApiResponseBase;
+
+        // const nextState: Channel = {
+        //     meta: context.props.meta,
+        //     frequency: channel.frequency,
+        //     baseline: channel.baseline,
+        //     allocation: channel.allocation,
+        //     breaks: channel.breaks?.map( ( b ) => ( { date: new Date( b.date ), value: b.value } ) ) ?? [],
+        // };
+
+        // context.setState( nextState );
+
+        // await this.autosave.queryUpsert( nextState, true );
     }
 
-    protected onUnmount( context: DCommandSingleComponentContext, resource: Channel ) {
-        if ( resource?.meta?.id ) {
-            this.autosave.queryFlushKey( resource.meta.id );
+    protected async onUnmount( context: DCommandSingleComponentContext ) {
+        const state = context.getState<Channel>();
+
+        if ( state?.meta?.id ) {
+            await this.autosave.queryFlushKey( state.meta.id );
         } else {
-            this.autosave.queryFlush();
+            await this.autosave.queryFlush();
         }
     }
 
-    protected onContextStateUpdated( context: DCommandSingleComponentContext ) {
-        this.autosave.queryUpsert( context.getState() );
+    protected onUpdate( _context: DCommandSingleComponentContext, state: {
+        currentState: Readonly<Channel>,
+        prevState: Readonly<Channel>,
+        currentProps: Readonly<{ meta: Channel["meta"] }>,
+        prevProps: Readonly<{ meta: Channel["meta"] }>,
+        snapshot: never
+    } ) {
+        if ( ! state.currentState.meta || ! state.currentState.meta.id ) return;
+
+        void this.autosave.queryUpsert( state.currentState );
     }
 }
 
