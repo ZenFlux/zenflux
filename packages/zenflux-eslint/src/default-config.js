@@ -4,7 +4,9 @@ import TSLint from "typescript-eslint";
 
 import ImportPlugin from "eslint-plugin-import";
 
-import StylisticPlugin from "@stylistic/eslint-plugin"
+import StylisticPlugin from "@stylistic/eslint-plugin";
+
+import UnusedImportsPlugin from "eslint-plugin-unused-imports";
 
 const ZenFluxPlugin = ( await import( "./plugin.js" ) ).default;
 
@@ -38,6 +40,7 @@ export function zLintDefaultConfig( files, workspaces ) {
                 "@typescript-eslint": TSLint.plugin,
                 "@stylistic": StylisticPlugin,
                 "import": fixupPluginRules( ImportPlugin ),
+                "unused-imports": UnusedImportsPlugin,
                 "@zenflux": ZenFluxPlugin,
             },
 
@@ -126,6 +129,8 @@ export function zLintDefaultConfig( files, workspaces ) {
                 "import/no-unresolved": "error",
                 // Enforce newline after imports
                 "import/newline-after-import": "error",
+                // Remove unused imports
+                "unused-imports/no-unused-imports": "error",
                 // Specify import order rules
                 "import/order": [
                     "error",
