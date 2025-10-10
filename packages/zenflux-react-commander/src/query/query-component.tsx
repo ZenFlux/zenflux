@@ -46,7 +46,7 @@ export class QueryComponent<
         const chainProps = props.props || {};
 
         this.element = async () => {
-            const $data = await this.queryModule.getData( this.props.component ) as TData;
+            const $data = await this.queryModule.getData<TData>( this.props.component, chainProps as Record<string, unknown> );
 
             return React.createElement( this.props.component, { $data, ... chainProps } as TProps & { $data: TData } );
         };
@@ -58,15 +58,23 @@ export class QueryComponent<
         }
 
         const getComponentPromise = async () => {
-            const childrenType = this.props.children!.props.component;
-            const childrenModule = this.props.children!.props.module;
             const parent = await this.element();
 
-            const parentData = (parent.props as TProps & { $data: TData }).$data;
+            if ( ! this.props.children ) {
+                return {
+                    element: parent,
+                    children: [] as React.ReactElement[],
+                };
+            }
+
+            const childrenType = this.props.children.props.component;
+            const childrenModule = this.props.children.props.module;
+
+            const parentData = ( parent.props as TProps & { $data: TData } ).$data;
 
             const childQueryModule = childrenModule ? this.client.getModule( childrenModule ) : this.queryModule;
 
-            const dataArray = Array.isArray(parentData) ? parentData : [parentData];
+            const dataArray = Array.isArray( parentData ) ? parentData : [ parentData ];
 
             const children = await Promise.all( dataArray.map( async ( childData ) => {
                 const child$data = await childQueryModule.getData( childrenType, childData as Record<string, unknown> );

@@ -53,12 +53,8 @@ export class ChannelItemQuery extends QueryModuleBase<Channel> {
         this.register( "POST", "App/ChannelItem", "v1/channels/:key" );
     }
 
-    protected async requestHandler( element: DCommandFunctionComponent, request: Record<string, unknown> ): Promise<Record<string, unknown>> {
-        if ( request.meta ) {
-            const meta = request.meta as { id: string };
-            return { key: meta.id };
-        }
-
+    protected async requestHandler( _element: DCommandFunctionComponent, request: Record<string, unknown> ): Promise<Record<string, unknown>> {
+        debugger;
         return request;
     }
 
@@ -66,39 +62,22 @@ export class ChannelItemQuery extends QueryModuleBase<Channel> {
         return await response.json();
     }
 
-    protected onMount( context: DCommandSingleComponentContext ) {
-        this.onChannelItemMount( context );
+    protected async onMount( context: DCommandSingleComponentContext ) {
+        debugger;
     }
 
-    protected onUnmount( context: DCommandSingleComponentContext ) {
-        this.onChannelItemUnmount( context );
+    protected async onUnmount( context: DCommandSingleComponentContext ) {
+        debugger;
     }
 
-    protected onUpdate( context: DCommandSingleComponentContext, state: {
-        currentState: any,
-        prevState: any,
-        currentProps: any
+    protected onUpdate( _context: DCommandSingleComponentContext, state: {
+        currentState: Readonly<Channel>,
+        prevState: Readonly<Channel>,
+        currentProps: Readonly<{ meta: Channel["meta"] }>,
+        prevProps: Readonly<{ meta: Channel["meta"] }>,
+        snapshot: never
     } ) {
-        void this.autosave.queryUpsert( { ... state.currentProps, ... state.currentState } );
-    }
-
-    private async onChannelItemMount( context: DCommandSingleComponentContext ) {
-        const key = context.props.meta.id as string;
-
-        try {
-            await this.router.queryPrefetchItem( key );
-            const cached = this.router.queryGetCachedItem( key );
-
-            if ( cached && context.isMounted() ) {
-                context.setState( cached );
-            }
-        } catch ( error ) {
-            console.warn( "An error occurred while fetching API data, the state will not be updated, this area considered to be safe", error );
-        }
-    }
-
-    private async onChannelItemUnmount( context: DCommandSingleComponentContext ) {
-        await this.autosave.queryFlushKey( context.props.meta.id );
+        debugger;
     }
 }
 
