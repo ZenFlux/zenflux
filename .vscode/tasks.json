@@ -2,10 +2,10 @@
     "version": "2.0.0",
     "tasks": [
         {
-            "label": "demo-app:dev",
+            "label": "z-demos:budget-allocation:dev",
             "type": "shell",
             "command": "bun",
-            "args": ["run", "demo-app:dev"],
+            "args": ["run", "z-demos:budget-allocation:dev"],
             "group": "build",
             "presentation": {
                 "echo": true,
@@ -19,10 +19,10 @@
             "problemMatcher": []
         },
         {
-            "label": "demo-app:build",
+            "label": "z-demos:budget-allocation:build",
             "type": "shell",
             "command": "bun",
-            "args": ["run", "demo-app:build"],
+            "args": ["run", "z-demos:budget-allocation:build"],
             "group": "build",
             "presentation": {
                 "echo": true,
@@ -36,10 +36,10 @@
             "problemMatcher": []
         },
         {
-            "label": "demo-app:lint",
+            "label": "z-demos:budget-allocation:lint",
             "type": "shell",
             "command": "bun",
-            "args": ["run", "demo-app:lint"],
+            "args": ["run", "z-demos:budget-allocation:lint"],
             "group": "test",
             "presentation": {
                 "echo": true,

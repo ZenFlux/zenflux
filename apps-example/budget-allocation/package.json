@@ -2,11 +2,12 @@
     "name": "@zenflux/app-budget-allocation",
     "type": "module",
     "scripts": {
-        "demo-app:dev": "vite",
-        "demo-app:build": "vite build",
-        "demo-app:lint": "eslint --config eslint.config.js --report-unused-disable-directives --max-warnings 0 .",
-        "demo-app:preview": "vite preview",
-        "demo-app:clean": "vite clean"
+        "z-demos:budget-allocation:dev": "vite",
+        "z-demos:budget-allocation:build": "vite build",
+        "z-demos:budget-allocation:lint": "eslint --config eslint.config.js --report-unused-disable-directives --max-warnings 0 .",
+        "z-demos:budget-allocation:preview": "vite preview",
+        "z-demos:budget-allocation:clean": "vite clean",
+        "z-demos:budget-allocation:typecheck": "@z-cli @typecheck"
     },
     "peerDependencies": {
         "typescript": "^5.0.0"

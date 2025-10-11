@@ -13,17 +13,28 @@ import type { QueryClient } from "@zenflux/react-commander/query/client";
 import type { Channel, ChannelItemApiResponse } from "@zenflux/app-budget-allocation/src/query/channels-domain";
 
 export class ChannelItemQuery extends QueryItemModuleBase<ChannelItemApiResponse> {
-    private autosave: ReturnType<typeof queryCreateAutoSaveManager<Channel, Channel & { key: string }>>;
+    private autosave: ReturnType<typeof queryCreateAutoSaveManager<Channel, ChannelItemApiResponse & { key: string }>>;
 
     public constructor( client: QueryClient ) {
         super( client );
         this.registerEndpoints();
 
-        this.autosave = queryCreateAutoSaveManager<Channel, Channel & { key: string }>( {
+        this.autosave = queryCreateAutoSaveManager<Channel, ChannelItemApiResponse & { key: string }>( {
             getKey: ( state ) => state.meta.id,
             pickToSave: ( state ) => {
                 const payload = pickEnforcedKeys( state, CHANNEL_LIST_STATE_DATA ) as Channel;
-                return { key: state.meta.id, ... payload };
+                // Transform Channel to ChannelItemApiResponse format
+                const apiResponse: ChannelItemApiResponse = {
+                    meta: payload.meta,
+                    frequency: payload.frequency,
+                    baseline: payload.baseline,
+                    allocation: payload.allocation,
+                    breaks: payload.breaks?.map( breakItem => ( {
+                        date: breakItem.date.toISOString(),
+                        value: breakItem.value,
+                    } ) ),
+                };
+                return { key: state.meta.id, ... apiResponse };
             },
             save: async ( input ) => {
                 await this.router.save( input as ChannelItemApiResponse & { key: string } );
@@ -82,6 +93,7 @@ export class ChannelItemQuery extends QueryItemModuleBase<ChannelItemApiResponse
     protected onContextStateUpdated( context: DCommandSingleComponentContext ) {
         this.autosave.queryUpsert( context.getState() );
     }
+
 
     private transformChannelFromApi( apiResponse: ChannelItemApiResponse ): Channel {
         const breaks = apiResponse.breaks?.map( ( breakItem ) => ( {

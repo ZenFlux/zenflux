@@ -12,7 +12,7 @@ import { Button } from "@zenflux/app-budget-allocation/src/components/ui/button"
 
 import type { DCommandFunctionComponent } from "@zenflux/react-commander/definitions";
 
-const AddChannel: DCommandFunctionComponent<void> = () => {
+const AddChannel: DCommandFunctionComponent<{}> = () => {
     const command = useCommand( "App/AddChannel" );
 
     return (

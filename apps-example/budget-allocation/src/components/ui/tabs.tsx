@@ -58,7 +58,7 @@ const tabsTriggerVariants = cva(
 );
 
 interface TabsProps extends Omit<React.ComponentPropsWithoutRef<typeof TabsPrimitive.Root>, "onSelectionChange" | "selectedKey">, VariantProps<typeof tabsVariants> {
-    $$key: number;
+    $$key?: number;
     items?: Array<{ id: string; title: string; content: React.ReactNode }>;
     classNames?: {
         base?: string;
@@ -107,7 +107,7 @@ const TabsView = React.forwardRef<
                 {...props}
             >
                 <TabsList variant={variant} className={classNames?.tabList}>
-                    {items.map((item) => (
+                    {items.map((item, index) => (
                         <TabsTrigger key={item.id} value={item.id} variant={variant} className={classNames?.tab}>
                             {item.title}
                         </TabsTrigger>
@@ -157,7 +157,7 @@ TabsList.displayName = TabsPrimitive.List.displayName;
 
 const TabsTriggerView = React.forwardRef<
     React.ElementRef<typeof TabsPrimitive.Trigger>,
-    Omit<React.ComponentPropsWithoutRef<typeof TabsPrimitive.Trigger> & VariantProps<typeof tabsTriggerVariants>, "onClick"> & { $$key: number }
+    Omit<React.ComponentPropsWithoutRef<typeof TabsPrimitive.Trigger> & VariantProps<typeof tabsTriggerVariants>, "onClick"> & { $$key?: number }
 >(({ $$key: _key,className, variant, ...props }, ref) => {
     const select = useCommand("UI/Tabs/Trigger/Select");
 

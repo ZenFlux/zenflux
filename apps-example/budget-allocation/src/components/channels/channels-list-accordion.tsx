@@ -12,7 +12,7 @@ import { useChannelsListAccordionInteractions } from "@zenflux/app-budget-alloca
 
 import { ChannelItemQuery } from "@zenflux/app-budget-allocation/src/components/channel-item/channel-item-query";
 
-import type { Channel } from "@zenflux/app-budget-allocation/src/query/channels-domain";
+import type { Channel, ChannelItemApiResponse } from "@zenflux/app-budget-allocation/src/query/channels-domain";
 import type { ChannelListState } from "@zenflux/app-budget-allocation/src/components/channels/channels-types";
 import type { AccordionItemProps } from "@zenflux/app-budget-allocation/src/ui-command-able/accordion/accordion-item";
 
@@ -27,7 +27,7 @@ function toAccordionItem(
         onRender: () => {},
 
         children: (
-            <QueryComponent<Channel, { meta: Channel["meta"] }, Channel>
+            <QueryComponent<ChannelItemApiResponse, { meta: Channel["meta"] }, ChannelItemApiResponse>
                 fallback={ <div className="loading">Loading <span className="dots">◌</span></div> }
                 module={ ChannelItemQuery }
                 component={ ChannelItemAccordion }

@@ -33,7 +33,7 @@ export function transformChannelFromListApi( apiResponse: ChannelListApiResponse
         meta: apiResponse.meta,
         frequency: "monthly",
         baseline: "0",
-        allocation: "0",
+        allocation: "equal",
         breaks: [],
     };
 }
