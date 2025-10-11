@@ -1,4 +1,3 @@
-import React from "react";
 
 import type { InputProps } from "@zenflux/app-budget-allocation/src/components/ui/input";
 

@@ -45,6 +45,10 @@ export default async function boot( args = process.argv.slice( 2 ) ) {
             module: async () => ( await import( "@zenflux/cli/src/commands/typecheck" ) ).default,
         },
 
+        "@lint": {
+            module: async () => ( await import( "@zenflux/cli/src/commands/lint" ) ).default,
+        },
+
         "@publish": {
             module: async () => ( await import( "@zenflux/cli/src/commands/publish" ) ).default,
         },

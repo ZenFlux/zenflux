@@ -107,7 +107,7 @@ const TabsView = React.forwardRef<
                 {...props}
             >
                 <TabsList variant={variant} className={classNames?.tabList}>
-                    {items.map((item, index) => (
+                    {items.map((item) => (
                         <TabsTrigger key={item.id} value={item.id} variant={variant} className={classNames?.tab}>
                             {item.title}
                         </TabsTrigger>

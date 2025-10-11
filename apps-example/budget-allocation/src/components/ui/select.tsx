@@ -1,8 +1,11 @@
 import * as React from "react";
 import * as SelectPrimitive from "@radix-ui/react-select";
-import { ChevronDown, Check } from "lucide-react";
-import { cva, type VariantProps } from "class-variance-authority";
+import { ChevronDown } from "lucide-react";
+import { cva  } from "class-variance-authority";
+
 import { cn } from "@zenflux/app-budget-allocation/src/lib/utils";
+
+import type { VariantProps } from "class-variance-authority";
 
 const selectVariants = cva(
     // Base shadcn select styles

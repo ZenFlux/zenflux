@@ -17,20 +17,11 @@ import * as commands from "@zenflux/app-budget-allocation/src/components/channel
 
 import type { ChannelState } from "@zenflux/app-budget-allocation/src/components/channel-item/channel-types";
 
-import type { Channel, ChannelItemApiResponse } from "@zenflux/app-budget-allocation/src/query/channels-domain";
+import type { Channel } from "@zenflux/app-budget-allocation/src/query/channels-domain";
 
 import type { DCommandFunctionComponent } from "@zenflux/react-commander/definitions";
 
-export const ChannelItemAccordion: DCommandFunctionComponent<{ meta: Channel["meta"] }, ChannelState> = (props, state ) => {
-    // Transform the state to Channel format
-    const channel: Channel = {
-        meta: props.meta,
-        frequency: state.frequency,
-        baseline: state.baseline,
-        allocation: state.allocation,
-        breaks: state.breaks,
-    };
-
+export const ChannelItemAccordion: DCommandFunctionComponent<{ meta: Channel["meta"] }, ChannelState> = () => {
     const ChannelBudgetSettings = () => {
         // Subscribe to all budget settings for automatic re-rendering
         const [state] = useCommandStateSelector<ChannelState, {

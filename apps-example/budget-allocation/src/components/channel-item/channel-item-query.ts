@@ -94,7 +94,6 @@ export class ChannelItemQuery extends QueryItemModuleBase<ChannelItemApiResponse
         this.autosave.queryUpsert( context.getState() );
     }
 
-
     private transformChannelFromApi( apiResponse: ChannelItemApiResponse ): Channel {
         const breaks = apiResponse.breaks?.map( ( breakItem ) => ( {
             date: new Date( breakItem.date ),

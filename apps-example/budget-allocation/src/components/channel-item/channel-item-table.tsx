@@ -31,7 +31,7 @@ declare global {
     }
 }
 
-export const ChannelItemTable: DCommandFunctionComponent<{ $data: Channel }, ChannelState> = ( props ) => {
+export const ChannelItemTable: DCommandFunctionComponent<{ $data: Channel }, ChannelState> = () => {
     const [ getState, _setState , _isMounted ] = useCommandState<ChannelState>( "App/ChannelItem" ),
         state = getState();
 

@@ -70,15 +70,15 @@ export const ChannelBreakdowns: React.FC = () => {
     useCommandHook( "App/ChannelItem/SetFrequency", handleBudgetSettingsChange );
     useCommandHook( "App/ChannelItem/SetAllocation", handleBudgetSettingsChange );
     useCommandHook( "App/ChannelItem/SetBreakdown", handleBreakdownSum );
-    
+
+    const elements = useBreakElements( breaks.breaks, settings.allocation, onBreakdownInputChange );
 
     return (
         <div className="content p-[24px] grid grid-cols-6 gap-[20px]">
-            { getBreakElements( breaks.breaks, settings.allocation, onBreakdownInputChange ) }
+            { elements }
         </div>
     );
 };
-
 
 const generateBreaks = (
     frequency: ChannelBudgetFrequencyProps["frequency"],
@@ -140,7 +140,7 @@ const generateBreaks = (
     return breaks;
 };
 
-const getBreakElements = (
+const useBreakElements = (
     breaks: ChannelBreakData[],
     allocation: ChannelState["allocation"],
     onInputChange: ( index: number, value: string ) => void

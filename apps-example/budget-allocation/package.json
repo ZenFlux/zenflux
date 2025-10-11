@@ -4,7 +4,7 @@
     "scripts": {
         "z-demos:budget-allocation:dev": "vite",
         "z-demos:budget-allocation:build": "vite build",
-        "z-demos:budget-allocation:lint": "eslint --config eslint.config.js --report-unused-disable-directives --max-warnings 0 .",
+        "z-demos:budget-allocation:lint": "@z-cli @lint",
         "z-demos:budget-allocation:preview": "vite preview",
         "z-demos:budget-allocation:clean": "vite clean",
         "z-demos:budget-allocation:typecheck": "@z-cli @typecheck"
