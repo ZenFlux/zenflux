@@ -4,16 +4,13 @@ import { QueryClient } from "@zenflux/react-commander/query/client";
 
 import { useCommandRunner, useCommandHook, useCommandWithRef } from "@zenflux/react-commander/use-commands";
 
-import { ChannelItemQuery } from "@zenflux/app-budget-allocation/src/api/channel-item-query.ts";
-
-import { ChannelsListQuery } from "@zenflux/app-budget-allocation/src/api/channels-list-query.ts";
+import { ChannelItemQuery } from "@zenflux/app-budget-allocation/src/components/channel-item/channel-item-query";
+import { ChannelsListQuery } from "@zenflux/app-budget-allocation/src/components/channels/channels-list-query";
 
 import { Tab, Tabs } from "@zenflux/app-budget-allocation/src/components/ui/tabs";
-
 import { Button } from "@zenflux/app-budget-allocation/src/components/ui/button";
 
 import Layout from "@zenflux/app-budget-allocation/src/ui-layout/layout";
-
 import AddChannel from "@zenflux/app-budget-allocation/src/components/add-channel/add-channel";
 
 import "@zenflux/app-budget-allocation/src/app.scss";

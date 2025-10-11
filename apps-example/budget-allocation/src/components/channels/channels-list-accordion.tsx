@@ -4,18 +4,16 @@ import { useComponent, useCommandState } from "@zenflux/react-commander/use-comm
 
 import { QueryComponent } from "@zenflux/react-commander/query/component";
 
-import { useChannelsListAccordionInteractions } from "@zenflux/app-budget-allocation/src/components/channels/channels-list-accordion-interactions";
-
 import Accordion from "@zenflux/app-budget-allocation/src/ui-command-able/accordion/accordion";
 import AccordionItem from "@zenflux/app-budget-allocation/src/ui-command-able/accordion/accordion-item";
-
 import ChannelItemAccordion from "@zenflux/app-budget-allocation/src/components/channel-item/channel-item-accordion";
-import { ChannelItemQuery } from "@zenflux/app-budget-allocation/src/api/channel-item-query";
 
-import type { ChannelListState } from "@zenflux/app-budget-allocation/src/components/channels/channels-types";
+import { useChannelsListAccordionInteractions } from "@zenflux/app-budget-allocation/src/components/channels/channels-list-accordion-interactions";
+
+import { ChannelItemQuery } from "@zenflux/app-budget-allocation/src/components/channel-item/channel-item-query";
 
 import type { Channel } from "@zenflux/app-budget-allocation/src/query/channels-domain";
-
+import type { ChannelListState } from "@zenflux/app-budget-allocation/src/components/channels/channels-types";
 import type { AccordionItemProps } from "@zenflux/app-budget-allocation/src/ui-command-able/accordion/accordion-item";
 
 function toAccordionItem(

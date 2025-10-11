@@ -4,8 +4,6 @@ import { queryCreateAutoSaveManager } from "@zenflux/react-commander/query/auto-
 
 import { CHANNEL_LIST_STATE_DATA, CHANNEL_LIST_STATE_DATA_WITH_META } from "@zenflux/app-budget-allocation/src/components/channel-item/channel-constants";
 
-import { transformChannelFromApi } from "@zenflux/app-budget-allocation/src/query/channels-domain";
-
 import { pickEnforcedKeys } from "@zenflux/app-budget-allocation/src/utils";
 
 import type { DCommandFunctionComponent, DCommandSingleComponentContext } from "@zenflux/react-commander/definitions";
@@ -14,7 +12,7 @@ import type { QueryClient } from "@zenflux/react-commander/query/client";
 
 import type { Channel, ChannelItemApiResponse } from "@zenflux/app-budget-allocation/src/query/channels-domain";
 
-export class ChannelItemQuery extends QueryItemModuleBase<Channel, DCommandSingleComponentContext> {
+export class ChannelItemQuery extends QueryItemModuleBase<Channel> {
     private autosave: ReturnType<typeof queryCreateAutoSaveManager<Channel, Channel & { key: string }>>;
 
     public constructor( client: QueryClient ) {
