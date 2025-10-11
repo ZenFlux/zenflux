@@ -3,7 +3,6 @@ import { EventEmitter } from "events";
 import React from "react";
 
 import { BehaviorSubject } from "rxjs";
-import { map, distinctUntilChanged, shareReplay } from "rxjs/operators";
 
 // eslint-disable-next-line no-restricted-imports, @zenflux/no-relative-imports
 import {
@@ -215,7 +214,7 @@ export function withCommands(
                             if ( this.$$commander.lifecycleHandlers[ INTERNAL_ON_CONTEXT_STATE_UPDATED ] ) {
                                 const ctx = core[ GET_INTERNAL_SYMBOL ]( this.context.getNameUnique() );
                                 const hasChanged = this.store.hasChanged?.();
-    
+
                                 if ( hasChanged ) {
                                     ctx.emitter.emit( INTERNAL_STATE_UPDATED_EVENT );
                                     this.$$commander.lifecycleHandlers[ INTERNAL_ON_CONTEXT_STATE_UPDATED ]( ctx, true );

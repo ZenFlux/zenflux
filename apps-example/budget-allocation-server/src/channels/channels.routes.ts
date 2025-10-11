@@ -19,6 +19,13 @@ export async function channelsRoutes(
         });
     });
 
+    fastify.get("/channels/with-breaks", async (_request, _reply) => {
+        return DelayUtil.withDelay(() => channelsService.findAll(), {
+            ...serverConfig.delays.endpoints.getChannels,
+            enabled: serverConfig.delays.enabled
+        });
+    });
+
     fastify.post("/channels/reset", async (_request, _reply) => {
         return DelayUtil.withDelay(() => {
             channelsService.reset();

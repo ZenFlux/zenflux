@@ -1,6 +1,6 @@
 import React from "react";
 
-import { useCommandState } from "@zenflux/react-commander/use-commands";
+import { useCommandStateSelector } from "@zenflux/react-commander/use-commands";
 
 import ChannelItemTable from "@zenflux/app-budget-allocation/src/components/channel-item/channel-item-table.tsx";
 
@@ -9,20 +9,23 @@ import "@zenflux/app-budget-allocation/src/components/channels/_channels-list-ta
 import type { ChannelListState } from "@zenflux/app-budget-allocation/src/components/channels/channels-types.ts";
 
 export const ChannelsListTable: React.FC = () => {
-    const [ getChannelsListState ] = useCommandState<ChannelListState>( "App/ChannelsList" );
+    const [ { channels } ] = useCommandStateSelector<ChannelListState, Pick<ChannelListState, "channels">>(
+        "App/ChannelsList", ( state ) => ({
+            channels: state.channels
+        } ) );
 
-    const channelsListState = getChannelsListState();
-
-    const channelsRenderer = channelsListState.channels.filter(
+    const channelsRenderer = channels.filter(
         ( channel ) => channel.breaks && channel.breaks.length > 0
     );
+
+    console.log( channels );
 
     return (
         <div className="channel-list-table pt-[45px]">
             {
                 0 === channelsRenderer.length && (
                     <div className="channel-list-table-heading-text text-center">
-                        There are { channelsListState.channels.length } channels, but none of them have any budget allocation.
+                        There are { channels.length } channels, but none of them have any budget allocation.
                     </div>
                 ) ||
                 channelsRenderer.map( ( channel, index ) => {

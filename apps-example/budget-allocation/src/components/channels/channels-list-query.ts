@@ -7,7 +7,7 @@ import { queryDiffById } from "@zenflux/react-commander/query/list-diff";
 
 import { CHANNEL_LIST_STATE_DATA_WITH_META } from "@zenflux/app-budget-allocation/src/components/channel-item/channel-constants";
 
-import { transformChannelFromListApi } from "@zenflux/app-budget-allocation/src/query/channels-domain";
+import { transformChannelFromListApi, transformChannelFromListWithBreaksApi } from "@zenflux/app-budget-allocation/src/query/channels-domain";
 
 import { pickEnforcedKeys } from "@zenflux/app-budget-allocation/src/utils";
 
@@ -73,7 +73,7 @@ export class ChannelsListQuery extends QueryListModuleBase<Channel> {
         return "channels";
     }
 
-    private registerEndpoints(): void {
+    protected registerEndpoints(): void {
         this.defineEndpoint<ChannelListApiResponse[], Channel[]>( "App/ChannelsList", {
             method: "GET",
             path: "v1/channels",
@@ -93,14 +93,14 @@ export class ChannelsListQuery extends QueryListModuleBase<Channel> {
     }
 
     protected onMount( context: DCommandSingleComponentContext, resource?: ChannelsListState["channels"] ) {
-        const component = commandsManager.get( "UI/Accordion", true );
-
-        if ( ! component ) return;
-
         context.setState( {
             ... context.getState<ChannelsListState>(),
             channels: resource
         } );
+
+        const component = commandsManager.get( "UI/Accordion", true );
+
+        if ( ! component ) return;
 
         const onSelectionAttached = component[ "UI/Accordion/onSelectionAttached" ],
             onSelectionDetached = component[ "UI/Accordion/onSelectionDetached" ];
@@ -187,3 +187,19 @@ export class ChannelsListQuery extends QueryListModuleBase<Channel> {
     }
 }
 
+export class ChannelsListWithBreaksQuery extends ChannelsListQuery {
+    public static getName(): string {
+        return "channels-with-breaks";
+    }
+
+    protected registerEndpoints(): void {
+        this.defineEndpoint<ChannelListApiResponse[], Channel[]>( "App/ChannelsList", {
+            method: "GET",
+            path: "v1/channels/with-breaks",
+            prepareData: ( apiResponse ) => apiResponse.map( ( item ) => transformChannelFromListWithBreaksApi( item ) )
+        } );
+
+        this.register( "POST", "App/ChannelsListSave", "v1/channels/list" );
+        this.register( "POST", "App/ChannelsReset", "v1/channels/reset" );
+    }
+}

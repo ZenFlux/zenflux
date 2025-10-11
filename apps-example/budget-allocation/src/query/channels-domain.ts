@@ -10,6 +10,15 @@ export interface ChannelListApiResponse {
     meta: ChannelMetaData;
 }
 
+export interface ChannelListWithBreaksApiResponse {
+    key: string;
+    meta: ChannelMetaData;
+    breaks?: Array<{
+        date: string;
+        value: string;
+    }>;
+}
+
 export interface ChannelItemApiResponseBase {
     frequency: Channel["frequency"];
     baseline: string;
@@ -35,6 +44,21 @@ export function transformChannelFromListApi( apiResponse: ChannelListApiResponse
         baseline: "0",
         allocation: "equal",
         breaks: [],
+    };
+}
+
+export function transformChannelFromListWithBreaksApi( apiResponse: ChannelListWithBreaksApiResponse ): Channel {
+    const breaks = apiResponse.breaks?.map( ( breakItem ) => ( {
+        date: new Date( breakItem.date ),
+        value: breakItem.value,
+    } ) );
+
+    return {
+        meta: apiResponse.meta,
+        frequency: "monthly",
+        baseline: "0",
+        allocation: "equal",
+        breaks: breaks || [],
     };
 }
 

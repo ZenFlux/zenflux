@@ -163,6 +163,10 @@ export abstract class QueryListModuleBase<TEntity extends object> extends QueryM
         }
 
         this.itemRouter = new SimpleItemRouter<TEntity>( api, this.getResourceName(), this );
+
+        this.registerEndpoints();
     }
+
+    protected abstract registerEndpoints(): void;
 }
 
