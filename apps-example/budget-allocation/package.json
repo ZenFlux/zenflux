@@ -24,6 +24,7 @@
         "@radix-ui/react-toast": "^1.2.15",
         "class-variance-authority": "^0.7.0",
         "clsx": "^2.0.0",
+        "eslint-plugin-unused-imports": "^4.2.0",
         "framer-motion": "^12.23.18",
         "lucide-react": "^0.292.0",
         "moment": "^2.29.4",
