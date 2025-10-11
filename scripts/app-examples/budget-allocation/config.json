@@ -1,0 +1,65 @@
+{
+  "environments": {
+    "development": {
+      "frontend": {
+        "host": "localhost",
+        "port": 5173,
+        "name": "Frontend (Vite)",
+        "command": "bun run z-demos:budget-allocation:dev",
+        "cwd": "apps-example/budget-allocation",
+        "env": {
+          "NODE_ENV": "development",
+          "VITE_API_URL": "http://localhost:3000"
+        }
+      },
+      "backend": {
+        "host": "localhost", 
+        "port": 3000,
+        "name": "Backend (Fastify)",
+        "command": "bun run start:dev",
+        "cwd": "apps-example/budget-allocation-server",
+        "env": {
+          "NODE_ENV": "development",
+          "PORT": "3000"
+        }
+      }
+    },
+    "production": {
+      "frontend": {
+        "host": "localhost",
+        "port": 4173,
+        "name": "Frontend (Vite Preview)",
+        "command": "bun run z-demos:budget-allocation:preview",
+        "cwd": "apps-example/budget-allocation",
+        "env": {
+          "NODE_ENV": "production"
+        }
+      },
+      "backend": {
+        "host": "localhost", 
+        "port": 3000,
+        "name": "Backend (Fastify)",
+        "command": "bun run start:prod",
+        "cwd": "apps-example/budget-allocation-server",
+        "env": {
+          "NODE_ENV": "production",
+          "PORT": "3000"
+        }
+      }
+    }
+  },
+  "messages": {
+    "starting": "🚀 Starting Budget Allocation App (Frontend + Backend)",
+    "frontendAvailable": "🌐 Frontend will be available at",
+    "backendAvailable": "🔧 Backend will be available at", 
+    "shutdown": "🛑 Shutting down servers...",
+    "bothStarting": "✅ Both servers are starting...",
+    "pressToStop": "📝 Press Ctrl+C to stop both servers",
+    "frontendExited": "🖥️  Frontend process exited with code",
+    "backendExited": "🔧 Backend process exited with code",
+    "frontendError": "❌ Frontend process error:",
+    "backendError": "❌ Backend process error:",
+    "environment": "🌍 Environment:",
+    "configLoaded": "⚙️  Configuration loaded successfully"
+  }
+}

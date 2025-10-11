@@ -30,6 +30,19 @@ export class ChannelsService {
             }));
     }
 
+    public findAllWithBreaks(): Pick<Channel, "key" | "meta" | "frequency" | "baseline" | "allocation" | "breaks">[] {
+        return Array.from(this.channels.values())
+            .sort((a, b) => a.meta.createdAt - b.meta.createdAt)
+            .map(channel => ({
+                key: channel.key,
+                meta: channel.meta,
+                frequency: channel.frequency,
+                baseline: channel.baseline,
+                allocation: channel.allocation,
+                breaks: channel.breaks
+            }));
+    }
+
     public findOne(key: string): Channel | undefined {
         return this.channels.get(key);
     }

@@ -5,7 +5,7 @@ import moment from "moment";
 import { ArrowSkinnyRight, Pencil, Save, Cancel } from "@zenflux/react-ui/src/symbols";
 
 import { withCommands } from "@zenflux/react-commander/with-commands";
-import { useCommandState, useComponent } from "@zenflux/react-commander/use-commands";
+import { useCommandStateSelector, useComponent } from "@zenflux/react-commander/use-commands";
 
 import { Input } from "@zenflux/app-budget-allocation/src/components/ui/input";
 
@@ -31,13 +31,19 @@ declare global {
     }
 }
 
-export const ChannelItemTable: DCommandFunctionComponent<{ $data: Channel }, ChannelState> = () => {
-    const [ getState, _setState , _isMounted ] = useCommandState<ChannelState>( "App/ChannelItem" ),
-        state = getState();
+export const ChannelItemTable: DCommandFunctionComponent<{ $data: Channel }, ChannelState> = ( props ) => {
+    const [ state ] = useCommandStateSelector<ChannelState, ChannelState>(
+        "App/ChannelItem",
+        (state) => state
+    );
 
-    const [ isEditing, setIsEditing ] = React.useState<boolean[]>( new Array( state.breaks!.length ).fill( false ) );
+    // Use data from props if available (table view), otherwise use state (accordion view)
+    const channelData = props.$data || state;
+    // Why it WORKS ?^@#^
+
+    const [ isEditing, setIsEditing ] = React.useState<boolean[]>( new Array( channelData.breaks!.length ).fill( false ) );
     const [ arrowRightOrLeft, setArrowRightOrLeft ] = React.useState<"right" | "left">( "right" );
-    const [ cloneState, setCloneState ] = React.useState( state );
+    const [ cloneState, setCloneState ] = React.useState( channelData );
 
     const tableRef = React.useRef<HTMLDivElement>( null );
 
@@ -120,7 +126,7 @@ export const ChannelItemTable: DCommandFunctionComponent<{ $data: Channel }, Cha
         <div className={ `channel-item-table ${ arrowRightOrLeft }` } ref={ tableRef }>
             <ArrowSkinnyRight onClick={ () => onArrowClick() }/>
             <div className="channel-item-table-breaks" ref={ tableRef }>
-                { state.breaks!.map( ( budgetBreak, index ) => {
+                { channelData.breaks!.map( ( budgetBreak, index ) => {
                     return (
                         <div key={ index } className="channel-item-table-date">
                             <>{ moment( budgetBreak.date ).format( "MMM D" ) }</>
@@ -158,7 +164,7 @@ export const ChannelItemTable: DCommandFunctionComponent<{ $data: Channel }, Cha
                                     setBreakdown( index, cloneState.breaks![ index ].value, true );
                                 } }/>
                                 <Cancel onClick={ () => {
-                                    setBreakdown( index, state.breaks![ index ].value, true );
+                                    setBreakdown( index, channelData.breaks![ index ].value, true );
                                 } }/>
                             </span>
                         </div>

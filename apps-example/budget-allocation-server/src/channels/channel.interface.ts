@@ -7,7 +7,7 @@ export interface ChannelMeta {
 
 export interface ChannelBreak {
     date: Date;
-    amount: string;
+    value: string;
 }
 
 export interface Channel {

@@ -35,6 +35,8 @@
         "@z-flux:react:build:ci": "time ( @z-cli @build --workspace \"react-*\" --haltOnDiagnosticError )",
 
         "@z-examples:budget-allocation:dev": "cd apps-example/budget-allocation && bun run z-demos:budget-allocation:dev",
-        "@z-examples:budget-allocation-server:dev": "cd apps-example/budget-allocation-server && bun run start:dev"
+        "@z-examples:budget-allocation-server:dev": "cd apps-example/budget-allocation-server && bun run start:dev",
+        "@z-examples:budget-allocation:dev-full": "node scripts/app-examples/budget-allocation/run-dev.js",
+        "@z-examples:budget-allocation:prod-full": "node scripts/app-examples/budget-allocation/run-prod.js"
     }
 }
