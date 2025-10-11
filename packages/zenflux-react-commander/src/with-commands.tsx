@@ -244,8 +244,15 @@ export function withCommands(
                     );
 
                     if ( this.isMounted() ) {
-                        const ctx = core[ GET_INTERNAL_SYMBOL ]( this.context.getNameUnique() );
-                        ctx.emitter.emit( INTERNAL_STATE_UPDATED_EVENT );
+                        if ( this.$$commander.lifecycleHandlers[ INTERNAL_ON_CONTEXT_STATE_UPDATED ] ) {
+                            const ctx = core[ GET_INTERNAL_SYMBOL ]( this.context.getNameUnique() );
+                            const hasChanged = this.store.hasChanged?.();
+
+                            if ( hasChanged ) {
+                                ctx.emitter.emit( INTERNAL_STATE_UPDATED_EVENT );
+                                this.$$commander.lifecycleHandlers[ INTERNAL_ON_CONTEXT_STATE_UPDATED ]( ctx, true );
+                            }
+                        }
                     }
 
                     if ( callback ) {
@@ -260,8 +267,10 @@ export function withCommands(
         public componentWillUnmount() {
             this.$$commander.isMounted = false;
 
-            if ( this.$$commander.lifecycleHandlers[ INTERNAL_ON_UNMOUNT ] ) {
-                this.$$commander.lifecycleHandlers[ INTERNAL_ON_UNMOUNT ]( core[ GET_INTERNAL_SYMBOL ]( this.context.getNameUnique() ) );
+            const onUnmount = this.$$commander.lifecycleHandlers[ INTERNAL_ON_UNMOUNT ];
+
+            if ( onUnmount ) {
+                onUnmount( core[ GET_INTERNAL_SYMBOL ]( this.context.getNameUnique() ) );
             }
 
             const componentNameUnique = this.context.getNameUnique();
@@ -288,18 +297,6 @@ export function withCommands(
         }
 
         public componentDidUpdate( prevProps: any, prevState: any, snapshot?: any ) {
-            const hasChanged = this.store.hasChanged?.();
-
-            const ctx = core[ GET_INTERNAL_SYMBOL ]( this.context.getNameUnique() );
-
-            if ( hasChanged ) {
-                ctx.emitter.emit( INTERNAL_STATE_UPDATED_EVENT );
-            }
-
-            if ( this.$$commander.lifecycleHandlers[ INTERNAL_ON_CONTEXT_STATE_UPDATED ] ) {
-                this.$$commander.lifecycleHandlers[ INTERNAL_ON_CONTEXT_STATE_UPDATED ]( ctx, hasChanged );
-            }
-
             if ( this.$$commander.lifecycleHandlers[ INTERNAL_ON_UPDATE ] ) {
                 const context = core[ GET_INTERNAL_SYMBOL ]( this.context.getNameUnique() );
 
