@@ -13,16 +13,16 @@ interface Route<TApiResponse, TData> {
     }
 }
 
-class SimpleQueryRouter<TResource extends object> extends QueryRouterBase<TResource, QueryModuleBase<TResource, DQueryReadOnlyContext>> {
-    public constructor( api: QueryClient, resource: string, model: QueryModuleBase<TResource, DQueryReadOnlyContext> ) {
+class SimpleQueryRouter<TResource extends object> extends QueryRouterBase<TResource, QueryModuleBase<TResource>> {
+    public constructor( api: QueryClient, resource: string, model: QueryModuleBase<TResource> ) {
         super( api, resource, model );
     }
 }
 
-export abstract class QueryModuleBase<TResource extends object = object, TContext extends DQueryReadOnlyContext = DQueryReadOnlyContext> {
+export abstract class QueryModuleBase<TResource extends object = object> {
 
     protected api: QueryClient;
-    protected router: QueryRouterBase<TResource, QueryModuleBase<TResource, DQueryReadOnlyContext>>;
+    protected router: QueryRouterBase<TResource, QueryModuleBase<TResource>>;
 
     private routes: Map<RequestInit["method"], Map<Route<unknown, unknown>["path"], Route<unknown, unknown>>> = new Map();
 
@@ -38,15 +38,15 @@ export abstract class QueryModuleBase<TResource extends object = object, TContex
     protected abstract getResourceName(): string;
 
     public onLoadInternal( context: DQueryReadOnlyContext ) {
-        this.load?.( context as TContext );
+        this.load?.( context );
     }
 
     public onUnmountInternal( context: DQueryReadOnlyContext, resource: TResource ) {
-        this.onUnmount?.( context as TContext, resource );
+        this.onUnmount?.( context, resource );
     }
 
     public onMountInternal( context: DQueryReadOnlyContext, resource: TResource ) {
-        this.onMount?.( context as TContext, resource );
+        this.onMount?.( context, resource );
     }
 
     public onUpdateInternal( context: DQueryReadOnlyContext, state: {
@@ -56,11 +56,11 @@ export abstract class QueryModuleBase<TResource extends object = object, TContex
         prevState: Readonly<Record<string, unknown>>;
         snapshot: unknown;
     } ) {
-        this.onUpdate?.( context as TContext, state );
+        this.onUpdate?.( context, state );
     }
 
     public onContextStateUpdatedInternal( context: DQueryReadOnlyContext, hasChanged: boolean ) {
-        this.onContextStateUpdated?.( context as TContext, hasChanged );
+        this.onContextStateUpdated?.( context, hasChanged );
     }
 
     public async getData<TData>( element: DCommandFunctionComponent, args?: Record<string, unknown> ): Promise<TData> {
@@ -130,13 +130,13 @@ export abstract class QueryModuleBase<TResource extends object = object, TContex
 
     protected abstract requestHandler( element: DCommandFunctionComponent, request: Record<string, unknown> ): Promise<Record<string, unknown>>;
 
-    protected load?( context: TContext ): void;
+    protected load?( context: DQueryReadOnlyContext ): void;
 
-    protected onMount?( context: TContext, resource?: TResource ): void;
+    protected onMount?( context: DQueryReadOnlyContext, resource?: TResource ): void;
 
-    protected onUnmount?( context: TContext, resource?: TResource ): void;
+    protected onUnmount?( context: DQueryReadOnlyContext, resource?: TResource ): void;
 
-    protected onUpdate?( context: TContext, state: {
+    protected onUpdate?( context: DQueryReadOnlyContext, state: {
         currentProps: Readonly<Record<string, unknown>>;
         currentState: Readonly<Record<string, unknown>>;
         prevProps: Readonly<Record<string, unknown>>;
@@ -144,25 +144,25 @@ export abstract class QueryModuleBase<TResource extends object = object, TContex
         snapshot: unknown;
     } ): void;
 
-    protected onContextStateUpdated?( context: TContext, hasChanged: boolean ): void;
+    protected onContextStateUpdated?( context: DQueryReadOnlyContext, hasChanged: boolean ): void;
 }
 
-export abstract class QueryItemModuleBase<TEntity extends object, TContext extends DQueryReadOnlyContext = DQueryReadOnlyContext> extends QueryModuleBase<TEntity, TContext> {
+export abstract class QueryItemModuleBase<TEntity extends object> extends QueryModuleBase<TEntity> {
 }
 
-export abstract class QueryListModuleBase<TEntity extends object, TContext extends DQueryReadOnlyContext = DQueryReadOnlyContext> extends QueryModuleBase<TEntity[], TContext> {
-    protected readonly itemRouter: QueryRouterBase<TEntity, QueryModuleBase<TEntity[], DQueryReadOnlyContext>>;
+export abstract class QueryListModuleBase<TEntity extends object> extends QueryModuleBase<TEntity[]> {
+    protected readonly itemRouter: QueryRouterBase<TEntity, QueryModuleBase<TEntity[]>>;
 
     protected constructor( api: QueryClient ) {
         super( api );
 
-        class SimpleItemRouter<TEntity2 extends object> extends QueryRouterBase<TEntity2, QueryModuleBase<TEntity2[], DQueryReadOnlyContext>> {
-            public constructor( api2: QueryClient, resource: string, model: QueryModuleBase<TEntity2[], DQueryReadOnlyContext> ) {
+        class SimpleItemRouter<TEntity2 extends object> extends QueryRouterBase<TEntity2, QueryModuleBase<TEntity2[]>> {
+            public constructor( api2: QueryClient, resource: string, model: QueryModuleBase<TEntity2[]> ) {
                 super( api2, resource, model );
             }
         }
 
-        this.itemRouter = new SimpleItemRouter<TEntity>( api, this.getResourceName(), this as QueryModuleBase<TEntity[], DQueryReadOnlyContext> );
+        this.itemRouter = new SimpleItemRouter<TEntity>( api, this.getResourceName(), this );
     }
 }
 

@@ -31,7 +31,7 @@ interface ChannelsListSavePayload {
     [ key: string ]: string | Channel[];
 }
 
-export class ChannelsListQuery extends QueryListModuleBase<Channel, DCommandSingleComponentContext> {
+export class ChannelsListQuery extends QueryListModuleBase<Channel> {
     private autosave: ReturnType<typeof queryCreateAutoSaveManager<ChannelsListState, ChannelsListSavePayload>>;
 
     public constructor( core: QueryClient ) {
