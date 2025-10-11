@@ -1,4 +1,6 @@
 import React from "react";
+import { Observable, of, fromEventPattern } from "rxjs";
+import { map, distinctUntilChanged, shareReplay } from "rxjs/operators";
 
 // eslint-disable-next-line no-restricted-imports, @zenflux/no-relative-imports
 import { GET_INTERNAL_SYMBOL, GET_INTERNAL_MATCH_SYMBOL, INTERNAL_STATE_UPDATED_EVENT } from "./_internal/constants";
@@ -421,65 +423,40 @@ export function useCommandState<TState>( componentName: string ) {
  */
 export function useCommandStateSelector<TState, TSelected>(
     componentName: string,
-    selector: (state: TState) => TSelected,
-    options?: { equalityFn?: (a: TSelected, b: TSelected) => boolean }
+    selector: ( state: TState ) => TSelected,
+    options?: { equalityFn?: ( a: TSelected, b: TSelected ) => boolean }
 ) {
     const componentContext = getSafeContext( componentName );
     const id = componentContext.getNameUnique();
     const internalContext = core[ GET_INTERNAL_SYMBOL ]( id );
 
-    const equalityFn = options?.equalityFn || React.useMemo(() => {
-        function shallowEqualArray(a: {}[], b: {}[]): boolean {
-            if (a.length !== b.length) return false;
-            for (let i = 0; i < a.length; i++) {
-                if (!Object.is(a[i], b[i])) return false;
-            }
-            return true;
-        }
+    const equalityFn = options?.equalityFn ?? ( shallowEqual as unknown as ( a: TSelected, b: TSelected ) => boolean );
 
-        function shallowEqualObject(a: Record<string, {}>, b: Record<string, {}>): boolean {
-            const aKeys = Object.keys(a);
-            const bKeys = Object.keys(b);
-            if (aKeys.length !== bKeys.length) return false;
-            for (const key of aKeys) {
-                if (!Object.prototype.hasOwnProperty.call(b, key)) return false;
-                if (!Object.is(a[key], (b as Record<string, {}>)[key])) return false;
-            }
-            return true;
-        }
+    const triggers = React.useMemo( () => fromEventPattern<unknown>(
+        ( handler ) => internalContext.emitter.on( INTERNAL_STATE_UPDATED_EVENT, handler as () => void ),
+        ( handler ) => internalContext.emitter.off( INTERNAL_STATE_UPDATED_EVENT, handler as () => void ),
+    ), [ internalContext ] );
 
-        return (a: TSelected, b: TSelected) => {
-            if (Object.is(a, b)) return true;
-            if (Array.isArray(a) && Array.isArray(b)) return shallowEqualArray(a as {}[], b as {}[]);
-            if (typeof a === "object" && a !== null && typeof b === "object" && b !== null) {
-                return shallowEqualObject(a as Record<string, {}>, b as Record<string, {}>);
-            }
-            return false;
-        };
-    }, []);
-
-    const lastSelectedRef = React.useRef<TSelected>(selector(internalContext.getState<TState>()));
-
-    const getSnapshot = React.useCallback(() => {
-        const currentState = internalContext.getState<TState>();
-        const nextSelected = selector(currentState);
-        if (!equalityFn(lastSelectedRef.current, nextSelected)) {
-            lastSelectedRef.current = nextSelected;
-        }
-        return lastSelectedRef.current;
-    }, [internalContext, selector, equalityFn]);
-
-    const subscribe = React.useCallback((onStoreChange: () => void) => {
-        const handler = () => onStoreChange();
-        internalContext.emitter.on(INTERNAL_STATE_UPDATED_EVENT, handler);
-        return () => internalContext.emitter.off(INTERNAL_STATE_UPDATED_EVENT, handler);
-    }, [internalContext]);
-
-    const selectedState = React.useSyncExternalStore(
-        subscribe,
-        getSnapshot,
-        getSnapshot,
+    const slice$ = useComponentStateSlice<TState, TSelected>(
+        { getState: internalContext.getState as unknown as <T>() => T },
+        selector,
+        equalityFn,
+        triggers,
     );
+
+    const valueRef = React.useRef<TSelected>( selector( internalContext.getState<TState>() ) );
+
+    const subscribe = React.useCallback( ( onChange: () => void ) => {
+        const sub = slice$.subscribe( ( next ) => {
+            valueRef.current = next;
+            onChange();
+        } );
+        return () => sub.unsubscribe();
+    }, [ slice$ ] );
+
+    const getSnapshot = React.useCallback( () => valueRef.current, [] );
+
+    const selectedState = React.useSyncExternalStore( subscribe, getSnapshot, getSnapshot );
 
     return [
         selectedState,
@@ -607,6 +584,39 @@ export function useCommandHook(
             }
         }
     }, [ ref?.current, command, id, handler ] );
+}
+
+export function shallowEqual<T extends Record<string, unknown>>( a: T, b: T ): boolean {
+    if ( a === b ) return true;
+    if ( ! a || ! b ) return false;
+
+    const aKeys = Object.keys( a );
+    const bKeys = Object.keys( b );
+    if ( aKeys.length !== bKeys.length ) return false;
+
+    for ( const key of aKeys ) {
+        if ( ( a as Record<string, unknown> )[ key ] !== ( b as Record<string, unknown> )[ key ] ) {
+            return false;
+        }
+    }
+    return true;
+}
+
+export function useComponentStateSlice<TState, TSelected>(
+    component: { getState: <T>() => T },
+    selector: ( state: TState ) => TSelected,
+    compare?: ( a: TSelected, b: TSelected ) => boolean,
+    triggers?: Observable<unknown> | null,
+): Observable<TSelected> {
+    const cmp = compare ?? ( shallowEqual as unknown as ( a: TSelected, b: TSelected ) => boolean );
+    const source = React.useMemo( () => triggers ?? of( null ), [ triggers ] );
+
+    return React.useMemo( () => source.pipe(
+        map( () => component.getState<TState>() ),
+        map( selector ),
+        distinctUntilChanged( cmp ),
+        shareReplay( { bufferSize: 1, refCount: true } ),
+    ), [ component, selector, cmp, source ] );
 }
 
 /**

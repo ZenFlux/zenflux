@@ -28,21 +28,6 @@ export interface ChannelListData {
     channels: Channel[];
 }
 
-export function transformChannelFromApi( apiResponse: ChannelItemApiResponse ): Channel {
-    const breaks = apiResponse.breaks?.map( ( breakItem ) => ( {
-        date: new Date( breakItem.date ),
-        value: breakItem.value,
-    } ) );
-
-    return {
-        meta: apiResponse.meta,
-        frequency: apiResponse.frequency,
-        baseline: apiResponse.baseline,
-        allocation: apiResponse.allocation,
-        breaks,
-    };
-}
-
 export function transformChannelFromListApi( apiResponse: ChannelListApiResponse ): Channel {
     return {
         meta: apiResponse.meta,
@@ -52,6 +37,4 @@ export function transformChannelFromListApi( apiResponse: ChannelListApiResponse
         breaks: [],
     };
 }
-
-
 

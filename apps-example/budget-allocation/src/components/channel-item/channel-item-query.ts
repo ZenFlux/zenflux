@@ -12,7 +12,7 @@ import type { QueryClient } from "@zenflux/react-commander/query/client";
 
 import type { Channel, ChannelItemApiResponse } from "@zenflux/app-budget-allocation/src/query/channels-domain";
 
-export class ChannelItemQuery extends QueryItemModuleBase<Channel> {
+export class ChannelItemQuery extends QueryItemModuleBase<ChannelItemApiResponse> {
     private autosave: ReturnType<typeof queryCreateAutoSaveManager<Channel, Channel & { key: string }>>;
 
     public constructor( client: QueryClient ) {
@@ -26,7 +26,7 @@ export class ChannelItemQuery extends QueryItemModuleBase<Channel> {
                 return { key: state.meta.id, ... payload };
             },
             save: async ( input ) => {
-                await this.router.save( input as Channel & { key: string } );
+                await this.router.save( input as ChannelItemApiResponse & { key: string } );
             },
             debounceMs: 800,
             intervalMs: 5000,
@@ -41,17 +41,10 @@ export class ChannelItemQuery extends QueryItemModuleBase<Channel> {
         return "channels";
     }
 
-    private registerEndpoints(): void {
+    protected registerEndpoints(): void {
         this.defineEndpoint<ChannelItemApiResponse, Channel>( "App/ChannelItem", {
             method: "GET",
             path: "v1/channels/:key",
-            prepareData: ( apiResponse ) => ({
-                meta: apiResponse.meta,
-                frequency: "annually",
-                baseline: "0",
-                allocation: "equal",
-                breaks: [],
-            } )
         } );
 
         this.register( "POST", "App/ChannelItem", "v1/channels/:key" );
@@ -69,16 +62,16 @@ export class ChannelItemQuery extends QueryItemModuleBase<Channel> {
         return pickEnforcedKeys( result, CHANNEL_LIST_STATE_DATA_WITH_META );
     }
 
-    protected onMount( context: DCommandSingleComponentContext, resource?: Channel ) {
+    protected onMount( context: DCommandSingleComponentContext, resource?: ChannelItemApiResponse ) {
         if ( resource ) {
             context.setState( {
                 ... context.getState(),
-                ... resource,
+                ... this.transformChannelFromApi( resource ),
             } );
         }
     }
 
-    protected onUnmount( context: DCommandSingleComponentContext, resource: Channel ) {
+    protected onUnmount( context: DCommandSingleComponentContext, resource: ChannelItemApiResponse ) {
         if ( resource?.meta?.id ) {
             this.autosave.queryFlushKey( resource.meta.id );
         } else {
@@ -89,5 +82,21 @@ export class ChannelItemQuery extends QueryItemModuleBase<Channel> {
     protected onContextStateUpdated( context: DCommandSingleComponentContext ) {
         this.autosave.queryUpsert( context.getState() );
     }
+
+    private transformChannelFromApi( apiResponse: ChannelItemApiResponse ): Channel {
+        const breaks = apiResponse.breaks?.map( ( breakItem ) => ( {
+            date: new Date( breakItem.date ),
+            value: breakItem.value,
+        } ) );
+
+        return {
+            meta: apiResponse.meta,
+            frequency: apiResponse.frequency,
+            baseline: apiResponse.baseline,
+            allocation: apiResponse.allocation,
+            breaks,
+        };
+    }
+
 }
 

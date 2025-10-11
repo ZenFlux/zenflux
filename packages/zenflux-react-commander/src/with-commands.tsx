@@ -3,6 +3,7 @@ import { EventEmitter } from "events";
 import React from "react";
 
 import { BehaviorSubject } from "rxjs";
+import { map, distinctUntilChanged, shareReplay } from "rxjs/operators";
 
 // eslint-disable-next-line no-restricted-imports, @zenflux/no-relative-imports
 import {
@@ -70,43 +71,20 @@ export function withCommands(
         throw new Error( "Invalid arguments" );
     }
 
-    function stringifyToLevel( obj: any, level: number ): string {
-        let cache = new Map();
-        let str = JSON.stringify( obj, ( key, value ) => {
-            if ( typeof value === "object" && value !== null ) {
-                if ( cache.size > level ) return; // Limit depth
-                if ( cache.has( value ) ) return; // Duplicate reference
-                cache.set( value, true );
-            }
-            return value;
-        } );
-        cache.clear(); // Enable garbage collection
-        return str;
-    }
+    function shallowEqual<T extends Record<string, unknown>>( a: T, b: T ): boolean {
+        if ( a === b ) return true;
+        if ( ! a || ! b ) return false;
 
-    const comparedObjects = new WeakMap<object, object>();
+        const aKeys = Object.keys( a );
+        const bKeys = Object.keys( b );
+        if ( aKeys.length !== bKeys.length ) return false;
 
-    function compareObjects( obj1: any, obj2: any, level: number ): boolean {
-        const isObj1Object = typeof obj1 === "object" && obj1 !== null;
-        const isObj2Object = typeof obj2 === "object" && obj2 !== null;
-
-        if ( isObj1Object && isObj2Object ) {
-            if ( comparedObjects.has( obj1 ) && comparedObjects.get( obj1 ) === obj2 ) {
-                return true;
+        for ( const key of aKeys ) {
+            if ( ( a as Record<string, unknown> )[ key ] !== ( b as Record<string, unknown> )[ key ] ) {
+                return false;
             }
         }
-
-        const strObj1 = stringifyToLevel( obj1, level );
-        const strObj2 = stringifyToLevel( obj2, level );
-
-        const isEqual = strObj1 === strObj2;
-
-        if ( isEqual && isObj1Object && isObj2Object ) {
-            comparedObjects.set( obj1, obj2 );
-            comparedObjects.set( obj2, obj1 );
-        }
-
-        return isEqual;
+        return true;
     }
 
     class Store {
@@ -143,25 +121,14 @@ export function withCommands(
             this.currentState.next( newState );
         }
 
-        public hasChanged( level = 2 ) {
+        public hasChanged() {
             if ( this.prevState === this.currentState ) {
                 return false;
             }
 
-            return ! compareObjects( this.prevState, this.currentState.getValue(), level );
+            return ! shallowEqual( this.prevState, this.currentState.getValue() );
         }
 
-        public subscribe( callback: ( state: any ) => void ) {
-            if ( this.subscription ) {
-                this.subscription.unsubscribe();
-            }
-
-            this.subscription = this.currentState.subscribe( callback );
-
-            callback( this.getState() );
-
-            return this.subscription;
-        }
     }
 
     if ( state ) {
@@ -244,15 +211,17 @@ export function withCommands(
                     );
 
                     if ( this.isMounted() ) {
-                        if ( this.$$commander.lifecycleHandlers[ INTERNAL_ON_CONTEXT_STATE_UPDATED ] ) {
-                            const ctx = core[ GET_INTERNAL_SYMBOL ]( this.context.getNameUnique() );
-                            const hasChanged = this.store.hasChanged?.();
-
-                            if ( hasChanged ) {
-                                ctx.emitter.emit( INTERNAL_STATE_UPDATED_EVENT );
-                                this.$$commander.lifecycleHandlers[ INTERNAL_ON_CONTEXT_STATE_UPDATED ]( ctx, true );
+                        queueMicrotask(() => {
+                            if ( this.$$commander.lifecycleHandlers[ INTERNAL_ON_CONTEXT_STATE_UPDATED ] ) {
+                                const ctx = core[ GET_INTERNAL_SYMBOL ]( this.context.getNameUnique() );
+                                const hasChanged = this.store.hasChanged?.();
+    
+                                if ( hasChanged ) {
+                                    ctx.emitter.emit( INTERNAL_STATE_UPDATED_EVENT );
+                                    this.$$commander.lifecycleHandlers[ INTERNAL_ON_CONTEXT_STATE_UPDATED ]( ctx, true );
+                                }
                             }
-                        }
+                        });
                     }
 
                     if ( callback ) {

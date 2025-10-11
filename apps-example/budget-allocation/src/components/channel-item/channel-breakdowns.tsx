@@ -14,6 +14,72 @@ import type { ChannelState, ChannelBreakData } from "@zenflux/app-budget-allocat
 
 import type { ChannelBudgetFrequencyProps } from "@zenflux/app-budget-allocation/src/components/channel-item/channel-budget-settings";
 
+export const ChannelBreakdowns: React.FC = () => {
+    const component = useComponent( "App/ChannelItem" );
+
+    const [ , setState ] = useCommandState<ChannelState>( "App/ChannelItem" );
+
+    const onBreakdownInputChange = useCallback( ( index: number, value: string ) => {
+        component.run( "App/ChannelItem/SetBreakdown", { index, value, source: UpdateSource.FROM_BUDGET_BREAKS } );
+    }, [ component ] );
+
+    const handleBudgetSettingsChange = async () => {
+        const currentState = component.getState<ChannelState>();
+        const newBreaks = generateBreaks( currentState.frequency, currentState.baseline );
+
+        setState( { breaks: newBreaks } );
+    };
+
+    const handleBreakdownSum = () => {
+        const values = Array.from( document.querySelectorAll( ".break input" ) )
+            .map( ( input ) => parseFloat( ( input as HTMLInputElement ).value.replace( /,/g, "" ) ) );
+
+        const sum = formatNumericStringToFraction( values
+            .filter( ( value ) => ! isNaN( value ) )
+            .reduce( ( a, b ) => a + b, 0 )
+            .toString()
+        );
+
+        setState( { baseline: sum! } );
+    };
+
+    const [ settings ] = useCommandStateSelector<ChannelState, {
+        allocation: ChannelState["allocation"]
+        frequency: ChannelState["frequency"]
+        baseline: ChannelState["baseline"]
+    }>(
+        "App/ChannelItem",
+        ( state ) => ({
+            allocation: state.allocation,
+            frequency: state.frequency,
+            baseline: state.baseline,
+        })
+    );
+
+    const [ breaks ] = useCommandStateSelector<ChannelState, {
+        breaks: ChannelBreakData[]
+    }>(
+        "App/ChannelItem",
+        (state) => ({
+            breaks: state.breaks?.length ? state.breaks : generateBreaks( state.frequency, state.baseline )
+        }),
+
+    );
+
+    useCommandHook( "App/ChannelItem/SetBaseline", handleBudgetSettingsChange, );
+    useCommandHook( "App/ChannelItem/SetFrequency", handleBudgetSettingsChange );
+    useCommandHook( "App/ChannelItem/SetAllocation", handleBudgetSettingsChange );
+    useCommandHook( "App/ChannelItem/SetBreakdown", handleBreakdownSum );
+    
+
+    return (
+        <div className="content p-[24px] grid grid-cols-6 gap-[20px]">
+            { getBreakElements( breaks.breaks, settings.allocation, onBreakdownInputChange ) }
+        </div>
+    );
+};
+
+
 const generateBreaks = (
     frequency: ChannelBudgetFrequencyProps["frequency"],
     baseline: string,
@@ -76,151 +142,43 @@ const generateBreaks = (
 
 const getBreakElements = (
     breaks: ChannelBreakData[],
-    breaksElements: React.JSX.Element[],
     allocation: ChannelState["allocation"],
     onInputChange: ( index: number, value: string ) => void
 ) => {
-    if ( ! breaks.length ) {
-        throw new Error( "Breaks state is empty" );
-    }
+    const elementsRef = React.useRef<React.JSX.Element[]>( [] );
 
-    const breakElements: React.JSX.Element[] = [];
+    const elements = React.useMemo( () => {
+        if ( ! breaks.length ) return [] as React.JSX.Element[];
 
-    function formatDate( date: Date ) {
-        return moment( date ).format( "MMM D" );
-    };
+        const prev = elementsRef.current;
+        const isAllocationChanged = prev?.some( ( element ) => element.props.allocation !== allocation );
 
-    let index = 0;
+        const next: React.JSX.Element[] = [];
 
-    const isAllocationChanged = breaksElements?.some( ( element ) => element.props.allocation !== allocation );
+        let index = 0;
 
-    for ( const { date, value } of breaks ) {
-        if ( ! isAllocationChanged && breaksElements?.[ index ] ) {
-            const existBreakElement = breaksElements?.[ index ];
-
-            // Update with pinceta
-            if ( existBreakElement.props.value.toString() !== value.toString() ) {
-                breakElements.push( React.cloneElement( existBreakElement, {
-                    value: value.toString(),
-                } ) );
-
+        for ( const { date, value } of breaks ) {
+            if ( ! isAllocationChanged && prev?.[ index ] ) {
+                const exist = prev[ index ];
+                if ( exist.props.value.toString() !== value.toString() ) {
+                    next.push( React.cloneElement( exist, { value: value.toString() } ) );
+                    index++;
+                    continue;
+                }
+                next.push( exist );
                 index++;
                 continue;
             }
 
-            breakElements.push( existBreakElement );
+            const label = moment( date ).format( "MMM D" );
+            const props = { index, allocation, label, value: value.toString() };
+            next.push( <ChannelBreak key={ date.getTime() } { ... props } onInputChange={ onInputChange } /> );
             index++;
-            continue;
         }
 
-        const props = {
-            index,
-            allocation,
-            label: formatDate( date ),
-            value: value.toString(),
-        };
+        elementsRef.current = next;
+        return next;
+    }, [ breaks, allocation, onInputChange ] );
 
-        breakElements.push( <ChannelBreak key={ date.getTime() } { ... props } onInputChange={ onInputChange } /> );
-
-        index++;
-    }
-
-    return breakElements;
+    return elements;
 };
-
-export const ChannelBreakdowns: React.FC = () => {
-    const component = useComponent( "App/ChannelItem" );
-
-    const [ _getState, setState ] = useCommandState<ChannelState>( "App/ChannelItem" );
-
-    const onBreakdownInputChange = useCallback( ( index: number, value: string ) => {
-        component.run( "App/ChannelItem/SetBreakdown", { index, value, source: UpdateSource.FROM_BUDGET_BREAKS } );
-    }, [ component ] );
-
-    const updateBreakdownElements = useCallback( () => {
-        const currentState = component.getState<ChannelState>();
-
-        // Always ensure we have breaks
-        let breaks = currentState.breaks;
-        let shouldUpdateBreaks = false;
-
-        if ( ! breaks?.length ) {
-            breaks = generateBreaks( currentState.frequency, currentState.baseline );
-            shouldUpdateBreaks = true;
-        }
-
-        // Generate break elements from the breaks
-        const newBreakElements = getBreakElements(
-            breaks,
-            currentState.breakElements || [],
-            currentState.allocation,
-            onBreakdownInputChange
-        );
-
-        // Only update state if breaks changed or break elements changed
-        const hasBreakElementsChanged = JSON.stringify( currentState.breakElements ) !== JSON.stringify( newBreakElements );
-
-        if ( shouldUpdateBreaks || hasBreakElementsChanged ) {
-            setState( {
-                ...( shouldUpdateBreaks ? { breaks } : {} ),
-                breakElements: newBreakElements
-            } );
-        }
-    }, [ component, setState, onBreakdownInputChange ] );
-
-    const handleBudgetSettingsChange = async () => {
-        const currentState = component.getState<ChannelState>();
-        const newBreaks = generateBreaks( currentState.frequency, currentState.baseline );
-
-        // Update breaks and then generate new break elements
-        setState( { breaks: newBreaks } );
-
-        // Generate new break elements with the updated breaks
-        const newBreakElements = getBreakElements(
-            newBreaks,
-            currentState.breakElements || [],
-            currentState.allocation,
-            onBreakdownInputChange
-        );
-
-        setState( { breakElements: newBreakElements } );
-    };
-
-    const handleBreakdownSum = () => {
-        const values = Array.from( document.querySelectorAll( ".break input" ) )
-            .map( ( input ) => parseFloat( ( input as HTMLInputElement ).value.replace( /,/g, "" ) ) );
-
-        const sum = formatNumericStringToFraction( values
-            .filter( ( value ) => ! isNaN( value ) )
-            .reduce( ( a, b ) => a + b, 0 )
-            .toString()
-        );
-
-        setState( { baseline: sum! } );
-    };
-
-    useCommandHook( "App/ChannelItem/SetBaseline", handleBudgetSettingsChange, );
-    useCommandHook( "App/ChannelItem/SetFrequency", handleBudgetSettingsChange );
-    useCommandHook( "App/ChannelItem/SetAllocation", handleBudgetSettingsChange );
-    useCommandHook( "App/ChannelItem/SetBreakdown", handleBreakdownSum );
-
-    React.useEffect( () => {
-        updateBreakdownElements();
-    }, [ updateBreakdownElements ] );
-
-    const [ state ] = useCommandStateSelector<ChannelState, {
-        breakElements: React.JSX.Element[]
-    }>(
-        "App/ChannelItem",
-        (state) => ({
-            breakElements: state.breakElements || []
-        })
-    );
-
-    return (
-        <div className="content p-[24px] grid grid-cols-6 gap-[20px]">
-            { state.breakElements }
-        </div>
-    );
-};
-
