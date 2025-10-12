@@ -42,6 +42,7 @@
     "dependencies": {
         "@zenflux/cli": "workspace:*",
         "@zenflux/eslint": "workspace:*",
-        "@zenflux/app-budget-allocation": "workspace:*"
+        "@zenflux/app-budget-allocation": "workspace:*",
+        "@zenflux/budget-allocation-server": "workspace:*"
     }
 }

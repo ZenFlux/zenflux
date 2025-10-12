@@ -13,8 +13,6 @@
         "typescript": "^5.0.0"
     },
     "dependencies": {
-        "@zenflux/react-commander": "workspace:*",
-        "@zenflux/react-ui": "workspace:*",
         "@radix-ui/react-accordion": "^1.2.12",
         "@radix-ui/react-dialog": "^1.1.15",
         "@radix-ui/react-dropdown-menu": "^2.0.6",
@@ -24,12 +22,16 @@
         "@radix-ui/react-slot": "^1.0.2",
         "@radix-ui/react-tabs": "^1.0.4",
         "@radix-ui/react-toast": "^1.2.15",
+        "@zenflux/react-commander": "workspace:*",
+        "@zenflux/react-ui": "workspace:*",
         "class-variance-authority": "^0.7.0",
         "clsx": "^2.0.0",
         "eslint-plugin-unused-imports": "^4.2.0",
+        "eventemitter3": "^5.0.1",
         "framer-motion": "^12.23.18",
         "lucide-react": "^0.292.0",
         "moment": "^2.29.4",
+        "postcss-import": "^16.1.1",
         "react": "^18.2.0",
         "react-dom": "^18.2.0",
         "tailwind-merge": "^2.0.0"

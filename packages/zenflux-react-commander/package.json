@@ -32,11 +32,12 @@
         "./query/utils": "./src/query/query-utils.ts"
     },
     "dependencies": {
+        "eventemitter3": "^5.0.1",
         "rxjs": "^7.4.0"
     },
     "peerDependencies": {
         "vite": "^5.4.5",
-        "react": "^18.2.0",
+        "react": "^19.2.0",
         "react-dom": "^18.2.0"
     }
 }

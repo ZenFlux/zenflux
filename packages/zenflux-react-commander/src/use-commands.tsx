@@ -368,7 +368,7 @@ export function useComponent( componentName: string, context?: DCommandComponent
  * }
  * ```
  */
-export function useCommandState<TState>( componentName: string ) {
+export function useCommandState<const TState extends React.ComponentState>( componentName: string ) {
     const componentContext = getSafeContext( componentName );
 
     const id = componentContext.getNameUnique();
@@ -459,7 +459,7 @@ export function useCommandStateSelector<TState, TSelected>(
     const selectedState = React.useSyncExternalStore( subscribe, getSnapshot, getSnapshot );
 
     return [
-        selectedState,
+        selectedState as TSelected,
         internalContext.setState<TState>,
         internalContext.isMounted,
     ] as const;
@@ -498,12 +498,12 @@ export function useCommandMatch( componentName: string ) {
  * }
  * ```
  */
-export function useCommandRunner( commandName: string, opts?: { match?: string; index?: number } ) {
+export function useCommandRunner( commandName: string, opts?: { match?: string; index?: number } ): ReturnType<typeof commandsManager["run"]> {
     const id = useCommandId( commandName, opts );
 
     return React.useCallback( ( args: DCommandArgs, callback?: ( result: unknown ) => void ) => {
         if ( ! id ) return;
-        return commandsManager.run( id, args, callback as any );
+        return commandsManager.run( id, args, callback );
     }, [ id ] );
 }
 
