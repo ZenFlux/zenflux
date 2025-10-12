@@ -38,5 +38,8 @@
         "@z-examples:budget-allocation-server:dev": "cd apps-example/budget-allocation-server && bun run start:dev",
         "@z-examples:budget-allocation:dev-full": "node scripts/app-examples/budget-allocation/run-dev.js",
         "@z-examples:budget-allocation:prod-full": "node scripts/app-examples/budget-allocation/run-prod.js"
+    },
+    "dependencies": {
+        "@zenflux/app-budget-allocation": "workspace:*"
     }
 }

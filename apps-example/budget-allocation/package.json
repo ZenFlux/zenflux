@@ -13,6 +13,8 @@
         "typescript": "^5.0.0"
     },
     "dependencies": {
+        "@zenflux/react-commander": "workspace:*",
+        "@zenflux/react-ui": "workspace:*",
         "@radix-ui/react-accordion": "^1.2.12",
         "@radix-ui/react-dialog": "^1.1.15",
         "@radix-ui/react-dropdown-menu": "^2.0.6",
@@ -33,7 +35,6 @@
         "tailwind-merge": "^2.0.0"
     },
     "devDependencies": {
-        "@zenflux/react-commander": "workspace:*",
         "@types/react": "^18.2.37",
         "@types/react-dom": "^18.2.15",
         "@vitejs/plugin-react": "^4.2.0",
