@@ -40,6 +40,8 @@
         "@z-examples:budget-allocation:prod-full": "node scripts/app-examples/budget-allocation/run-prod.js"
     },
     "dependencies": {
+        "@zenflux/cli": "workspace:*",
+        "@zenflux/eslint": "workspace:*",
         "@zenflux/app-budget-allocation": "workspace:*"
     }
 }

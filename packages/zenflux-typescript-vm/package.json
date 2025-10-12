@@ -39,6 +39,10 @@
         "ts-node": "^10.9.1",
         "tsconfig-paths": "^4.2.0",
         "source-map-support": "^0.5.21",
-        "ajv": "^8.17.1"
+        "ajv": "^8.17.1",
+        "npm-packlist": "^8.0.2",
+        "libnpmpack": "^6.0.2",
+        "pacote": "^17.0.4",
+        "libnpmpublish": "^9.0.1"
     }
 }
