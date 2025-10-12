@@ -1,21 +1,22 @@
-import React, { useEffect } from "react";
+import React from "react";
 
 import moment from "moment";
 
 import { ArrowSkinnyRight, Pencil, Save, Cancel } from "@zenflux/react-ui/src/symbols";
 
 import { withCommands } from "@zenflux/react-commander/with-commands";
-import { useCommandStateSelector, useComponent } from "@zenflux/react-commander/use-commands";
+
+import * as commands from "@zenflux/app-budget-allocation/src/components/channel-item/commands";
+
+import { useChannelBreaks } from "@zenflux/app-budget-allocation/src/components/channel-item/hooks/use-channel-breaks";
+import { useChannelEditing } from "@zenflux/app-budget-allocation/src/components/channel-item/hooks/use-channel-editing";
+import { useBreaksTableScroller } from "@zenflux/app-budget-allocation/src/components/channel-item/hooks/use-breaks-table-scroller";
 
 import { Input } from "@zenflux/app-budget-allocation/src/components/ui/input";
 
 import { formatNumericStringToFraction } from "@zenflux/app-budget-allocation/src/utils";
 
 import { DEFAULT_CHANNEL_BREAK_INPUT_PROPS } from "@zenflux/app-budget-allocation/src/components/channel-item/channel-constants";
-
-import { UpdateSource } from "@zenflux/app-budget-allocation/src/components/channel-item/channel-types";
-
-import * as commands from "@zenflux/app-budget-allocation/src/components/channel-item/commands";
 
 import "@zenflux/app-budget-allocation/src/components/channel-item/_channel-item-table.scss";
 
@@ -31,98 +32,10 @@ declare global {
     }
 }
 
-export const ChannelItemTable: DCommandFunctionComponent<{ $data: Channel }, ChannelItemTableState> = ( props, mm ) => {
-    const [ commandState, setCommandState ] = useCommandStateSelector<ChannelItemTableState, {
-        breaks: ChannelItemTableState["breaks"],
-        editing: ChannelItemTableState["editing"],
-    }>(
-        "App/ChannelItem",
-        (state) => ({
-            breaks: state.breaks ?? [],
-            editing: state.editing ?? []
-        })
-    );
-
-    const breaks = commandState.breaks?.length ? commandState.breaks : props.$data.breaks ?? [];
-    const isEditing = commandState.editing?.length ? commandState.editing : new Array( breaks.length ).fill( false );
-    const incomingBreaks = React.useMemo(() => props.$data.breaks ?? [], [props.$data.breaks]);
-
-    useEffect(() => {
-        if (!incomingBreaks.length || commandState.breaks?.length) return;
-
-        setCommandState({ breaks: incomingBreaks, editing: new Array(incomingBreaks.length).fill(false) });
-    }, [incomingBreaks, commandState.breaks?.length, setCommandState]);
-
-    console.log( {
-        mm,
-        commandState,
-        props,
-    } );
-    const [ arrowRightOrLeft, setArrowRightOrLeft ] = React.useState<"right" | "left">( "right" );
-
-    const tableRef = React.useRef<HTMLDivElement>( null );
-
-    const component = useComponent( "App/ChannelItem" );
-
-    const setBreakdown = ( index: number, value: string, force = false ) => {
-        component.run( "App/ChannelItem/SetBreakdown", {
-            index,
-            value,
-            source: UpdateSource.FROM_BUDGET_OVERVIEW
-        } );
-
-        if ( force ) {
-            const newIsEditing = [ ... isEditing ];
-            newIsEditing[ index ] = false;
-            setCommandState( { editing: newIsEditing } );
-        }
-    };
-
-    // All the code made for "SkinnyRight" is hacky, but that fine for this demo situation.
-    function smoothScroll( element: { scrollLeft: number; }, target: number, duration: number ) {
-        let start = element.scrollLeft,
-            change = target - start,
-            startTime = performance.now(),
-            val;
-
-        function animateScroll( currentTime: number ) {
-            let elapsed = currentTime - startTime;
-            val = Math.easeInOutQuad( elapsed, start, change, duration );
-
-            element.scrollLeft = val;
-
-            if ( elapsed < duration ) {
-                window.requestAnimationFrame( animateScroll );
-            }
-        };
-
-        Math.easeInOutQuad = function ( t, b, c, d ) {
-            t /= d / 2;
-            if ( t < 1 ) return c / 2 * t * t + b;
-            t--;
-            return -c / 2 * ( t * ( t - 2 ) - 1 ) + b;
-        };
-
-        window.requestAnimationFrame( animateScroll );
-    }
-
-    function scroll() {
-        const table = tableRef.current;
-
-        if ( table ) {
-            if ( arrowRightOrLeft === "right" ) {
-                smoothScroll( table, table.scrollWidth - table.clientWidth, 500 );
-            } else {
-                smoothScroll( table, 0, 500 );
-            }
-        }
-    }
-
-    function onArrowClick() {
-        setArrowRightOrLeft( arrowRightOrLeft === "right" ? "left" : "right" );
-
-        scroll();
-    }
+export const ChannelItemTable: DCommandFunctionComponent<{ $data: Channel }, ChannelItemTableState> = ( props, _mm ) => {
+    const { breaks, setBreakdown } = useChannelBreaks( props.$data );
+    const { editing: isEditing, toggle, setEnabled } = useChannelEditing( breaks.length );
+    const { ref: tableRef, direction: arrowRightOrLeft, onArrowClick } = useBreaksTableScroller( 500 );
 
     return (
         <div className={ `channel-item-table ${ arrowRightOrLeft }` } ref={ tableRef }>
@@ -157,20 +70,18 @@ export const ChannelItemTable: DCommandFunctionComponent<{ $data: Channel }, Cha
                                 <Input { ... inputProps } />
                             </div>
                             <span className="control-area">
-                                <Pencil onClick={ () => {
-                                    const newIsEditing = [ ... isEditing ];
-                                    newIsEditing[ index ] = ! isEditing[ index ];
-                                    setCommandState( { editing: newIsEditing } );
-                                } }/>
+                                <Pencil onClick={ () => toggle( index ) }/>
                                 <Save onClick={ () => {
-                                    const valueToPersist = commandState.breaks?.[ index ]?.value ?? budgetBreak.value;
+                                    const valueToPersist = breaks?.[ index ]?.value ?? budgetBreak.value;
 
-                                    setBreakdown( index, valueToPersist, true );
+                                    setBreakdown( index, valueToPersist );
+                                    setEnabled( index, false );
                                 } }/>
                                 <Cancel onClick={ () => {
                                     const initialValue = props.$data.breaks?.[ index ]?.value ?? budgetBreak.value;
 
-                                    setBreakdown( index, initialValue, true );
+                                    setBreakdown( index, initialValue );
+                                    setEnabled( index, false );
                                 } }/>
                             </span>
                         </div>
