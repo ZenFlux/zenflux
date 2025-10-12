@@ -4,17 +4,18 @@ import { CommandBudgetBase } from "@zenflux/app-budget-allocation/src/components
 
 import { UpdateSource } from "@zenflux/app-budget-allocation/src/components/channel-item/channel-types";
 
+import type { DCommandArgs } from "@zenflux/react-commander/definitions";
 import type { ChannelState } from "@zenflux/app-budget-allocation/src/components/channel-item/channel-types";
 
-import type { DCommandArgs } from "@zenflux/react-commander/definitions";
+type BudgetMutableState = Pick<ChannelState, "allocation" | "breaks">;
 
-export class SetBreakdown extends CommandBudgetBase {
+export class SetBreakdown<TState extends BudgetMutableState = BudgetMutableState> extends CommandBudgetBase<TState> {
     public static getName() {
         return "App/ChannelItem/SetBreakdown";
     }
 
     protected async apply( args: DCommandArgs ) {
-        const { index, value, setState = this.setState.bind( this ) } = args;
+        const { index, value } = args;
 
         const formatted = formatNumericStringWithCommas( value );
 
@@ -22,7 +23,7 @@ export class SetBreakdown extends CommandBudgetBase {
             return; // Halt
         }
 
-        const breaks = (this.state as Required<ChannelState>).breaks.map( ( breakItem, i ) => {
+        const breaks = this.state.breaks?.map( ( breakItem, i ) => {
             if ( i === index ) {
                 return {
                     ... breakItem,
@@ -36,7 +37,7 @@ export class SetBreakdown extends CommandBudgetBase {
         const allocation = args.source === UpdateSource.FROM_BUDGET_OVERVIEW ?
             "manual" : this.state.allocation;
 
-        await setState( {
+        await this.setState( {
             ... this.state,
             breaks,
             allocation

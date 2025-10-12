@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 
 import moment from "moment";
 
@@ -19,7 +19,7 @@ import * as commands from "@zenflux/app-budget-allocation/src/components/channel
 
 import "@zenflux/app-budget-allocation/src/components/channel-item/_channel-item-table.scss";
 
-import type { ChannelState } from "@zenflux/app-budget-allocation/src/components/channel-item/channel-types";
+import type { ChannelItemTableState } from "@zenflux/app-budget-allocation/src/components/channel-item/channel-types";
 import type { InputProps } from "@zenflux/app-budget-allocation/src/components/ui/input";
 import type { Channel } from "@zenflux/app-budget-allocation/src/query/channels-domain";
 
@@ -31,49 +31,51 @@ declare global {
     }
 }
 
-export const ChannelItemTable: DCommandFunctionComponent<{ $data: Channel }, ChannelState> = ( props ) => {
-    const [ state ] = useCommandStateSelector<ChannelState, ChannelState>(
+export const ChannelItemTable: DCommandFunctionComponent<{ $data: Channel }, ChannelItemTableState> = ( props, mm ) => {
+    const [ commandState, setCommandState ] = useCommandStateSelector<ChannelItemTableState, {
+        breaks: ChannelItemTableState["breaks"],
+        editing: ChannelItemTableState["editing"],
+    }>(
         "App/ChannelItem",
-        (state) => state
+        (state) => ({
+            breaks: state.breaks ?? [],
+            editing: state.editing ?? []
+        })
     );
 
-    // Use data from props if available (table view), otherwise use state (accordion view)
-    const channelData = props.$data || state;
-    // Why it WORKS ?^@#^
+    const breaks = commandState.breaks?.length ? commandState.breaks : props.$data.breaks ?? [];
+    const isEditing = commandState.editing?.length ? commandState.editing : new Array( breaks.length ).fill( false );
+    const incomingBreaks = React.useMemo(() => props.$data.breaks ?? [], [props.$data.breaks]);
 
-    const [ isEditing, setIsEditing ] = React.useState<boolean[]>( new Array( channelData.breaks!.length ).fill( false ) );
+    useEffect(() => {
+        if (!incomingBreaks.length || commandState.breaks?.length) return;
+
+        setCommandState({ breaks: incomingBreaks, editing: new Array(incomingBreaks.length).fill(false) });
+    }, [incomingBreaks, commandState.breaks?.length, setCommandState]);
+
+    console.log( {
+        mm,
+        commandState,
+        props,
+    } );
     const [ arrowRightOrLeft, setArrowRightOrLeft ] = React.useState<"right" | "left">( "right" );
-    const [ cloneState, setCloneState ] = React.useState( channelData );
 
     const tableRef = React.useRef<HTMLDivElement>( null );
 
-    const commands = useComponent( "App/ChannelItem" );
+    const component = useComponent( "App/ChannelItem" );
 
     const setBreakdown = ( index: number, value: string, force = false ) => {
-        if ( ! force ) {
-            commands.run( "App/ChannelItem/SetBreakdown", {
-                index,
-                value,
-                setState: setCloneState,
-                source: UpdateSource.FROM_BUDGET_OVERVIEW
-            } );
-
-            return;
-        }
-
-        commands.run( "App/ChannelItem/SetBreakdown", { index, value, source: UpdateSource.FROM_BUDGET_OVERVIEW } );
-
-        const newIsEditing = [ ... isEditing ];
-        newIsEditing[ index ] = false;
-        setIsEditing( newIsEditing );
-
-        setCloneState( {
-            ... cloneState,
-            breaks: cloneState.breaks!.map( ( budgetBreak, i ) => ( {
-                ... budgetBreak,
-                value: i === index ? value : budgetBreak.value,
-            } ) ),
+        component.run( "App/ChannelItem/SetBreakdown", {
+            index,
+            value,
+            source: UpdateSource.FROM_BUDGET_OVERVIEW
         } );
+
+        if ( force ) {
+            const newIsEditing = [ ... isEditing ];
+            newIsEditing[ index ] = false;
+            setCommandState( { editing: newIsEditing } );
+        }
     };
 
     // All the code made for "SkinnyRight" is hacky, but that fine for this demo situation.
@@ -126,14 +128,14 @@ export const ChannelItemTable: DCommandFunctionComponent<{ $data: Channel }, Cha
         <div className={ `channel-item-table ${ arrowRightOrLeft }` } ref={ tableRef }>
             <ArrowSkinnyRight onClick={ () => onArrowClick() }/>
             <div className="channel-item-table-breaks" ref={ tableRef }>
-                { channelData.breaks!.map( ( budgetBreak, index ) => {
+                { breaks?.map( ( budgetBreak, index ) => {
                     return (
                         <div key={ index } className="channel-item-table-date">
                             <>{ moment( budgetBreak.date ).format( "MMM D" ) }</>
                         </div>
                     );
                 } ) }
-                { cloneState.breaks!.map( ( budgetBreak, index ) => {
+                { breaks.map( ( budgetBreak, index ) => {
                     const disabled = ! isEditing[ index ];
 
                     const inputProps: InputProps = {
@@ -158,13 +160,17 @@ export const ChannelItemTable: DCommandFunctionComponent<{ $data: Channel }, Cha
                                 <Pencil onClick={ () => {
                                     const newIsEditing = [ ... isEditing ];
                                     newIsEditing[ index ] = ! isEditing[ index ];
-                                    setIsEditing( newIsEditing );
+                                    setCommandState( { editing: newIsEditing } );
                                 } }/>
                                 <Save onClick={ () => {
-                                    setBreakdown( index, cloneState.breaks![ index ].value, true );
+                                    const valueToPersist = commandState.breaks?.[ index ]?.value ?? budgetBreak.value;
+
+                                    setBreakdown( index, valueToPersist, true );
                                 } }/>
                                 <Cancel onClick={ () => {
-                                    setBreakdown( index, channelData.breaks![ index ].value, true );
+                                    const initialValue = props.$data.breaks?.[ index ]?.value ?? budgetBreak.value;
+
+                                    setBreakdown( index, initialValue, true );
                                 } }/>
                             </span>
                         </div>
@@ -175,11 +181,12 @@ export const ChannelItemTable: DCommandFunctionComponent<{ $data: Channel }, Cha
     );
 };
 
-const $$ = withCommands<{ $data: Channel }, ChannelState>( "App/ChannelItem", ChannelItemTable, {
+const $$ = withCommands<{ $data: Channel }, ChannelItemTableState>( "App/ChannelItem", ChannelItemTable, {
     frequency: "annually",
     baseline: "0",
     allocation: "equal",
     breaks: [],
+    editing: [],
 }, [
     commands.SetBreakdown,
 ]

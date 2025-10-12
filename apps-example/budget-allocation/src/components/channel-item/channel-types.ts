@@ -35,6 +35,10 @@ export interface ChannelState extends React.ComponentState {
     breaks?: ChannelBreaks;
 }
 
+export interface ChannelItemTableState extends ChannelState {
+    editing: boolean[];
+}
+
 export interface ChannelMetaData {
     id: ChannelId;
     icon: string;
