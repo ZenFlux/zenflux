@@ -111,6 +111,15 @@ export class ChannelsService {
                 };
 
                 this.channels.set(key, updatedChannel);
+            } else {
+                this.create({
+                    key,
+                    meta: channelData.meta,
+                    allocation: channelData.allocation,
+                    baseline: channelData.baseline,
+                    frequency: channelData.frequency,
+                    breaks: channelData.breaks,
+                });
             }
         });
 
