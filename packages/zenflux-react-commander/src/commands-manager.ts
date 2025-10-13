@@ -56,7 +56,7 @@ class CommandsManager {
         return createdCommands;
     }
 
-    public run( id: DCommandIdArgs, args: DCommandArgs, callback?: ( result: any ) => any ) {
+    public async run( id: DCommandIdArgs, args: DCommandArgs, callback?: ( result: any ) => any ) {
         const { componentNameUnique, componentName, commandName } = id;
 
         const command = this.commands[ componentName ]?.[ commandName ];
@@ -72,12 +72,12 @@ class CommandsManager {
         let executionResult;
 
         if ( singleComponentContext.getState ) {
-            executionResult = command.execute( singleComponentContext.emitter, args, {
+            executionResult = await command.execute( singleComponentContext.emitter, args, {
                 state: singleComponentContext.getState(),
                 setState: singleComponentContext.setState,
             } );
         } else {
-            executionResult = command.execute( singleComponentContext.emitter, args );
+            executionResult = await command.execute( singleComponentContext.emitter, args );
         }
 
         if ( callback ) {

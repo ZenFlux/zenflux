@@ -309,7 +309,7 @@ export function useCommand( commandName: string ) {
     };
 
     return {
-        run: ( args: DCommandArgs, callback?: ( result: any ) => void ) => commandsManager.run( id, args, callback ),
+        run: ( args: DCommandArgs = {}, callback?: ( result: any ) => void ) => commandsManager.run( id, args, callback ),
         hook: ( callback: ( result: any, args?: DCommandArgs ) => void ) => commandsManager.hook( id, callback ),
         unhook: () => commandsManager.unhook( id ),
 
