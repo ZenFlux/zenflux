@@ -154,7 +154,7 @@ export function useCommandWithRef(commandName: string, componentRef: React.RefOb
         }
 
         setCommand( {
-            run: ( args: DCommandArgs, callback?: ( result: any ) => void ) => component.run( commandName, args, callback ),
+            run: ( args: DCommandArgs = {}, callback?: ( result: any ) => void ) => component.run( commandName, args, callback ),
             hook: ( callback: ( result: any, args?: DCommandArgs ) => void ) => component.hook( commandName, callback ),
             unhook: () => component.unhook( commandName ),
             unhookHandle: ( handle: DCommandHookHandle ) => component.unhookHandle( handle ),
