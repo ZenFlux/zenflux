@@ -2,7 +2,7 @@ import React from "react";
 
 import { QueryClient } from "@zenflux/react-commander/query/client";
 
-import { useCommandRunner, useCommandHook, useCommandWithRef } from "@zenflux/react-commander/use-commands";
+import { useCommand, useCommandHook, useCommandWithRef } from "@zenflux/react-commander/use-commands";
 
 import { ChannelItemQuery } from "@zenflux/app-budget-allocation/src/components/channel-item/channel-item-query";
 import { ChannelsListQuery, ChannelsListWithBreaksQuery } from "@zenflux/app-budget-allocation/src/components/channels/channels-list-query";
@@ -45,7 +45,7 @@ function App() {
 
     const tabsRef = React.useRef<HTMLDivElement>( null );
 
-    const runAddChannel = useCommandRunner( "App/AddChannel" );
+    const addChanelCommand = useCommand( "App/AddChannel" );
     const selectCommand = useCommandWithRef("UI/Tabs/Select", tabsRef);
 
     useCommandHook( "App/AddChannel", () => {
@@ -53,7 +53,7 @@ function App() {
             selectCommand?.run({ key: "allocation" });
 
             setTimeout( () => {
-                runAddChannel( {} );
+                addChanelCommand.run( {} );
             }, 1200 );
         }
     } );

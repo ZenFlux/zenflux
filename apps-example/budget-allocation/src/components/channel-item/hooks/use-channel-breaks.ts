@@ -1,6 +1,6 @@
 import React from "react";
 
-import { useCommandRunner, useCommandStateSelector } from "@zenflux/react-commander/use-commands";
+import { useCommand, useCommandStateSelector } from "@zenflux/react-commander/use-commands";
 
 import { UpdateSource } from "@zenflux/app-budget-allocation/src/components/channel-item/channel-types";
 
@@ -26,15 +26,15 @@ export function useChannelBreaks( initialChannel: Channel ): {
 
     const breaks = ( slice.breaks?.length ? slice.breaks : incomingBreaks ) as ChannelBreaks;
 
-    const runBreakdownCommand = useCommandRunner( "App/ChannelItem/SetBreakdown" );
+    const command = useCommand( "App/ChannelItem/SetBreakdown" );
 
     const setBreakdown = React.useCallback( ( index: number, value: string ) => {
-        runBreakdownCommand( {
+        command.run( {
             index,
             value,
             source: UpdateSource.FROM_BUDGET_OVERVIEW,
         } );
-    }, [ runBreakdownCommand ] );
+    }, [ command ] );
 
     return { breaks, setBreakdown };
 }
