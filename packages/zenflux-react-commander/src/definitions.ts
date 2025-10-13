@@ -1,6 +1,6 @@
 import type React from "react";
 
-import type { EventEmitter } from "events";
+import type EventEmitter from "eventemitter3";
 
 import type { CommandBase } from "@zenflux/react-commander/command-base";
 
