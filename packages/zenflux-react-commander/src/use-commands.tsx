@@ -1,5 +1,6 @@
 import React from "react";
-import { Observable, of, fromEventPattern } from "rxjs";
+
+import { of, fromEventPattern } from "rxjs";
 import { map, distinctUntilChanged, shareReplay } from "rxjs/operators";
 
 // eslint-disable-next-line no-restricted-imports, @zenflux/no-relative-imports
@@ -10,6 +11,8 @@ import core from "./_internal/core";
 
 import { ComponentIdContext } from "@zenflux/react-commander/commands-context";
 import commandsManager from "@zenflux/react-commander/commands-manager";
+
+import type { Observable } from "rxjs";
 
 import type { DCommandArgs, DCommandComponentContextProps, DCommandHookHandle, DCommandIdArgs, DCommandSingleComponentContext } from "@zenflux/react-commander/definitions";
 
@@ -37,6 +40,40 @@ function getSafeContext( componentName: string, context?: DCommandComponentConte
 
     return componentContext;
 }
+
+function shallowEqual<T extends Record<string, unknown>>( a: T, b: T ): boolean {
+    if ( a === b ) return true;
+    if ( ! a || ! b ) return false;
+
+    const aKeys = Object.keys( a );
+    const bKeys = Object.keys( b );
+    if ( aKeys.length !== bKeys.length ) return false;
+
+    for ( const key of aKeys ) {
+        if ( ( a as Record<string, unknown> )[ key ] !== ( b as Record<string, unknown> )[ key ] ) {
+            return false;
+        }
+    }
+    return true;
+}
+
+function useComponentStateSlice<TState, TSelected>(
+    component: { getState: <T>() => T },
+    selector: ( state: TState ) => TSelected,
+    compare?: ( a: TSelected, b: TSelected ) => boolean,
+    triggers?: Observable<unknown> | null,
+): Observable<TSelected> {
+    const cmp = compare ?? ( shallowEqual as unknown as ( a: TSelected, b: TSelected ) => boolean );
+    const source = React.useMemo( () => triggers ?? of( null ), [ triggers ] );
+
+    return React.useMemo( () => source.pipe(
+        map( () => component.getState<TState>() ),
+        map( selector ),
+        distinctUntilChanged( cmp ),
+        shareReplay( { bufferSize: 1, refCount: true } ),
+    ), [ component, selector, cmp, source ] );
+}
+
 export function useCommandId(commandName: string, opts?: { match?: string; index?: number; waitForRef?: React.RefObject<any> } ): DCommandIdArgs | null {
     const match = opts?.match ?? commandsManager.getComponentName( commandName );
     const index = opts?.index ?? 0;
@@ -586,37 +623,41 @@ export function useCommandHook(
     }, [ ref?.current, command, id, handler ] );
 }
 
-export function shallowEqual<T extends Record<string, unknown>>( a: T, b: T ): boolean {
-    if ( a === b ) return true;
-    if ( ! a || ! b ) return false;
+/**
+ * Declaratively attach a scoped hook bound to the current component instance.
+ *
+ * Purpose
+ * - Waits for the current component to render and resolves its instance via ref.
+ * - Uses owner-scoped lifecycle: subscribes on mount and disposes on unmount.
+ *
+ * Parameters
+ * - commandName: string
+ * - handler: (result?, args?) => void
+ *
+ * Returns
+ * - void
+ *
+ * Notes
+ * - Equivalent to calling `useLocalCommandHook(commandName, handler, refOfCurrentComponent)`.
+ * - Use when the listener must bind strictly to the current component instance.
+ *
+ * Example
+ * ```tsx
+ * function Notifier() {
+ *   useCurrentCommandHook("Form/Saved", () => {
+ *     // notify user
+ *   });
+ *   return null;
+ * }
+ * ```
+ */
+export function useLocalCommandHook(
+    commandName: string,
+    handler: ( result?: unknown, args?: DCommandArgs ) => void
+) {
+    const ref = React.useContext(ComponentIdContext).getComponentRef();
 
-    const aKeys = Object.keys( a );
-    const bKeys = Object.keys( b );
-    if ( aKeys.length !== bKeys.length ) return false;
-
-    for ( const key of aKeys ) {
-        if ( ( a as Record<string, unknown> )[ key ] !== ( b as Record<string, unknown> )[ key ] ) {
-            return false;
-        }
-    }
-    return true;
-}
-
-export function useComponentStateSlice<TState, TSelected>(
-    component: { getState: <T>() => T },
-    selector: ( state: TState ) => TSelected,
-    compare?: ( a: TSelected, b: TSelected ) => boolean,
-    triggers?: Observable<unknown> | null,
-): Observable<TSelected> {
-    const cmp = compare ?? ( shallowEqual as unknown as ( a: TSelected, b: TSelected ) => boolean );
-    const source = React.useMemo( () => triggers ?? of( null ), [ triggers ] );
-
-    return React.useMemo( () => source.pipe(
-        map( () => component.getState<TState>() ),
-        map( selector ),
-        distinctUntilChanged( cmp ),
-        shareReplay( { bufferSize: 1, refCount: true } ),
-    ), [ component, selector, cmp, source ] );
+    useCommandHook(commandName,  handler, ref);
 }
 
 /**
