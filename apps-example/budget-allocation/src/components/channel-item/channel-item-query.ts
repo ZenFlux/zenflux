@@ -75,7 +75,7 @@ export class ChannelItemQuery extends QueryItemModuleBase<ChannelItemApiResponse
     protected onMount( context: DCommandSingleComponentContext, resource?: ChannelItemApiResponse ) {
         if ( resource ) {
             context.setState( {
-                ... context.getState(),
+                ... context.getState<Channel>(),
                 ... this.transformChannelFromApi( resource ),
             } );
         }
