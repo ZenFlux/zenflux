@@ -17,7 +17,6 @@ export class ChannelItemQuery extends QueryItemModuleBase<ChannelItemApiResponse
 
     public constructor( client: QueryClient ) {
         super( client );
-        this.registerEndpoints();
 
         this.autosave = queryCreateAutoSaveManager<Channel, ChannelItemApiResponse & { key: string }>( {
             getKey: ( state ) => state.meta.id,

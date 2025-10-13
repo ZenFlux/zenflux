@@ -34,9 +34,8 @@ interface ChannelsListSavePayload {
 export class ChannelsListQuery extends QueryListModuleBase<Channel> {
     private autosave: ReturnType<typeof queryCreateAutoSaveManager<ChannelsListState, ChannelsListSavePayload>>;
 
-    public constructor( core: QueryClient ) {
-        super( core );
-        this.registerEndpoints();
+    public constructor( client: QueryClient ) {
+        super( client );
 
         this.autosave = queryCreateAutoSaveManager<ChannelsListState, ChannelsListSavePayload>( {
             getKey: ( _state ) => "channels-list",
