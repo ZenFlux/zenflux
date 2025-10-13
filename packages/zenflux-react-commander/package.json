@@ -21,6 +21,7 @@
         "./core": "./src/_internal/core.ts",
         "./query/auto-save-manager": "./src/query/query-auto-save-manager.ts",
         "./query/cache": "./src/query/query-cache.ts",
+        "./query/client": "./src/query/query-client.tsx",
         "./query/component": "./src/query/query-component.tsx",
         "./query/definitions": "./src/query/query-definitions.ts",
         "./query/list-diff": "./src/query/query-list-diff.ts",
