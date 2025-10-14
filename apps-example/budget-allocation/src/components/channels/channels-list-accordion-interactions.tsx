@@ -1,18 +1,18 @@
-import EventEmitter from "eventemitter3";
 
-import React from "react";
+import React, { useEffect } from "react";
 
 import {
     useComponent,
     useCommandState,
     useChildCommandHook,
     useChildCommandRunner,
-    useLocalCommandHook
+    useLocalCommandHook,
+    useCommand
 } from "@zenflux/react-commander/use-commands";
 
 import type { ChannelListState } from "@zenflux/app-budget-allocation/src/components/channels/channels-types";
 
-const scheduler = new EventEmitter();
+const waitingForEditableTitle = new Set<string>();
 
 export function useChannelsListAccordionInteractions() {
     const [ getChannelsListState, setChannelsListState ] = useCommandState<ChannelListState>( "App/ChannelsList" );
@@ -38,6 +38,16 @@ export function useChannelsListAccordionInteractions() {
         ( ctx ) => ctx.props.itemKey
     );
 
+    const editRequest = useCommand( "App/ChannelsList/EditRequest" );
+
+    useLocalCommandHook( "App/ChannelsList/AddRequest", ( r: any, args: any ) => {
+        const id = r.meta.id;
+
+        setSelected( { [ id ]: true } );
+
+        editRequest.run( { channel: r } );
+    } );
+
     useLocalCommandHook( "App/ChannelsList/EditRequest", ( r, args: any ) => {
         const { channel } = args;
 
@@ -47,9 +57,7 @@ export function useChannelsListAccordionInteractions() {
 
         if ( enabled ) return;
 
-        scheduler.once( `enable-editable-title-${ channel.meta.id }`, () =>
-            runAccordionItem( channel.meta.id, "UI/AccordionItem/EditableTitle", { state: true } )
-        );
+        waitingForEditableTitle.add( channel.meta.id );
     } );
 
     useLocalCommandHook( "App/ChannelsList/RemoveRequest", ( r, args: any ) => {
@@ -62,4 +70,16 @@ export function useChannelsListAccordionInteractions() {
             channels: newList,
         } );
     } );
+
+    useEffect( () => {
+        requestAnimationFrame( () => {
+            for ( const id of waitingForEditableTitle.values() ) {
+                const enabled = runAccordionItem( id, "UI/AccordionItem/EditableTitle", { state: true } );
+
+                if ( enabled ) {
+                    waitingForEditableTitle.delete( id );
+                }
+            }
+        } );
+    }, [waitingForEditableTitle.values()] );
 }

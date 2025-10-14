@@ -43,6 +43,8 @@ const $$ = withCommands( "App/ChannelsList", ChannelsList, {
             const channel = await queryModule.request( "App/ChannelsList/AddChannel" );
 
             this.setState( { channels: [ ... this.state.channels, channel ] } );
+
+            return channel;
         }
     },
     class EditRequest extends CommandBase {
