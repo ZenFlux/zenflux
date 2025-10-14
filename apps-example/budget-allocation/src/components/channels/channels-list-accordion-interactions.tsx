@@ -24,7 +24,7 @@ export function useChannelsListAccordionInteractions() {
 
     useChildCommandHook(
         "UI/AccordionItem",
-        "UI/AccordionItem/OnTitleChanged",
+        "UI/AccordionItem/EditTitle",
         ( _result, args: any ) => {
             component.run( "App/ChannelsList/SetName", {
                 id: args.itemKey,

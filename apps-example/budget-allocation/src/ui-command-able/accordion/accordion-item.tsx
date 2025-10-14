@@ -35,7 +35,7 @@ const AccordionItemEditableTitle = React.forwardRef<HTMLSpanElement, Omit<Accord
         [ isFocusCaptured, setIsFocusCaptured ] = React.useState( false );
 
     const editableCommand = useCommand( "UI/AccordionItem/EditableTitle" ),
-        onTitleChangedCommand = useCommand( "UI/AccordionItem/OnTitleChanged" );
+        onTitleChangedCommand = useCommand( "UI/AccordionItem/EditTitle" );
 
     const isCollapsed = React.useMemo( () => {
         return props.collapsedState === "detached";
@@ -203,9 +203,9 @@ const $$ = withCommands( "UI/AccordionItem", AccordionItem, [
             return "UI/AccordionItem/EditableTitle";
         }
     },
-    class OnTitleChanged extends CommandBase {
+    class EditTitle extends CommandBase {
         public static getName() {
-            return "UI/AccordionItem/OnTitleChanged";
+            return "UI/AccordionItem/EditTitle";
         }
     }
 ] );
