@@ -33,9 +33,13 @@ export abstract class QueryModuleBase<TResource extends object = object> {
     public constructor( api: QueryClient ) {
         this.api = api;
         this.router = new SimpleQueryRouter<TResource>( api, this.getResourceName(), this );
+
+        this.registerEndpoints();
     }
 
     protected abstract getResourceName(): string;
+
+    protected abstract registerEndpoints(): void;
 
     public onLoadInternal( context: DQueryReadOnlyContext ) {
         this.load?.( context );
@@ -191,10 +195,6 @@ export abstract class QueryListModuleBase<TEntity extends object> extends QueryM
         }
 
         this.itemRouter = new SimpleItemRouter<TEntity>( api, this.getResourceName(), this );
-
-        this.registerEndpoints();
     }
-
-    protected abstract registerEndpoints(): void;
 }
 
