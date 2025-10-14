@@ -48,7 +48,7 @@ const UIThemeAccordionHeading = ( props: Omit<UIThemeAccordionItemProps, "childr
             </div>
         </> ), [ children, icon, iconAlt ] );
 
-    return ( <>{ MemorizedHeading }</> );
+    return MemorizedHeading;
 };
 
 /**
@@ -129,23 +129,32 @@ const UIThemeAccordionItemContent = ( props: UIThemeAccordionItemProps ) => {
 };
 
 export const UIThemeAccordionItem = ( props: UIThemeAccordionItemProps ) => {
-    const { children, ... propsWithoutChildren } = props;
+    const { children, heading, itemKey, onClick, collapsedState, setCollapsedState, setIsTransitioning, unmount } = props;
+
+    const headingProps = { ...props, children: undefined } as UIThemeAccordionItemProps; // safe for heading-only usage
+
+    const contentProps = {
+        collapsedState,
+        setCollapsedState: setCollapsedState!,
+        setIsTransitioning: setIsTransitioning!,
+        unmount,
+    };
 
     return (
         <>
             <h2 className="accordion-heading">
-                <button className="accordion-button" onClick={ ( e ) => {
-                    return props.onClick?.( e as any, props.itemKey.toString(), props.collapsedState );
-                } }>
-                    <UIThemeAccordionHeading { ... propsWithoutChildren }>
-                        { props.heading.title }
+                <button className="accordion-button" onClick={ ( e ) => 
+                    onClick?.(e as any, itemKey.toString(), collapsedState) 
+                }>
+                    <UIThemeAccordionHeading { ... headingProps }>
+                        { heading.title }
                     </UIThemeAccordionHeading>
                 </button>
-                { props.heading.extra || null }
+                { heading.extra || null }
             </h2>
 
             <div className="accordion-content-container">
-                <UIThemeAccordionItemContent { ... propsWithoutChildren }>
+                <UIThemeAccordionItemContent { ... contentProps }>
                     { children }
                 </UIThemeAccordionItemContent>
             </div>
@@ -170,24 +179,24 @@ const NormalizeAccordionItem = ( props: any ) => {
         setCollapsedState,
 
         setIsTransitioning,
-
-        key: item.props.itemKey,
     };
 
-    itemProps.onClick = ( e ) => accordionHandleSelection( e, ref, {
-        key: itemProps.itemKey.toString(),
+    itemProps.onClick = ( e ) => {
+        return accordionHandleSelection( e, ref, {
+            key: itemProps.itemKey.toString(),
 
-        collapsedState,
-        setCollapsedState,
+            collapsedState,
+            setCollapsedState,
 
-        selected,
-        setSelected,
+            selected,
+            setSelected,
 
-        // Passing `api` onClick handler, `accordionHandleSelection` will handle the call to it.
-        onClick: props.onClick,
+            // Passing `api` onClick handler, `accordionHandleSelection` will handle the call to it.
+            onClick: props.onClick,
 
-        isTransitioning
-    }, );
+            isTransitioning
+        }, );
+    };
 
     sharedProps[ itemProps.itemKey.toString() ] = itemProps;
 
@@ -220,7 +229,9 @@ export const UIThemeAccordion = React.memo( ( props: UIThemeAccordionProps ) => 
 
     const [ isTransitioning, setIsTransitioning ] = React.useState<boolean>( false );
 
-    const sharedProps = React.useMemo<{ [ key: string ]: any }>( () => ( {} ), [] );
+    const sharedProps = React.useMemo<{ [ key: string ]: any }>( () => {
+        return {};
+    }, [] );
 
     // Remove deleted sharedProps
     Object.keys( sharedProps ).forEach( ( key ) => {
@@ -244,8 +255,8 @@ export const UIThemeAccordion = React.memo( ( props: UIThemeAccordionProps ) => 
     return (
         <LayoutGroup>
             <div className="accordion">
-                { children.map( ( item ) =>
-                    <NormalizeAccordionItem
+                { children.map( ( item ) => {
+                    return <NormalizeAccordionItem
                         key={ item.props.itemKey }
                         item={ item }
                         selected={ selected }
@@ -253,8 +264,8 @@ export const UIThemeAccordion = React.memo( ( props: UIThemeAccordionProps ) => 
                         sharedProps={ sharedProps }
                         isTransitioning={ isTransitioning }
                         setIsTransitioning={ setIsTransitioning }
-                        onClick={ props.onClick }/>
-                ) }
+                        onClick={ props.onClick }/>;
+                } ) }
             </div>
         </LayoutGroup>
     );

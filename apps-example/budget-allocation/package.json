@@ -32,13 +32,13 @@
         "lucide-react": "^0.292.0",
         "moment": "^2.29.4",
         "postcss-import": "^16.1.1",
-        "react": "^18.2.0",
-        "react-dom": "^18.2.0",
+        "react": "^19.2.0",
+        "react-dom": "^19.2.0",
         "tailwind-merge": "^2.0.0"
     },
     "devDependencies": {
-        "@types/react": "^18.2.37",
-        "@types/react-dom": "^18.2.15",
+        "@types/react": "^19.2.0",
+        "@types/react-dom": "^19.2.0",
         "@vitejs/plugin-react": "^4.2.0",
         "autoprefixer": "^10.4.16",
         "bun-types": "latest",

@@ -104,14 +104,19 @@ const Accordion: DCommandFunctionComponent<AccordionProps> = ( props ) => {
         }
     };
 
+    const safeChildren = React.useMemo(() => {
+        const filtered = children.filter((c) => c?.props?.itemKey != null);
+        return filtered;
+    }, [children]);
+
     return (
         <div className={ `loader ${ isLoaded ? "loaded" : "" }` }>
             <UIThemeAccordion { ... accordionUIProps }>
-                { children.map( ( child, index ) =>
-                    <AccordionItem { ... child.props } key={index}>
+                { safeChildren.map( ( child ) => {
+                    return <AccordionItem { ... child.props } key={ child.props.itemKey }>
                         { child.props.children }
-                    </AccordionItem>
-                ) }
+                    </AccordionItem>;
+                } ) }
             </UIThemeAccordion>
         </div>
     );
