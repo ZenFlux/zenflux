@@ -1,10 +1,6 @@
 import React from "react";
 
-import { withCommands } from "@zenflux/react-commander/with-commands";
-
 import { useCommand } from "@zenflux/react-commander/use-commands";
-
-import { CommandBase } from "@zenflux/react-commander/command-base";
 
 import { Plus } from "@zenflux/react-ui/src/symbols";
 
@@ -31,14 +27,4 @@ export const AddChannel: DCommandFunctionComponent<{}> = () => {
         </div>
     );
 };
-
-const $$ = withCommands( "App/AddChannel", AddChannel, [
-    class AddChannel extends CommandBase {
-        public static getName() {
-            return "App/AddChannel";
-        }
-    }
-] );
-
-export default $$;
 

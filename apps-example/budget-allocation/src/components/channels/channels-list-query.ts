@@ -79,6 +79,8 @@ export class ChannelsListQuery extends QueryListModuleBase<Channel> {
             prepareData: ( apiResponse ) => apiResponse.map( ( item ) => transformChannelFromListApi( item ) )
         } );
 
+        this.register( "POST", "App/ChannelsList/AddChannel", "v1/channels/create" );
+
         this.register( "POST", "App/ChannelsListSave", "v1/channels/list" );
         this.register( "POST", "App/ChannelsReset", "v1/channels/reset" );
     }
@@ -129,60 +131,6 @@ export class ChannelsListQuery extends QueryListModuleBase<Channel> {
 
         onSelectionAttached.global().globalUnhook();
         onSelectionDetached.global().globalUnhook();
-    }
-
-    protected onUpdate( context: DCommandSingleComponentContext, state: {
-        currentState: Readonly<ChannelsListState>,
-        prevState: Readonly<ChannelsListState>,
-        currentProps: Readonly<Record<string, string>>,
-        prevProps: Readonly<Record<string, string>>,
-        snapshot: never
-    } ) {
-        const { currentState, prevState } = state;
-
-        if ( currentState.channels !== prevState.channels ) {
-            this.onChannelsChanged( prevState.channels, currentState.channels );
-        }
-    }
-
-    private onChannelsChanged( prevChannels: Channel[], currentChannels: Channel[] ) {
-        for ( let i = 0 ; i < currentChannels.length ; i++ ) {
-            if ( ! prevChannels[ i ] || ! currentChannels[ i ] ) continue;
-            if ( prevChannels[ i ].meta !== currentChannels[ i ].meta ) {
-                this.onChannelsMetaDataChanged(
-                    currentChannels[ i ].meta.id,
-                    currentChannels[ i ].meta,
-                    prevChannels[ i ].meta
-                );
-            }
-        }
-
-        const { added, removed } = queryDiffById( prevChannels, currentChannels, c => c.meta.id );
-
-        for ( const ch of added ) {
-            this.onChannelAdded( ch );
-        }
-        if ( added.length > 0 ) return;
-
-        for ( const ch of removed ) {
-            this.onChannelRemoved( ch.meta.id );
-        }
-        if ( removed.length > 0 ) return;
-    }
-
-    private onChannelAdded( newChannel: Channel ) {
-        void this.itemRouter.save( {
-            key: newChannel.meta.id,
-            ... newChannel,
-        } as Channel & { key: string } );
-    }
-
-    private onChannelRemoved( key: string ) {
-        void this.itemRouter.remove( key );
-    }
-
-    private onChannelsMetaDataChanged( key: string, currentMeta: Channel["meta"], _prevMeta: Channel["meta"] ) {
-        void this.itemRouter.save( { key, meta: currentMeta } as Channel & { key: string } );
     }
 }
 

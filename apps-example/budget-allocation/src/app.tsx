@@ -2,7 +2,13 @@ import React from "react";
 
 import { QueryClient } from "@zenflux/react-commander/query/client";
 
-import { useCommandHook, useCommandWithRef } from "@zenflux/react-commander/use-commands";
+import { useCommandHook, useCommandOnDemand, useCommandState, useCommandWithRef } from "@zenflux/react-commander/use-commands";
+
+import { withCommands } from "@zenflux/react-commander/with-commands";
+
+import { CommandBase } from "@zenflux/react-commander/command-base";
+
+import { QueryProvider } from "@zenflux/react-commander/query/provider";
 
 import { ChannelItemQuery } from "@zenflux/app-budget-allocation/src/components/channel-item/channel-item-query";
 import { ChannelsListQuery, ChannelsListWithBreaksQuery } from "@zenflux/app-budget-allocation/src/components/channels/channels-list-query";
@@ -11,7 +17,7 @@ import { Tab, Tabs } from "@zenflux/app-budget-allocation/src/components/ui/tabs
 import { Button } from "@zenflux/app-budget-allocation/src/components/ui/button";
 
 import Layout from "@zenflux/app-budget-allocation/src/ui-layout/layout";
-import AddChannel from "@zenflux/app-budget-allocation/src/components/add-channel/add-channel";
+import { AddChannel } from "@zenflux/app-budget-allocation/src/components/add-channel/add-channel";
 
 import "@zenflux/app-budget-allocation/src/app.scss";
 
@@ -36,7 +42,12 @@ function LazyLoader( props: { ContentComponent: typeof BudgetAllocation | typeof
     );
 };
 
-function App() {
+interface AppState {
+    isLoading: boolean;
+    channels: any[];
+}
+
+export function App() {
     const layoutProps: LayoutProps = {
         header: {
             end: <AddChannel/>,
@@ -45,16 +56,37 @@ function App() {
 
     const tabsRef = React.useRef<HTMLDivElement>( null );
 
-    const addChanelCommand = useCommandWithRef( "App/AddChannel", tabsRef );
-    const selectCommand = useCommandWithRef("UI/Tabs/Select", tabsRef);
+    const [ getState, setState ] = useCommandState<AppState>( "App" );
 
-    useCommandHook( "App/AddChannel", () => {
+    const appAddChannel = useCommandWithRef( "App/AddChannel", tabsRef );
+    const uiTabsSelect = useCommandWithRef( "UI/Tabs/Select", tabsRef);
+
+    const channelsListAddRequest = useCommandOnDemand( "App/ChannelsList/AddRequest" );
+
+    useCommandHook( "App/AddChannel", async () => {
         if ( location.hash === "#overview" ) {
-            selectCommand?.run({ key: "allocation" });
+            uiTabsSelect?.run({ key: "allocation" });
 
             setTimeout( () => {
-                addChanelCommand?.run();
+                appAddChannel?.run();
             }, 1200 );
+
+            return;
+        }
+        try {
+            setState( {
+                ... getState(),
+                isLoading: true,
+            } );
+
+            await channelsListAddRequest?.run();
+        } catch ( error ) {
+            console.error( "Error adding channel", error );
+        } finally {
+            setState( {
+                ... getState(),
+                isLoading: false,
+            } );
         }
     } );
 
@@ -79,7 +111,7 @@ function App() {
     };
 
     return (
-        <>
+        <QueryProvider client={ client }>
             <Button onClick={ async () => {
                 window.onbeforeunload = null;
 
@@ -101,9 +133,20 @@ function App() {
                 }
                 </Tabs>
             </Layout>
-        </>
+        </QueryProvider>
     );
 }
 
-export default App;
+const $$ = withCommands<{}, AppState>( "App", App, {
+    isLoading: false,
+    channels: [],
+}, [
+    class AddChannel extends CommandBase {
+        public static getName() {
+            return "App/AddChannel";
+        }
+    }
+] );
+
+export default $$;
 

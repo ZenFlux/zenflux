@@ -36,6 +36,26 @@ export async function channelsRoutes(
         });
     });
 
+    fastify.post<{ Body: Partial<CreateChannelDto> }>("/channels", async (request, _reply) => {
+        const body = request.body || {};
+
+        return DelayUtil.withDelay(() => {
+            const key = body.key ?? String(Date.now());
+
+            return channelsService.create({
+                key,
+                meta: body.meta,
+                allocation: body.allocation,
+                baseline: body.baseline,
+                frequency: body.frequency,
+                breaks: body.breaks,
+            });
+        }, {
+            ...serverConfig.delays.endpoints.createChannel,
+            enabled: serverConfig.delays.enabled
+        });
+    });
+
     fastify.post<{ Body: UpdateChannelsListDto }>("/channels/list", async (request, _reply) => {
         const updateListDto = request.body;
 

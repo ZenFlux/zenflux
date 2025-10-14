@@ -545,6 +545,85 @@ export function useCommandRunner( commandName: string, opts?: { match?: string; 
 }
 
 /**
+ * Returns command utilities that resolve the target instance at call time.
+ *
+ * Purpose
+ * - Same surface as `useCommand`, but defers instance resolution until you call a method (e.g., `run`).
+ * - Useful when the target component instance may not exist yet or can change over time.
+ *
+ * Parameters
+ * - commandName: string
+ * - opts?: { match?: string; index?: number } – override component resolution; defaults to the component mapped for `commandName` and the first match.
+ *
+ * Returns
+ * - { run, hook, unhook, getInternalContext }
+ *
+ * Notes
+ * - Differs from `useCommand`: this does not bind to the current component; it searches for a matching instance when invoked.
+ * - When no match is found at invocation time, methods no-op and return undefined.
+ *
+ * Example
+ * ```tsx
+ * function AddRequestShortcut() {
+ *   const addRequest = useCommandOnDemand("App/ChannelsList/AddRequest");
+ *   return (
+ *     <button onClick={() => addRequest.run()}>Add</button>
+ *   );
+ * }
+ * ```
+ */
+export function useCommandOnDemand( commandName: string ) {
+    const resolveLatestId = React.useCallback( () => {
+        const componentName = commandsManager.getComponentName( commandName );
+        if ( ! componentName ) return null;
+
+        try {
+            const contexts = useCommandMatch( componentName );
+            if ( ! contexts.length ) return null;
+
+            for ( let i = contexts.length - 1 ; i >= 0 ; i-- ) {
+                const ctx = contexts[ i ];
+                if ( ctx.commands && ctx.commands[ commandName ] ) {
+                    return {
+                        commandName,
+                        componentName: ctx.componentName,
+                        componentNameUnique: ctx.componentNameUnique,
+                    } as DCommandIdArgs;
+                }
+            }
+            return null;
+        } catch {
+            return null;
+        }
+    }, [ commandName ] );
+
+    return React.useMemo( () => {
+        return {
+            run: ( args: DCommandArgs = {}, callback?: ( result: unknown ) => void ) => {
+                const id = resolveLatestId();
+                if ( ! id ) return;
+                return commandsManager.run( id, args, callback as ( r: any ) => void );
+            },
+            hook: ( callback: ( result: unknown, args?: DCommandArgs ) => void ) => {
+                const id = resolveLatestId();
+                if ( ! id ) return;
+                return commandsManager.hook( id, callback as ( r: any, a?: DCommandArgs ) => void );
+            },
+            unhook: () => {
+                const id = resolveLatestId();
+                if ( ! id ) return;
+                return commandsManager.unhook( id );
+            },
+            getInternalContext: () => {
+                const id = resolveLatestId();
+                if ( ! id ) return null;
+                return core[ GET_INTERNAL_SYMBOL ]( id.componentNameUnique );
+            },
+        };
+    }, [ resolveLatestId ] );
+}
+
+/**
  * Declaratively attach a scoped hook for a resolved command during the component lifecycle
  * (mount → subscribe, unmount → unsubscribe).
  *
@@ -760,4 +839,3 @@ export function useChildCommandRunner(
 
     return run;
 }
-

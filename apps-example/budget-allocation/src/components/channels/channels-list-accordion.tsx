@@ -1,6 +1,6 @@
 import React from "react";
 
-import { useComponent, useCommandState } from "@zenflux/react-commander/use-commands";
+import { useComponent, useCommandStateSelector } from "@zenflux/react-commander/use-commands";
 
 import { QueryComponent } from "@zenflux/react-commander/query/component";
 
@@ -69,25 +69,28 @@ function toAccordionItem(
 }
 
 export const ChannelsListAccordion: React.FC = () => {
-    const [ getChannelsListState, setChannelsListState ] = useCommandState<ChannelListState>( "App/ChannelsList" );
+    const [ state, setState ] = useCommandStateSelector<ChannelListState, ChannelListState>( "App/ChannelsList",
+        ( state ) => ({
+            channels: state.channels,
+            selected: state.selected,
+        })
+    );
 
     const channelsCommands = useComponent( "App/ChannelsList" );
 
-    const channelsListState = getChannelsListState();
-
     const setSelected: React.Dispatch<React.SetStateAction<{ [ key: string ]: boolean }>> = ( value ) => {
         const next = typeof value === "function"
-            ? value( getChannelsListState().selected || {} )
+            ? value( state.selected || {} )
             : value;
 
-        setChannelsListState( { selected: next } );
+        setState( { selected: next } );
     };
 
     useChannelsListAccordionInteractions();
 
     return (
-        <Accordion selected={ channelsListState.selected } setSelected={ setSelected }>
-            { channelsListState.channels.map( ( i, index ) => toAccordionItem( i, channelsCommands, index ) ) }
+        <Accordion selected={ state.selected } setSelected={ setSelected }>
+            { state.channels.map( ( i, index ) => toAccordionItem( i, channelsCommands, index ) ) }
         </Accordion>
     );
 };

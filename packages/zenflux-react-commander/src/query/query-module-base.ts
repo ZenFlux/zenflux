@@ -110,6 +110,34 @@ export abstract class QueryModuleBase<TResource extends object = object> {
         this.routes.get( method )!.set( name, route );
     }
 
+    public async request<TResult = unknown>( name: string, args?: Record<string, unknown> ): Promise<TResult> {
+        let found: { method: string; route: Route<unknown, unknown> } | null = null;
+
+        for ( const [ method, map ] of this.routes ) {
+            if ( typeof method !== "string" ) continue;
+            const route = map.get( name );
+            if ( route ) {
+                found = { method, route };
+                break;
+            }
+        }
+
+        if ( ! found ) {
+            throw new Error( `Cannot find route for ${ name }` );
+        }
+
+        const payload = args ?? {};
+
+        const result = await this.api.fetch( found.method!, found.route.path, payload, async ( response ) => {
+            if ( found!.route.handlers.responseHandler ) {
+                return await ( found!.route.handlers.responseHandler as ( e: DCommandFunctionComponent, r: Response ) => Promise<unknown> )( undefined as unknown as DCommandFunctionComponent, response );
+            }
+            return await response.json();
+        } );
+
+        return result as TResult;
+    }
+
     protected defineEndpoint<TApiResponse, TData>(
         name: string,
         config: DQueryEndpointConfig<TApiResponse, TData>

@@ -48,13 +48,16 @@ export class ChannelsService {
     }
 
     public create(createChannelDto: CreateChannelDto): Channel {
+        const id = performance.now().toString();
+
         const channel: Channel = {
-            key: createChannelDto.key,
-            meta: createChannelDto.meta || {
-                id: createChannelDto.key,
-                name: createChannelDto.key,
-                icon: "",
-                createdAt: Date.now(),
+            key: id,
+            meta:{
+                name: "New Channel ",
+                icon: `https://api.dicebear.com/7.x/icons/svg?seed=${ performance.now() }`,
+                createdAt: new Date().getTime(),
+                ...createChannelDto.meta,
+                id: id,
             },
             allocation: createChannelDto.allocation || "equal",
             baseline: createChannelDto.baseline || "0",
@@ -63,6 +66,7 @@ export class ChannelsService {
         };
 
         this.channels.set(channel.key, channel);
+
         return channel;
     }
 
@@ -111,15 +115,6 @@ export class ChannelsService {
                 };
 
                 this.channels.set(key, updatedChannel);
-            } else {
-                this.create({
-                    key,
-                    meta: channelData.meta,
-                    allocation: channelData.allocation,
-                    baseline: channelData.baseline,
-                    frequency: channelData.frequency,
-                    breaks: channelData.breaks,
-                });
             }
         });
 

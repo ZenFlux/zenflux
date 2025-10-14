@@ -29,7 +29,9 @@
         "./query/item-module-base": "./src/query/query-item-module-base.ts",
         "./query/list-module-base": "./src/query/query-list-module-base.ts",
         "./query/router": "./src/query/query-router.ts",
-        "./query/utils": "./src/query/query-utils.ts"
+        "./query/utils": "./src/query/query-utils.ts",
+        "./query/provider": "./src/query/query-provider.tsx"
+
     },
     "dependencies": {
         "eventemitter3": "^5.0.1",
