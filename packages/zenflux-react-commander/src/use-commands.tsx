@@ -538,7 +538,7 @@ export function useCommandMatch( componentName: string ) {
 export function useCommandRunner( commandName: string, opts?: { match?: string; index?: number } ): ReturnType<typeof commandsManager["run"]> {
     const id = useCommandId( commandName, opts );
 
-    return React.useCallback( ( args: DCommandArgs, callback?: ( result: unknown ) => void ) => {
+    return React.useCallback( ( args: DCommandArgs = {}, callback?: ( result: unknown ) => void ) => {
         if ( ! id ) return;
         return commandsManager.run( id, args, callback );
     }, [ id ] );
@@ -674,17 +674,26 @@ export function useCommandHook(
                 componentNameUnique: ctx.componentNameUnique,
             } as DCommandIdArgs;
 
-            const handle = commandsManager.hookScoped( resolvedId, ownerIdRef.current as string, handler );
-
-            return () => {
-                handle?.dispose();
-            };
-        } else {
-            if ( id ) {
-                const handle = commandsManager.hookScoped( id, ownerIdRef.current as string, handler );
+            try {
+                if ( ! commandsManager.isContextRegistered( resolvedId.componentNameUnique ) ) return;
+                const handle = commandsManager.hookScoped( resolvedId, ownerIdRef.current as string, handler );
                 return () => {
                     handle?.dispose();
                 };
+            } catch {
+                return;
+            }
+        } else {
+            if ( id ) {
+                try {
+                    if ( ! commandsManager.isContextRegistered( id.componentNameUnique ) ) return;
+                    const handle = commandsManager.hookScoped( id, ownerIdRef.current as string, handler );
+                    return () => {
+                        handle?.dispose();
+                    };
+                } catch {
+                    return;
+                }
             }
 
             const componentName = commandsManager.getComponentName( commandName );
