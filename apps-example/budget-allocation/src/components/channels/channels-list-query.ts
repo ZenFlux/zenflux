@@ -100,12 +100,11 @@ export class ChannelsListQuery extends QueryListModuleBase<Channel> {
             channels: resource
         } );
 
-        const component = commandsManager.get( "UI/Accordion", true );
+        const accordion = commandsManager.get( "UI/Accordion", true );
 
-        if ( ! component ) return;
-
-        const onSelectionAttached = component[ "UI/Accordion/onSelectionAttached" ],
-            onSelectionDetached = component[ "UI/Accordion/onSelectionDetached" ];
+        if ( accordion ) {
+        const onSelectionAttached = accordion[ "UI/Accordion/onSelectionAttached" ],
+            onSelectionDetached = accordion[ "UI/Accordion/onSelectionDetached" ];
 
         const saveChannelsCallback = async () => {
             const state = context.getState<ChannelsListState>();
@@ -116,46 +115,47 @@ export class ChannelsListQuery extends QueryListModuleBase<Channel> {
         };
 
         onSelectionAttached.global().globalHook( saveChannelsCallback );
-        onSelectionDetached.global().globalHook( saveChannelsCallback );
+            onSelectionDetached.global().globalHook( saveChannelsCallback );
+        }
 
         const channelsList = commandsManager.get( "App/ChannelsList", true );
 
-        if ( ! channelsList ) return;
+        if ( channelsList ) {
+            const setNameCommand = channelsList[ "App/ChannelsList/SetName" ];
 
-        const setNameCommand = channelsList[ "App/ChannelsList/SetName" ];
+            const setNameHandler = async ( _result?: void, args?: DCommandArgs ) => {
+                if ( ! args?.id || ! args?.name ) return;
 
-        const setNameHandler = async ( _result?: void, args?: DCommandArgs ) => {
-            if ( ! args?.id || ! args?.name ) return;
+                await this.request( "App/ChannelsList/SetName", {
+                    id: args.id as string,
+                    name: args.name as string
+                } );
+            };
 
-            await this.request( "App/ChannelsList/SetName", {
-                id: args.id as string,
-                name: args.name as string
-            } );
-        };
-
-        setNameCommand.global().globalHook( setNameHandler );
+            setNameCommand.global().globalHook( setNameHandler );
+        }
     }
 
     protected onUnmount( context: DCommandSingleComponentContext ) {
         void this.autosave.queryFlush();
 
-        const component = commandsManager.get( "UI/Accordion", true );
+        const accordion = commandsManager.get( "UI/Accordion", true );
 
-        if ( ! component ) return;
+        if ( accordion ) {
+            const onSelectionAttached = accordion[ "UI/Accordion/onSelectionAttached" ],
+                onSelectionDetached = accordion[ "UI/Accordion/onSelectionDetached" ];
 
-        const onSelectionAttached = component[ "UI/Accordion/onSelectionAttached" ],
-            onSelectionDetached = component[ "UI/Accordion/onSelectionDetached" ];
-
-        onSelectionAttached.global().globalUnhook();
-        onSelectionDetached.global().globalUnhook();
-
+            onSelectionAttached.global().globalUnhook();
+            onSelectionDetached.global().globalUnhook();
+        }
+        
         const channelsList = commandsManager.get( "App/ChannelsList", true );
 
-        if ( ! channelsList ) return;
-
-        const setNameCommand = channelsList[ "App/ChannelsList/SetName" ];
-
-        setNameCommand.global().globalUnhook();
+        if ( channelsList ) {
+            const setNameCommand = channelsList[ "App/ChannelsList/SetName" ];
+        
+            setNameCommand.global().globalUnhook();
+        }
     }
 }
 
