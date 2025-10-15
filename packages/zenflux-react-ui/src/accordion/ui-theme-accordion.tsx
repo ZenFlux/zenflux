@@ -108,7 +108,7 @@ const UIThemeAccordionItemCollapse = ( props: {
     );
 };
 
-const UIThemeAccordionItemContent = ( props: UIThemeAccordionItemProps ) => {
+const UIThemeAccordionItemContent = ( props: Pick<UIThemeAccordionItemProps, 'children' | 'collapsedState' | 'setCollapsedState' | 'setIsTransitioning' | 'unmount'> ) => {
     const { children, collapsedState, setCollapsedState } = props;
 
     const collapsedStateRef = React.useRef<null | HTMLDivElement>( null );
@@ -143,8 +143,8 @@ export const UIThemeAccordionItem = ( props: UIThemeAccordionItemProps ) => {
     return (
         <>
             <h2 className="accordion-heading">
-                <button className="accordion-button" onClick={ ( e ) => 
-                    onClick?.(e as any, itemKey.toString(), collapsedState) 
+                <button className="accordion-button" onClick={ ( e ) =>
+                    onClick?.(e as any, itemKey.toString(), collapsedState)
                 }>
                     <UIThemeAccordionHeading { ... headingProps }>
                         { heading.title }
