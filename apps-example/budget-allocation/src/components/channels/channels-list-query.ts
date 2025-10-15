@@ -11,7 +11,7 @@ import { transformChannelFromListApi, transformChannelFromListWithBreaksApi } fr
 
 import { pickEnforcedKeys } from "@zenflux/app-budget-allocation/src/utils";
 
-import type { DCommandFunctionComponent, DCommandSingleComponentContext } from "@zenflux/react-commander/definitions";
+import type { DCommandArgs, DCommandFunctionComponent, DCommandSingleComponentContext } from "@zenflux/react-commander/definitions";
 
 import type { QueryClient } from "@zenflux/react-commander/query/client";
 
@@ -80,6 +80,7 @@ export class ChannelsListQuery extends QueryListModuleBase<Channel> {
         } );
 
         this.register( "POST", "App/ChannelsList/AddChannel", "v1/channels/create" );
+        this.register( "POST", "App/ChannelsList/SetName", "v1/channels/set-name" );
 
         this.register( "POST", "App/ChannelsListSave", "v1/channels/list" );
         this.register( "POST", "App/ChannelsReset", "v1/channels/reset" );
@@ -116,9 +117,25 @@ export class ChannelsListQuery extends QueryListModuleBase<Channel> {
 
         onSelectionAttached.global().globalHook( saveChannelsCallback );
         onSelectionDetached.global().globalHook( saveChannelsCallback );
+
+        const channelsList = commandsManager.get( "App/ChannelsList", true );
+
+        if ( ! channelsList ) return;
+
+        const setNameCommand = channelsList[ "App/ChannelsList/SetName" ];
+
+        const setNameHandler = async ( _result?: void, args?: DCommandArgs ) => {
+            if ( ! args?.id || ! args?.name ) return;
+
+            await this.request( "App/ChannelsList/SetName", {
+                id: args.id as string,
+                name: args.name as string
+            } );
+        };
+
+        setNameCommand.global().globalHook( setNameHandler );
     }
 
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     protected onUnmount( context: DCommandSingleComponentContext ) {
         void this.autosave.queryFlush();
 
@@ -131,6 +148,14 @@ export class ChannelsListQuery extends QueryListModuleBase<Channel> {
 
         onSelectionAttached.global().globalUnhook();
         onSelectionDetached.global().globalUnhook();
+
+        const channelsList = commandsManager.get( "App/ChannelsList", true );
+
+        if ( ! channelsList ) return;
+
+        const setNameCommand = channelsList[ "App/ChannelsList/SetName" ];
+
+        setNameCommand.global().globalUnhook();
     }
 }
 

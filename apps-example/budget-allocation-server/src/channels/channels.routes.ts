@@ -4,7 +4,7 @@ import { serverConfig } from "@zenflux/budget-allocation-server/src/config/serve
 
 import type { FastifyInstance, FastifyPluginOptions } from "fastify";
 
-import type { CreateChannelDto, UpdateChannelDto, UpdateChannelsListDto } from "@zenflux/budget-allocation-server/src/channels/channel.interface";
+import type { CreateChannelDto, SetChannelNameDto, UpdateChannelDto, UpdateChannelsListDto } from "@zenflux/budget-allocation-server/src/channels/channel.interface";
 
 const channelsService = new ChannelsService();
 
@@ -66,6 +66,25 @@ export async function channelsRoutes(
             return { ok: true, channels: updatedChannels };
         }, {
             ...serverConfig.delays.endpoints.updateChannelsList,
+            enabled: serverConfig.delays.enabled
+        });
+    });
+
+    fastify.post<{ Body: SetChannelNameDto }>("/channels/set-name", async (request, reply) => {
+        const setNameDto = request.body;
+
+        fastify.log.info({ id: setNameDto.id, name: setNameDto.name }, "Setting channel name");
+
+        return DelayUtil.withDelay(() => {
+            const updatedChannel = channelsService.setName(setNameDto);
+
+            if (!updatedChannel) {
+                return reply.code(404).send({ error: "Channel not found" });
+            }
+
+            return { ok: true, channel: updatedChannel };
+        }, {
+            ...serverConfig.delays.endpoints.updateChannel,
             enabled: serverConfig.delays.enabled
         });
     });

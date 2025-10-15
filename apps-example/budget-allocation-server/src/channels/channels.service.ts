@@ -1,6 +1,6 @@
 import { defaultChannels } from "@zenflux/budget-allocation-server/src/channels/channels.defaults";
 
-import type { Channel, CreateChannelDto, UpdateChannelDto, UpdateChannelsListDto } from "@zenflux/budget-allocation-server/src/channels/channel.interface";
+import type { Channel, CreateChannelDto, SetChannelNameDto, UpdateChannelDto, UpdateChannelsListDto } from "@zenflux/budget-allocation-server/src/channels/channel.interface";
 
 export class ChannelsService {
     private channels: Map<string, Channel> = new Map();
@@ -119,5 +119,25 @@ export class ChannelsService {
         });
 
         return this.findAll();
+    }
+
+    public setName(setNameDto: SetChannelNameDto): Channel | undefined {
+        const existingChannel = this.channels.get(setNameDto.id);
+
+        if (!existingChannel) {
+            return undefined;
+        }
+
+        const updatedChannel: Channel = {
+            ...existingChannel,
+            meta: {
+                ...existingChannel.meta,
+                name: setNameDto.name,
+            },
+        };
+
+        this.channels.set(setNameDto.id, updatedChannel);
+
+        return updatedChannel;
     }
 }

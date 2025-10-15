@@ -46,3 +46,8 @@ export interface UpdateChannelsListDto {
         breaks?: ChannelBreak[];
     }>;
 }
+
+export interface SetChannelNameDto {
+    id: string;
+    name: string;
+}
