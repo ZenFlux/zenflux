@@ -1,7 +1,5 @@
 import React from "react";
 
-import "@zenflux/app-budget-allocation/src/ui-layout/_layout.scss";
-
 import Header from "@zenflux/app-budget-allocation/src/ui-layout/header";
 
 export interface LayoutProps {
@@ -13,7 +11,7 @@ export interface LayoutProps {
 
 export default function Layout( props: LayoutProps ) {
     return (
-        <div className="layout">
+        <div className="layout max-w-[1440px] mx-auto">
             <Header { ... props.header } />
 
             <div className="content">

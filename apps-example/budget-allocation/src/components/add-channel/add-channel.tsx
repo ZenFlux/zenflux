@@ -14,17 +14,20 @@ export const AddChannel: DCommandFunctionComponent<{}> = () => {
     const command = useCommand( "App/AddChannel" );
 
     return (
-        <div>
-            <Button onClick={ async () =>  {
-                setIsLoading( true );
+        <Button onClick={ async () =>  {
+            setIsLoading( true );
 
-                await command.run();
+            await command.run();
 
-                setIsLoading( false );
-            } } className="add-channel min-w-[150px]" variant="bordered" disabled={ isLoading } radius={ "none" }>
-                { isLoading ? "Loading..." : <>{ Plus }&nbsp;&nbsp;Add Channel</> }
-            </Button>
-        </div>
+            setIsLoading( false );
+        } } 
+        className="add-channel min-w-[150px]" 
+        variant="bordered" 
+        disabled={ isLoading } 
+        radius={ "none" }
+        >
+            { isLoading ? "Loading..." : <><span className="icon">{ Plus }</span>Add Channel</> }
+        </Button>
     );
 };
 
