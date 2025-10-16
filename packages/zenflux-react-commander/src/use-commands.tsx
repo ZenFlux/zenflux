@@ -491,15 +491,8 @@ export function useCommandStateSelector<TState, TSelected>(
     }, [ componentName ] );
 
     const getSnapshot = React.useCallback( () => {
-        const currentState = internalContext.getState<TState>();
-        const currentValue = selectorRef.current( currentState );
-
-        if ( ! equalityFn( valueRef.current, currentValue ) ) {
-            valueRef.current = currentValue;
-        }
-
         return valueRef.current;
-    }, [ internalContext, equalityFn ] );
+    }, [] );
 
     const selectedState = React.useSyncExternalStore( subscribe, getSnapshot, getSnapshot );
 
