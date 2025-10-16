@@ -20,8 +20,9 @@ import type { DQueryComponentProps } from "@zenflux/react-commander/query/defini
 export class QueryComponent<
     TData = Record<string, unknown>,
     TProps = Record<string, unknown>,
-    TResource extends object = object
-> extends React.PureComponent<DQueryComponentProps<TData, TProps, TResource>> {
+    TResource extends object = object,
+    TState = React.ComponentState
+> extends React.PureComponent<DQueryComponentProps<TData, TProps, TResource, TState>> {
     private static client: QueryClient;
 
     private readonly client: QueryClient;
@@ -48,7 +49,7 @@ export class QueryComponent<
     public render() {
         // The resource will start loading
         const resource = wrapPromiseSuspendable( (async () => {
-            const data = await this.queryModule.getData<TData>( this.props.component, this.props.props as Record<string, unknown> );
+            const data = await this.queryModule.getData<TData, TProps & { $data: TData }, TState>( this.props.component, this.props.props as Record<string, unknown> );
 
             return {
                 element: React.createElement( this.props.component, this.props.props as TProps & { $data: TData  /* TODO remove */ } ),

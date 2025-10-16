@@ -10,12 +10,13 @@ import { ChannelsListQuery } from "@zenflux/app-budget-allocation/src/components
 
 import type { DCommandFunctionComponent } from "@zenflux/react-commander/definitions";
 import type { ChannelListProps, ChannelListState } from "@zenflux/app-budget-allocation/src/components/channels/channels-types";
+import type { Channel } from "@zenflux/app-budget-allocation/src/query/channels-domain";
 
 const AccordionChannelsList = React.lazy( () => import( "@zenflux/app-budget-allocation/src/components/channels/channels-list-accordion" ) );
 
 const TableChannelsList = React.lazy( () => import( "@zenflux/app-budget-allocation/src/components/channels/channels-list-table" ) );
 
-export const ChannelsList: DCommandFunctionComponent<ChannelListProps, ChannelListState> = ( props ) => {
+export const ChannelsList: DCommandFunctionComponent<ChannelListProps & { $data?: Channel[] }, ChannelListState> = ( props ) => {
     switch ( props.view ) {
         case "accordion":
             return <AccordionChannelsList />;

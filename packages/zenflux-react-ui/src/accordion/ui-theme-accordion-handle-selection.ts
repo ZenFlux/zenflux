@@ -11,7 +11,7 @@ import type {
  */
 export const accordionHandleSelection = (
     event: React.MouseEvent<HTMLButtonElement>,
-    ref: React.RefObject<HTMLDivElement>,
+    ref: React.RefObject<HTMLDivElement | null>,
     args: {
         key: string,
         collapsedState: UIThemeAccordionCollapseStates,

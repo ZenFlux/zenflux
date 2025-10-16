@@ -5,11 +5,11 @@ import ChannelsList from "@zenflux/app-budget-allocation/src/components/channels
 import { ChannelsListQuery } from "@zenflux/app-budget-allocation/src/components/channels/channels-list-query";
 
 import type { Channel } from "@zenflux/app-budget-allocation/src/query/channels-domain";
-import type { ChannelListProps } from "@zenflux/app-budget-allocation/src/components/channels/channels-types";
+import type { ChannelListProps, ChannelListState } from "@zenflux/app-budget-allocation/src/components/channels/channels-types";
 
 export default function BudgetAllocation() {
     return (
-        <QueryComponent<Channel[], ChannelListProps, Channel[]>
+        <QueryComponent<Channel[], ChannelListProps, Channel[], ChannelListState>
             fallback={ <div className="loading">Loading <span className="dots">◌</span></div> }
             module={ ChannelsListQuery }
             component={ ChannelsList }

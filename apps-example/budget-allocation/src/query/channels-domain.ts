@@ -74,3 +74,18 @@ export function transformChannelFromListWithBreaksApi( apiResponse: ChannelListW
     };
 }
 
+export function transformChannelFromItemApi( apiResponse: ChannelItemApiResponse ): Channel {
+    const breaks = apiResponse.breaks?.map( ( breakItem ) => ( {
+        date: new Date( breakItem.date ),
+        value: breakItem.value,
+    } ) );
+
+    return {
+        meta: apiResponse.meta,
+        frequency: apiResponse.frequency,
+        baseline: apiResponse.baseline,
+        allocation: apiResponse.allocation,
+        breaks: breaks ?? [],
+    };
+}
+

@@ -32,7 +32,7 @@ declare global {
     }
 }
 
-export const ChannelItemTable: DCommandFunctionComponent<{ $data: Channel }, ChannelItemTableState> = ( props, _mm ) => {
+export const ChannelItemTable: DCommandFunctionComponent<{ $data: Channel }, ChannelItemTableState> = ( props ) => {
     const { breaks, setBreakdown } = useChannelBreaks( props.$data );
     const { editing: isEditing, toggle, setEnabled } = useChannelEditing( breaks.length );
     const { ref: tableRef, direction: arrowRightOrLeft, onArrowClick } = useBreaksTableScroller( 500 );

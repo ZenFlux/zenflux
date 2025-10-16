@@ -21,7 +21,7 @@ import type { Channel } from "@zenflux/app-budget-allocation/src/query/channels-
 
 import type { DCommandFunctionComponent } from "@zenflux/react-commander/definitions";
 
-export const ChannelItemAccordion: DCommandFunctionComponent<{ meta: Channel["meta"] }, ChannelState> = () => {
+export const ChannelItemAccordion: DCommandFunctionComponent<{ meta: Channel["meta"]; $data?: Channel }, ChannelState> = () => {
     const ChannelBudgetSettings = () => {
         // Subscribe to all budget settings for automatic re-rendering
         const [state] = useCommandStateSelector<ChannelState, {

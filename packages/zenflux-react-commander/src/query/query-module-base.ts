@@ -7,8 +7,8 @@ import type { DQueryReadOnlyContext, DQueryEndpointConfig } from "@zenflux/react
 interface Route<TApiResponse, TData> {
     path: string;
     handlers: {
-        requestHandler?: ( element: DCommandFunctionComponent, request: Record<string, unknown> ) => Promise<Record<string, unknown>>;
-        responseHandler?: ( element: DCommandFunctionComponent, response: Response ) => Promise<TApiResponse>;
+        requestHandler?: ( element: DCommandFunctionComponent<Record<string, unknown>, React.ComponentState>, request: Record<string, unknown> ) => Promise<Record<string, unknown>>;
+        responseHandler?: ( element: DCommandFunctionComponent<Record<string, unknown>, React.ComponentState>, response: Response ) => Promise<TApiResponse>;
         prepareData?: ( apiResponse: TApiResponse ) => TData;
     }
 }
@@ -67,7 +67,7 @@ export abstract class QueryModuleBase<TResource extends object = object> {
         this.onContextStateUpdated?.( context, hasChanged );
     }
 
-    public async getData<TData>( element: DCommandFunctionComponent, args?: Record<string, unknown> ): Promise<TData> {
+    public async getData<TData, TProps = Record<string, unknown>, TState = React.ComponentState>( element: DCommandFunctionComponent<TProps, TState>, args?: Record<string, unknown> ): Promise<TData> {
         const componentName = element.getName!();
 
         const route = this.routes.get( "GET" )?.get( componentName ) as Route<unknown, TData> | undefined;
@@ -76,14 +76,14 @@ export abstract class QueryModuleBase<TResource extends object = object> {
             throw new Error( `Cannot find route for ${ componentName }` );
         }
 
-        const request = await route.handlers.requestHandler!( element, args || {} );
+        const request = await route.handlers.requestHandler!( element as DCommandFunctionComponent<Record<string, unknown>, React.ComponentState>, args || {} );
 
         const queryKey = [ this.getResourceName(), "getData", componentName, JSON.stringify( request ) ] as const;
 
         const apiResponse = await this.api.cache.fetchQuery( {
             queryKey,
             queryFn: () => this.api.fetch( "GET", route.path, request, ( response ) => {
-                return route.handlers.responseHandler!( element, response );
+                return route.handlers.responseHandler!( element as DCommandFunctionComponent<Record<string, unknown>, React.ComponentState>, response );
             } )
         } );
 
@@ -134,7 +134,7 @@ export abstract class QueryModuleBase<TResource extends object = object> {
 
         const result = await this.api.fetch( found.method!, found.route.path, payload, async ( response ) => {
             if ( found!.route.handlers.responseHandler ) {
-                return await ( found!.route.handlers.responseHandler as ( e: DCommandFunctionComponent, r: Response ) => Promise<unknown> )( undefined as unknown as DCommandFunctionComponent, response );
+                return await ( found!.route.handlers.responseHandler as ( e: DCommandFunctionComponent<Record<string, unknown>, React.ComponentState>, r: Response ) => Promise<unknown> )( undefined as unknown as DCommandFunctionComponent<Record<string, unknown>, React.ComponentState>, response );
             }
             return await response.json();
         } );
@@ -150,7 +150,7 @@ export abstract class QueryModuleBase<TResource extends object = object> {
             path: config.path,
             handlers: {
                 requestHandler: this.requestHandler.bind( this ),
-                responseHandler: this.responseHandler.bind( this ) as ( element: DCommandFunctionComponent, response: Response ) => Promise<TApiResponse>,
+                responseHandler: this.responseHandler.bind( this ) as ( element: DCommandFunctionComponent<Record<string, unknown>, React.ComponentState>, response: Response ) => Promise<TApiResponse>,
                 prepareData: config.prepareData,
             }
         };
@@ -158,9 +158,9 @@ export abstract class QueryModuleBase<TResource extends object = object> {
         this.register( config.method, name, route as Route<unknown, unknown> );
     }
 
-    protected abstract responseHandler( element: DCommandFunctionComponent, response: Response ): Promise<unknown>;
+    protected abstract responseHandler( element: DCommandFunctionComponent<Record<string, unknown>, React.ComponentState>, response: Response ): Promise<unknown>;
 
-    protected abstract requestHandler( element: DCommandFunctionComponent, request: Record<string, unknown> ): Promise<Record<string, unknown>>;
+    protected abstract requestHandler( element: DCommandFunctionComponent<Record<string, unknown>, React.ComponentState>, request: Record<string, unknown> ): Promise<Record<string, unknown>>;
 
     protected load?( context: DQueryReadOnlyContext ): void;
 

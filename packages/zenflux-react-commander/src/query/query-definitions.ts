@@ -12,11 +12,11 @@ export interface DQueryModuleBaseStatic<TResource extends object = object> {
     getName(): string;
 }
 
-export interface DQueryComponentProps<TData = Record<string, unknown>, TProps = Record<string, unknown>, TResource extends object = object> {
+export interface DQueryComponentProps<TData = Record<string, unknown>, TProps = Record<string, unknown>, TResource extends object = object, TState = React.ComponentState> {
     children?: React.ReactElement;
     module?: DQueryModuleBaseStatic<TResource>;
     fallback?: React.ReactElement;
-    component: DCommandFunctionComponent<TProps & { $data: TData }>;
+    component: DCommandFunctionComponent<TProps & { $data: TData }, TState>;
     props?: TProps;
 }
 

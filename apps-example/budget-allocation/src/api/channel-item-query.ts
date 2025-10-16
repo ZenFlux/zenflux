@@ -4,7 +4,7 @@ import { queryCreateAutoSaveManager } from "@zenflux/react-commander/query/auto-
 
 import { CHANNEL_LIST_STATE_DATA } from "@zenflux/app-budget-allocation/src/components/channel-item/channel-constants";
 
-import { transformChannelFromApi } from "@zenflux/app-budget-allocation/src/query/channels-domain";
+import { transformChannelFromListApi, transformChannelFromItemApi } from "@zenflux/app-budget-allocation/src/query/channels-domain";
 
 import { pickEnforcedKeys } from "@zenflux/app-budget-allocation/src/utils";
 
@@ -42,11 +42,11 @@ export class ChannelItemQuery extends QueryModuleBase<Channel> {
         return "channels";
     }
 
-    private registerEndpoints(): void {
+    protected registerEndpoints(): void {
         this.defineEndpoint<ChannelItemApiResponse, Channel>( "App/ChannelItem", {
             method: "GET",
             path: "v1/channels/:key",
-            prepareData: ( apiResponse ) => transformChannelFromApi( apiResponse )
+            prepareData: ( apiResponse ) => transformChannelFromItemApi( apiResponse )
         } );
 
         this.register( "POST", "App/ChannelItem", "v1/channels/:key" );
