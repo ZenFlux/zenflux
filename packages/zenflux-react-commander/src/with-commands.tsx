@@ -201,28 +201,35 @@ export function withCommands(
 
                 getState: () => this.store ? this.store.getState() : this.state,
                 setState: ( state, callback ) => {
+                    const prevState = this.store.getState();
+
                     this.store.setState(
                         {
-                            ... this.store.getState(),
+                            ... prevState,
                             ... state
                         },
                         ! this.isMounted(),
                     );
 
-                    if ( this.isMounted() ) {
-                        queueMicrotask(() => {
-                            const ctx = core[ GET_INTERNAL_SYMBOL ]( this.context.getNameUnique() );
-                            const hasChanged = this.store.hasChanged?.();
+                    const currentState = this.store.getState();
 
-                            if ( hasChanged ) {
-                                ctx.emitter.emit( INTERNAL_STATE_UPDATED_EVENT );
-                                this.$$commander.lifecycleHandlers[ INTERNAL_ON_CONTEXT_STATE_UPDATED ]?.( ctx, true );
-                            }
-                        });
+                    if ( this.isMounted() ) {
+                        const hasChanged = ! shallowEqual(prevState, currentState);
+
+                        if ( hasChanged ) {
+                            queueMicrotask(() => {
+                                if ( this.isMounted() ) {
+                                    const ctx = core[ GET_INTERNAL_SYMBOL ]( this.context.getNameUnique() );
+
+                                    ctx.emitter.emit( INTERNAL_STATE_UPDATED_EVENT );
+                                    this.$$commander.lifecycleHandlers[ INTERNAL_ON_CONTEXT_STATE_UPDATED ]?.( ctx, true );
+                                }
+                            });
+                        }
                     }
 
                     if ( callback ) {
-                        callback( this.store.getState() );
+                        callback( currentState );
                     }
                 },
 

@@ -1,8 +1,5 @@
 import React from "react";
 
-import { of, fromEventPattern } from "rxjs";
-import { map, distinctUntilChanged, shareReplay } from "rxjs/operators";
-
 // eslint-disable-next-line no-restricted-imports, @zenflux/no-relative-imports
 import { GET_INTERNAL_SYMBOL, GET_INTERNAL_MATCH_SYMBOL, INTERNAL_STATE_UPDATED_EVENT } from "./_internal/constants";
 
@@ -11,8 +8,6 @@ import core from "./_internal/core";
 
 import { ComponentIdContext } from "@zenflux/react-commander/commands-context";
 import commandsManager from "@zenflux/react-commander/commands-manager";
-
-import type { Observable } from "rxjs";
 
 import type { DCommandArgs, DCommandComponentContextProps, DCommandHookHandle, DCommandIdArgs, DCommandSingleComponentContext } from "@zenflux/react-commander/definitions";
 
@@ -55,23 +50,6 @@ function shallowEqual<T extends Record<string, unknown>>( a: T, b: T ): boolean 
         }
     }
     return true;
-}
-
-function useComponentStateSlice<TState, TSelected>(
-    component: { getState: <T>() => T },
-    selector: ( state: TState ) => TSelected,
-    compare?: ( a: TSelected, b: TSelected ) => boolean,
-    triggers?: Observable<unknown> | null,
-): Observable<TSelected> {
-    const cmp = compare ?? ( shallowEqual as unknown as ( a: TSelected, b: TSelected ) => boolean );
-    const source = React.useMemo( () => triggers ?? of( null ), [ triggers ] );
-
-    return React.useMemo( () => source.pipe(
-        map( () => component.getState<TState>() ),
-        map( selector ),
-        distinctUntilChanged( cmp ),
-        shareReplay( { bufferSize: 1, refCount: true } ),
-    ), [ component, selector, cmp, source ] );
 }
 
 export function useCommandId(commandName: string, opts?: { match?: string; index?: number; waitForRef?: React.RefObject<any> } ): DCommandIdArgs | null {
@@ -467,31 +445,61 @@ export function useCommandStateSelector<TState, TSelected>(
     const id = componentContext.getNameUnique();
     const internalContext = core[ GET_INTERNAL_SYMBOL ]( id );
 
+    const selectorRef = React.useRef( selector );
+    selectorRef.current = selector;
+
     const equalityFn = options?.equalityFn ?? ( shallowEqual as unknown as ( a: TSelected, b: TSelected ) => boolean );
 
-    const triggers = React.useMemo( () => fromEventPattern<unknown>(
-        ( handler ) => internalContext.emitter.on( INTERNAL_STATE_UPDATED_EVENT, handler as () => void ),
-        ( handler ) => internalContext.emitter.off( INTERNAL_STATE_UPDATED_EVENT, handler as () => void ),
-    ), [ internalContext ] );
-
-    const slice$ = useComponentStateSlice<TState, TSelected>(
-        { getState: internalContext.getState as unknown as <T>() => T },
-        selector,
-        equalityFn,
-        triggers,
-    );
-
     const valueRef = React.useRef<TSelected>( selector( internalContext.getState<TState>() ) );
+    const onChangeRef = React.useRef<(() => void) | null>( null );
+
+    const handlerRef = React.useRef<(() => void) | null>( null );
+
+    if ( ! handlerRef.current ) {
+        const handleStateChange = () => {
+            const currentState = internalContext.getState<TState>();
+            const newValue = selectorRef.current( currentState );
+
+            if ( ! equalityFn( valueRef.current, newValue ) ) {
+                valueRef.current = newValue;
+
+                if ( onChangeRef.current ) {
+                    onChangeRef.current();
+                }
+            }
+        };
+
+        handlerRef.current = handleStateChange;
+        internalContext.emitter.on( INTERNAL_STATE_UPDATED_EVENT, handleStateChange );
+    }
+
+    React.useEffect(() => {
+        return () => {
+            if ( handlerRef.current ) {
+                internalContext.emitter.off( INTERNAL_STATE_UPDATED_EVENT, handlerRef.current );
+                handlerRef.current = null;
+            }
+        };
+    }, [ internalContext, componentName ] );
 
     const subscribe = React.useCallback( ( onChange: () => void ) => {
-        const sub = slice$.subscribe( ( next ) => {
-            valueRef.current = next;
-            onChange();
-        } );
-        return () => sub.unsubscribe();
-    }, [ slice$ ] );
+        onChangeRef.current = onChange;
 
-    const getSnapshot = React.useCallback( () => valueRef.current, [] );
+        return () => {
+            onChangeRef.current = null;
+        };
+    }, [ componentName ] );
+
+    const getSnapshot = React.useCallback( () => {
+        const currentState = internalContext.getState<TState>();
+        const currentValue = selectorRef.current( currentState );
+
+        if ( ! equalityFn( valueRef.current, currentValue ) ) {
+            valueRef.current = currentValue;
+        }
+
+        return valueRef.current;
+    }, [ internalContext, equalityFn ] );
 
     const selectedState = React.useSyncExternalStore( subscribe, getSnapshot, getSnapshot );
 
@@ -535,7 +543,7 @@ export function useCommandMatch( componentName: string ) {
  * }
  * ```
  */
-export function useCommandRunner( commandName: string, opts?: { match?: string; index?: number } ): ReturnType<typeof commandsManager["run"]> {
+export function useCommandRunner( commandName: string, opts?: { match?: string; index?: number } ) {
     const id = useCommandId( commandName, opts );
 
     return React.useCallback( ( args: DCommandArgs = {}, callback?: ( result: unknown ) => void ) => {
