@@ -109,7 +109,9 @@ export class Loaders {
                 err = new ErrorWithMeta( "Error in @zenflux/typescript-vm, While loading module: " + path, {
                     ... err.meta || {},
                     config: this.vm.config.paths,
-                    deepStack
+                    deepStack,
+                    originalError: err.message,
+                    originalStack: err.stack
                 }, err );
             }
 
