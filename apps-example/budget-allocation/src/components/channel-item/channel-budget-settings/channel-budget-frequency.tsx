@@ -4,7 +4,7 @@ import { Info } from "@zenflux/react-ui/src/symbols";
 
 import { Select, SelectItem } from "@zenflux/app-budget-allocation/src/components/ui/select";
 
-import { UpdateSource } from "@zenflux/app-budget-allocation/src/components/channel-item/channel-types";
+import { UpdateSource } from "@zenflux/app-budget-allocation/src/components/channel-item/channel-item-types";
 
 import type {
     ChannelBudgetFrequencyPossibleValues,

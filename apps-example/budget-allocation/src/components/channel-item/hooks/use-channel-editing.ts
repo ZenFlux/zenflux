@@ -2,7 +2,7 @@ import React from "react";
 
 import { useCommandStateSelector } from "@zenflux/react-commander/use-commands";
 
-import type { ChannelItemTableState } from "@zenflux/app-budget-allocation/src/components/channel-item/channel-types";
+import type { ChannelItemTableState } from "@zenflux/app-budget-allocation/src/components/channel-item/channel-item-types";
 
 export function useChannelEditing( breaksLength: number ) {
     const [ slice, setState ] = useCommandStateSelector<ChannelItemTableState, { editing: boolean[] }>(

@@ -6,11 +6,11 @@ import { useComponent, useCommandState, useCommandStateSelector, useCommandHook 
 
 import { formatNumericStringToFraction } from "@zenflux/app-budget-allocation/src/utils";
 
-import { ChannelBreak } from "@zenflux/app-budget-allocation/src/components/channel-item/channel-break";
+import { ChannelItemBreak } from "@zenflux/app-budget-allocation/src/components/channel-item/channel-item-break";
 
-import { UpdateSource } from "@zenflux/app-budget-allocation/src/components/channel-item/channel-types";
+import { UpdateSource } from "@zenflux/app-budget-allocation/src/components/channel-item/channel-item-types";
 
-import type { ChannelState, ChannelBreakData } from "@zenflux/app-budget-allocation/src/components/channel-item/channel-types";
+import type { ChannelState, ChannelBreakData } from "@zenflux/app-budget-allocation/src/components/channel-item/channel-item-types";
 
 import type { ChannelBudgetFrequencyProps } from "@zenflux/app-budget-allocation/src/components/channel-item/channel-budget-settings";
 
@@ -172,7 +172,7 @@ const useBreakElements = (
 
             const label = moment( date ).format( "MMM D" );
             const props = { index, allocation, label, value: value.toString() };
-            next.push( <ChannelBreak key={ date.getTime() } { ... props } onInputChange={ onInputChange } /> );
+            next.push( <ChannelItemBreak key={ date.getTime() } { ... props } onInputChange={ onInputChange } /> );
             index++;
         }
 

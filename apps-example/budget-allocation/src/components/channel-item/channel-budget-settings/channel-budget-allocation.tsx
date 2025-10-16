@@ -5,7 +5,7 @@ import { Info } from "@zenflux/react-ui/src/symbols";
 import ButtonGroup from "@zenflux/app-budget-allocation/src/components/ui/button-group";
 import { Button } from "@zenflux/app-budget-allocation/src/components/ui/button";
 
-import { UpdateSource } from "@zenflux/app-budget-allocation/src/components/channel-item/channel-types";
+import { UpdateSource } from "@zenflux/app-budget-allocation/src/components/channel-item/channel-item-types";
 
 import type { ButtonProps } from "@zenflux/app-budget-allocation/src/components/ui/button";
 

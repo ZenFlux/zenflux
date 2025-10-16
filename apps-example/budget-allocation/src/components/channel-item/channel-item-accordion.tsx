@@ -15,7 +15,7 @@ import { ChannelBreakdowns } from "@zenflux/app-budget-allocation/src/components
 
 import * as commands from "@zenflux/app-budget-allocation/src/components/channel-item/commands";
 
-import type { ChannelState } from "@zenflux/app-budget-allocation/src/components/channel-item/channel-types";
+import type { ChannelState } from "@zenflux/app-budget-allocation/src/components/channel-item/channel-item-types";
 
 import type { Channel } from "@zenflux/app-budget-allocation/src/query/channels-domain";
 

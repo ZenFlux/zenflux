@@ -9,9 +9,9 @@ import { cn } from "@zenflux/app-budget-allocation/src/lib/utils";
 
 import type { InputProps } from "@zenflux/app-budget-allocation/src/components/ui/input";
 
-import type { ChannelState } from "@zenflux/app-budget-allocation/src/components/channel-item/channel-types";
+import type { ChannelState } from "@zenflux/app-budget-allocation/src/components/channel-item/channel-item-types";
 
-export const ChannelBreak: React.FC<{
+export const ChannelItemBreak: React.FC<{
     label: string;
     value: string;
     index: number;

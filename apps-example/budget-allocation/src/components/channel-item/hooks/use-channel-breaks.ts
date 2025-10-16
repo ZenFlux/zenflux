@@ -2,10 +2,10 @@ import React from "react";
 
 import { useCommand, useCommandStateSelector } from "@zenflux/react-commander/use-commands";
 
-import { UpdateSource } from "@zenflux/app-budget-allocation/src/components/channel-item/channel-types";
+import { UpdateSource } from "@zenflux/app-budget-allocation/src/components/channel-item/channel-item-types";
 
 import type { Channel } from "@zenflux/app-budget-allocation/src/query/channels-domain";
-import type { ChannelItemTableState, ChannelBreaks } from "@zenflux/app-budget-allocation/src/components/channel-item/channel-types";
+import type { ChannelItemTableState, ChannelBreaks } from "@zenflux/app-budget-allocation/src/components/channel-item/channel-item-types";
 
 export function useChannelBreaks( initialChannel: Channel ): {
     breaks: ChannelBreaks;

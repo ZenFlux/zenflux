@@ -1,4 +1,4 @@
-import type { ChannelMetaData, ChannelBreakData, ChannelState } from "@zenflux/app-budget-allocation/src/components/channel-item/channel-types";
+import type { ChannelMetaData, ChannelBreakData, ChannelState } from "@zenflux/app-budget-allocation/src/components/channel-item/channel-item-types";
 
 export interface Channel extends ChannelState {
     meta: ChannelMetaData;

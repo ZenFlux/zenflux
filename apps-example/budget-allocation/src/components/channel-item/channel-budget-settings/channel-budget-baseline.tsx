@@ -7,7 +7,7 @@ import { Info } from "@zenflux/react-ui/src/symbols";
 import { Input } from "@zenflux/app-budget-allocation/src/components/ui/input";
 import { cn } from "@zenflux/app-budget-allocation/src/lib/utils";
 
-import { UpdateSource } from "@zenflux/app-budget-allocation/src/components/channel-item/channel-types";
+import { UpdateSource } from "@zenflux/app-budget-allocation/src/components/channel-item/channel-item-types";
 
 import {
     getChannelBudgetFrequencyLabel

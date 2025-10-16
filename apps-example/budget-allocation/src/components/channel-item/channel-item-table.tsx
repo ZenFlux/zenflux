@@ -20,7 +20,7 @@ import { DEFAULT_CHANNEL_BREAK_INPUT_PROPS } from "@zenflux/app-budget-allocatio
 
 import "@zenflux/app-budget-allocation/src/components/channel-item/_channel-item-table.scss";
 
-import type { ChannelItemTableState } from "@zenflux/app-budget-allocation/src/components/channel-item/channel-types";
+import type { ChannelItemTableState } from "@zenflux/app-budget-allocation/src/components/channel-item/channel-item-types";
 import type { InputProps } from "@zenflux/app-budget-allocation/src/components/ui/input";
 import type { Channel } from "@zenflux/app-budget-allocation/src/query/channels-domain";
 
