@@ -1,2 +1,3 @@
-@import "./karu/karu.scss";
+@use "./karu/karu.scss";
+@forward "./karu/karu.scss";
 
