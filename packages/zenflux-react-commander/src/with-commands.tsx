@@ -2,8 +2,6 @@ import EventEmitter from "eventemitter3";
 
 import React from "react";
 
-import { BehaviorSubject } from "rxjs";
-
 // eslint-disable-next-line no-restricted-imports, @zenflux/no-relative-imports
 import {
     GET_INTERNAL_SYMBOL,
@@ -88,18 +86,16 @@ export function withCommands(
 
     class Store {
         private silentState: any;
-        private currentState: BehaviorSubject<any>;
+        private currentState: any;
         private prevState: any;
-        private subscription: any;
 
         public constructor( initialState: any ) {
-            this.currentState = new BehaviorSubject( initialState );
-
+            this.currentState = initialState;
             this.prevState = initialState;
         }
 
         public getState() {
-            return this.silentState || this.currentState.getValue();
+            return this.silentState || this.currentState;
         }
 
         public getPrevState() {
@@ -107,7 +103,7 @@ export function withCommands(
         }
 
         public setState( newState: any, silent = false ) {
-            this.prevState = this.currentState.getValue();
+            this.prevState = this.currentState;
 
             if ( silent ) {
                 this.silentState = newState;
@@ -116,8 +112,7 @@ export function withCommands(
             }
 
             this.silentState = null;
-
-            this.currentState.next( newState );
+            this.currentState = newState;
         }
 
         public hasChanged() {
@@ -125,7 +120,7 @@ export function withCommands(
                 return false;
             }
 
-            return ! shallowEqual( this.prevState, this.currentState.getValue() );
+            return ! shallowEqual( this.prevState, this.currentState );
         }
 
     }
