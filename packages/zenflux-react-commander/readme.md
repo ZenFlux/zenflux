@@ -231,7 +231,7 @@ const recorder = new CommandRecorder()
 
 ## FAQ
 
-- Target a specific instance: use `useComponent` or `useCommandWithRef`
+- Target a specific instance: use `useComponent` or `useCommand`
 - Subscribe without rendering: use scoped hooks or global hooks
 - Prefetch/read cache: use `QueryClient.cache` methods and module query keys
 

@@ -3,7 +3,6 @@ import commandsManager from "@zenflux/react-commander/commands-manager";
 import { QueryListModuleBase } from "@zenflux/react-commander/query/module-base";
 
 import { queryCreateAutoSaveManager } from "@zenflux/react-commander/query/auto-save-manager";
-import { queryDiffById } from "@zenflux/react-commander/query/list-diff";
 
 import { CHANNEL_LIST_STATE_DATA_WITH_META } from "@zenflux/app-budget-allocation/src/components/channel-item/channel-constants";
 
@@ -83,7 +82,7 @@ export class ChannelsListQuery extends QueryListModuleBase<Channel> {
         this.register( "POST", "App/ChannelsList/SetName", "v1/channels/set-name" );
 
         this.register( "POST", "App/ChannelsListSave", "v1/channels/list" );
-        this.register( "POST", "App/ChannelsReset", "v1/channels/reset" );
+        this.register( "POST", "App/ChannelsList/Reset", "v1/channels/reset" );
     }
 
     protected async requestHandler( element: DCommandFunctionComponent, request: Record<string, unknown> ): Promise<Record<string, unknown>> {
@@ -103,18 +102,18 @@ export class ChannelsListQuery extends QueryListModuleBase<Channel> {
         const accordion = commandsManager.get( "UI/Accordion", true );
 
         if ( accordion ) {
-        const onSelectionAttached = accordion[ "UI/Accordion/onSelectionAttached" ],
-            onSelectionDetached = accordion[ "UI/Accordion/onSelectionDetached" ];
+            const onSelectionAttached = accordion[ "UI/Accordion/onSelectionAttached" ],
+                onSelectionDetached = accordion[ "UI/Accordion/onSelectionDetached" ];
 
-        const saveChannelsCallback = async () => {
-            const state = context.getState<ChannelsListState>();
+            const saveChannelsCallback = async () => {
+                const state = context.getState<ChannelsListState>();
 
-            this.autosave.queryUpsert( state );
+                this.autosave.queryUpsert( state );
 
-            await this.autosave.queryFlush();
-        };
+                await this.autosave.queryFlush();
+            };
 
-        onSelectionAttached.global().globalHook( saveChannelsCallback );
+            onSelectionAttached.global().globalHook( saveChannelsCallback );
             onSelectionDetached.global().globalHook( saveChannelsCallback );
         }
 
@@ -148,12 +147,12 @@ export class ChannelsListQuery extends QueryListModuleBase<Channel> {
             onSelectionAttached.global().globalUnhook();
             onSelectionDetached.global().globalUnhook();
         }
-        
+
         const channelsList = commandsManager.get( "App/ChannelsList", true );
 
         if ( channelsList ) {
             const setNameCommand = channelsList[ "App/ChannelsList/SetName" ];
-        
+
             setNameCommand.global().globalUnhook();
         }
     }
@@ -172,6 +171,5 @@ export class ChannelsListWithBreaksQuery extends ChannelsListQuery {
         } );
 
         this.register( "POST", "App/ChannelsListSave", "v1/channels/list" );
-        this.register( "POST", "App/ChannelsReset", "v1/channels/reset" );
     }
 }

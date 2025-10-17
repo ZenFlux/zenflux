@@ -14,7 +14,6 @@ import { ChannelItemQuery } from "@zenflux/app-budget-allocation/src/components/
 import { ChannelsListQuery, ChannelsListWithBreaksQuery } from "@zenflux/app-budget-allocation/src/components/channels/channels-list-query";
 
 import { Tab, Tabs } from "@zenflux/app-budget-allocation/src/components/ui/tabs";
-import { Button } from "@zenflux/app-budget-allocation/src/components/ui/button";
 
 import Layout from "@zenflux/app-budget-allocation/src/ui-layout/layout";
 import { AddChannel } from "@zenflux/app-budget-allocation/src/components/add-channel/add-channel";
@@ -116,17 +115,6 @@ export function App() {
 
     return (
         <QueryProvider client={ client }>
-            <Button onClick={ async () => {
-                window.onbeforeunload = null;
-
-                await client.fetch( "POST", "v1/channels/reset", {}, ( response ) => response.json() );
-
-                location.reload();
-            } } className="absolute top-0 right-0 border-none" variant="bordered" disableAnimation={ true }
-            radius={ "none" }>
-                Reset Demo
-            </Button>
-
             <Layout { ... layoutProps }>
                 <Tabs ref={ tabsRef } { ... tabsProps }> {
                     tabsProps.items.map( ( tab ) => (

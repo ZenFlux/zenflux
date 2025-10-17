@@ -80,6 +80,23 @@ const $$ = withCommands( "App/ChannelsList", ChannelsList, {
                 return this.setState( { channels } );
             }
         }
+    },
+    class Reset extends CommandBase {
+        public static getName() {
+            return "App/ChannelsList/Reset";
+        }
+
+        public async apply() {
+            window.onbeforeunload = null;
+
+            const queryModule = getQueryModule( ChannelsListQuery );
+
+            await queryModule.request( "App/ChannelsList/Reset" );
+
+            const channels = await queryModule.request( "App/ChannelsList" );
+
+            this.setState( { channels } );
+        }
     }
 ] );
 
