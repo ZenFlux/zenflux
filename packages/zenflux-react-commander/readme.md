@@ -411,43 +411,120 @@ type SetBreakdownArgs = { index: number; value: string; source: UpdateSource };
 
 ### React hooks
 
+All hooks are exported from `@zenflux/react-commander/hooks`:
+
+```ts
+export { useCommand } from "./use-command/use-command";
+export { useComponent } from "./use-component/use-component";
+export { useCommandMatch } from "./use-command-match";
+export { useCommandState } from "./use-command-state";
+export { useCommandId } from "./use-command-id";
+export { useComponentWithRef } from "./use-component/use-component-with-ref";
+export { useCommandRunner } from "./use-command/use-command-runner";
+export { useCommandHook } from "./use-command/use-command-hook";
+export { useLocalCommandHook } from "./use-local-command-hook";
+export { useChildCommandHook } from "./use-child-command/use-child-command-hook";
+export { useChildCommandRunner } from "./use-child-command/use-child-command-runner";
+export { useCommanderChildrenComponents } from "./use-commander-children-components";
+```
+
+**Notable changes in recent refactor:**
+- `useCommandOnDemand` removed - its functionality is now built into `useCommand` as a fallback strategy
+- `useCommandWithRef` removed - use `useCommand(commandName, ref)` instead
+- `useCommand` now supports smart resolution with fallback strategies and optional ref parameter
+- `useCommandHook` simplified to use `useCommand` internally
+- New hooks added: `useChildCommandHook`, `useChildCommandRunner`, `useCommanderChildrenComponents`
+
 #### useCommand(commandName)
 
 - Import: `import { useCommand } from "@zenflux/react-commander/hooks"`
-- Purpose: Instance-bound adapter to run/hook a specific command of the current component
+- Purpose: Intelligent command adapter that resolves commands by context, supports refs, and includes built-in fallback strategies
+- Signature:
+  - `useCommand(commandName: string): UseCommandAdapter`
+  - `useCommand(commandName: string, ref: React.RefObject<any>): UseCommandAdapter | null`
+- Returns: `{ run, hook, unhook, unhookHandle?, getInternalContext }`
+
+Resolution strategy:
+1. If `ref` provided: tries ref match → name match → on-demand
+2. Without `ref`: tries current context → name match → on-demand
 
 ```tsx
 const setBreakdown = useCommand("App/ChannelItem/SetBreakdown");
 setBreakdown.run({ index: 2, value: "1,000", source: UpdateSource.FROM_BUDGET_OVERVIEW });
+
+// With ref for targeting specific instance
+const itemRef = React.useRef();
+const setName = useCommand("App/ChannelItem/SetName", itemRef);
+if (setName) setName.run({ name: "New" });
 ```
 
 #### useComponent(componentName, context?, options?)
 
 - Import: `import { useComponent } from "@zenflux/react-commander/hooks"`
 - Purpose: Target a specific component instance (current/parent/child) by context
+- Returns: `{ run, hook, unhook, unhookHandle, getId, getKey, isAlive, getInternalContext, getContext, getState }`
 
 ```tsx
 const item = useComponent("App/ChannelItem");
 item.run("App/ChannelItem/SetFrequency", { value: "monthly" });
+
+// Check if component is still mounted
+if (item.isAlive()) {
+  item.run("App/ChannelItem/SetName", { name: "Updated" });
+}
+```
+
+#### useComponentWithRef(componentName, ref)
+
+- Import: `import { useComponentWithRef } from "@zenflux/react-commander/hooks"`
+- Purpose: Target a component instance by ref
+
+```tsx
+const itemRef = React.useRef();
+const item = useComponentWithRef("App/ChannelItem", itemRef);
+if (item) {
+  item.run("App/ChannelItem/SetName", { name: "New" });
+}
+```
+
+#### useCommandRunner(commandName, ref?)
+
+- Import: `import { useCommandRunner } from "@zenflux/react-commander/hooks"`
+- Purpose: Get a memoized runner function for a specific command using `useCommand` internally
+- Signature: `useCommandRunner(commandName: string, ref?: React.RefObject<any>)`
+
+```tsx
+const runSetName = useCommandRunner("App/ChannelsList/SetName");
+runSetName({ id: "123", name: "New" }, (result) => {
+  console.log("Completed:", result);
+});
+
+// With ref for targeting specific instance
+const itemRef = React.useRef();
+const runItemCommand = useCommandRunner("App/ChannelItem/SetName", itemRef);
+runItemCommand({ name: "New" });
 ```
 
 #### useCommandState(componentName)
 
 - Import: `import { useCommandState } from "@zenflux/react-commander/hooks"`
 - Purpose: Read/write the injected component state (when provided via `withCommands`)
+- Signature: `useCommandState<TState>(componentName): [() => TState, setState, () => boolean]`
 
 ```tsx
-const [getState, setState] = useCommandState<ChannelListState>("App/ChannelsList");
+const [getState, setState, isMounted] = useCommandState<ChannelListState>("App/ChannelsList");
 setState({ selected: { ...getState().selected, abc: true } });
 ```
 
 #### useCommandState<TState, TSelected>(componentName, selector, options?)
 
 - Import: `import { useCommandState } from "@zenflux/react-commander/hooks"`
-- Purpose: Subscribe to derived slices with granular re-rendering
+- Purpose: Subscribe to derived slices with granular re-rendering using `useSyncExternalStore`
+- Signature: `useCommandState<TState, TSelector>(componentName, selector, options?): [TSelector, setState, () => boolean]`
+- Options: `{ equalityFn?: (a: TSelector, b: TSelector) => boolean }` (defaults to `shallowEqual`)
 
 ```tsx
-const [slice, setState] = useCommandState<ChannelItemTableState, { editing: boolean[] }>(
+const [slice, setState, isMounted] = useCommandState<ChannelItemTableState, { editing: boolean[] }>(
   "App/ChannelItem",
   s => ({ editing: s.editing ?? [] })
 );
@@ -456,19 +533,64 @@ const [slice, setState] = useCommandState<ChannelItemTableState, { editing: bool
 #### useCommandHook(commandName, handler, ref?)
 
 - Import: `import { useCommandHook } from "@zenflux/react-commander/hooks"`
-- Purpose: Declarative (un)subscription to a resolved command; optionally scoped with `ref`
+- Purpose: Declarative (un)subscription to a command using `useCommand` internally with automatic cleanup
+- Uses the same resolution strategy as `useCommand` (current context → name match → on-demand)
 
 ```tsx
 useCommandHook("App/ChannelsList/SetName", (_result, args) => { /* analytics */ });
+
+// With ref for specific instance
+const itemRef = React.useRef();
+useCommandHook("App/ChannelItem/SetName", (result, args) => {
+  console.log("Item renamed:", args);
+}, itemRef);
 ```
 
 #### useLocalCommandHook(commandName, handler)
 
 - Import: `import { useLocalCommandHook } from "@zenflux/react-commander/hooks"`
-- Purpose: Shorthand to bind a scoped hook to the current component instance
+- Purpose: Shorthand to bind a hook to the current component instance (uses the component's own ref from context)
 
 ```tsx
 useLocalCommandHook("UI/Accordion/onSelectionAttached", () => {/* ... */});
+```
+
+#### useChildCommandHook(childComponentName, commandName, handler, opts?)
+
+- Import: `import { useChildCommandHook } from "@zenflux/react-commander/hooks"`
+- Purpose: Subscribe to a command on all child components of a specific type
+- Options: `{ filter?: (cmd) => boolean; ignoreDuplicate?: boolean }`
+- Automatically filters out unmounted children
+
+```tsx
+useChildCommandHook("App/ChannelItem", "App/ChannelItem/SetName", (result, args) => {
+  console.log("Child item renamed:", args);
+});
+```
+
+#### useChildCommandRunner(childComponentName, selector)
+
+- Import: `import { useChildCommandRunner } from "@zenflux/react-commander/hooks"`
+- Purpose: Run commands on child components by key/selector
+- Returns: `(key: string, commandName: string, args: DCommandArgs) => boolean`
+
+```tsx
+const runOnChild = useChildCommandRunner("App/ChannelItem", ctx => ctx.key);
+runOnChild("item-123", "App/ChannelItem/SetName", { name: "New" });
+```
+
+#### useCommanderChildrenComponents(componentName, onChildrenUpdate?)
+
+- Import: `import { useCommanderChildrenComponents } from "@zenflux/react-commander/hooks"`
+- Purpose: Get all child components of a specific type with automatic lifecycle tracking
+- Returns: Array of component adapters with `{ run, hook, unhook, getId, getKey, isAlive, getInternalContext, getContext, getState }`
+- Filters out unmounted children automatically
+
+```tsx
+const channelItems = useCommanderChildrenComponents("App/ChannelItem", (children) => {
+  console.log(`${children.length} channel items mounted`);
+  return () => console.log("cleanup");
+});
 ```
 
 ### Query/data modules
