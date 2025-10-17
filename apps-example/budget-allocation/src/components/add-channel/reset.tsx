@@ -2,10 +2,4 @@ import { Button } from "@zenflux/app-budget-allocation/src/ui-command-able/butto
 
 import type { DCommandFunctionComponent } from "@zenflux/react-commander/definitions";
 
-export const AddChannel: DCommandFunctionComponent<{}> = () => {
-
-    return (
-        <Button emoji="+" label="Add Channel" onClickCommand="App/AddChannel" />
-    );
-};
-
+export const Reset: DCommandFunctionComponent<{}> = () => (<Button emoji="⟳" label="Reset Demo" onClickCommand="App/ChannelsList/Reset" />);

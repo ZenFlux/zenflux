@@ -18,6 +18,7 @@ import { Button } from "@zenflux/app-budget-allocation/src/components/ui/button"
 
 import Layout from "@zenflux/app-budget-allocation/src/ui-layout/layout";
 import { AddChannel } from "@zenflux/app-budget-allocation/src/components/add-channel/add-channel";
+import { Reset } from "@zenflux/app-budget-allocation/src/components/add-channel/reset";
 
 import "@zenflux/app-budget-allocation/src/app.scss";
 
@@ -50,7 +51,10 @@ interface AppState {
 export function App() {
     const layoutProps: LayoutProps = {
         header: {
-            end: <AddChannel/>,
+            end: <div className="flex gap-2">
+                <AddChannel/>
+                <Reset/>
+            </div>,
         }
     };
 
