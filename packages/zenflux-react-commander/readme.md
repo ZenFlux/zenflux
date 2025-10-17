@@ -1,6 +1,6 @@
 # @zenflux/react-commander
 
-A lightweight command orchestration layer for React that separates UI from behavior through typed Commands, per-instance component context, and a central command manager. Includes a minimal Query abstraction for data fetching, caching, and lifecycle wiring.
+A lightweight command orchestration layer for React that separates UI from behavior through typed Commands, per-instance component context, and a central command manager. Includes a minimal Query abstraction for data fetching, caching, and lifecycle wiring. a custom in-context state that operate on a level of that component, that should be wrapped by **withCommands()**, then you can define the state, and commands of this component.
 
 ## Why
 
@@ -416,24 +416,29 @@ All hooks are exported from `@zenflux/react-commander/hooks`:
 ```ts
 export { useCommand } from "./use-command/use-command";
 export { useComponent } from "./use-component/use-component";
-export { useCommandMatch } from "./use-command-match";
 export { useCommandState } from "./use-command-state";
-export { useCommandId } from "./use-command-id";
 export { useComponentWithRef } from "./use-component/use-component-with-ref";
 export { useCommandRunner } from "./use-command/use-command-runner";
 export { useCommandHook } from "./use-command/use-command-hook";
-export { useLocalCommandHook } from "./use-local-command-hook";
 export { useChildCommandHook } from "./use-child-command/use-child-command-hook";
 export { useChildCommandRunner } from "./use-child-command/use-child-command-runner";
-export { useCommanderChildrenComponents } from "./use-commander-children-components";
 ```
 
-**Notable changes in recent refactor:**
-- `useCommandOnDemand` removed - its functionality is now built into `useCommand` as a fallback strategy
-- `useCommandWithRef` removed - use `useCommand(commandName, ref)` instead
-- `useCommand` now supports smart resolution with fallback strategies and optional ref parameter
-- `useCommandHook` simplified to use `useCommand` internally
-- New hooks added: `useChildCommandHook`, `useChildCommandRunner`, `useCommanderChildrenComponents`
+### Command levels and context detection
+
+- **use-component (Component-level)**: target a specific component instance by name and context.
+  - **Context detection flow**: validates the current `ComponentIdContext` matches the provided component name via `getSafeContext`. When a `context` is explicitly provided, it uses that instead of the current provider.
+  - **Best for**: operating on a known instance (current, parent, or injected instance), reading/writing state, and liveness checks.
+
+- **use-command (Command-level)**: target commands by their fully qualified name.
+  - **Context detection flow**:
+    - Without `ref`: current context → component name match → on-demand (latest matching instance)
+    - With `ref`: ref match → component name match → on-demand (latest matching instance)
+  - **Best for**: dispatching or subscribing to a command without hard-coding a specific instance.
+
+- **use-child-command (Child-level)**: target commands on descendant components of a given type.
+  - **Context detection flow**: enumerates child component contexts from the current `ComponentIdContext`, filters alive instances, then hooks/runs on the matching subset.
+  - **Best for**: broadcasting to or observing multiple child instances, or addressing a specific child by key.
 
 #### useCommand(commandName)
 
@@ -443,6 +448,11 @@ export { useCommanderChildrenComponents } from "./use-commander-children-compone
   - `useCommand(commandName: string): UseCommandAdapter`
   - `useCommand(commandName: string, ref: React.RefObject<any>): UseCommandAdapter | null`
 - Returns: `{ run, hook, unhook, unhookHandle?, getInternalContext }`
+
+- When to use:
+  - Dispatch or subscribe to a command without coupling to a specific instance
+  - Resolve the most relevant instance by context, name, or ref
+  - Target a specific instance via `ref`
 
 Resolution strategy:
 1. If `ref` provided: tries ref match → name match → on-demand
@@ -464,6 +474,25 @@ if (setName) setName.run({ name: "New" });
 - Purpose: Target a specific component instance (current/parent/child) by context
 - Returns: `{ run, hook, unhook, unhookHandle, getId, getKey, isAlive, getInternalContext, getContext, getState }`
 
+- When to use:
+  - Operate on a known instance (current, parent, or injected context)
+  - Need strict scoping for reads/writes and lifecycle checks
+  - Integrations that must not fall back to another instance
+
+Context detection flow:
+- Validates context with `getSafeContext`: the current provider must match `componentName` unless you pass a specific `context`.
+- Resolves internal context using the component's unique id; methods operate strictly on that instance.
+
+Methods:
+- `run(commandName, args, callback?)`: dispatch a command against this instance
+- `hook(commandName, handler)` / `unhook(commandName)`: subscribe/unsubscribe for this instance
+- `unhookHandle(handle)`: unsubscribe using a returned hook handle
+- `getId()`: get the unique id
+- `getKey()`: read the instance key from internal context
+- `isAlive()`: check if the instance is still mounted
+- `getInternalContext()` / `getContext()`: access internal and provider contexts
+- `getState<TState>()`: read current component state
+
 ```tsx
 const item = useComponent("App/ChannelItem");
 item.run("App/ChannelItem/SetFrequency", { value: "monthly" });
@@ -479,6 +508,10 @@ if (item.isAlive()) {
 - Import: `import { useComponentWithRef } from "@zenflux/react-commander/hooks"`
 - Purpose: Target a component instance by ref
 
+- When to use:
+  - You have a ref to a rendered instance (lists, portals)
+  - You want exact targeting without relying on name mapping
+
 ```tsx
 const itemRef = React.useRef();
 const item = useComponentWithRef("App/ChannelItem", itemRef);
@@ -492,6 +525,11 @@ if (item) {
 - Import: `import { useCommandRunner } from "@zenflux/react-commander/hooks"`
 - Purpose: Get a memoized runner function for a specific command using `useCommand` internally
 - Signature: `useCommandRunner(commandName: string, ref?: React.RefObject<any>)`
+
+- When to use:
+  - Need a stable, memoized function to run a command
+  - Passing a runner as a prop/callback without recreating the adapter
+  - Targeting a specific instance with `ref`
 
 ```tsx
 const runSetName = useCommandRunner("App/ChannelsList/SetName");
@@ -516,6 +554,16 @@ const [getState, setState, isMounted] = useCommandState<ChannelListState>("App/C
 setState({ selected: { ...getState().selected, abc: true } });
 ```
 
+- When to use:
+  - Read/write the per-instance state injected by `withCommands`
+  - Local UI state coordination and autosave flows
+  - Access `isMounted` for safe async updates
+
+Resolution strategy (current):
+- Attempts to resolve internal context via `useCommand(componentOrCommandName)` for dynamic accuracy.
+- If unavailable (e.g., early render or when passing a component name), falls back to resolving the current component context directly.
+- Returns stable `getState`, `setState`, and `isMounted` from the resolved internal context.
+
 #### useCommandState<TState, TSelected>(componentName, selector, options?)
 
 - Import: `import { useCommandState } from "@zenflux/react-commander/hooks"`
@@ -530,11 +578,25 @@ const [slice, setState, isMounted] = useCommandState<ChannelItemTableState, { ed
 );
 ```
 
+- When to use:
+  - Subscribe to a derived slice to minimize re-renders
+  - Fine-tune equality comparisons for complex slices
+  - Compose multiple lightweight selectors in a component
+
+Notes:
+- Uses `useSyncExternalStore` for consistent subscription semantics and change propagation.
+- Subscribes to `INTERNAL_STATE_UPDATED_EVENT` and recalculates only when the selected slice changes by `equalityFn`.
+
 #### useCommandHook(commandName, handler, ref?)
 
 - Import: `import { useCommandHook } from "@zenflux/react-commander/hooks"`
 - Purpose: Declarative (un)subscription to a command using `useCommand` internally with automatic cleanup
 - Uses the same resolution strategy as `useCommand` (current context → name match → on-demand)
+
+- When to use:
+  - Observe command results for analytics, logging, or side-effects
+  - React to commands dispatched from this or other instances
+  - Bind to a specific instance via `ref`
 
 ```tsx
 useCommandHook("App/ChannelsList/SetName", (_result, args) => { /* analytics */ });
@@ -546,15 +608,6 @@ useCommandHook("App/ChannelItem/SetName", (result, args) => {
 }, itemRef);
 ```
 
-#### useLocalCommandHook(commandName, handler)
-
-- Import: `import { useLocalCommandHook } from "@zenflux/react-commander/hooks"`
-- Purpose: Shorthand to bind a hook to the current component instance (uses the component's own ref from context)
-
-```tsx
-useLocalCommandHook("UI/Accordion/onSelectionAttached", () => {/* ... */});
-```
-
 #### useChildCommandHook(childComponentName, commandName, handler, opts?)
 
 - Import: `import { useChildCommandHook } from "@zenflux/react-commander/hooks"`
@@ -562,11 +615,22 @@ useLocalCommandHook("UI/Accordion/onSelectionAttached", () => {/* ... */});
 - Options: `{ filter?: (cmd) => boolean; ignoreDuplicate?: boolean }`
 - Automatically filters out unmounted children
 
+- When to use:
+  - Parent needs to observe events across many child instances
+  - Aggregate effects like autosave, analytics, or selection sync
+  - Optionally filter to a subset via `opts.filter`
+
+Context detection flow:
+- Discovers child instances from the current component tree, filters alive ones, applies optional `filter`, and hooks them.
+
 ```tsx
 useChildCommandHook("App/ChannelItem", "App/ChannelItem/SetName", (result, args) => {
   console.log("Child item renamed:", args);
 });
 ```
+
+See a real usage example:
+- [Parent listening to child command updates in ChannelsList accordion interactions](https://github.com/ZenFlux/zenflux/blob/tmp/apps-example/budget-allocation/src/components/channels/channels-list-accordion-interactions.tsx#L25-L34)
 
 #### useChildCommandRunner(childComponentName, selector)
 
@@ -574,24 +638,21 @@ useChildCommandHook("App/ChannelItem", "App/ChannelItem/SetName", (result, args)
 - Purpose: Run commands on child components by key/selector
 - Returns: `(key: string, commandName: string, args: DCommandArgs) => boolean`
 
+- When to use:
+  - Address a specific child by a stable key (e.g., id)
+  - Trigger actions from parent toolbars/menus onto a selected child
+  - Programmatic control over child instances without prop drilling
+
+Context detection flow:
+- Enumerates alive children; maps each internal context to a key via `selector`; dispatches to the matching child. Returns `true` if a target was found and run.
+
 ```tsx
 const runOnChild = useChildCommandRunner("App/ChannelItem", ctx => ctx.key);
 runOnChild("item-123", "App/ChannelItem/SetName", { name: "New" });
 ```
 
-#### useCommanderChildrenComponents(componentName, onChildrenUpdate?)
-
-- Import: `import { useCommanderChildrenComponents } from "@zenflux/react-commander/hooks"`
-- Purpose: Get all child components of a specific type with automatic lifecycle tracking
-- Returns: Array of component adapters with `{ run, hook, unhook, getId, getKey, isAlive, getInternalContext, getContext, getState }`
-- Filters out unmounted children automatically
-
-```tsx
-const channelItems = useCommanderChildrenComponents("App/ChannelItem", (children) => {
-  console.log(`${children.length} channel items mounted`);
-  return () => console.log("cleanup");
-});
-```
+See a real usage example:
+- [Parent targeting a specific child instance by key](https://github.com/ZenFlux/zenflux/blob/tmp/apps-example/budget-allocation/src/components/channels/channels-list-accordion-interactions.tsx#L36-L39)
 
 ### Query/data modules
 

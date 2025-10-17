@@ -1,7 +1,7 @@
 /* eslint-disable no-restricted-imports, @zenflux/no-relative-imports */
 import React from "react";
 
-import { useCommanderChildrenComponents } from "../use-commander-children-components";
+import { useCommanderChildrenComponents } from "../utils";
 
 import type { DCommandArgs, DCommandSingleComponentContext } from "../../definitions";
 

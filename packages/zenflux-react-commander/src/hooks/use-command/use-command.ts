@@ -7,19 +7,18 @@ import core from "../../_internal/core";
 import { ComponentIdContext } from "../../commands-context";
 import commandsManager from "../../commands-manager";
 
-import type { DCommandArgs, DCommandHookHandle, DCommandIdArgs, DCommandSingleComponentContext } from "../../definitions";
+import type { DCommandArgs, DCommandIdArgs, DCommandSingleComponentContext } from "../../definitions";
 
 type CommandRun = ( args?: DCommandArgs, callback?: ( result: unknown ) => void ) => unknown
-type CommandHook = ( callback: ( result: unknown, args?: DCommandArgs ) => void ) => unknown
+type CommandHook = ( callback: ( result: unknown, args?: DCommandArgs ) => void ) => void
 type CommandUnhook = () => void
-type CommandUnhookHandle = ( handle: DCommandHookHandle ) => void
+//
 type CommandGetInternalContext = () => DCommandSingleComponentContext | null | undefined
 
 type UseCommandAdapter = {
     run: CommandRun
     hook: CommandHook
     unhook: CommandUnhook
-    unhookHandle?: CommandUnhookHandle
     getInternalContext: CommandGetInternalContext
 }
 
@@ -28,24 +27,150 @@ export function useCommand( commandName: string, ref: React.RefObject<any> ): Us
 export function useCommand( commandName: string, ref?: React.RefObject<any> ) {
     const componentContext = React.useContext( ComponentIdContext );
 
-    const debug = ( ...args: Array<unknown> ) => {
+    const ownerIdRef = React.useRef<string | null>( null );
+    if ( ! ownerIdRef.current ) {
+        ownerIdRef.current = `${ commandName }:${ Math.random().toString( 36 ).slice( 2 ) }`;
+    }
+
+    type HookHandle = { componentNameUnique: string; commandName: string; ownerId: string; dispose: () => void };
+    const hookedCallbacksRef = React.useRef<Map<Function, HookHandle>>( new Map() );
+
+    React.useEffect( () => {
+        return () => {
+            for ( const handle of hookedCallbacksRef.current.values() ) {
+                try { commandsManager.unhookHandle( handle ); } catch {}
+            }
+            hookedCallbacksRef.current.clear();
+        };
+    }, [] );
+
+    const debug = ( ..._args: Array<unknown> ) => {
         try {
             // TODO: Enable when needed
-            // console.debug( "[react-commander/useCommand]", ...args );
+            console.debug( "[react-commander/useCommand]", ..._args );
         } catch {}
     };
 
-    const makeAdapterFromId = ( id: DCommandIdArgs, getInternal?: () => DCommandSingleComponentContext ): UseCommandAdapter => {
+    const lastIdRef = React.useRef<DCommandIdArgs | null>( null );
+
+    function defer( fn: () => void ) {
+        try {
+            if ( typeof queueMicrotask === "function" ) {
+                queueMicrotask( fn );
+                return;
+            }
+        } catch {}
+        setTimeout( fn, 0 );
+    }
+
+    function createAdapterFromId(
+        id: DCommandIdArgs,
+        getInternal?: () => DCommandSingleComponentContext,
+    ): UseCommandAdapter {
+        lastIdRef.current = id;
         return {
-            run: ( args: DCommandArgs = {}, callback?: ( result: unknown ) => void ) =>
-                commandsManager.run( id, args, callback as ( r: unknown ) => void ),
-            hook: ( callback: ( result: unknown, args?: DCommandArgs ) => void ) =>
-                commandsManager.hook( id, callback as ( r: unknown, a?: DCommandArgs ) => void ),
-            unhook: () => commandsManager.unhook( id ),
-            unhookHandle: ( handle: DCommandHookHandle ) => commandsManager.unhookHandle( handle ),
+            run: (
+                _args: DCommandArgs = {},
+                callback?: ( result: unknown ) => void,
+            ) => {
+                return commandsManager.run(
+                    id,
+                    _args,
+                    callback as ( _r: unknown ) => void,
+                );
+            },
+            hook: ( callback: ( result: unknown, args?: DCommandArgs ) => void ) => {
+                if ( hookedCallbacksRef.current.has( callback ) ) return;
+                if ( ! commandsManager.isContextRegistered( id.componentNameUnique ) ) {
+                    defer( () => {
+                        if ( hookedCallbacksRef.current.has( callback ) ) return;
+                        if ( ! commandsManager.isContextRegistered( id.componentNameUnique ) ) return;
+                        const h = commandsManager.hookScoped(
+                            id,
+                            ownerIdRef.current as string,
+                            callback as ( r: unknown, a?: DCommandArgs ) => void,
+                        );
+                        if ( h ) hookedCallbacksRef.current.set( callback, h );
+                    } );
+                    return;
+                }
+                const handle = commandsManager.hookScoped(
+                    id,
+                    ownerIdRef.current as string,
+                    callback as ( r: unknown, a?: DCommandArgs ) => void,
+                );
+                if ( handle ) hookedCallbacksRef.current.set( callback, handle );
+            },
+            unhook: () => {
+                for ( const handle of hookedCallbacksRef.current.values() ) {
+                    try {
+                        commandsManager.unhookHandle( handle );
+                    } catch {}
+                }
+                hookedCallbacksRef.current.clear();
+            },
             getInternalContext: () => getInternal?.() ?? null,
         };
-    };
+    }
+
+    function createAdapterFromResolver(
+        resolveId: () => DCommandIdArgs | null,
+        getInternalForId: ( id: DCommandIdArgs ) => DCommandSingleComponentContext | null,
+    ): UseCommandAdapter {
+        return {
+            run: (
+                _args: DCommandArgs = {},
+                callback?: ( result: unknown ) => void,
+            ) => {
+                const id = resolveId();
+                if ( ! id ) return;
+                return commandsManager.run(
+                    id,
+                    _args,
+                    callback as ( _r: unknown ) => void,
+                );
+            },
+            hook: ( callback: ( result: unknown, args?: DCommandArgs ) => void ) => {
+                if ( hookedCallbacksRef.current.has( callback ) ) return;
+                const id = resolveId();
+                if ( ! id ) return;
+                if ( ! commandsManager.isContextRegistered( id.componentNameUnique ) ) {
+                    defer( () => {
+                        if ( hookedCallbacksRef.current.has( callback ) ) return;
+                        const next = resolveId();
+                        if ( ! next ) return;
+                        if ( ! commandsManager.isContextRegistered( next.componentNameUnique ) ) return;
+                        const h = commandsManager.hookScoped(
+                            next,
+                            ownerIdRef.current as string,
+                            callback as ( r: unknown, a?: DCommandArgs ) => void,
+                        );
+                        if ( h ) hookedCallbacksRef.current.set( callback, h );
+                    } );
+                    return;
+                }
+                const handle = commandsManager.hookScoped(
+                    id,
+                    ownerIdRef.current as string,
+                    callback as ( r: unknown, a?: DCommandArgs ) => void,
+                );
+                if ( handle ) hookedCallbacksRef.current.set( callback, handle );
+            },
+            unhook: () => {
+                for ( const handle of hookedCallbacksRef.current.values() ) {
+                    try {
+                        commandsManager.unhookHandle( handle );
+                    } catch {}
+                }
+                hookedCallbacksRef.current.clear();
+            },
+            getInternalContext: () => {
+                const id = resolveId();
+                if ( ! id ) return null;
+                return getInternalForId( id );
+            },
+        };
+    }
 
     const getAdapterInCurrentContext = (): UseCommandAdapter | null => {
         const mapped = commandsManager.getComponentName( commandName );
@@ -58,7 +183,7 @@ export function useCommand( commandName: string, ref?: React.RefObject<any> ) {
 
         const id: DCommandIdArgs = { commandName, componentNameUnique: unique, componentName: internal.componentName };
         debug( "current", commandName, "resolved", id );
-        return makeAdapterFromId( id, () => internal );
+        return createAdapterFromId( id, () => internal );
     };
 
     const getAdapterByName = (): UseCommandAdapter | null => {
@@ -72,7 +197,10 @@ export function useCommand( commandName: string, ref?: React.RefObject<any> ) {
                 if ( ctx.commands && ctx.commands[ commandName ] ) {
                     const id: DCommandIdArgs = { commandName, componentName: ctx.componentName, componentNameUnique: ctx.componentNameUnique };
                     debug( "byName", commandName, "resolved", id );
-                    return makeAdapterFromId( id, () => core[ GET_INTERNAL_SYMBOL ]( ctx.componentNameUnique ) );
+                    return createAdapterFromId(
+                        id,
+                        () => core[ GET_INTERNAL_SYMBOL ]( ctx.componentNameUnique ),
+                    );
                 }
             }
         } catch { debug( "byName", commandName, "error" ); return null; }
@@ -92,7 +220,10 @@ export function useCommand( commandName: string, ref?: React.RefObject<any> ) {
 
             const id: DCommandIdArgs = { commandName, componentName: ctx.componentName, componentNameUnique: ctx.componentNameUnique };
             debug( "inRef", commandName, "resolved", id );
-            return makeAdapterFromId( id, () => core[ GET_INTERNAL_SYMBOL ]( ctx.componentNameUnique ) );
+            return createAdapterFromId(
+                id,
+                () => core[ GET_INTERNAL_SYMBOL ]( ctx.componentNameUnique ),
+            );
         } catch { debug( "inRef", commandName, "error" ); return null; }
     };
 
@@ -115,12 +246,10 @@ export function useCommand( commandName: string, ref?: React.RefObject<any> ) {
             } catch { debug( "onDemand", commandName, "error" ); return null; }
         };
 
-        return {
-            run: ( args: DCommandArgs = {}, callback?: ( result: unknown ) => void ) => { const id = resolveLatestId(); if ( ! id ) { debug( "onDemand", commandName, "run: no-id" ); return; } debug( "onDemand", commandName, "run", id ); return commandsManager.run( id, args, callback as ( r: any ) => void ); },
-            hook: ( callback: ( result: unknown, args?: DCommandArgs ) => void ) => { const id = resolveLatestId(); if ( ! id ) { debug( "onDemand", commandName, "hook: no-id" ); return; } debug( "onDemand", commandName, "hook", id ); return commandsManager.hook( id, callback as ( r: any, a?: DCommandArgs ) => void ); },
-            unhook: () => { const id = resolveLatestId(); if ( ! id ) { debug( "onDemand", commandName, "unhook: no-id" ); return; } debug( "onDemand", commandName, "unhook", id ); return commandsManager.unhook( id ); },
-            getInternalContext: () => { const id = resolveLatestId(); if ( ! id ) { debug( "onDemand", commandName, "getInternalContext: no-id" ); return null; } const ctx = core[ GET_INTERNAL_SYMBOL ]( id.componentNameUnique ); debug( "onDemand", commandName, "getInternalContext", { componentNameUnique: id.componentNameUnique } ); return ctx; },
-        };
+        return createAdapterFromResolver(
+            resolveLatestId,
+            ( id ) => core[ GET_INTERNAL_SYMBOL ]( id.componentNameUnique ),
+        );
     };
 
     const adapter = ref

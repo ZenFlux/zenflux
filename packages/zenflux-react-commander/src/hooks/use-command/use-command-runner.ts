@@ -1,18 +1,16 @@
 /* eslint-disable no-restricted-imports, @zenflux/no-relative-imports */
 import React from "react";
 
-import { useCommandId } from "../use-command-id";
-
-import commandsManager from "../../commands-manager";
+import { useCommand } from "./use-command";
 
 import type { DCommandArgs } from "../../definitions";
 
-export function useCommandRunner( commandName: string, opts?: { match?: string; index?: number } ) {
-    const id = useCommandId( commandName, opts );
+export function useCommandRunner( commandName: string, ref?: React.RefObject<any> ) {
+    const cmd = ref ? useCommand( commandName, ref ) : useCommand( commandName );
 
     return React.useCallback( ( args: DCommandArgs = {}, callback?: ( result: unknown ) => void ) => {
-        if ( ! id ) return;
-        return commandsManager.run( id, args, callback );
-    }, [ id ] );
+        if ( ! cmd ) return;
+        return cmd.run( args, callback );
+    }, [ cmd ] );
 }
 

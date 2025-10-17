@@ -6,8 +6,8 @@ import {
     useCommandState,
     useChildCommandHook,
     useChildCommandRunner,
-    useLocalCommandHook,
-    useCommand
+    useCommand,
+    useCommandHook
 } from "@zenflux/react-commander/hooks";
 
 import type { ChannelListState } from "@zenflux/app-budget-allocation/src/components/channels/channels-types";
@@ -40,7 +40,7 @@ export function useChannelsListAccordionInteractions() {
 
     const editRequest = useCommand( "App/ChannelsList/EditRequest" );
 
-    useLocalCommandHook( "App/ChannelsList/AddRequest", ( r: any, args: any ) => {
+    useCommandHook( "App/ChannelsList/AddRequest", ( r: any ) => {
         const id = r.meta.id;
 
         setSelected( { [ id ]: true } );
@@ -48,7 +48,7 @@ export function useChannelsListAccordionInteractions() {
         editRequest.run( { channel: r } );
     } );
 
-    useLocalCommandHook( "App/ChannelsList/EditRequest", ( r, args: any ) => {
+    useCommandHook( "App/ChannelsList/EditRequest", ( r, args: any ) => {
         const { channel } = args;
 
         setSelected( { [ channel.meta.id ]: true } );
@@ -60,7 +60,7 @@ export function useChannelsListAccordionInteractions() {
         waitingForEditableTitle.add( channel.meta.id );
     } );
 
-    useLocalCommandHook( "App/ChannelsList/RemoveRequest", ( r, args: any ) => {
+    useCommandHook( "App/ChannelsList/RemoveRequest", ( r, args: any ) => {
         const { channel } = args;
 
         const newList = getChannelsListState().channels.filter( ( c ) => c.meta.id !== channel.meta.id );

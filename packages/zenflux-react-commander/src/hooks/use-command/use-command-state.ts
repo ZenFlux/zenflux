@@ -1,18 +1,32 @@
 /* eslint-disable no-restricted-imports, @zenflux/no-relative-imports */
 import React from "react";
 
-import { getSafeContext, shallowEqual } from "./utils";
+import { useCommand } from "./use-command";
 
-import { GET_INTERNAL_SYMBOL, INTERNAL_STATE_UPDATED_EVENT } from "../_internal/constants";
+import { getSafeContext, shallowEqual } from "../utils";
 
-import core from "../_internal/core";
+import core from "../../_internal/core";
+import { INTERNAL_STATE_UPDATED_EVENT, GET_INTERNAL_SYMBOL } from "../../_internal/constants";
 
-function useCommandStateInternal<const TState extends React.ComponentState>( componentName: string ) {
-    const componentContext = getSafeContext( componentName );
+function resolveInternalContext( name: string ) {
+    const cmd = useCommand( name );
+    const byCommand = cmd?.getInternalContext?.();
+    if ( byCommand ) return byCommand;
 
-    const id = componentContext.getNameUnique();
+    try {
+        const componentContext = getSafeContext( name );
+        const id = componentContext.getNameUnique();
+        return core[ GET_INTERNAL_SYMBOL ]( id );
+    } catch {
+        return null;
+    }
+}
 
-    const internalContext = core[ GET_INTERNAL_SYMBOL ]( id );
+function useCommandStateInternal<const TState extends React.ComponentState>( commandName: string ) {
+    const internalContext = resolveInternalContext( commandName );
+    if ( ! internalContext ) {
+        throw new Error( `useCommandState(\"${ commandName }\") cannot resolve internal context` );
+    }
 
     return [
         internalContext.getState<TState>,
@@ -23,13 +37,14 @@ function useCommandStateInternal<const TState extends React.ComponentState>( com
 }
 
 function useCommandStateSelectorInternal<TState, TSelector>(
-    componentName: string,
+    commandName: string,
     selector: ( state: TState ) => TSelector,
     options?: { equalityFn?: ( a: TSelector, b: TSelector ) => boolean }
 ) {
-    const componentContext = getSafeContext( componentName );
-    const id = componentContext.getNameUnique();
-    const internalContext = core[ GET_INTERNAL_SYMBOL ]( id );
+    const internalContext = resolveInternalContext( commandName );
+    if ( ! internalContext ) {
+        throw new Error( `useCommandState(\"${ commandName }\") cannot resolve internal context` );
+    }
 
     const selectorRef = React.useRef( selector );
     selectorRef.current = selector;
@@ -66,7 +81,7 @@ function useCommandStateSelectorInternal<TState, TSelector>(
                 handlerRef.current = null;
             }
         };
-    }, [ internalContext, componentName ] );
+    }, [ internalContext, commandName ] );
 
     const subscribe = React.useCallback( ( onChange: () => void ) => {
         onChangeRef.current = onChange;
@@ -74,7 +89,7 @@ function useCommandStateSelectorInternal<TState, TSelector>(
         return () => {
             onChangeRef.current = null;
         };
-    }, [ componentName ] );
+    }, [ commandName ] );
 
     const getSnapshot = React.useCallback( () => {
         return valueRef.current;
@@ -89,14 +104,14 @@ function useCommandStateSelectorInternal<TState, TSelector>(
     ] as const;
 }
 
-export function useCommandState<TState>( componentName: string ): readonly [
+export function useCommandState<TState>( commandName: string ): readonly [
     () => TState,
     <K extends keyof TState = keyof TState>( state: TState | Pick<TState, K>, callback?: ( state: TState ) => void ) => void,
     () => boolean
 ];
 
 export function useCommandState<TState, TSelector>(
-    componentName: string,
+    commandName: string,
     selector: ( state: TState ) => TSelector,
     options?: { equalityFn?: ( a: TSelector, b: TSelector ) => boolean }
 ) : readonly [
@@ -106,12 +121,12 @@ export function useCommandState<TState, TSelector>(
 ];
 
 export function useCommandState<TState, TSelector = never>(
-    componentName: string,
+    commandName: string,
     selector?: ( state: TState ) => TSelector,
     options?: { equalityFn?: ( a: TSelector, b: TSelector ) => boolean }
 ) {
     if ( typeof selector === "function" ) {
-        return useCommandStateSelectorInternal<TState, TSelector>( componentName, selector, options );
+        return useCommandStateSelectorInternal<TState, TSelector>( commandName, selector, options );
     }
-    return useCommandStateInternal<TState>( componentName );
+    return useCommandStateInternal<TState>( commandName );
 }

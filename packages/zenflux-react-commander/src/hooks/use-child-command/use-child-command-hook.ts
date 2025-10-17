@@ -1,8 +1,7 @@
 /* eslint-disable no-restricted-imports, @zenflux/no-relative-imports */
 import React from "react";
 
-import { useCommanderChildrenComponents } from "../use-commander-children-components";
-import commandsManager from "../../commands-manager";
+import { useCommanderChildrenComponents } from "../utils";
 
 import type { useComponent } from "../use-component/use-component";
 import type { DCommandArgs } from "../../definitions";
@@ -19,17 +18,21 @@ export function useChildCommandHook(
         const disposers: Array<() => void> = [];
 
         const alive = children.filter(cmd => {
-            const u = cmd.getInternalContext().componentNameUnique;
-            return commandsManager.isContextRegistered(u);
+            try {
+                return typeof cmd.isAlive === "function" ? cmd.isAlive() : true;
+            } catch {
+                return false;
+            }
         });
 
         alive.forEach((cmd) => {
             if (opts?.filter && !opts.filter(cmd)) return;
-            const u = cmd.getInternalContext().componentNameUnique;
-            if (!commandsManager.isContextRegistered(u)) return;
+            if (cmd.isAlive && !cmd.isAlive()) return;
             cmd.hook(commandName, handler);
             disposers.push(() => {
-                if (commandsManager.isContextRegistered(u)) cmd.unhook(commandName);
+                try {
+                    if (cmd.isAlive && cmd.isAlive()) cmd.unhook(commandName);
+                } catch {}
             });
         });
 

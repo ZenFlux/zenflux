@@ -1,14 +1,10 @@
 /* eslint-disable no-restricted-imports */
 export { useCommand } from "./use-command/use-command";
 export { useComponent } from "./use-component/use-component";
-export { useCommandMatch } from "./use-command-match";
-export { useCommandState } from "./use-command-state";
-export { useCommandId } from "./use-command-id";
+export { useCommandState } from "./use-command/use-command-state";
 export { useComponentWithRef } from "./use-component/use-component-with-ref";
 export { useCommandRunner } from "./use-command/use-command-runner";
 export { useCommandHook } from "./use-command/use-command-hook";
-export { useLocalCommandHook } from "./use-local-command-hook";
 export { useChildCommandHook } from "./use-child-command/use-child-command-hook";
 export { useChildCommandRunner } from "./use-child-command/use-child-command-runner";
-export { useCommanderChildrenComponents } from "./use-commander-children-components";
 
