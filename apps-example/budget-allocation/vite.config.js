@@ -17,6 +17,13 @@ export default defineConfig( {
         }),
         tailwindcss()
     ],
+    css: {
+        preprocessorOptions: {
+            scss: {
+                api: 'modern-compiler'
+            }
+        }
+    },
     server: {
         port: 5174,
     },

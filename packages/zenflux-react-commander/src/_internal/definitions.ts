@@ -11,7 +11,7 @@ import type {
 
 import type { DCommandSingleComponentContext } from "@zenflux/react-commander/definitions";
 
-import type { EventEmitter } from "events";
+import type EventEmitter from "eventemitter3";
 
 export type DCoreContext = {
     [componentNameUnique: string]: DCommandSingleComponentContext;

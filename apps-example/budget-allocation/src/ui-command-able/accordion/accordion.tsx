@@ -3,7 +3,7 @@ import React from "react";
 import { CommandBase } from "@zenflux/react-commander/command-base";
 
 import { withCommands } from "@zenflux/react-commander/with-commands";
-import { useCommanderComponent } from "@zenflux/react-commander/use-commands";
+import { useComponent } from "@zenflux/react-commander/hooks";
 
 import { UIThemeAccordion } from "@zenflux/react-ui/src/accordion/ui-theme-accordion";
 
@@ -38,10 +38,10 @@ const Accordion: DCommandFunctionComponent<AccordionProps> = ( props ) => {
 
     // If `ReactFragment` is used as children, then pop it out.
     if ( children.length === 1 && children[ 0 ].type === React.Fragment ) {
-        children = children[ 0 ].props.children!;
+        children = children[ 0 ].props.children as AccordionItemComponent[];
     }
 
-    const commands = useCommanderComponent( "UI/Accordion" );
+    const commands = useComponent( "UI/Accordion" );
 
     let [ selected, setSelected ] = React.useState<{
         [ key: string ]: boolean
@@ -104,14 +104,19 @@ const Accordion: DCommandFunctionComponent<AccordionProps> = ( props ) => {
         }
     };
 
+    const safeChildren = React.useMemo(() => {
+        const filtered = children.filter((c) => c?.props?.itemKey != null);
+        return filtered;
+    }, [children]);
+
     return (
         <div className={ `loader ${ isLoaded ? "loaded" : "" }` }>
             <UIThemeAccordion { ... accordionUIProps }>
-                { children.map( ( child, index ) =>
-                    <AccordionItem { ... child.props } key={index}>
+                { safeChildren.map( ( child ) => {
+                    return <AccordionItem { ... child.props } key={ child.props.itemKey }>
                         { child.props.children }
-                    </AccordionItem>
-                ) }
+                    </AccordionItem>;
+                } ) }
             </UIThemeAccordion>
         </div>
     );

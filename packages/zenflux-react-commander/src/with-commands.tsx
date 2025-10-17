@@ -1,8 +1,6 @@
-import { EventEmitter } from "events";
+import EventEmitter from "eventemitter3";
 
 import React from "react";
-
-import { BehaviorSubject } from "rxjs";
 
 // eslint-disable-next-line no-restricted-imports, @zenflux/no-relative-imports
 import {
@@ -14,7 +12,9 @@ import {
     SET_TO_CONTEXT_SYMBOL,
     INTERNAL_ON_MOUNT,
     INTERNAL_ON_UPDATE,
-    INTERNAL_ON_LOAD
+    INTERNAL_ON_LOAD,
+    INTERNAL_ON_CONTEXT_STATE_UPDATED,
+    INTERNAL_STATE_UPDATED_EVENT
 } from "./_internal/constants";
 
 // eslint-disable-next-line no-restricted-imports, @zenflux/no-relative-imports
@@ -39,6 +39,12 @@ export function withCommands<TProps = any, TState = undefined>(
     commands: DCommandNewInstanceWithArgs<TState>[]
 ): DCommandFunctionComponent<TProps, TState>;
 
+export function withCommands<TProps>(
+    componentName: string,
+    Component: DCommandFunctionComponent<TProps>,
+    commands: DCommandNewInstanceWithArgs[]
+): DCommandFunctionComponent<TProps>;
+
 export function withCommands(
     componentName: string,
     Component: DCommandFunctionComponent,
@@ -62,56 +68,34 @@ export function withCommands(
         throw new Error( "Invalid arguments" );
     }
 
-    function stringifyToLevel( obj: any, level: number ): string {
-        let cache = new Map();
-        let str = JSON.stringify( obj, ( key, value ) => {
-            if ( typeof value === "object" && value !== null ) {
-                if ( cache.size > level ) return; // Limit depth
-                if ( cache.has( value ) ) return; // Duplicate reference
-                cache.set( value, true );
+    function shallowEqual<T extends Record<string, unknown>>( a: T, b: T ): boolean {
+        if ( a === b ) return true;
+        if ( ! a || ! b ) return false;
+
+        const aKeys = Object.keys( a );
+        const bKeys = Object.keys( b );
+        if ( aKeys.length !== bKeys.length ) return false;
+
+        for ( const key of aKeys ) {
+            if ( ( a as Record<string, unknown> )[ key ] !== ( b as Record<string, unknown> )[ key ] ) {
+                return false;
             }
-            return value;
-        } );
-        cache.clear(); // Enable garbage collection
-        return str;
-    }
-
-    const comparedObjects = new WeakMap();
-
-    function compareObjects( obj1: any, obj2: any, level: number ): boolean {
-        // Check if the objects have already been compared
-        if ( comparedObjects.has(obj1) && comparedObjects.get(obj1) === obj2 ) {
-            return true;
         }
-
-        const strObj1 = stringifyToLevel( obj1, level );
-        const strObj2 = stringifyToLevel( obj2, level );
-
-        const isEqual = strObj1 === strObj2;
-
-        // If the objects are equal, store them in the WeakMap
-        if ( isEqual ) {
-            comparedObjects.set(obj1, obj2);
-            comparedObjects.set(obj2, obj1);
-        }
-
-        return isEqual;
+        return true;
     }
 
     class Store {
         private silentState: any;
-        private currentState: BehaviorSubject<any>;
+        private currentState: any;
         private prevState: any;
-        private subscription: any;
 
         public constructor( initialState: any ) {
-            this.currentState = new BehaviorSubject( initialState );
-
+            this.currentState = initialState;
             this.prevState = initialState;
         }
 
         public getState() {
-            return this.silentState || this.currentState.getValue();
+            return this.silentState || this.currentState;
         }
 
         public getPrevState() {
@@ -119,7 +103,7 @@ export function withCommands(
         }
 
         public setState( newState: any, silent = false ) {
-            this.prevState = this.currentState.getValue();
+            this.prevState = this.currentState;
 
             if ( silent ) {
                 this.silentState = newState;
@@ -128,29 +112,17 @@ export function withCommands(
             }
 
             this.silentState = null;
-
-            this.currentState.next( newState );
+            this.currentState = newState;
         }
 
-        public hasChanged( level = 2 ) {
+        public hasChanged() {
             if ( this.prevState === this.currentState ) {
                 return false;
             }
 
-            return ! compareObjects( this.prevState, this.currentState.getValue(), level );
+            return ! shallowEqual( this.prevState, this.currentState );
         }
 
-        public subscribe( callback: ( state: any ) => void ) {
-            if ( this.subscription ) {
-                this.subscription.unsubscribe();
-            }
-
-            this.subscription = this.currentState.subscribe( callback );
-
-            callback( this.getState() );
-
-            return this.subscription;
-        }
     }
 
     if ( state ) {
@@ -224,16 +196,35 @@ export function withCommands(
 
                 getState: () => this.store ? this.store.getState() : this.state,
                 setState: ( state, callback ) => {
+                    const prevState = this.store.getState();
+
                     this.store.setState(
                         {
-                            ... this.store.getState(),
+                            ... prevState,
                             ... state
                         },
                         ! this.isMounted(),
                     );
 
+                    const currentState = this.store.getState();
+
+                    if ( this.isMounted() ) {
+                        const hasChanged = ! shallowEqual(prevState, currentState);
+
+                        if ( hasChanged ) {
+                            queueMicrotask(() => {
+                                if ( this.isMounted() ) {
+                                    const ctx = core[ GET_INTERNAL_SYMBOL ]( this.context.getNameUnique() );
+
+                                    ctx.emitter.emit( INTERNAL_STATE_UPDATED_EVENT );
+                                    this.$$commander.lifecycleHandlers[ INTERNAL_ON_CONTEXT_STATE_UPDATED ]?.( ctx, true );
+                                }
+                            });
+                        }
+                    }
+
                     if ( callback ) {
-                        callback( this.store.getState() );
+                        callback( currentState );
                     }
                 },
 
@@ -244,8 +235,10 @@ export function withCommands(
         public componentWillUnmount() {
             this.$$commander.isMounted = false;
 
-            if ( this.$$commander.lifecycleHandlers[ INTERNAL_ON_UNMOUNT ] ) {
-                this.$$commander.lifecycleHandlers[ INTERNAL_ON_UNMOUNT ]( core[ GET_INTERNAL_SYMBOL ]( this.context.getNameUnique() ) );
+            const onUnmount = this.$$commander.lifecycleHandlers[ INTERNAL_ON_UNMOUNT ];
+
+            if ( onUnmount ) {
+                onUnmount( core[ GET_INTERNAL_SYMBOL ]( this.context.getNameUnique() ) );
             }
 
             const componentNameUnique = this.context.getNameUnique();
@@ -263,14 +256,6 @@ export function withCommands(
             this.$$commander.isMounted = true;
 
             this.registerInternalContext();
-
-            this.store?.subscribe( ( _state ) => {
-                if ( ! this.context.getComponentRef()?.current ) {
-                    return;
-                }
-
-                this.forceUpdate();
-            } );
 
             core[ SET_TO_CONTEXT_SYMBOL ]( id, { props: this.props } );
 
@@ -358,6 +343,8 @@ export function withCommands(
         React.useLayoutEffect( () => {
             handleAncestorContexts( context, parentContext );
         }, [ context ] );
+
+        React.useImperativeHandle( _ref, () => componentRef.current, [ componentRef.current ] );
 
         return (
             <ComponentIdProvider context={ context }>

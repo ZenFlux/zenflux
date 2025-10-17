@@ -3,7 +3,7 @@ import { cva  } from "class-variance-authority";
 
 import { cn } from "@zenflux/app-budget-allocation/src/lib/utils";
 
-import type {VariantProps} from "class-variance-authority";
+import type { VariantProps } from "class-variance-authority";
 
 const buttonGroupVariants = cva(
     "inline-flex items-center justify-center rounded-md",

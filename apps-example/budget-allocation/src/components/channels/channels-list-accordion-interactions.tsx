@@ -1,100 +1,32 @@
-import EventEmitter from "events";
 
-import React from "react";
-
-import commandsManager from "@zenflux/react-commander/commands-manager";
+import React, { useEffect } from "react";
 
 import {
-    useCommanderComponent,
-    useAnyComponentCommands,
-    useCommanderState,
+    useComponent,
+    useCommandState,
     useChildCommandHook,
-    useChildCommandRunner
-} from "@zenflux/react-commander/use-commands";
-
-import ChannelItemAccordion from "@zenflux/app-budget-allocation/src/components//channel/channel-item-accordion.tsx";
+    useChildCommandRunner,
+    useCommand,
+    useCommandHook
+} from "@zenflux/react-commander/hooks";
 
 import type { ChannelListState } from "@zenflux/app-budget-allocation/src/components/channels/channels-types";
 
-import type { ChannelItemAccordionComponent } from "@zenflux/app-budget-allocation/src/components/channel/channel-types";
+const waitingForEditableTitle = new Set<string>();
 
-const scheduler = new EventEmitter();
+export function useChannelsListAccordionInteractions() {
+    const [ getChannelsListState, setChannelsListState ] = useCommandState<ChannelListState>( "App/ChannelsList" );
 
-// On channel list, request edit title name
-function _onEditRequest(
-    channel: ChannelItemAccordionComponent,
-    setSelected: ( selected: { [ key: string ]: boolean } ) => void,
-    runAccordionItem: ReturnType<typeof useChildCommandRunner>,
-) {
-    // Select the channel (trigger accordion item selection)
-    setSelected( { [ channel.props.meta.id ]: true } );
+    const setSelected = React.useCallback( ( selected: { [ key: string ]: boolean } ) =>
+        setChannelsListState( { selected } ), [ setChannelsListState ] );
 
-    const enabled = runAccordionItem( channel.props.meta.id, "UI/AccordionItem/EditableTitle", { state: true } );
-    if ( enabled ) return;
-
-    scheduler.once( `enable-editable-title-${ channel.props.meta.id }`, () =>
-        runAccordionItem( channel.props.meta.id, "UI/AccordionItem/EditableTitle", { state: true } )
-    );
-}
-
-function _onRemoveRequest(
-    channel: ChannelItemAccordionComponent,
-    getChannelsListState: ReturnType<typeof useCommanderState<ChannelListState>>[ 0 ],
-    setChannelsListState: ReturnType<typeof useCommanderState<ChannelListState>>[ 1 ]
-) {
-    const newList = getChannelsListState().channels.filter( ( c ) => c.props.meta.id !== channel.props.meta.id );
-
-    // Remove the channel from the list
-    setChannelsListState( {
-        ... getChannelsListState(),
-        channels: newList,
-    } );
-}
-
-function onAddRequest(
-    getChannelsListState: ReturnType<typeof useCommanderState<ChannelListState>>[ 0 ],
-    setChannelsListState: ReturnType<typeof useCommanderState<ChannelListState>>[ 1 ],
-    channelsCommands: ReturnType<typeof useCommanderComponent>
-) {
-    const id = `channel-${ Math.random().toString( 16 ).slice( 2 ) }`;
-
-    // Create a new channel object
-    const newChannelProps = {
-        meta: {
-            id,
-            name: "New Channel #" + ( getChannelsListState().channels.length + 1 ),
-            icon: `https://api.dicebear.com/7.x/icons/svg?seed=${ performance.now() }`,
-            createdAt: new Date().getTime(),
-        },
-
-        onRender: () => channelsCommands.run( "App/ChannelsList/EditRequest", { channel: newChannelComponent } ),
-    };
-
-    // Create a new ChannelItem component with the new channel object as props
-    const newChannelComponent = <ChannelItemAccordion{ ... newChannelProps }
-        key={ newChannelProps.meta.id }/>;
-
-    const currentState = getChannelsListState();
-
-    // Add the new ChannelItem component to the channelsState array
-    setChannelsListState( {
-        ... currentState,
-        channels: [ ... currentState.channels, newChannelComponent ]
-    } );
-}
-
-export function channelsListAccordionInteractions() {
-    const [ getChannelsListState, setChannelsListState, isMounted ] = useCommanderState<ChannelListState>( "App/ChannelsList" );
-
-    const setSelected = ( selected: { [ key: string ]: boolean } ) => setChannelsListState( { selected } );
-
-    const channelsCommands = useCommanderComponent( "App/ChannelsList" );
+    const component = useComponent( "App/ChannelsList" );
 
     useChildCommandHook(
         "UI/AccordionItem",
-        "UI/AccordionItem/OnTitleChanged",
+        "UI/AccordionItem/EditTitle",
         ( _result, args: any ) => {
-            channelsCommands.run( "App/ChannelsList/SetName", {
+            component.run( "App/ChannelsList/SetName", {
                 id: args.itemKey,
                 name: args.title,
             } );
@@ -106,33 +38,48 @@ export function channelsListAccordionInteractions() {
         ( ctx ) => ctx.props.itemKey
     );
 
-    React.useEffect( () => {
-        channelsCommands.hook( "App/ChannelsList/EditRequest", ( r, args: any ) =>
-            _onEditRequest( args.channel, setSelected, runAccordionItem ) );
+    const editRequest = useCommand( "App/ChannelsList/EditRequest" );
 
-        channelsCommands.hook( "App/ChannelsList/RemoveRequest", ( r, args: any ) =>
-            _onRemoveRequest( args.channel, getChannelsListState, setChannelsListState ) );
+    useCommandHook( "App/ChannelsList/AddRequest", ( r: any ) => {
+        const id = r.meta.id;
 
-        return () => {
-            commandsManager.unhookWithinComponent( channelsCommands.getId() );
-        };
-    }, [ isMounted() ] );
+        setSelected( { [ id ]: true } );
 
-    React.useEffect( () => {
-        const addChannelCommands = useAnyComponentCommands( "App/AddChannel" );
-        const addChannelCommandId = {
-            commandName: "App/AddChannel",
-            componentName: "App/AddChannel",
-            componentNameUnique: addChannelCommands[ 0 ].componentNameUnique,
-        };
+        editRequest.run( { channel: r } );
+    } );
 
-        const ownerId = channelsCommands.getId();
-        const handle = commandsManager.hookScoped( addChannelCommandId, ownerId, () =>
-            onAddRequest( getChannelsListState, setChannelsListState, channelsCommands )
-        );
+    useCommandHook( "App/ChannelsList/EditRequest", ( r, args: any ) => {
+        const { channel } = args;
 
-        return () => {
-            commandsManager.unhookHandle( handle );
-        };
-    }, [ isMounted() ] );
+        setSelected( { [ channel.meta.id ]: true } );
+
+        const enabled = runAccordionItem( channel.meta.id, "UI/AccordionItem/EditableTitle", { state: true } );
+
+        if ( enabled ) return;
+
+        waitingForEditableTitle.add( channel.meta.id );
+    } );
+
+    useCommandHook( "App/ChannelsList/RemoveRequest", ( r, args: any ) => {
+        const { channel } = args;
+
+        const newList = getChannelsListState().channels.filter( ( c ) => c.meta.id !== channel.meta.id );
+
+        setChannelsListState( {
+            ... getChannelsListState(),
+            channels: newList,
+        } );
+    } );
+
+    useEffect( () => {
+        requestAnimationFrame( () => {
+            for ( const id of waitingForEditableTitle.values() ) {
+                const enabled = runAccordionItem( id, "UI/AccordionItem/EditableTitle", { state: true } );
+
+                if ( enabled ) {
+                    waitingForEditableTitle.delete( id );
+                }
+            }
+        } );
+    }, [waitingForEditableTitle.values()] );
 }

@@ -1,4 +1,4 @@
-import { EventEmitter } from "events";
+import EventEmitter from "eventemitter3";
 
 import type { DCommandOptions, DCommandArgs, DCommandRegisterArgs } from "@zenflux/react-commander/definitions";
 
@@ -44,18 +44,24 @@ export abstract class CommandBase<TState = React.ComponentState, TArgs = DComman
         };
     }
 
-    public execute( emitter: EventEmitter, args: TArgs, options?: DCommandOptions<TState> ): any {
+    public async execute( emitter: EventEmitter, args: TArgs, options?: DCommandOptions<TState> ): Promise<any> {
         if ( options ) {
             this.options = options;
         }
 
         this.validateArgs?.( args, options );
 
-        const result = this.apply?.( args );
+        const result = await this.apply?.( args );
 
-        emitter.emit( this.commandName, result, args );
+        const listeners = emitter.listeners( this.commandName );
+        for ( const listener of listeners ) {
+            await listener( result, args );
+        }
 
-        this.global().globalEmitter.emit( this.commandName, result, args );
+        const globalListeners = this.global().globalEmitter.listeners( this.commandName );
+        for ( const globalListener of globalListeners ) {
+            await globalListener( result, args );
+        }
 
         this.options = {};
 
@@ -67,7 +73,7 @@ export abstract class CommandBase<TState = React.ComponentState, TArgs = DComman
     }
 
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    protected apply?( args: TArgs ) {
+    protected apply?( args: TArgs ): Promise<any> | any {
     }
 
     protected get state(): TState {

@@ -4,32 +4,19 @@ import { CommandBase } from "@zenflux/react-commander/command-base";
 
 import { withCommands } from "@zenflux/react-commander/with-commands";
 
-import { META_DATA_KEYS } from "@zenflux/app-budget-allocation/src/components/channel/channel-constants";
+import { getQueryModule } from "@zenflux/react-commander/query/provider";
 
-import { pickEnforcedKeys } from "@zenflux/app-budget-allocation/src/utils";
-
-import type { ChannelItemAccordionComponent } from "@zenflux/app-budget-allocation/src/components/channel/channel-types";
+import { ChannelsListQuery } from "@zenflux/app-budget-allocation/src/components/channels/channels-list-query";
 
 import type { DCommandFunctionComponent } from "@zenflux/react-commander/definitions";
-
 import type { ChannelListProps, ChannelListState } from "@zenflux/app-budget-allocation/src/components/channels/channels-types";
+import type { Channel } from "@zenflux/app-budget-allocation/src/query/channels-domain";
 
 const AccordionChannelsList = React.lazy( () => import( "@zenflux/app-budget-allocation/src/components/channels/channels-list-accordion" ) );
 
 const TableChannelsList = React.lazy( () => import( "@zenflux/app-budget-allocation/src/components/channels/channels-list-table" ) );
 
-export const ChannelsList: DCommandFunctionComponent<ChannelListProps, ChannelListState> = ( props, state ) => {
-    let channels: ChannelItemAccordionComponent[] = Array.isArray( props.children ) ? props.children : [ props.children ];
-
-    state.channels = channels.map( ( channel ) => {
-        return {
-            ... channel,
-
-            // Exposing meta, for commands to use
-            meta: pickEnforcedKeys( channel.props.meta, META_DATA_KEYS )
-        };
-    } );
-
+export const ChannelsList: DCommandFunctionComponent<ChannelListProps & { $data?: Channel[] }, ChannelListState> = ( props ) => {
     switch ( props.view ) {
         case "accordion":
             return <AccordionChannelsList />;
@@ -42,10 +29,25 @@ export const ChannelsList: DCommandFunctionComponent<ChannelListProps, ChannelLi
     }
 };
 
-const $$ = withCommands<ChannelListProps, ChannelListState>( "App/ChannelsList", ChannelsList, {
+const $$ = withCommands( "App/ChannelsList", ChannelsList, {
     channels: [],
     selected: {},
 }, [
+    class AddRequest extends CommandBase {
+        public static getName() {
+            return "App/ChannelsList/AddRequest";
+        }
+
+        public async apply() {
+            const queryModule = getQueryModule( ChannelsListQuery );
+
+            const channel = await queryModule.request( "App/ChannelsList/AddChannel" );
+
+            this.setState( { channels: [ ... this.state.channels, channel ] } );
+
+            return channel;
+        }
+    },
     class EditRequest extends CommandBase {
         public static getName() {
             return "App/ChannelsList/EditRequest";
@@ -62,25 +64,38 @@ const $$ = withCommands<ChannelListProps, ChannelListState>( "App/ChannelsList",
         }
 
         public apply( args: { id: string, name: string } ) {
-            const channels = [ ... this.state.channels ]; // Create a copy of the channels array
+            const channels = [ ... this.state.channels ];
 
-            const channelIndex = channels.findIndex( ( c ) => c.props.meta.id === args.id );
+            const channelIndex = channels.findIndex( ( c ) => c.meta.id === args.id );
 
             if ( channelIndex !== -1 ) {
-                // Create a new channel object with the updated data & replace it in the channels array
                 channels[ channelIndex ] = {
                     ... channels[ channelIndex ],
-                    props: {
-                        meta: {
-                            ... channels[ channelIndex ].props.meta,
-                            name: args.name,
-                        },
-                        onRender: () => {},
+                    meta: {
+                        ... channels[ channelIndex ].meta,
+                        name: args.name,
                     },
                 };
 
                 return this.setState( { channels } );
             }
+        }
+    },
+    class Reset extends CommandBase {
+        public static getName() {
+            return "App/ChannelsList/Reset";
+        }
+
+        public async apply() {
+            window.onbeforeunload = null;
+
+            const queryModule = getQueryModule( ChannelsListQuery );
+
+            await queryModule.request( "App/ChannelsList/Reset" );
+
+            const channels = await queryModule.request( "App/ChannelsList" );
+
+            this.setState( { channels } );
         }
     }
 ] );

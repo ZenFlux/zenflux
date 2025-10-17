@@ -1,6 +1,6 @@
 import type React from "react";
 
-import type { EventEmitter } from "events";
+import type EventEmitter from "eventemitter3";
 
 import type { CommandBase } from "@zenflux/react-commander/command-base";
 
@@ -77,7 +77,7 @@ export interface DCommandSingleComponentContext {
 
     isMounted(): boolean;
 
-    getState: <TState>() => React.Component<any, TState>["state"];
+    getState: <TState>() => TState
     setState<TState, K extends keyof TState = keyof TState>(
         state: ( TState | null ) | ( Pick<TState, K> | TState | null ),
         callback?: ( state: TState ) => void,

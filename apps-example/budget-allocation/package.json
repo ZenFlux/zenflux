@@ -2,11 +2,12 @@
     "name": "@zenflux/app-budget-allocation",
     "type": "module",
     "scripts": {
-        "demo-app:dev": "vite",
-        "demo-app:build": "vite build",
-        "demo-app:lint": "eslint --config eslint.config.js --report-unused-disable-directives --max-warnings 0 .",
-        "demo-app:preview": "vite preview",
-        "demo-app:clean": "vite clean"
+        "z-demos:budget-allocation:dev": "vite",
+        "z-demos:budget-allocation:build": "vite build",
+        "z-demos:budget-allocation:lint": "@z-cli @lint",
+        "z-demos:budget-allocation:preview": "vite preview",
+        "z-demos:budget-allocation:clean": "vite clean",
+        "z-demos:budget-allocation:typecheck": "@z-cli @typecheck"
     },
     "peerDependencies": {
         "typescript": "^5.0.0"
@@ -21,20 +22,23 @@
         "@radix-ui/react-slot": "^1.0.2",
         "@radix-ui/react-tabs": "^1.0.4",
         "@radix-ui/react-toast": "^1.2.15",
+        "@zenflux/react-commander": "workspace:*",
+        "@zenflux/react-ui": "workspace:*",
         "class-variance-authority": "^0.7.0",
         "clsx": "^2.0.0",
+        "eslint-plugin-unused-imports": "^4.2.0",
+        "eventemitter3": "^5.0.1",
         "framer-motion": "^12.23.18",
         "lucide-react": "^0.292.0",
         "moment": "^2.29.4",
-        "react": "^18.2.0",
-        "react-dom": "^18.2.0",
+        "postcss-import": "^16.1.1",
+        "react": "^19.2.0",
+        "react-dom": "^19.2.0",
         "tailwind-merge": "^2.0.0"
     },
     "devDependencies": {
-        "@zenflux/react-query": "workspace:*",
-        "@zenflux/react-commander": "workspace:*",
-        "@types/react": "^18.2.37",
-        "@types/react-dom": "^18.2.15",
+        "@types/react": "^19.2.0",
+        "@types/react-dom": "^19.2.0",
         "@vitejs/plugin-react": "^4.2.0",
         "autoprefixer": "^10.4.16",
         "bun-types": "latest",

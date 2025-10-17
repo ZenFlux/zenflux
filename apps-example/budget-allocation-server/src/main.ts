@@ -1,17 +1,31 @@
-import { NestFactory } from '@nestjs/core';
-import { AppModule } from './app.module';
+import Fastify from "fastify";
+
+import { channelsRoutes } from "@zenflux/budget-allocation-server/src/channels/channels.routes";
+import { serverConfig } from "@zenflux/budget-allocation-server/src/config/server.config";
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
-  
-  app.enableCors({
-    origin: ['http://localhost:3000', 'http://localhost:5174'],
-    methods: ['GET', 'POST', 'PUT', 'DELETE'],
-    allowedHeaders: ['Content-Type', 'Authorization'],
-  });
+    const fastify = Fastify({
+        logger: true,
+    });
 
-  await app.listen(3002);
-  console.log('Budget Allocation Server running on http://localhost:3002');
+    const corsPlugin = ( await import( "@fastify/cors" ) ).default;
+
+    await fastify.register( corsPlugin, {
+        origin: serverConfig.cors.origins,
+        methods: serverConfig.cors.methods,
+        allowedHeaders: serverConfig.cors.allowedHeaders,
+    } );
+
+    await fastify.register(channelsRoutes, { prefix: "/v1" });
+
+    try {
+        await fastify.listen({ port: serverConfig.port, host: serverConfig.host });
+        console.log(`Budget Allocation Server running on http://localhost:${serverConfig.port}`);
+        console.log(`Fake delays: ${serverConfig.delays.enabled ? "enabled" : "disabled"}`);
+    } catch (err) {
+        fastify.log.error(err);
+        process.exit(1);
+    }
 }
 
 bootstrap();

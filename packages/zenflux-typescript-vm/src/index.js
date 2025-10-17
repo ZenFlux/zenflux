@@ -249,7 +249,7 @@ const initialize = async () => {
                                     break;
                                 }
                                 type = "node";
-                                modulePath = result.modulePath;
+                                modulePath = result.resolvedPath;
                                 break;
 
                             case "workspace":

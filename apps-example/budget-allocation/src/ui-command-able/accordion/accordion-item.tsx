@@ -4,7 +4,7 @@ import { withCommands } from "@zenflux/react-commander/with-commands";
 
 import { CommandBase } from "@zenflux/react-commander/command-base";
 
-import { useCommanderCommand } from "@zenflux/react-commander/use-commands";
+import { useCommand } from "@zenflux/react-commander/hooks";
 
 import { UIThemeAccordionItem } from "@zenflux/react-ui/src/accordion/ui-theme-accordion";
 
@@ -12,9 +12,9 @@ import { AccordionItemMenu } from "@zenflux/app-budget-allocation/src/ui-command
 
 import type { DCommandFunctionComponent } from "@zenflux/react-commander/definitions";
 
-import type { UIThemeAccordionItemProps } from "@zenflux/react-ui/src/accordion/ui-theme-accordion-types";
+import type { UIThemeAccordionItemProps, UIThemeAccordionCollapseStates } from "@zenflux/react-ui/src/accordion/ui-theme-accordion-types";
 
-export interface AccordionItemProps extends Omit<UIThemeAccordionItemProps, "heading"> {
+export interface AccordionItemProps extends Omit<UIThemeAccordionItemProps, "heading" | "collapsedState" | "setCollapsedState"> {
     heading: {
         icon?: string,
         iconAlt?: string,
@@ -30,12 +30,12 @@ export interface AccordionItemProps extends Omit<UIThemeAccordionItemProps, "hea
     onRender?: () => void,
 }
 
-const AccordionItemEditableTitle = React.forwardRef<HTMLSpanElement, Omit<AccordionItemProps, "children">>((props, refForParent ) => {
+const AccordionItemEditableTitle = React.forwardRef<HTMLSpanElement, Omit<AccordionItemProps, "children"> & { collapsedState?: UIThemeAccordionCollapseStates }>((props, refForParent ) => {
     const [ isEditing, setIsEditing ] = React.useState( false ),
         [ isFocusCaptured, setIsFocusCaptured ] = React.useState( false );
 
-    const editableCommand = useCommanderCommand( "UI/AccordionItem/EditableTitle" ),
-        onTitleChangedCommand = useCommanderCommand( "UI/AccordionItem/OnTitleChanged" );
+    const editableCommand = useCommand( "UI/AccordionItem/EditableTitle" ),
+        onTitleChangedCommand = useCommand( "UI/AccordionItem/EditTitle" );
 
     const isCollapsed = React.useMemo( () => {
         return props.collapsedState === "detached";
@@ -149,6 +149,7 @@ const AccordionItemEditableTitle = React.forwardRef<HTMLSpanElement, Omit<Accord
         { props.heading?.title }
     </span>;
 });
+AccordionItemEditableTitle.displayName = "AccordionItemEditableTitle";
 
 const AccordionItem: DCommandFunctionComponent<AccordionItemProps> = ( props ) => {
     const { itemKey, heading = {}, menu = {} } = props;
@@ -202,9 +203,9 @@ const $$ = withCommands( "UI/AccordionItem", AccordionItem, [
             return "UI/AccordionItem/EditableTitle";
         }
     },
-    class OnTitleChanged extends CommandBase {
+    class EditTitle extends CommandBase {
         public static getName() {
-            return "UI/AccordionItem/OnTitleChanged";
+            return "UI/AccordionItem/EditTitle";
         }
     }
 ] );

@@ -1,19 +1,18 @@
 // eslint-disable-next-line no-restricted-imports, @zenflux/no-relative-imports
+import { GET_INTERNAL_SYMBOL } from "./_internal/constants";
+// eslint-disable-next-line no-restricted-imports, @zenflux/no-relative-imports
 import core from "./_internal/core.ts";
 
-// eslint-disable-next-line no-restricted-imports, @zenflux/no-relative-imports
-import { GET_INTERNAL_SYMBOL } from "./_internal/constants";
+import type { CommandBase } from "@zenflux/react-commander/command-base";
 
 import type {
     DCommandArgs,
+    DCommandHookHandle,
+    DCommandIdArgs,
     DCommandNewInstanceWithArgs,
     DCommandRegisterArgs,
-    DCommandIdArgs,
-    DCommandSingleComponentContext,
-    DCommandHookHandle
+    DCommandSingleComponentContext
 } from "@zenflux/react-commander/definitions";
-
-import type { CommandBase } from "@zenflux/react-commander/command-base";
 
 class CommandsManager {
     private commands: {
@@ -26,6 +25,10 @@ class CommandsManager {
         [ componentNameUnique: string ]: {
             [ commandName: string ]: Array<{ ownerId: string; original: ( result?: any, args?: DCommandArgs ) => any; wrapped: ( result?: any, args?: DCommandArgs ) => any; }>
         }
+    } = {};
+
+    private commandToComponentMap: {
+        [ commandName: string ]: string;
     } = {};
 
     public register( args: DCommandRegisterArgs ) {
@@ -45,6 +48,7 @@ class CommandsManager {
             const commandInstance = new ( command as unknown as DCommandNewInstanceWithArgs )( args );
 
             this.commands[ componentName ][ commandName ] = commandInstance;
+            this.commandToComponentMap[ commandName ] = componentName;
 
             createdCommands.push( commandInstance );
         } );
@@ -52,7 +56,7 @@ class CommandsManager {
         return createdCommands;
     }
 
-    public run( id: DCommandIdArgs, args: DCommandArgs, callback?: ( result: any ) => any ) {
+    public async run( id: DCommandIdArgs, args: DCommandArgs, callback?: ( result: any ) => any ) {
         const { componentNameUnique, componentName, commandName } = id;
 
         const command = this.commands[ componentName ]?.[ commandName ];
@@ -68,12 +72,12 @@ class CommandsManager {
         let executionResult;
 
         if ( singleComponentContext.getState ) {
-            executionResult = command.execute( singleComponentContext.emitter, args, {
+            executionResult = await command.execute( singleComponentContext.emitter, args, {
                 state: singleComponentContext.getState(),
                 setState: singleComponentContext.setState,
             } );
         } else {
-            executionResult = command.execute( singleComponentContext.emitter, args );
+            executionResult = await command.execute( singleComponentContext.emitter, args );
         }
 
         if ( callback ) {
@@ -85,6 +89,13 @@ class CommandsManager {
 
     public unregister( componentName: string ) {
         this.unhookWithinComponent( componentName );
+
+        // Clean up command to component mapping
+        Object.keys( this.commandToComponentMap ).forEach( commandName => {
+            if ( this.commandToComponentMap[ commandName ] === componentName ) {
+                delete this.commandToComponentMap[ commandName ];
+            }
+        } );
 
         delete this.commands[ componentName ];
     }
@@ -120,12 +131,19 @@ class CommandsManager {
             }
         }
 
-        return singleComponentContext.emitter.on( commandName, callback );
+        singleComponentContext.emitter.on( commandName, callback );
+
+        return {
+            componentNameUnique,
+            commandName,
+            callback,
+            dispose: () => {
+                singleComponentContext.emitter.off( commandName, callback );
+            }
+        };
     }
 
-    public hookScoped( id: DCommandIdArgs, ownerId: string, callback: ( result?: any, args?: DCommandArgs ) => any, options?: {
-        __ignoreDuplicatedHookError?: boolean;
-    } ): DCommandHookHandle {
+    public hookScoped( id: DCommandIdArgs, ownerId: string, callback: ( result?: any, args?: DCommandArgs ) => any ): DCommandHookHandle {
         const { componentNameUnique, componentName, commandName } = id;
 
         if ( ! this.commands[ componentName ] ) {
@@ -137,25 +155,6 @@ class CommandsManager {
         if ( ! singleComponentContext.commands[ commandName ] ) {
             throw new Error( `Command '${ commandName }' not registered for component '${ componentNameUnique }'` );
         }
-
-        const listeners = singleComponentContext.emitter.listeners( commandName );
-        if ( ! options?.__ignoreDuplicatedHookError ) {
-            if ( listeners.length > 0 && listeners.find( l => l.name === callback.name ) ) {
-                console.warn(
-                    `Probably duplicated hook in '${ commandName }'\n` +
-                    `callback '${ callback.name }()' already hooked for component '${ componentNameUnique }'` +
-                    "The hook will be ignored, to avoid this error bound the callback or pass options: { __ignoreDuplicatedHookError: true }"
-                );
-
-                return {
-                    componentNameUnique,
-                    commandName,
-                    ownerId,
-                    dispose: () => void 0,
-                };
-            }
-        }
-
         const wrapped = ( result?: any, args?: DCommandArgs ) => callback( result, args );
         singleComponentContext.emitter.on( commandName, wrapped );
 
@@ -232,33 +231,16 @@ class CommandsManager {
         delete this.scopedHooks[ componentNameUnique ];
     }
 
-    public unhookWithinComponentByOwner( componentNameUnique: string, ownerId: string ) {
-        const singleComponentContext = core[ GET_INTERNAL_SYMBOL ]( componentNameUnique, true ) as DCommandSingleComponentContext;
-        if ( ! singleComponentContext ) return;
-
-        const perCommand = this.scopedHooks[ componentNameUnique ];
-        if ( ! perCommand ) return;
-
-        Object.keys( perCommand ).forEach( ( commandName ) => {
-            const records = perCommand[ commandName ];
-            const remaining: typeof records = [];
-            records.forEach( ( record ) => {
-                if ( record.ownerId === ownerId ) {
-                    singleComponentContext.emitter.off( commandName, record.wrapped );
-                } else {
-                    remaining.push( record );
-                }
-            } );
-            perCommand[ commandName ] = remaining;
-        } );
-    }
-
     public get( componentName: string, shouldSilentError = false ) {
         if ( ! shouldSilentError && ! this.commands[ componentName ] ) {
             throw new Error( `Component '${ componentName }' not registered` );
         }
 
         return this.commands[ componentName ];
+    }
+
+    public getComponentName( commandName: string ) {
+        return this.commandToComponentMap[ commandName ];
     }
 
     public getCommands() {
@@ -300,12 +282,76 @@ class CommandsManager {
     public isContextRegistered( componentNameUnique: string ) {
         return !! core[ GET_INTERNAL_SYMBOL ]( componentNameUnique, true );
     }
+
+    public devShowComponents() {
+        console.group( "🔧 CommandsManager Dev Info" );
+
+        console.log( "📋 Registered Commands:" );
+        Object.entries( this.commands ).forEach( ( [ componentName, commands ] ) => {
+            console.group( `  ${ componentName }` );
+            Object.keys( commands ).forEach( commandName => {
+                console.log( `    - ${ commandName }` );
+            } );
+            console.groupEnd();
+        } );
+
+        console.log( "🗺️ Command to Component Mapping:" );
+        Object.entries( this.commandToComponentMap ).forEach( ( [ commandName, componentName ] ) => {
+            console.log( `  ${ commandName } → ${ componentName }` );
+        } );
+
+        console.log( "🔗 Scoped Hooks:" );
+        Object.entries( this.scopedHooks ).forEach( ( [ componentNameUnique, commandHooks ] ) => {
+            console.group( `  ${ componentNameUnique }` );
+            Object.entries( commandHooks ).forEach( ( [ commandName, hooks ] ) => {
+                console.log( `    ${ commandName }: ${ hooks.length } hook(s)` );
+                hooks.forEach( ( hook, index ) => {
+                    console.log( `      [${ index }] owner: ${ hook.ownerId }` );
+                } );
+            } );
+            console.groupEnd();
+        } );
+
+        console.log( "🌐 Non-Scoped Hooks:" );
+        const contextKeys = core.__devGetContextKeys();
+        contextKeys.forEach( key => {
+            const context = core[ GET_INTERNAL_SYMBOL ]( key, true );
+            const hasNonScopedHooks = Object.keys( context.commands ).some( commandName => {
+                const listeners = context.emitter.listeners( commandName );
+                return listeners.length > 0;
+            } );
+
+            if ( hasNonScopedHooks ) {
+                console.group( `  ${ key }` );
+                Object.keys( context.commands ).forEach( commandName => {
+                    const listeners = context.emitter.listeners( commandName );
+                    if ( listeners.length > 0 ) {
+                        console.log( `    ${ commandName }: ${ listeners.length } listener(s)` );
+                        listeners.forEach( ( listener, index ) => {
+                            console.log( `      [${ index }] ${ listener.name || "anonymous" }` );
+                        } );
+                    }
+                } );
+                console.groupEnd();
+            }
+        } );
+
+        console.log( "🏗️ Core Context:" );
+        console.log( `  Total components: ${ contextKeys.length }` );
+        contextKeys.forEach( key => {
+            const context = core[ GET_INTERNAL_SYMBOL ]( key, true );
+            console.log( `    ${ key }: ${ context.commands.length } command(s)` );
+        } );
+
+        console.groupEnd();
+    }
 }
 
 export const commands = new CommandsManager();
 
 if ( import.meta.env.DEV ) {
     ( window as any ).$$commands = commands;
+    ( window as any ).$$dev = () => commands.devShowComponents();
 }
 
 export default commands;

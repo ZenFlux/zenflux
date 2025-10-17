@@ -10,7 +10,7 @@ import { workerData } from "node:worker_threads";
 import process from "node:process";
 import { ErrorWithMeta } from "@zenflux/utils/src/error";
 
-const currentFilePath = fileURLToPath( import.meta.url ),
+const currentFilePath = fileURLToPath( import.meta.url || `file://${__filename}` ),
     currentDirPath = path.dirname( currentFilePath ),
     currentWorkspacePackageJsonPath = path.resolve( currentDirPath, "../../../package.json" );
 
@@ -87,7 +87,7 @@ vm.tap( async ( vm ) => {
         if ( err.message ) {
             const deepStack = err.meta?.deepStack || [];
 
-            deepStack.push( import.meta.url );
+            deepStack.push( import.meta.url || `file://${__filename}` );
 
             // Show the original error message if it's more specific than a generic message
             const isGenericError = err.message.includes('Error in @zenflux/cli') || 

@@ -20,6 +20,7 @@ globalThis.__Z_ESLINT_CONFIG__ = globalThis.__Z_ESLINT_CONFIG__ ?? {
 globalThis.__Z_ESLINT_CONFIG__.zCache.zWorkspaces [ globalThis.__Z_ESLINT_CONFIG__.zRootPackagePath ] = zLintGetWorkspaces();
 
 const { zLintDefaultConfig, zLintDefaultExclude } = ( await import( "./default-config.js" ) );
+const { zLintReactDefaultConfig } = ( await import( "./react-default-config.js" ) );
 
 /**
  * Sets the root package path.
@@ -136,3 +137,4 @@ export async function zLintGetProjectsPathsWithConfig( workspaces ) {
 }
 
 export * from './default-config.js'
+export { zLintReactDefaultConfig };

@@ -8,6 +8,7 @@ A NestJS + TypeScript backend server for the budget allocation application.
 - **REST API**: Implements the same endpoints as the original fake API
 - **CORS enabled**: Configured to work with the React frontend
 - **TypeScript**: Fully typed with interfaces for all data structures
+- **Fake delays**: Configurable response delays (1-3 seconds) to simulate real network conditions
 
 ## API Endpoints
 
@@ -44,3 +45,22 @@ The server initializes with two default channels:
 - **Port**: 3002
 - **CORS**: Enabled for localhost:3000 and localhost:5173
 - **Base URL**: http://localhost:3002
+
+## Fake Delays
+
+The server includes configurable fake delays to simulate real network conditions:
+
+- **Default range**: 1-3 seconds per request
+- **Per-endpoint configuration**: Different delay ranges for different operations
+- **Environment control**: Set `FAKE_DELAYS=false` to disable delays
+- **Random timing**: Each request gets a random delay within the configured range
+
+### Delay Configuration
+
+- GET /channels: 1-2.5 seconds
+- GET /channels/:key: 1-2 seconds  
+- POST /channels/:key: 1.2-2.8 seconds
+- PUT /channels/:key: 1.1-2.6 seconds
+- DELETE /channels/:key: 1-2.2 seconds
+- POST /channels/list: 1.5-3 seconds
+- POST /channels/reset: 1.2-2.5 seconds

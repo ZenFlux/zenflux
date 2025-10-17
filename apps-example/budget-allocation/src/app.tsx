@@ -1,18 +1,23 @@
-import React, { useEffect } from "react";
+import React from "react";
 
-import { QueryClient } from "@zenflux/react-query/src/query-client.tsx";
+import { QueryClient } from "@zenflux/react-commander/query/client";
 
-import { useCommandHook, useCommandRunner } from "@zenflux/react-commander/use-commands";
+import { useCommand, useCommandHook, useCommandState } from "@zenflux/react-commander/hooks";
 
-import { ChannelsQueryModule } from "@zenflux/app-budget-allocation/src/api/channels-query-module.ts";
+import { withCommands } from "@zenflux/react-commander/with-commands";
+
+import { CommandBase } from "@zenflux/react-commander/command-base";
+
+import { QueryProvider } from "@zenflux/react-commander/query/provider";
+
+import { ChannelItemQuery } from "@zenflux/app-budget-allocation/src/components/channel-item/channel-item-query";
+import { ChannelsListQuery, ChannelsListWithBreaksQuery } from "@zenflux/app-budget-allocation/src/components/channels/channels-list-query";
 
 import { Tab, Tabs } from "@zenflux/app-budget-allocation/src/components/ui/tabs";
 
-import { Button } from "@zenflux/app-budget-allocation/src/components/ui/button";
-
 import Layout from "@zenflux/app-budget-allocation/src/ui-layout/layout";
-
-import AddChannel from "@zenflux/app-budget-allocation/src/components/add-channel/add-channel";
+import { AddChannel } from "@zenflux/app-budget-allocation/src/components/add-channel/add-channel";
+import { Reset } from "@zenflux/app-budget-allocation/src/components/add-channel/reset";
 
 import "@zenflux/app-budget-allocation/src/app.scss";
 
@@ -23,7 +28,9 @@ const BudgetAllocation = React.lazy( () => import( "@zenflux/app-budget-allocati
 
 const client = new QueryClient( "http://localhost:3002" );
 
-client.registerModule( ChannelsQueryModule );
+client.registerModule( ChannelsListQuery );
+client.registerModule( ChannelsListWithBreaksQuery );
+client.registerModule( ChannelItemQuery );
 
 function LazyLoader( props: { ContentComponent: typeof BudgetAllocation | typeof BudgetOverview } ) {
     const { ContentComponent } = props;
@@ -35,33 +42,60 @@ function LazyLoader( props: { ContentComponent: typeof BudgetAllocation | typeof
     );
 };
 
-function App() {
+interface AppState {
+    isLoading: boolean;
+    channels: any[];
+}
+
+export function App() {
     const layoutProps: LayoutProps = {
         header: {
-            end: <AddChannel/>,
+            end: <div className="flex gap-2">
+                <AddChannel/>
+                <Reset/>
+            </div>,
         }
     };
 
-    const [ selectedTab, setSelectedTab ] = React.useState( location.hash.replace( "#", "" ) );
+    const tabsRef = React.useRef<HTMLDivElement>( null );
 
-    const runAddChannel = useCommandRunner( "App/AddChannel" );
+    const [ getState, setState ] = useCommandState<AppState>( "App" );
 
-    useEffect( () => {
-        if ( location.hash === "#allocation/add-channel" ) {
-            location.hash = "#allocation";
-            setSelectedTab( "allocation" );
+    const appAddChannel = useCommand( "App/AddChannel", tabsRef );
+    const uiTabsSelect = useCommand( "UI/Tabs/Select", tabsRef);
+
+    const channelsListAddRequest = useCommand( "App/ChannelsList/AddRequest" );
+
+    useCommandHook( "App/AddChannel", async () => {
+        if ( location.hash === "#overview" ) {
+            uiTabsSelect?.run({ key: "allocation" });
 
             setTimeout( () => {
-                runAddChannel( {} );
-            }, 1000 );
+                appAddChannel?.run();
+            }, 1200 );
+
+            return;
         }
-    }, [ location.hash ] );
+        try {
+            setState( {
+                ... getState(),
+                isLoading: true,
+            } );
 
-    useCommandHook( "App/AddChannel", () => {
-        location.hash = "#allocation/add-channel";
-
-        setSelectedTab( "allocation" );
+            await channelsListAddRequest?.run();
+        } catch ( error ) {
+            console.error( "Error adding channel", error );
+        } finally {
+            setState( {
+                ... getState(),
+                isLoading: false,
+            } );
+        }
     } );
+
+    useCommandHook( "UI/Tabs/Select", ( _result, args ) => {
+        location.hash = `#${ args?.key }`;
+    }, tabsRef );
 
     const items = [
         { id: "allocation", title: "Budget Allocation", content: <LazyLoader ContentComponent={ BudgetAllocation }/> },
@@ -76,29 +110,13 @@ function App() {
             tab: "tab",
             cursor: "cursor",
         },
-        selectedKey: selectedTab,
-        onSelectionChange: ( id: React.Key ) => {
-            if ( ! location.hash.includes( id.toString() ) ) {
-                setSelectedTab( id.toString() );
-
-                location.hash = id.toString();
-            }
-        }
+        defaultValue: location.hash.replace( "#", "" ),
     };
 
     return (
-        <>
-            <Button onClick={ () => {
-                // Do not let the rescue callback to run
-                window.onbeforeunload = null;
-
-                localStorage.clear();
-                location.reload();
-            } } className="absolute top-0 right-0 border-none" variant="bordered" disableAnimation={ true }
-            radius={ "none" }>Reset Demo</Button>
-
+        <QueryProvider client={ client }>
             <Layout { ... layoutProps }>
-                <Tabs { ... tabsProps }> {
+                <Tabs ref={ tabsRef } { ... tabsProps }> {
                     tabsProps.items.map( ( tab ) => (
                         <Tab key={ tab.id } title={ tab.title }>
                             { tab.content }
@@ -107,9 +125,20 @@ function App() {
                 }
                 </Tabs>
             </Layout>
-        </>
+        </QueryProvider>
     );
 }
 
-export default App;
+const $$ = withCommands<{}, AppState>( "App", App, {
+    isLoading: false,
+    channels: [],
+}, [
+    class AddChannel extends CommandBase {
+        public static getName() {
+            return "App/AddChannel";
+        }
+    }
+] );
+
+export default $$;
 

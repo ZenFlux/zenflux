@@ -2,16 +2,15 @@ import type { ChannelsListAccordion } from "@zenflux/app-budget-allocation/src/c
 
 import type React from "react";
 
-import type { ChannelItemAccordionComponent } from "@zenflux/app-budget-allocation/src/components/channel/channel-types";
+import type { Channel } from "@zenflux/app-budget-allocation/src/query/channels-domain";
 
 export type ChannelsListViewAccordionComponent = React.ReactComponentElement<typeof ChannelsListAccordion>;
 
 export interface ChannelListProps {
-    children: ChannelItemAccordionComponent[] | ChannelItemAccordionComponent;
     view: "accordion" | "table";
 }
 
 export interface ChannelListState extends React.ComponentState {
-    channels: ChannelItemAccordionComponent[];
+    channels: Channel[];
     selected: { [ key: string ]: boolean };
 }

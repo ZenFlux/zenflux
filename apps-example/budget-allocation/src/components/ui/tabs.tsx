@@ -2,9 +2,15 @@ import * as React from "react";
 import * as TabsPrimitive from "@radix-ui/react-tabs";
 import { cva  } from "class-variance-authority";
 
+import { withCommands } from "@zenflux/react-commander/with-commands";
+
+import { CommandBase } from "@zenflux/react-commander/command-base";
+
+import { useChildCommandHook, useCommand, useComponent } from "@zenflux/react-commander/hooks";
+
 import { cn } from "@zenflux/app-budget-allocation/src/lib/utils";
 
-import type {VariantProps} from "class-variance-authority";
+import type { VariantProps } from "class-variance-authority";
 
 const tabsVariants = cva(
     // Base shadcn tabs styles
@@ -51,7 +57,8 @@ const tabsTriggerVariants = cva(
     }
 );
 
-interface TabsProps extends React.ComponentPropsWithoutRef<typeof TabsPrimitive.Root>, VariantProps<typeof tabsVariants> {
+interface TabsProps extends Omit<React.ComponentPropsWithoutRef<typeof TabsPrimitive.Root>, "onSelectionChange" | "selectedKey">, VariantProps<typeof tabsVariants> {
+    $$key?: number;
     items?: Array<{ id: string; title: string; content: React.ReactNode }>;
     classNames?: {
         base?: string;
@@ -59,20 +66,43 @@ interface TabsProps extends React.ComponentPropsWithoutRef<typeof TabsPrimitive.
         tab?: string;
         cursor?: string;
     };
-    selectedKey?: string;
-    onSelectionChange?: (key: string) => void;
 }
 
-const Tabs = React.forwardRef<
+interface TabProps {
+    key?: string;
+    title: string;
+    children: React.ReactNode;
+}
+
+const TabsView = React.forwardRef<
     React.ElementRef<typeof TabsPrimitive.Root>,
-    TabsProps
->(({ items, classNames, selectedKey, onSelectionChange, children, variant, ...props }, ref) => {
+    Omit<TabsProps, "onSelectionChange" | "selectedKey">
+>(({ $$key: _key, items, classNames, children, variant, ...props }, ref) => {
+    const [selectedKey, setSelectedKey] = React.useState(props.defaultValue);
+
+    const component = useComponent("UI/Tabs");
+
+    React.useEffect(() => {
+        if ( ! component ) return;
+
+        const handle = component.hook( "UI/Tabs/Select", (_esult, args) => {
+            setSelectedKey(args?.key);
+        });
+
+        return () => {
+            handle?.dispose();
+        };
+    }, [ component ]);
+
+    useChildCommandHook("UI/Tabs/Trigger", "UI/Tabs/Trigger/Select", (result, args) => {
+        component.run("UI/Tabs/Select", { key: args?.key });
+    });
+
     if (items) {
         return (
             <TabsPrimitive.Root
                 ref={ref}
                 value={selectedKey}
-                onValueChange={onSelectionChange}
                 className={cn(tabsVariants({ variant }), classNames?.base, props.className)}
                 {...props}
             >
@@ -96,7 +126,6 @@ const Tabs = React.forwardRef<
         <TabsPrimitive.Root
             ref={ref}
             value={selectedKey}
-            onValueChange={onSelectionChange}
             className={cn(tabsVariants({ variant }), classNames?.base, props.className)}
             {...props}
         >
@@ -104,7 +133,15 @@ const Tabs = React.forwardRef<
         </TabsPrimitive.Root>
     );
 });
-Tabs.displayName = "Tabs";
+TabsView.displayName = "Tabs";
+
+const Tabs = withCommands("UI/Tabs", TabsView, [
+    class Select extends CommandBase {
+        public static getName() {
+            return "UI/Tabs/Select";
+        }
+    }
+]);
 
 const TabsList = React.forwardRef<
     React.ElementRef<typeof TabsPrimitive.List>,
@@ -118,17 +155,31 @@ const TabsList = React.forwardRef<
 ));
 TabsList.displayName = TabsPrimitive.List.displayName;
 
-const TabsTrigger = React.forwardRef<
+const TabsTriggerView = React.forwardRef<
     React.ElementRef<typeof TabsPrimitive.Trigger>,
-    React.ComponentPropsWithoutRef<typeof TabsPrimitive.Trigger> & VariantProps<typeof tabsTriggerVariants>
->(({ className, variant, ...props }, ref) => (
-    <TabsPrimitive.Trigger
-        ref={ref}
-        className={cn(tabsTriggerVariants({ variant }), className)}
-        {...props}
-    />
-));
-TabsTrigger.displayName = TabsPrimitive.Trigger.displayName;
+    Omit<React.ComponentPropsWithoutRef<typeof TabsPrimitive.Trigger> & VariantProps<typeof tabsTriggerVariants>, "onClick"> & { $$key?: number }
+>(({ $$key: _key,className, variant, ...props }, ref) => {
+    const select = useCommand("UI/Tabs/Trigger/Select");
+
+    return (
+        <TabsPrimitive.Trigger
+            ref={ref}
+            className={cn(tabsTriggerVariants({ variant }), className)}
+            onClick={() => select.run({ key: props.value })}
+            {...props}
+        />
+    );
+});
+
+TabsTriggerView.displayName = TabsPrimitive.Trigger.displayName;
+
+const TabsTrigger = withCommands("UI/Tabs/Trigger", TabsTriggerView, [
+    class Select extends CommandBase {
+        public static getName() {
+            return "UI/Tabs/Trigger/Select";
+        }
+    }
+]);
 
 const TabsContent = React.forwardRef<
     React.ElementRef<typeof TabsPrimitive.Content>,
@@ -144,12 +195,6 @@ const TabsContent = React.forwardRef<
     />
 ));
 TabsContent.displayName = TabsPrimitive.Content.displayName;
-
-interface TabProps {
-    key?: string;
-    title: string;
-    children: React.ReactNode;
-}
 
 const Tab: React.FC<TabProps> = ({ children }) => {
     return <>{children}</>;

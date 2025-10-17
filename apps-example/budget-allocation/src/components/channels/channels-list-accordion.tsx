@@ -1,77 +1,89 @@
 import React from "react";
 
-import { useCommanderComponent, useCommanderState } from "@zenflux/react-commander/use-commands";
+import { useComponent, useCommandState } from "@zenflux/react-commander/hooks";
 
-import { channelsListAccordionInteractions } from "@zenflux/app-budget-allocation/src/components/channels/channels-list-accordion-interactions";
+import { QueryComponent } from "@zenflux/react-commander/query/component";
 
 import Accordion from "@zenflux/app-budget-allocation/src/ui-command-able/accordion/accordion";
 import AccordionItem from "@zenflux/app-budget-allocation/src/ui-command-able/accordion/accordion-item";
+import ChannelItemAccordion from "@zenflux/app-budget-allocation/src/components/channel-item/channel-item-accordion";
 
-import ChannelItemAccordion from "@zenflux/app-budget-allocation/src/components/channel/channel-item-accordion";
+import { useChannelsListAccordionInteractions } from "@zenflux/app-budget-allocation/src/components/channels/channels-list-accordion-interactions";
 
+import { ChannelItemQuery } from "@zenflux/app-budget-allocation/src/components/channel-item/channel-item-query";
+
+import type { Channel, ChannelItemApiResponse } from "@zenflux/app-budget-allocation/src/query/channels-domain";
 import type { ChannelListState } from "@zenflux/app-budget-allocation/src/components/channels/channels-types";
+import type { ChannelState } from "@zenflux/app-budget-allocation/src/components/channel-item/channel-item-types";
 
-import type { ChannelItemAccordionComponent } from "@zenflux/app-budget-allocation/src/components/channel/channel-types";
+const ChannelContent = React.memo<{ channelId: string, meta: Channel["meta"] }>( ( { channelId, meta } ) => {
+    return (
+        <QueryComponent<ChannelItemApiResponse, { meta: Channel["meta"] }, ChannelItemApiResponse, ChannelState>
+            key={ channelId }
+            fallback={ <div className="loading">Loading <span className="dots">◌</span></div> }
+            module={ ChannelItemQuery }
+            component={ ChannelItemAccordion }
+            props={ { meta } }
+        />
+    );
+}, ( prevProps, nextProps ) => {
+    const shouldNotRerender = prevProps.channelId === nextProps.channelId;
 
-import type { AccordionItemProps } from "@zenflux/app-budget-allocation/src/ui-command-able/accordion/accordion-item";
+    return shouldNotRerender;
+} );
 
-export function toAccordionItem(
-    channel: ChannelItemAccordionComponent,
-    channelsCommands: ReturnType<typeof useCommanderComponent>,
-    index: number,
-): React.ReactComponentElement<typeof AccordionItem> {
-    // Omit `collapsedState` and `setCollapsedState` those are extended by `renderExtendAccordionItem`
-    const accordionProps: Omit<AccordionItemProps, "collapsedState" | "setCollapsedState"> = {
-        itemKey: channel.props.meta.id,
-
-        onRender: channel.props.onRender,
-
-        children: <ChannelItemAccordion { ... channel.props } key={ channel.props.meta.id }/>,
-        heading: {
-            title: channel.props.meta.name,
-            icon: channel.props.meta.icon,
-        },
-        menu: {
-            edit: {
-                label: "Edit",
-                action: () => channelsCommands.run(
-                    "App/ChannelsList/EditRequest",
-                    { channel, }
-                ),
-            },
-            remove: {
-                label: "Remove",
-                color: "danger",
-                action: () => channelsCommands.run(
-                    "App/ChannelsList/RemoveRequest",
-                    { channel, }
-                ),
-            },
-        },
-    };
-
-    const { children, ... withoutChildren } = accordionProps;
-
-    return <AccordionItem children={ children } { ... withoutChildren }
-                          key={ "channel-" + channel.props.meta.id + "-accordion-item-" + index.toString() }/>;
-}
+ChannelContent.displayName = "ChannelContent";
 
 export const ChannelsListAccordion: React.FC = () => {
-    const [ getChannelsListState, setChannelsListState ] = useCommanderState<ChannelListState>( "App/ChannelsList" );
+    const [ state, setState ] = useCommandState<ChannelListState, ChannelListState>( "App/ChannelsList",
+        ( state ) => ({
+            channels: state.channels,
+            selected: state.selected,
+        })
+    );
 
-    const channelsCommands = useCommanderComponent( "App/ChannelsList" );
+    const channelsCommands = useComponent( "App/ChannelsList" );
 
-    const channelsListState = getChannelsListState();
+    const setSelected: React.Dispatch<React.SetStateAction<{ [ key: string ]: boolean }>> = ( value ) => {
+        const next = typeof value === "function"
+            ? value( state.selected || {} )
+            : value;
 
-    const setSelected = ( selected: { key: boolean } ) => {
-        setChannelsListState( { selected } );
+        setState( { selected: next } );
     };
 
-    channelsListAccordionInteractions();
+    useChannelsListAccordionInteractions();
 
     return (
-        <Accordion selected={ channelsListState.selected } setSelected={ setSelected }>
-            { channelsListState.channels.map( ( i, index ) => toAccordionItem( i, channelsCommands, index ) ) }
+        <Accordion selected={ state.selected } setSelected={ setSelected }>
+            { state.channels.map( ( channel ) => {
+                const heading = { title: channel.meta.name, icon: channel.meta.icon };
+                const menu = {
+                    edit: {
+                        label: "Edit",
+                        action: () => channelsCommands.run( "App/ChannelsList/EditRequest", { channel } )
+                    },
+                    remove: {
+                        label: "Remove",
+                        color: "danger" as const,
+                        action: () => channelsCommands.run( "App/ChannelsList/RemoveRequest", { channel } )
+                    },
+                };
+
+                return (
+                    <AccordionItem
+                        unmount
+                        key={ channel.meta.id }
+                        itemKey={ channel.meta.id }
+                        heading={ heading }
+                        menu={ menu }
+                        onRender={ () => {
+                        } }
+                    >
+                        <ChannelContent channelId={ channel.meta.id } meta={ channel.meta } />
+                    </AccordionItem>
+                );
+            } ) }
         </Accordion>
     );
 };

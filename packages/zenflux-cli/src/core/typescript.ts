@@ -6,6 +6,7 @@ import process from "node:process";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import util from "node:util";
+import os from "node:os";
 
 import { zDeepMergeAll } from "@zenflux/utils/src/object";
 
@@ -382,9 +383,18 @@ export async function zTSPreDiagnostics( tsConfig: ts.ParsedCommandLine, options
         return;
     }
 
-    const compilerHost = await zTSGetCompilerHost( tsConfig );
+    const compilerHost = await zTSGetCompilerHost( { 
+        ... tsConfig, 
+        options: { 
+            // We need to create a temporary directory for the diagnostics to avoid conflicts with the main output directory.
+            outDir: path.join( os.tmpdir(), zTSPreDiagnostics.name + "-" + Date.now() ),
+            ... tsConfig.options, 
+        } 
+    } );
 
-    const program = ts.createProgram( tsConfig.fileNames, Object.assign( {}, tsConfig.options, {
+    const program = ts.createProgram( tsConfig.fileNames, Object.assign( {
+
+    }, tsConfig.options, {
         noEmit: true,
 
         // In case `tsconfig.dev.json` is used, we don't want to generate source maps or declarations for diagnostic

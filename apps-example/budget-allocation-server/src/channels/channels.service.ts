@@ -1,95 +1,143 @@
-import { Injectable } from '@nestjs/common';
-import { Channel, CreateChannelDto, UpdateChannelDto } from './channel.interface';
+import { defaultChannels } from "@zenflux/budget-allocation-server/src/channels/channels.defaults";
 
-@Injectable()
+import type { Channel, CreateChannelDto, SetChannelNameDto, UpdateChannelDto, UpdateChannelsListDto } from "@zenflux/budget-allocation-server/src/channels/channel.interface";
+
 export class ChannelsService {
-  private channels: Map<string, Channel> = new Map();
+    private channels: Map<string, Channel> = new Map();
 
-  constructor() {
-    this.initializeDefaultChannels();
-  }
-
-  private initializeDefaultChannels(): void {
-    const defaultChannels: Channel[] = [
-      {
-        key: 'free-reviews',
-        meta: {
-          id: 'free-reviews',
-          name: 'Free Reviews',
-          icon: '/assets/test.png',
-          createdAt: 0,
-        },
-        allocation: 'equal',
-        baseline: '0',
-        frequency: 'annually',
-        breaks: [],
-      },
-      {
-        key: 'paid-reviews',
-        meta: {
-          id: 'paid-reviews',
-          name: 'Paid Reviews',
-          icon: '/assets/affiliate-program.png',
-          createdAt: 1,
-        },
-        allocation: 'equal',
-        baseline: '0',
-        frequency: 'annually',
-        breaks: [],
-      },
-    ];
-
-    defaultChannels.forEach(channel => {
-      this.channels.set(channel.key, channel);
-    });
-  }
-
-  findAll(): Channel[] {
-    return Array.from(this.channels.values()).sort((a, b) => 
-      a.meta.createdAt - b.meta.createdAt
-    );
-  }
-
-  findOne(key: string): Channel | undefined {
-    return this.channels.get(key);
-  }
-
-  create(createChannelDto: CreateChannelDto): Channel {
-    const channel: Channel = {
-      key: createChannelDto.key,
-      meta: createChannelDto.meta || {
-        id: createChannelDto.key,
-        name: createChannelDto.key,
-        icon: '',
-        createdAt: Date.now(),
-      },
-      allocation: createChannelDto.allocation || 'equal',
-      baseline: createChannelDto.baseline || '0',
-      frequency: createChannelDto.frequency || 'annually',
-      breaks: createChannelDto.breaks || [],
-    };
-
-    this.channels.set(channel.key, channel);
-    return channel;
-  }
-
-  update(key: string, updateChannelDto: UpdateChannelDto): Channel | undefined {
-    const existingChannel = this.channels.get(key);
-    if (!existingChannel) {
-      return undefined;
+    public constructor() {
+        this.initializeDefaultChannels();
     }
 
-    const updatedChannel: Channel = {
-      ...existingChannel,
-      ...updateChannelDto,
-      key,
-    };
+    private initializeDefaultChannels(): void {
+        defaultChannels.forEach(channel => {
+            this.channels.set(channel.key, channel);
+        });
+    }
 
-    this.channels.set(key, updatedChannel);
-    return updatedChannel;
-  }
+    public findAll(): Channel[] {
+        return Array.from(this.channels.values()).sort((a, b) =>
+            a.meta.createdAt - b.meta.createdAt
+        );
+    }
 
-  remove(key: string): boolean {
-    return this.channels.delete(key);
-  }
+    public findAllMetaOnly(): Pick<Channel, "key" | "meta">[] {
+        return Array.from(this.channels.values())
+            .sort((a, b) => a.meta.createdAt - b.meta.createdAt)
+            .map(channel => ({
+                key: channel.key,
+                meta: channel.meta
+            }));
+    }
+
+    public findAllWithBreaks(): Pick<Channel, "key" | "meta" | "frequency" | "baseline" | "allocation" | "breaks">[] {
+        return Array.from(this.channels.values())
+            .sort((a, b) => a.meta.createdAt - b.meta.createdAt)
+            .map(channel => ({
+                key: channel.key,
+                meta: channel.meta,
+                frequency: channel.frequency,
+                baseline: channel.baseline,
+                allocation: channel.allocation,
+                breaks: channel.breaks
+            }));
+    }
+
+    public findOne(key: string): Channel | undefined {
+        return this.channels.get(key);
+    }
+
+    public create(createChannelDto: CreateChannelDto): Channel {
+        const id = performance.now().toString();
+
+        const channel: Channel = {
+            key: id,
+            meta:{
+                name: "New Channel ",
+                icon: `https://api.dicebear.com/7.x/icons/svg?seed=${ performance.now() }`,
+                createdAt: new Date().getTime(),
+                ...createChannelDto.meta,
+                id: id,
+            },
+            allocation: createChannelDto.allocation || "equal",
+            baseline: createChannelDto.baseline || "0",
+            frequency: createChannelDto.frequency || "annually",
+            breaks: createChannelDto.breaks || [],
+        };
+
+        this.channels.set(channel.key, channel);
+
+        return channel;
+    }
+
+    public update(key: string, updateChannelDto: UpdateChannelDto): Channel | undefined {
+        const existingChannel = this.channels.get(key);
+        if (!existingChannel) {
+            return undefined;
+        }
+
+        const updatedChannel: Channel = {
+            ...existingChannel,
+            ...updateChannelDto,
+            meta: updateChannelDto.meta
+                ? { ...existingChannel.meta, ...updateChannelDto.meta }
+                : existingChannel.meta,
+            key,
+        };
+
+        this.channels.set(key, updatedChannel);
+        return updatedChannel;
+    }
+
+    public remove(key: string): boolean {
+        return this.channels.delete(key);
+    }
+
+    public reset(): void {
+        this.channels.clear();
+        this.initializeDefaultChannels();
+    }
+
+    public updateList(updateListDto: UpdateChannelsListDto): Channel[] {
+        updateListDto.channels.forEach(channelData => {
+            const key = channelData.meta.id;
+            const existingChannel = this.channels.get(key);
+
+            if (existingChannel) {
+                const updatedChannel: Channel = {
+                    ...existingChannel,
+                    meta: { ...existingChannel.meta, ...channelData.meta },
+                    allocation: channelData.allocation ?? existingChannel.allocation,
+                    baseline: channelData.baseline ?? existingChannel.baseline,
+                    frequency: channelData.frequency ?? existingChannel.frequency,
+                    breaks: channelData.breaks ?? existingChannel.breaks,
+                    key,
+                };
+
+                this.channels.set(key, updatedChannel);
+            }
+        });
+
+        return this.findAll();
+    }
+
+    public setName(setNameDto: SetChannelNameDto): Channel | undefined {
+        const existingChannel = this.channels.get(setNameDto.id);
+
+        if (!existingChannel) {
+            return undefined;
+        }
+
+        const updatedChannel: Channel = {
+            ...existingChannel,
+            meta: {
+                ...existingChannel.meta,
+                name: setNameDto.name,
+            },
+        };
+
+        this.channels.set(setNameDto.id, updatedChannel);
+
+        return updatedChannel;
+    }
 }

@@ -1,19 +1,19 @@
-import { QueryComponent } from "@zenflux/react-query/src/query-component";
+import { QueryComponent } from "@zenflux/react-commander/query/component";
 
 import ChannelsList from "@zenflux/app-budget-allocation/src/components/channels/channels-list";
-import ChannelItemAccordion from "@zenflux/app-budget-allocation/src/components/channel/channel-item-accordion";
 
-import { ChannelsQueryModule } from "@zenflux/app-budget-allocation/src/api/channels-query-module";
+import { ChannelsListQuery } from "@zenflux/app-budget-allocation/src/components/channels/channels-list-query";
+
+import type { Channel } from "@zenflux/app-budget-allocation/src/query/channels-domain";
+import type { ChannelListProps, ChannelListState } from "@zenflux/app-budget-allocation/src/components/channels/channels-types";
 
 export default function BudgetAllocation() {
     return (
-        <QueryComponent
+        <QueryComponent<Channel[], ChannelListProps, Channel[], ChannelListState>
             fallback={ <div className="loading">Loading <span className="dots">◌</span></div> }
-            module={ ChannelsQueryModule }
+            module={ ChannelsListQuery }
             component={ ChannelsList }
             props={ { view: "accordion" } }
-        >
-            <QueryComponent component={ ChannelItemAccordion }/>
-        </QueryComponent>
+        />
     );
 }
