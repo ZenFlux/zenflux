@@ -1,14 +1,13 @@
+/* eslint-disable no-restricted-imports, @zenflux/no-relative-imports */
 import React from "react";
 
-// eslint-disable-next-line no-restricted-imports, @zenflux/no-relative-imports
+import { useCommand } from "./use-command";
+
 import { useCommandId } from "../use-command-id";
 
-// eslint-disable-next-line no-restricted-imports, @zenflux/no-relative-imports
-import { useCommandWithRef } from "../use-command-with-ref";
+import commandsManager from "../../commands-manager";
 
-import commandsManager from "@zenflux/react-commander/commands-manager";
-
-import type { DCommandArgs, DCommandIdArgs } from "@zenflux/react-commander/definitions";
+import type { DCommandArgs, DCommandIdArgs } from "../../definitions";
 
 export function useCommandHook(
     commandName: string,
@@ -21,7 +20,7 @@ export function useCommandHook(
         ownerIdRef.current = `${ commandName }:${ Math.random().toString( 36 ).slice( 2 ) }`;
     }
 
-    const command = ref ? useCommandWithRef( commandName, ref ) : null;
+    const command = ref ? useCommand( commandName, ref ) : null;
     const id = ref ? null : useCommandId( commandName );
 
     React.useEffect( () => {

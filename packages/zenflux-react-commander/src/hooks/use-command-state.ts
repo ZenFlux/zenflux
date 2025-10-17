@@ -1,12 +1,11 @@
+/* eslint-disable no-restricted-imports, @zenflux/no-relative-imports */
 import React from "react";
 
-import { getSafeContext, shallowEqual } from "@zenflux/react-commander/hooks/utils";
+import { getSafeContext, shallowEqual } from "./utils";
 
-// eslint-disable-next-line no-restricted-imports, @zenflux/no-relative-imports
-import core from "../_internal/core";
-
-// eslint-disable-next-line no-restricted-imports, @zenflux/no-relative-imports
 import { GET_INTERNAL_SYMBOL, INTERNAL_STATE_UPDATED_EVENT } from "../_internal/constants";
+
+import core from "../_internal/core";
 
 function useCommandStateInternal<const TState extends React.ComponentState>( componentName: string ) {
     const componentContext = getSafeContext( componentName );

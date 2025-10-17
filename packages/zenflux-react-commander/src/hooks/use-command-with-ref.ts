@@ -1,11 +1,11 @@
+/* eslint-disable no-restricted-imports, @zenflux/no-relative-imports */
 import React from "react";
 
-// eslint-disable-next-line no-restricted-imports, @zenflux/no-relative-imports
 import { useComponentWithRef } from "./use-component/use-component-with-ref";
 
-import commandsManager from "@zenflux/react-commander/commands-manager";
+import commandsManager from "../commands-manager";
 
-import type { DCommandArgs, DCommandHookHandle } from "@zenflux/react-commander/definitions";
+import type { DCommandArgs, DCommandHookHandle } from "../definitions";
 
 export function useCommandWithRef(commandName: string, componentRef: React.RefObject<any> ) {
     const [ command, setCommand ] = React.useState<ReturnType<typeof useComponentWithRef> & { unhookHandle: ( handle: DCommandHookHandle ) => void } | null>( null );

@@ -1,8 +1,9 @@
+/* eslint-disable no-restricted-imports, @zenflux/no-relative-imports */
 import React from "react";
 
-import { useCommanderChildrenComponents } from "@zenflux/react-commander/hooks/utils";
+import { useCommanderChildrenComponents } from "../use-commander-children-components";
 
-import type { DCommandArgs, DCommandSingleComponentContext } from "@zenflux/react-commander/definitions";
+import type { DCommandArgs, DCommandSingleComponentContext } from "../../definitions";
 
 export function useChildCommandRunner(
     childComponentName: string,

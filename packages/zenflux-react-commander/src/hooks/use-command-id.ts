@@ -1,11 +1,11 @@
+/* eslint-disable no-restricted-imports, @zenflux/no-relative-imports */
 import React from "react";
 
-// eslint-disable-next-line no-restricted-imports, @zenflux/no-relative-imports
 import { useCommandMatch } from "./use-command-match";
 
-import commandsManager from "@zenflux/react-commander/commands-manager";
+import commandsManager from "../commands-manager";
 
-import type { DCommandIdArgs } from "@zenflux/react-commander/definitions";
+import type { DCommandIdArgs } from "../definitions";
 
 export function useCommandId(commandName: string, opts?: { match?: string; index?: number; waitForRef?: React.RefObject<any> } ): DCommandIdArgs | null {
     const match = opts?.match ?? commandsManager.getComponentName( commandName );

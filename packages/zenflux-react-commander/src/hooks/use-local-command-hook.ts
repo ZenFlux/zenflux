@@ -1,9 +1,11 @@
+/* eslint-disable no-restricted-imports, @zenflux/no-relative-imports */
 import React from "react";
 
-import { ComponentIdContext } from "@zenflux/react-commander/commands-context";
-import { useCommandHook } from "@zenflux/react-commander/hooks";
+import { useCommandHook } from "./use-command/use-command-hook";
 
-import type { DCommandArgs } from "@zenflux/react-commander/definitions";
+import { ComponentIdContext } from "../commands-context";
+
+import type { DCommandArgs } from "../definitions";
 
 export function useLocalCommandHook(
     commandName: string,

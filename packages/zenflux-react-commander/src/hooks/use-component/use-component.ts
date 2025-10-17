@@ -1,16 +1,14 @@
+/* eslint-disable no-restricted-imports, @zenflux/no-relative-imports */
 
-import { getSafeContext } from "@zenflux/react-commander/hooks/utils";
-
-// eslint-disable-next-line no-restricted-imports, @zenflux/no-relative-imports
-import core from "../../_internal/core";
-
-// eslint-disable-next-line no-restricted-imports, @zenflux/no-relative-imports
 import { GET_INTERNAL_SYMBOL } from "../../_internal/constants";
+import { getSafeContext } from "../utils";
 
-import commandsManager from "@zenflux/react-commander/commands-manager";
+import core from "../../_internal/core";
+import commandsManager from "../../commands-manager";
+
+import type { DCommandArgs, DCommandComponentContextProps, DCommandHookHandle } from "../../definitions";
 
 import type React from "react";
-import type { DCommandArgs, DCommandComponentContextProps, DCommandHookHandle } from "definitions";
 
 export function useComponent( componentName: string, context?: DCommandComponentContextProps, options = { silent: false } ) {
     if ( ! options.silent ) {

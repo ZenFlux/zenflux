@@ -2,7 +2,7 @@ import React from "react";
 
 import { QueryClient } from "@zenflux/react-commander/query/client";
 
-import { useCommandHook, useCommandOnDemand, useCommandState, useCommandWithRef } from "@zenflux/react-commander/hooks";
+import { useCommand, useCommandHook, useCommandState } from "@zenflux/react-commander/hooks";
 
 import { withCommands } from "@zenflux/react-commander/with-commands";
 
@@ -61,10 +61,10 @@ export function App() {
 
     const [ getState, setState ] = useCommandState<AppState>( "App" );
 
-    const appAddChannel = useCommandWithRef( "App/AddChannel", tabsRef );
-    const uiTabsSelect = useCommandWithRef( "UI/Tabs/Select", tabsRef);
+    const appAddChannel = useCommand( "App/AddChannel", tabsRef );
+    const uiTabsSelect = useCommand( "UI/Tabs/Select", tabsRef);
 
-    const channelsListAddRequest = useCommandOnDemand( "App/ChannelsList/AddRequest" );
+    const channelsListAddRequest = useCommand( "App/ChannelsList/AddRequest" );
 
     useCommandHook( "App/AddChannel", async () => {
         if ( location.hash === "#overview" ) {
