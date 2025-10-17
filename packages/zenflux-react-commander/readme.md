@@ -18,7 +18,7 @@ A lightweight command orchestration layer for React that separates UI from behav
 
 ## Quick start
 
-### Define a Command
+### 1) Define a Command
 
 ```ts
 import { CommandBase } from "@zenflux/react-commander/command-base";
@@ -27,9 +27,7 @@ type CounterState = { count: number };
 type IncrementArgs = { delta: number };
 
 export class Increment extends CommandBase<CounterState, IncrementArgs> {
-  public static getName() {
-    return "App/Counter/Increment";
-  }
+  static getName() { return "App/Counter/Increment" }
 
   protected async apply(args: IncrementArgs) {
     const next = { count: this.state.count + args.delta };
@@ -39,23 +37,18 @@ export class Increment extends CommandBase<CounterState, IncrementArgs> {
 }
 ```
 
-### Wrap a component and use the Command
+### 2) Wrap a component
 
 ```tsx
 import React from "react";
 import { withCommands } from "@zenflux/react-commander/with-commands";
 import { useCommand, useCommandState } from "@zenflux/react-commander/hooks";
-import { Increment } from "./increment";
 
 type CounterState = { count: number };
 
-function Counter(_props: {}, _state?: CounterState) {
+function Counter() {
   const inc = useCommand("App/Counter/Increment");
-  const [slice] = useCommandState<CounterState, { count: number }>(
-    "App/Counter",
-    s => ({ count: s.count })
-  );
-
+  const [slice] = useCommandState<CounterState, { count: number }>("App/Counter", s => ({ count: s.count }));
   return <button onClick={() => inc.run({ delta: 1 })}>{slice.count}</button>;
 }
 
@@ -67,7 +60,47 @@ export const CounterWithCommands = withCommands<{}, CounterState>(
 );
 ```
 
-### Query client and provider
+### 3) Define a real Query module
+
+The module declares endpoints, shapes data, and wires lifecycle hooks to the wrapped component instance. On mount, it can set initial component state from fetched data.
+
+```ts
+import { QueryListModuleBase } from "@zenflux/react-commander/query/module-base";
+import type { DCommandFunctionComponent, DCommandSingleComponentContext } from "@zenflux/react-commander/definitions";
+
+type Item = { id: string; name: string };
+
+export class ItemsQuery extends QueryListModuleBase<Item> {
+  static getName() { return "items" }
+  protected getResourceName() { return "items" }
+
+  protected registerEndpoints(): void {
+    this.defineEndpoint<Array<{ id: string; name: string }>, Item[]>(
+      "App/ItemsList",
+      { method: "GET", path: "v1/items", prepareData: api => api.map(x => ({ id: x.id, name: x.name })) }
+    );
+
+    this.register("POST", "App/ItemsList/SetName", "v1/items/set-name");
+  }
+
+  protected async requestHandler(_element: DCommandFunctionComponent, request: Record<string, unknown>) {
+    return request;
+  }
+
+  protected async responseHandler(_element: DCommandFunctionComponent, response: Response) {
+    return await response.json();
+  }
+
+  protected onMount(context: DCommandSingleComponentContext, resource?: Item[]) {
+    context.setState({ ...context.getState<Record<string, unknown>>(), items: resource ?? [] });
+  }
+}
+```
+
+See a full real-world module: `ChannelsListQuery`
+- Source: https://github.com/ZenFlux/zenflux/blob/tmp/apps-example/budget-allocation/src/components/channels/channels-list-query.ts
+
+### 4) Bootstrap Query and register modules
 
 ```tsx
 import React from "react";
@@ -75,32 +108,42 @@ import { QueryClient } from "@zenflux/react-commander/query/client";
 import { QueryProvider } from "@zenflux/react-commander/query/provider";
 
 const client = new QueryClient("<API_BASE_URL>");
+client.registerModule(ItemsQuery);
 
 export function App() {
   return (
     <QueryProvider client={client}>
-      <CounterWithCommands />
+      {/* Render your query-backed components via Query.Component below */}
     </QueryProvider>
   );
 }
 ```
 
-Register modules once at startup:
+### 5) Render a component with data via Query.Component
 
-```ts
-import { ChannelsListQuery } from "@zenflux/app-budget-allocation/src/components/channels/channels-list-query";
-
-client.registerModule(ChannelsListQuery);
-```
-
-Render a component with data via the Query component:
+Query wires fetched data to the wrapped component through the module lifecycle (e.g., setting initial state in `onMount`).
 
 ```tsx
+import { withCommands } from "@zenflux/react-commander/with-commands";
+
+type ItemsState = { items: Item[] };
+function ItemsList() {
+  const [slice] = useCommandState<ItemsState, { items: Item[] }>("App/ItemsList", s => ({ items: s.items ?? [] }));
+  return <ul>{slice.items.map(i => <li key={i.id}>{i.name}</li>)}</ul>;
+}
+
+export const ItemsListWithCommands = withCommands<{}, ItemsState>(
+  "App/ItemsList",
+  ItemsList,
+  { items: [] },
+  []
+);
+
 const QueryComponent = client.Component;
 
 <QueryComponent
-  module={ChannelsListQuery}
-  component={YourListComponent}
+  module={ItemsQuery}
+  component={ItemsListWithCommands}
   props={{}}
 />;
 ```
