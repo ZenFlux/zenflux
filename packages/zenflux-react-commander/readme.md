@@ -2,6 +2,41 @@
 
 A lightweight command orchestration layer for React that separates UI from behavior through typed Commands, per-instance component context, and a central command manager. Includes a minimal Query abstraction for data fetching, caching, and lifecycle wiring. a custom in-context state that operate on a level of that component, that should be wrapped by **withCommands()**, then you can define the state, and commands of this component.
 
+## Table of contents
+
+- [Why](#why)
+- [Core concepts](#core-concepts)
+- [Quick start](#quick-start)
+  - [1) Define a Command (domain: Items)](#1-define-a-command-domain-items)
+  - [2) Wrap a component](#2-wrap-a-component)
+  - [3) Define a real Query module](#3-define-a-real-query-module)
+  - [4) Bootstrap Query and register modules](#4-bootstrap-query-and-register-modules)
+  - [5) Render a component with data via QueryComponent](#5-render-a-component-with-data-via-querycomponent)
+- [Benefits](#benefits)
+  - [Undo/redo and history](#undoredo-and-history)
+  - [Interaction logging and analytics](#interaction-logging-and-analytics)
+  - [LLM/MCP readiness](#llmmcp-readiness)
+  - [Testing](#testing)
+  - [Examples](#examples)
+- [Recorder pattern (overview)](#recorder-pattern-overview)
+  - [Minimal Recorder API (example)](#minimal-recorder-api-example)
+- [Observability and governance](#observability-and-governance)
+- [Conventions](#conventions)
+- [FAQ](#faq)
+- [How it fits together](#how-it-fits-together)
+  - [Big picture](#big-picture)
+  - [End-to-end flow (example)](#end-to-end-flow-example)
+  - [Lifecycle reference](#lifecycle-reference)
+  - [Adoption checklist](#adoption-checklist)
+- [Public API (used by @app-budget-allocation)](#public-api-used-by-app-budget-allocation)
+  - [CommandBase<TState, TArgs>](#commandbasetstate-targs)
+  - [withCommands(componentName, Component, [state?], commands[])](#withcommandscomponentname-component-state-commands)
+  - [commandsManager](#commandsmanager)
+  - [Types: DCommandFunctionComponent, DCommandArgs, DCommandSingleComponentContext](#types-dcommandfunctioncomponent-dcommandargs-dcommandsinglecomponentcontext)
+  - [React hooks](#react-hooks)
+    - [Command levels and context detection](#command-levels-and-context-detection)
+  - [Query/data modules](#querydata-modules)
+
 ## Why
 
 - Clear separation of concerns: UI renders; Commands mutate state; Query modules fetch/persist
