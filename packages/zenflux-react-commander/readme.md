@@ -18,21 +18,23 @@ A lightweight command orchestration layer for React that separates UI from behav
 
 ## Quick start
 
-### 1) Define a Command
+Full working demo:
+- Budget Allocation app (end-to-end Commands + Query usage): [apps-example/budget-allocation](https://github.com/ZenFlux/zenflux/tree/tmp/apps-example/budget-allocation)
+
+### 1) Define a Command (domain: Items)
 
 ```ts
 import { CommandBase } from "@zenflux/react-commander/command-base";
 
-type CounterState = { count: number };
-type IncrementArgs = { delta: number };
+type Item = { id: string; name: string };
+type ItemsState = { items: Item[] };
 
-export class Increment extends CommandBase<CounterState, IncrementArgs> {
-  static getName() { return "App/Counter/Increment" }
+export class SetItemName extends CommandBase<ItemsState, { id: string; name: string }> {
+  static getName() { return "App/ItemsList/SetName" }
 
-  protected async apply(args: IncrementArgs) {
-    const next = { count: this.state.count + args.delta };
-    await this.setState(next);
-    return next.count;
+  protected apply(args: { id: string; name: string }) {
+    const items = (this.state.items ?? []).map(i => i.id === args.id ? { ...i, name: args.name } : i);
+    return this.setState({ items });
   }
 }
 ```
@@ -44,19 +46,31 @@ import React from "react";
 import { withCommands } from "@zenflux/react-commander/with-commands";
 import { useCommand, useCommandState } from "@zenflux/react-commander/hooks";
 
-type CounterState = { count: number };
+type Item = { id: string; name: string };
+type ItemsState = { items: Item[] };
 
-function Counter() {
-  const inc = useCommand("App/Counter/Increment");
-  const [slice] = useCommandState<CounterState, { count: number }>("App/Counter", s => ({ count: s.count }));
-  return <button onClick={() => inc.run({ delta: 1 })}>{slice.count}</button>;
+function ItemsList() {
+  const setName = useCommand("App/ItemsList/SetName");
+  const [slice] = useCommandState<ItemsState, { items: Item[] }>("App/ItemsList", s => ({ items: s.items ?? [] }));
+
+  const renameFirst = () => {
+    const first = slice.items[0];
+    if (first) setName.run({ id: first.id, name: first.name + "!" });
+  };
+
+  return (
+    <div>
+      <button onClick={renameFirst}>Rename first</button>
+      <ul>{slice.items.map(i => <li key={i.id}>{i.name}</li>)}</ul>
+    </div>
+  );
 }
 
-export const CounterWithCommands = withCommands<{}, CounterState>(
-  "App/Counter",
-  Counter,
-  { count: 0 },
-  [Increment]
+export const ItemsListWithCommands = withCommands<{}, ItemsState>(
+  "App/ItemsList",
+  ItemsList,
+  { items: [] },
+  [SetItemName]
 );
 ```
 
