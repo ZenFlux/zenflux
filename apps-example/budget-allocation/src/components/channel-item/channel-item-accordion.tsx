@@ -1,7 +1,7 @@
 import React from "react";
 
 import { withCommands } from "@zenflux/react-commander/with-commands";
-import { useCommandStateSelector } from "@zenflux/react-commander/use-commands";
+import { useCommandStateSelector } from "@zenflux/react-commander/hooks";
 
 import "@zenflux/app-budget-allocation/src/components/channel-item/_channel-item-accordion.scss";
 

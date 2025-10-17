@@ -2,7 +2,7 @@ import React from "react";
 
 import { QueryClient } from "@zenflux/react-commander/query/client";
 
-import { useCommandHook, useCommandOnDemand, useCommandState, useCommandWithRef } from "@zenflux/react-commander/use-commands";
+import { useCommandHook, useCommandOnDemand, useCommandState, useCommandWithRef } from "@zenflux/react-commander/hooks";
 
 import { withCommands } from "@zenflux/react-commander/with-commands";
 

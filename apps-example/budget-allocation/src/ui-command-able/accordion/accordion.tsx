@@ -3,7 +3,7 @@ import React from "react";
 import { CommandBase } from "@zenflux/react-commander/command-base";
 
 import { withCommands } from "@zenflux/react-commander/with-commands";
-import { useComponent } from "@zenflux/react-commander/use-commands";
+import { useComponent } from "@zenflux/react-commander/hooks";
 
 import { UIThemeAccordion } from "@zenflux/react-ui/src/accordion/ui-theme-accordion";
 

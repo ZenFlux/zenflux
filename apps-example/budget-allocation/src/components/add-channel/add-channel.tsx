@@ -1,6 +1,6 @@
 import React from "react";
 
-import { useCommand } from "@zenflux/react-commander/use-commands";
+import { useCommand } from "@zenflux/react-commander/hooks";
 
 import { Plus } from "@zenflux/react-ui/src/symbols";
 
@@ -20,10 +20,10 @@ export const AddChannel: DCommandFunctionComponent<{}> = () => {
             await command.run();
 
             setIsLoading( false );
-        } } 
-        className="add-channel min-w-[150px]" 
-        variant="bordered" 
-        disabled={ isLoading } 
+        } }
+        className="add-channel min-w-[150px]"
+        variant="bordered"
+        disabled={ isLoading }
         radius={ "none" }
         >
             { isLoading ? "Loading..." : <><span className="icon">{ Plus }</span>Add Channel</> }

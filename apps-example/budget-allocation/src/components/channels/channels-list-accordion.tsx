@@ -1,6 +1,6 @@
 import React from "react";
 
-import { useComponent, useCommandStateSelector } from "@zenflux/react-commander/use-commands";
+import { useComponent, useCommandStateSelector } from "@zenflux/react-commander/hooks";
 
 import { QueryComponent } from "@zenflux/react-commander/query/component";
 

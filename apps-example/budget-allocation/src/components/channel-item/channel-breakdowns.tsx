@@ -2,7 +2,7 @@ import React, { useCallback } from "react";
 
 import moment from "moment";
 
-import { useComponent, useCommandState, useCommandStateSelector, useCommandHook } from "@zenflux/react-commander/use-commands";
+import { useComponent, useCommandState, useCommandStateSelector, useCommandHook } from "@zenflux/react-commander/hooks";
 
 import { formatNumericStringToFraction } from "@zenflux/app-budget-allocation/src/utils";
 

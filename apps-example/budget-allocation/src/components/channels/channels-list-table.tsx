@@ -1,6 +1,6 @@
 import React from "react";
 
-import { useCommandStateSelector } from "@zenflux/react-commander/use-commands";
+import { useCommandStateSelector } from "@zenflux/react-commander/hooks";
 
 import ChannelItemTable from "@zenflux/app-budget-allocation/src/components/channel-item/channel-item-table.tsx";
 

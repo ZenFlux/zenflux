@@ -8,7 +8,7 @@ import {
     useChildCommandRunner,
     useLocalCommandHook,
     useCommand
-} from "@zenflux/react-commander/use-commands";
+} from "@zenflux/react-commander/hooks";
 
 import type { ChannelListState } from "@zenflux/app-budget-allocation/src/components/channels/channels-types";
 

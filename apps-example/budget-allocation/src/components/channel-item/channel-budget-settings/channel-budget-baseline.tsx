@@ -1,6 +1,6 @@
 import React from "react";
 
-import { useCommand } from "@zenflux/react-commander/use-commands";
+import { useCommand } from "@zenflux/react-commander/hooks";
 
 import { Info } from "@zenflux/react-ui/src/symbols";
 

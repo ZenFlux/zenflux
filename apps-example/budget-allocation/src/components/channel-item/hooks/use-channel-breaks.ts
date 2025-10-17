@@ -1,6 +1,6 @@
 import React from "react";
 
-import { useCommand, useCommandStateSelector } from "@zenflux/react-commander/use-commands";
+import { useCommand, useCommandStateSelector } from "@zenflux/react-commander/hooks";
 
 import { UpdateSource } from "@zenflux/app-budget-allocation/src/components/channel-item/channel-item-types";
 

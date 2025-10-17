@@ -44,7 +44,7 @@ export class Increment extends CommandBase<CounterState, IncrementArgs> {
 ```tsx
 import React from "react";
 import { withCommands } from "@zenflux/react-commander/with-commands";
-import { useCommand, useCommandStateSelector } from "@zenflux/react-commander/use-commands";
+import { useCommand, useCommandStateSelector } from "@zenflux/react-commander/hooks";
 import { Increment } from "./increment";
 
 type CounterState = { count: number };
@@ -413,7 +413,7 @@ type SetBreakdownArgs = { index: number; value: string; source: UpdateSource };
 
 #### useCommand(commandName)
 
-- Import: `import { useCommand } from "@zenflux/react-commander/use-commands"`
+- Import: `import { useCommand } from "@zenflux/react-commander/hooks"`
 - Purpose: Instance-bound adapter to run/hook a specific command of the current component
 
 ```tsx
@@ -423,7 +423,7 @@ setBreakdown.run({ index: 2, value: "1,000", source: UpdateSource.FROM_BUDGET_OV
 
 #### useComponent(componentName, context?, options?)
 
-- Import: `import { useComponent } from "@zenflux/react-commander/use-commands"`
+- Import: `import { useComponent } from "@zenflux/react-commander/hooks"`
 - Purpose: Target a specific component instance (current/parent/child) by context
 
 ```tsx
@@ -433,7 +433,7 @@ item.run("App/ChannelItem/SetFrequency", { value: "monthly" });
 
 #### useCommandState(componentName)
 
-- Import: `import { useCommandState } from "@zenflux/react-commander/use-commands"`
+- Import: `import { useCommandState } from "@zenflux/react-commander/hooks"`
 - Purpose: Read/write the injected component state (when provided via `withCommands`)
 
 ```tsx
@@ -443,7 +443,7 @@ setState({ selected: { ...getState().selected, abc: true } });
 
 #### useCommandStateSelector<TState, TSelected>(componentName, selector, options?)
 
-- Import: `import { useCommandStateSelector } from "@zenflux/react-commander/use-commands"`
+- Import: `import { useCommandStateSelector } from "@zenflux/react-commander/hooks"`
 - Purpose: Subscribe to derived slices with granular re-rendering
 
 ```tsx
@@ -455,7 +455,7 @@ const [slice, setState] = useCommandStateSelector<ChannelItemTableState, { editi
 
 #### useCommandHook(commandName, handler, ref?)
 
-- Import: `import { useCommandHook } from "@zenflux/react-commander/use-commands"`
+- Import: `import { useCommandHook } from "@zenflux/react-commander/hooks"`
 - Purpose: Declarative (un)subscription to a resolved command; optionally scoped with `ref`
 
 ```tsx
@@ -464,7 +464,7 @@ useCommandHook("App/ChannelsList/SetName", (_result, args) => { /* analytics */ 
 
 #### useLocalCommandHook(commandName, handler)
 
-- Import: `import { useLocalCommandHook } from "@zenflux/react-commander/use-commands"`
+- Import: `import { useLocalCommandHook } from "@zenflux/react-commander/hooks"`
 - Purpose: Shorthand to bind a scoped hook to the current component instance
 
 ```tsx

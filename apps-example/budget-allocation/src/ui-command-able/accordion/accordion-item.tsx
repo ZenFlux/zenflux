@@ -4,7 +4,7 @@ import { withCommands } from "@zenflux/react-commander/with-commands";
 
 import { CommandBase } from "@zenflux/react-commander/command-base";
 
-import { useCommand } from "@zenflux/react-commander/use-commands";
+import { useCommand } from "@zenflux/react-commander/hooks";
 
 import { UIThemeAccordionItem } from "@zenflux/react-ui/src/accordion/ui-theme-accordion";
 

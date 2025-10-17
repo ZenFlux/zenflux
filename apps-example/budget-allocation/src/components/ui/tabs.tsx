@@ -6,7 +6,7 @@ import { withCommands } from "@zenflux/react-commander/with-commands";
 
 import { CommandBase } from "@zenflux/react-commander/command-base";
 
-import { useChildCommandHook, useCommand, useComponent } from "@zenflux/react-commander/use-commands";
+import { useChildCommandHook, useCommand, useComponent } from "@zenflux/react-commander/hooks";
 
 import { cn } from "@zenflux/app-budget-allocation/src/lib/utils";
 
