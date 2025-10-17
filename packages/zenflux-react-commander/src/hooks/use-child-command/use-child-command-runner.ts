@@ -1,6 +1,6 @@
 import React from "react";
 
-import { useCommanderChildrenComponents } from "@zenflux/react-commander/hooks";
+import { useCommanderChildrenComponents } from "@zenflux/react-commander/hooks/utils";
 
 import type { DCommandArgs, DCommandSingleComponentContext } from "@zenflux/react-commander/definitions";
 

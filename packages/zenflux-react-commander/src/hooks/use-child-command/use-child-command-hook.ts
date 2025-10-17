@@ -1,10 +1,10 @@
 import React from "react";
 
-import { useCommanderChildrenComponents } from "@zenflux/react-commander/hooks";
+import { useCommanderChildrenComponents } from "@zenflux/react-commander/hooks/utils";
 
-import type { useComponent } from "@zenflux/react-commander/hooks";
+import type { useComponent } from "hooks/index";
 
-import type { DCommandArgs } from "@zenflux/react-commander/definitions";
+import type { DCommandArgs } from "definitions";
 
 export function useChildCommandHook(
     childComponentName: string,

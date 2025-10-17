@@ -1,6 +1,10 @@
 import React from "react";
 
-import { useCommandId, useCommandWithRef } from "@zenflux/react-commander/hooks";
+// eslint-disable-next-line no-restricted-imports, @zenflux/no-relative-imports
+import { useCommandId } from "../use-command-id";
+
+// eslint-disable-next-line no-restricted-imports, @zenflux/no-relative-imports
+import { useCommandWithRef } from "../use-command-with-ref";
 
 import commandsManager from "@zenflux/react-commander/commands-manager";
 

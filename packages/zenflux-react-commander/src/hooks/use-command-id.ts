@@ -1,6 +1,7 @@
 import React from "react";
 
-import { useCommandMatch } from "@zenflux/react-commander/hooks";
+// eslint-disable-next-line no-restricted-imports, @zenflux/no-relative-imports
+import { useCommandMatch } from "./use-command-match";
 
 import commandsManager from "@zenflux/react-commander/commands-manager";
 

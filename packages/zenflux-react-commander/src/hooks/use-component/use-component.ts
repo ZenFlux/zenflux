@@ -2,15 +2,15 @@
 import { getSafeContext } from "@zenflux/react-commander/hooks/utils";
 
 // eslint-disable-next-line no-restricted-imports, @zenflux/no-relative-imports
-import core from "../_internal/core";
+import core from "../../_internal/core";
 
 // eslint-disable-next-line no-restricted-imports, @zenflux/no-relative-imports
-import { GET_INTERNAL_SYMBOL } from "../_internal/constants";
+import { GET_INTERNAL_SYMBOL } from "../../_internal/constants";
 
 import commandsManager from "@zenflux/react-commander/commands-manager";
 
 import type React from "react";
-import type { DCommandArgs, DCommandComponentContextProps, DCommandHookHandle } from "@zenflux/react-commander/definitions";
+import type { DCommandArgs, DCommandComponentContextProps, DCommandHookHandle } from "definitions";
 
 export function useComponent( componentName: string, context?: DCommandComponentContextProps, options = { silent: false } ) {
     if ( ! options.silent ) {

@@ -1,6 +1,7 @@
 import React from "react";
 
-import { useComponentWithRef } from "@zenflux/react-commander/hooks";
+// eslint-disable-next-line no-restricted-imports, @zenflux/no-relative-imports
+import { useComponentWithRef } from "./use-component/use-component-with-ref";
 
 import commandsManager from "@zenflux/react-commander/commands-manager";
 
