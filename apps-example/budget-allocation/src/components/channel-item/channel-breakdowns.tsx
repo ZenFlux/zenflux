@@ -2,7 +2,7 @@ import React, { useCallback } from "react";
 
 import moment from "moment";
 
-import { useComponent, useCommandState, useCommandStateSelector, useCommandHook } from "@zenflux/react-commander/hooks";
+import { useComponent, useCommandState, useCommandHook } from "@zenflux/react-commander/hooks";
 
 import { formatNumericStringToFraction } from "@zenflux/app-budget-allocation/src/utils";
 
@@ -43,7 +43,7 @@ export const ChannelBreakdowns: React.FC = () => {
         setState( { baseline: sum! } );
     };
 
-    const [ settings ] = useCommandStateSelector<ChannelState, {
+    const [ settings ] = useCommandState<ChannelState, {
         allocation: ChannelState["allocation"]
         frequency: ChannelState["frequency"]
         baseline: ChannelState["baseline"]
@@ -56,7 +56,7 @@ export const ChannelBreakdowns: React.FC = () => {
         })
     );
 
-    const [ breaks ] = useCommandStateSelector<ChannelState, {
+    const [ breaks ] = useCommandState<ChannelState, {
         breaks: ChannelBreakData[]
     }>(
         "App/ChannelItem",

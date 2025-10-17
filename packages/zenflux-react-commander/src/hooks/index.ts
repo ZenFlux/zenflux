@@ -3,7 +3,6 @@ export { useCommand } from "./use-command";
 export { useComponent } from "./use-component";
 export { useCommandMatch } from "./use-command-match";
 export { useCommandState } from "./use-command-state";
-export { useCommandStateSelector } from "./use-command-state-selector";
 export { useCommandId } from "./use-command-id";
 export { useComponentWithRef } from "./use-component-with-ref";
 export { useCommandWithRef } from "./use-command-with-ref";

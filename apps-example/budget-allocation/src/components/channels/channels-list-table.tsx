@@ -1,13 +1,13 @@
 import React from "react";
 
-import { useCommandStateSelector } from "@zenflux/react-commander/hooks";
+import { useCommandState } from "@zenflux/react-commander/hooks";
 
 import ChannelItemTable from "@zenflux/app-budget-allocation/src/components/channel-item/channel-item-table.tsx";
 
 import type { ChannelListState } from "@zenflux/app-budget-allocation/src/components/channels/channels-types.ts";
 
 export const ChannelsListTable: React.FC = () => {
-    const [ channelsListState ] = useCommandStateSelector<ChannelListState, ChannelListState>(
+    const [ channelsListState ] = useCommandState<ChannelListState, ChannelListState>(
         "App/ChannelsList",
         (state) => state
     );

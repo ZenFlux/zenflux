@@ -1,11 +1,11 @@
 import React from "react";
 
-import { useCommandStateSelector } from "@zenflux/react-commander/hooks";
+import { useCommandState } from "@zenflux/react-commander/hooks";
 
 import type { ChannelItemTableState } from "@zenflux/app-budget-allocation/src/components/channel-item/channel-item-types";
 
 export function useChannelEditing( breaksLength: number ) {
-    const [ slice, setState ] = useCommandStateSelector<ChannelItemTableState, { editing: boolean[] }>(
+    const [ slice, setState ] = useCommandState<ChannelItemTableState, { editing: boolean[] }>(
         "App/ChannelItem",
         ( state ) => ( { editing: state.editing ?? [] } ),
     );

@@ -1,6 +1,6 @@
 import React from "react";
 
-import { useCommand, useCommandStateSelector } from "@zenflux/react-commander/hooks";
+import { useCommand, useCommandState } from "@zenflux/react-commander/hooks";
 
 import { UpdateSource } from "@zenflux/app-budget-allocation/src/components/channel-item/channel-item-types";
 
@@ -11,7 +11,7 @@ export function useChannelBreaks( initialChannel: Channel ): {
     breaks: ChannelBreaks;
     setBreakdown: ( index: number, value: string ) => void;
 } {
-    const [ slice, setState ] = useCommandStateSelector<ChannelItemTableState, { breaks: ChannelItemTableState["breaks"] }>(
+    const [ slice, setState ] = useCommandState<ChannelItemTableState, { breaks: ChannelItemTableState["breaks"] }>(
         "App/ChannelItem",
         ( state ) => ( { breaks: state.breaks ?? [] } ),
     );

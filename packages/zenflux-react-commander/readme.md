@@ -44,14 +44,14 @@ export class Increment extends CommandBase<CounterState, IncrementArgs> {
 ```tsx
 import React from "react";
 import { withCommands } from "@zenflux/react-commander/with-commands";
-import { useCommand, useCommandStateSelector } from "@zenflux/react-commander/hooks";
+import { useCommand, useCommandState } from "@zenflux/react-commander/hooks";
 import { Increment } from "./increment";
 
 type CounterState = { count: number };
 
 function Counter(_props: {}, _state?: CounterState) {
   const inc = useCommand("App/Counter/Increment");
-  const [slice] = useCommandStateSelector<CounterState, { count: number }>(
+  const [slice] = useCommandState<CounterState, { count: number }>(
     "App/Counter",
     s => ({ count: s.count })
   );
@@ -333,7 +333,7 @@ Typical patterns:
 
 - Define commands for all user actions with clear, fully-qualified names
 - Wrap components that need state or commands with `withCommands`
-- Use hooks (`useCommand`, `useCommandStateSelector`) in UI; avoid prop drilling
+- Use hooks (`useCommand`, `useCommandState`) in UI; avoid prop drilling
 - Create Query modules to fetch/persist; register them on a `QueryClient`
 - Render command-enabled components via `QueryComponent` for lifecycle wiring
 - Add autosave with `queryCreateAutoSaveManager` where appropriate
@@ -441,13 +441,13 @@ const [getState, setState] = useCommandState<ChannelListState>("App/ChannelsList
 setState({ selected: { ...getState().selected, abc: true } });
 ```
 
-#### useCommandStateSelector<TState, TSelected>(componentName, selector, options?)
+#### useCommandState<TState, TSelected>(componentName, selector, options?)
 
-- Import: `import { useCommandStateSelector } from "@zenflux/react-commander/hooks"`
+- Import: `import { useCommandState } from "@zenflux/react-commander/hooks"`
 - Purpose: Subscribe to derived slices with granular re-rendering
 
 ```tsx
-const [slice, setState] = useCommandStateSelector<ChannelItemTableState, { editing: boolean[] }>(
+const [slice, setState] = useCommandState<ChannelItemTableState, { editing: boolean[] }>(
   "App/ChannelItem",
   s => ({ editing: s.editing ?? [] })
 );

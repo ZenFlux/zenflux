@@ -1,7 +1,7 @@
 import React from "react";
 
 import { withCommands } from "@zenflux/react-commander/with-commands";
-import { useCommandStateSelector } from "@zenflux/react-commander/hooks";
+import { useCommandState } from "@zenflux/react-commander/hooks";
 
 import "@zenflux/app-budget-allocation/src/components/channel-item/_channel-item-accordion.scss";
 
@@ -24,7 +24,7 @@ import type { DCommandFunctionComponent } from "@zenflux/react-commander/definit
 export const ChannelItemAccordion: DCommandFunctionComponent<{ meta: Channel["meta"]; $data?: Channel }, ChannelState> = () => {
     const ChannelBudgetSettings = () => {
         // Subscribe to all budget settings for automatic re-rendering
-        const [state] = useCommandStateSelector<ChannelState, {
+        const [state] = useCommandState<ChannelState, {
             frequency: ChannelState["frequency"];
             baseline: ChannelState["baseline"];
             allocation: ChannelState["allocation"]

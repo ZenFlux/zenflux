@@ -1,6 +1,6 @@
 import React from "react";
 
-import { useComponent, useCommandStateSelector } from "@zenflux/react-commander/hooks";
+import { useComponent, useCommandState } from "@zenflux/react-commander/hooks";
 
 import { QueryComponent } from "@zenflux/react-commander/query/component";
 
@@ -35,7 +35,7 @@ const ChannelContent = React.memo<{ channelId: string, meta: Channel["meta"] }>(
 ChannelContent.displayName = "ChannelContent";
 
 export const ChannelsListAccordion: React.FC = () => {
-    const [ state, setState ] = useCommandStateSelector<ChannelListState, ChannelListState>( "App/ChannelsList",
+    const [ state, setState ] = useCommandState<ChannelListState, ChannelListState>( "App/ChannelsList",
         ( state ) => ({
             channels: state.channels,
             selected: state.selected,
