@@ -1,6 +1,6 @@
 import { useCommand } from "@zenflux/react-commander/hooks";
 
-import { Info } from "@zenflux/react-ui/src/symbols";
+import { ChannelBudgetSetting } from "@zenflux/app-budget-allocation/src/components/channel-item/channel-budget-settings/channel-budget-setting";
 
 import { Select, SelectItem } from "@zenflux/app-budget-allocation/src/components/ui/select";
 
@@ -42,13 +42,12 @@ export function ChannelBudgetFrequency( props: ChannelBudgetFrequencyProps ) {
     };
 
     return (
-        <div className="channel-budget-frequency">
-            <Info>Budget Frequency</Info>
+        <ChannelBudgetSetting label="Budget Frequency" width="w-[226px]">
             <Select { ... selectProps }>
                 { Object.keys( DEFAULT_FREQUENCIES ).map( key => (
                     <SelectItem key={ key } value={ key }>{ getChannelBudgetFrequencyLabel( key as any ) }</SelectItem>
                 ) ) }
             </Select>
-        </div>
+        </ChannelBudgetSetting>
     );
 }
