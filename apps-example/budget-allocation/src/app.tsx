@@ -10,14 +10,14 @@ import { CommandBase } from "@zenflux/react-commander/command-base";
 
 import { QueryProvider } from "@zenflux/react-commander/query/provider";
 
+import { Tab, Tabs } from "@zenflux/app-budget-allocation/src/components/ui/tabs";
+
+import { LoadingButton } from "@zenflux/app-budget-allocation/src/ui-command-able/loading-button/loading-button";
+
 import { ChannelItemQuery } from "@zenflux/app-budget-allocation/src/components/channel-item/channel-item-query";
 import { ChannelsListQuery, ChannelsListWithBreaksQuery } from "@zenflux/app-budget-allocation/src/components/channels/channels-list-query";
 
-import { Tab, Tabs } from "@zenflux/app-budget-allocation/src/components/ui/tabs";
-
 import Layout from "@zenflux/app-budget-allocation/src/ui-layout/layout";
-import { AddChannel } from "@zenflux/app-budget-allocation/src/components/add-channel/add-channel";
-import { Reset } from "@zenflux/app-budget-allocation/src/components/add-channel/reset";
 
 import "@zenflux/app-budget-allocation/src/app.scss";
 
@@ -51,8 +51,8 @@ export function App() {
     const layoutProps: LayoutProps = {
         header: {
             end: <div className="flex gap-2">
-                <AddChannel/>
-                <Reset/>
+                <LoadingButton emoji="+" label="Add Channel" onClickCommand="App/AddChannel" />
+                <LoadingButton emoji="⟳" label="Reset Demo" onClickCommand="App/ChannelsList/Reset" />
             </div>,
         }
     };
