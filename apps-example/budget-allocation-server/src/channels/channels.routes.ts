@@ -1,10 +1,10 @@
-import { ChannelsService } from "@zenflux/budget-allocation-server/src/channels/channels.service";
-import { DelayUtil } from "@zenflux/budget-allocation-server/src/utils/delay.util";
-import { serverConfig } from "@zenflux/budget-allocation-server/src/config/server.config";
+import { ChannelsService } from "./channels.service";
+import { DelayUtil } from "../utils/delay.util";
+import { serverConfig } from "../config/server.config";
 
 import type { FastifyInstance, FastifyPluginOptions } from "fastify";
 
-import type { CreateChannelDto, SetChannelNameDto, UpdateChannelDto, UpdateChannelsListDto } from "@zenflux/budget-allocation-server/src/channels/channel.interface";
+import type { CreateChannelDto, SetChannelNameDto, UpdateChannelDto, UpdateChannelsListDto } from "./channel.interface";
 
 const channelsService = new ChannelsService();
 

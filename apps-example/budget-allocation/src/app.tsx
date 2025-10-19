@@ -26,7 +26,9 @@ import type { LayoutProps } from "@zenflux/app-budget-allocation/src/ui-layout/l
 const BudgetAllocation = React.lazy( () => import( "@zenflux/app-budget-allocation/src/budget-allocation" ) ),
     BudgetOverview = React.lazy( () => import( "@zenflux/app-budget-allocation/src/budget-overview" ) );
 
-const client = new QueryClient( "http://localhost:3002" );
+const client = new QueryClient( 
+    import.meta.env.VITE_DEPLOY_BUDGET_ALLOCATION_API_URL || "http://localhost:3002" 
+);
 
 client.registerModule( ChannelsListQuery );
 client.registerModule( ChannelsListWithBreaksQuery );

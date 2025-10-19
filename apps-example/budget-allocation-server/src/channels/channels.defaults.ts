@@ -6,7 +6,7 @@ export const defaultChannels: Channel[] = [
         meta: {
             id: "free-reviews",
             name: "Free Reviews",
-            icon: "/assets/test.png",
+            icon: "assets/test.png",
             createdAt: 0,
         },
         allocation: "equal",
@@ -19,7 +19,7 @@ export const defaultChannels: Channel[] = [
         meta: {
             id: "paid-reviews",
             name: "Paid Reviews",
-            icon: "/assets/affiliate-program.png",
+            icon: "assets/affiliate-program.png",
             createdAt: 1,
         },
         allocation: "equal",

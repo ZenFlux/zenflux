@@ -9,7 +9,7 @@
     "demos:budget-allocation-server-start": "bun dist/main.js",
     "demos:budget-allocation-server-start:dev": "tsc --watch & nodemon",
     "demos:budget-allocation-server-start:prod": "bun dist/main.js",
-    "demos:budget-allocation-server-deploy": "vercel --yes"
+    "demos:budget-allocation-server-deploy": "fly deploy"
   },
   "private": true,
   "devDependencies": {

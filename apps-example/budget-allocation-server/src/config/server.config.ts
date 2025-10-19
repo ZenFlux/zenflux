@@ -25,10 +25,10 @@ export interface ServerConfig {
 }
 
 export const serverConfig: ServerConfig = {
-    port: 3002,
+    port: 3000,
     host: "0.0.0.0",
     cors: {
-        origins: ["http://localhost:3000", "http://localhost:5174"],
+        origins: true, // Allow all origins for now
         methods: ["GET", "POST", "PUT", "DELETE"],
         allowedHeaders: ["Content-Type", "Authorization"],
     },

@@ -1,6 +1,6 @@
-import { defaultChannels } from "@zenflux/budget-allocation-server/src/channels/channels.defaults";
+import { defaultChannels } from "./channels.defaults";
 
-import type { Channel, CreateChannelDto, SetChannelNameDto, UpdateChannelDto, UpdateChannelsListDto } from "@zenflux/budget-allocation-server/src/channels/channel.interface";
+import type { Channel, CreateChannelDto, SetChannelNameDto, UpdateChannelDto, UpdateChannelsListDto } from "./channel.interface";
 
 export class ChannelsService {
     private channels: Map<string, Channel> = new Map();
