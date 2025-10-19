@@ -36,7 +36,7 @@ const frontendProcess = spawn('bun', ['run', 'z-demos:budget-allocation:dev'], {
 });
 
 // Backend process (Nodemon with TypeScript watch)
-const backendProcess = spawn('bun', ['run', 'start:dev'], {
+const backendProcess = spawn('bun', ['run', 'demos:budget-allocation-server-start:dev'], {
     cwd: path.join(rootDir, envConfig.backend.cwd),
     stdio: 'inherit',
     shell: true,
