@@ -1,0 +1,21 @@
+{
+  "version": 2,
+  "installCommand": "curl -fsSL https://bun.sh/install | bash && ~/.bun/bin/bun install --frozen-lockfile",
+  "buildCommand": "~/.bun/bin/bun build src/main.ts --outfile dist/main.js --target node",
+  "outputDirectory": "dist",
+  "builds": [
+    {
+      "src": "dist/main.js",
+      "use": "@vercel/node",
+      "config": {
+        "runtime": "nodejs18.x"
+      }
+    }
+  ],
+  "routes": [
+    {
+      "src": "/(.*)",
+      "dest": "dist/main.js"
+    }
+  ]
+}

@@ -1,7 +1,7 @@
 {
   "compilerOptions": {
-    "module": "commonjs",
-    "declaration": true,
+    "module": "NodeNext",
+    "declaration": false,
     "removeComments": true,
     "emitDecoratorMetadata": true,
     "experimentalDecorators": true,

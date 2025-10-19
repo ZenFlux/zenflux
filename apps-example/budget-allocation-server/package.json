@@ -2,17 +2,20 @@
   "name": "@zenflux/budget-allocation-server",
   "version": "1.0.0",
   "description": "Fastify server for budget allocation app",
+  "type": "module",
   "main": "dist/main.js",
   "scripts": {
-    "build": "tsc",
-    "start": "bun dist/main.js",
-    "start:dev": "tsc --watch & nodemon",
-    "start:prod": "bun dist/main.js"
+    "demos:budget-allocation-server-build": "esbuild src/main.ts --bundle --platform=node --outfile=dist/main.js",
+    "demos:budget-allocation-server-start": "bun dist/main.js",
+    "demos:budget-allocation-server-start:dev": "tsc --watch & nodemon",
+    "demos:budget-allocation-server-start:prod": "bun dist/main.js",
+    "demos:budget-allocation-server-deploy": "vercel --yes"
   },
   "private": true,
   "devDependencies": {
     "@types/bun": "latest",
     "@types/node": "^24.5.2",
+    "esbuild": "^0.19.5",
     "nodemon": "^3.1.10",
     "typescript": "^5.9.2"
   },
