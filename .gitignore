@@ -9,3 +9,5 @@ log
 \#backups/
 
 packages/zenflux-typescript-vm/.backups/
+
+.env
