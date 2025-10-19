@@ -25,7 +25,7 @@ export interface ServerConfig {
 }
 
 export const serverConfig: ServerConfig = {
-    port: 3000,
+    port: 3002,
     host: "0.0.0.0",
     cors: {
         origins: ["http://localhost:3000", "http://localhost:5174"],

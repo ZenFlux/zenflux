@@ -8,6 +8,7 @@
         "@zenflux/budget-allocation-server": "workspace:*",
         "@zenflux/cli": "workspace:*",
         "@zenflux/eslint": "workspace:*",
+        "@zenflux/react-ui": "workspace:*",
       },
       "devDependencies": {
         "ssh2": "^1.17.0",
