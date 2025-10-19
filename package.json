@@ -23,20 +23,18 @@
         "apps-example/*"
     ],
     "scripts": {
-        "@z-flux:eslint": "eslint .",
-        "@z-flux:eslint:bun": "bunx --bun eslint .",
-        "@z-flux:dev": "@z-cli @watch --dev",
-        "@z-flux:core:build": "@z-cli @build --workspace core",
-        "@z-flux:react:build": "@z-cli @build --workspace react-* --dev",
-        "@z-flux:react:dev": "@z-cli @watch --workspace react-* --dev",
-        "@z-flux:react-reconciler-dev": "@z-cli @watch --workspace react-reconciler --dev",
-        "@z-flux:react:eslint:ci": "time ( bunx --bun eslint packages-react --cache --cache-strategy content )",
-        "@z-flux:react:test:ci": "time ( @z-jest --ci --bail --selectedProjects react-test-renderer,react-cache,react-scheduler,internal-test-utils,react-reconciler )",
-        "@z-flux:react:build:ci": "time ( @z-cli @build --workspace \"react-*\" --haltOnDiagnosticError )",
-        "@z-examples:budget-allocation:dev": "cd apps-example/budget-allocation && bun run z-demos:budget-allocation:dev",
-        "@z-examples:budget-allocation-server:dev": "cd apps-example/budget-allocation-server && bun run start:dev",
-        "@z-examples:budget-allocation:dev-full": "node scripts/app-examples/budget-allocation/run-dev.js",
-        "@z-examples:budget-allocation:prod-full": "node scripts/app-examples/budget-allocation/run-prod.js"
+        "@z-workspace:eslint": "eslint .",
+        "@z-workspace:eslint:bun": "bunx --bun eslint .",
+        "@z-workspace:dev": "@z-cli @watch --dev",
+        "@z-workspace:core:build": "@z-cli @build --workspace core",
+        "@z-workspace:react:build": "@z-cli @build --workspace react-* --dev",
+        "@z-workspace:react:dev": "@z-cli @watch --workspace react-* --dev",
+        "@z-workspace:react-reconciler-dev": "@z-cli @watch --workspace react-reconciler --dev",
+        "@z-workspace:react:eslint:ci": "time ( bunx --bun eslint packages-react --cache --cache-strategy content )",
+        "@z-workspace:react:test:ci": "time ( @z-jest --ci --bail --selectedProjects react-test-renderer,react-cache,react-scheduler,internal-test-utils,react-reconciler )",
+        "@z-workspace:react:build:ci": "time ( @z-cli @build --workspace \"react-*\" --haltOnDiagnosticError )",
+        "@z-examples:budget-allocation:dev": "node scripts/app-examples/budget-allocation/run-dev.js",
+        "@z-examples:budget-allocation:prod": "node scripts/app-examples/budget-allocation/run-prod.js"
     },
     "dependencies": {
         "@zenflux/cli": "workspace:*",
