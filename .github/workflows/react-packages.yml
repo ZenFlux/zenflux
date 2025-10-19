@@ -20,7 +20,7 @@ jobs:
       - uses: oven-sh/setup-bun@v1
 
       - name: Cache dependencies
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: ~/.bun/install/cache
           key: ${{ runner.os }}-bun-${{ hashFiles('**/bun.lockb') }}
@@ -40,7 +40,7 @@ jobs:
           tar -czvf build-artifacts.tar.gz -C build-artifacts .
 
       - name: Upload build artifacts
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: build-artifacts
           path: build-artifacts.tar.gz
@@ -55,7 +55,7 @@ jobs:
       - uses: oven-sh/setup-bun@v1
 
       - name: Cache dependencies
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: ~/.bun/install/cache
           key: ${{ runner.os }}-bun-${{ hashFiles('**/bun.lockb') }}
@@ -66,7 +66,7 @@ jobs:
         run: bun install
 
       - name: Download build artifacts
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: build-artifacts
 
@@ -75,7 +75,7 @@ jobs:
 
       - name: Restore ESLint cache
         id: restore-eslint-cache
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: .eslintcache
           key: eslint-cache-${{ runner.os }}-${{ hashFiles('bun.lock', 'eslint.confg.js', '.eslintignore') }}
@@ -87,7 +87,7 @@ jobs:
 
       - name: Save ESLint cache
         if: steps.restore-eslint-cache.outputs.cache-hit != 'true'
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: .eslintcache
           key: eslint-cache-${{ runner.os }}-${{ hashFiles('bun.lock', 'eslint.confg.js', '.eslintignore') }}
@@ -102,7 +102,7 @@ jobs:
       - uses: oven-sh/setup-bun@v1
 
       - name: Cache dependencies
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: ~/.bun/install/cache
           key: ${{ runner.os }}-bun-${{ hashFiles('**/bun.lockb') }}
@@ -113,7 +113,7 @@ jobs:
         run: bun install
 
       - name: Download build artifacts
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: build-artifacts
 

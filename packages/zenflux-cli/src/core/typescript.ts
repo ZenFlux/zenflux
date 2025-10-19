@@ -8,15 +8,15 @@ import { fileURLToPath } from "node:url";
 import util from "node:util";
 import os from "node:os";
 
-import { zDeepMergeAll } from "@zenflux/utils/src/object";
+import { zDeepMergeAll } from "@zenflux/utils/object";
 
-import { zGetAbsoluteOrRelativePath } from "@zenflux/utils/src/path";
+import { zGetAbsoluteOrRelativePath } from "@zenflux/utils/path";
 
 import { ensureInWorker } from "@zenflux/worker/utils";
 
 import ts from "typescript";
 
-import { zCreateResolvablePromise } from "@zenflux/utils/src/promise";
+import { zCreateResolvablePromise } from "@zenflux/utils/promise";
 
 import { Package } from "@zenflux/cli/src/modules/npm/package";
 

@@ -1,6 +1,6 @@
 import { useCommand } from "@zenflux/react-commander/hooks";
 
-import { Info } from "@zenflux/react-ui/src/symbols";
+import { ChannelBudgetSetting } from "@zenflux/app-budget-allocation/src/components/channel-item/channel-budget-settings/channel-budget-setting";
 
 import ButtonGroup from "@zenflux/app-budget-allocation/src/components/ui/button-group";
 import { Button } from "@zenflux/app-budget-allocation/src/components/ui/button";
@@ -24,7 +24,7 @@ export function getChannelBudgetAllocationLabel( budgetAllocation: BudgetAllocat
 }
 
 const DEFAULT_PROPS: Partial<ButtonProps> = {
-    className: "button"
+    className: "py-[20px]"
 };
 
 export function ChannelBudgetAllocationButton( props: ButtonProps & {
@@ -50,9 +50,8 @@ export function ChannelBudgetAllocationButton( props: ButtonProps & {
 
 export function ChannelBudgetAllocation( props: ChannelBudgetAllocationProps ) {
     return (
-        <div className="channel-budget-allocation">
-            <Info>Budget Allocation</Info>
-            <ButtonGroup variant="flat" className="button-group">
+        <ChannelBudgetSetting label="Budget Allocation">
+            <ButtonGroup variant="flat" className="mt-1">
                 { Object.keys( DEFAULT_BUDGET_ALLOCATIONS ).map( ( key ) => (
                     <ChannelBudgetAllocationButton
                         key={ key }
@@ -61,6 +60,6 @@ export function ChannelBudgetAllocation( props: ChannelBudgetAllocationProps ) {
                     />
                 ) ) }
             </ButtonGroup>
-        </div>
+        </ChannelBudgetSetting>
     );
 }

@@ -8,10 +8,10 @@ import fs from "node:fs";
 import util from "node:util";
 import vm from "node:vm";
 
-import { zCreateResolvablePromise } from "@zenflux/utils/src/promise";
+import { zCreateResolvablePromise } from "@zenflux/utils/promise";
 
 import { checksum, verbose } from "./utils.js";
-import { ErrorWithMeta } from "@zenflux/utils/src/error";
+import { ErrorWithMeta } from "@zenflux/utils/error";
 
 export class Loaders {
     /**

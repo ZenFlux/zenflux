@@ -7,7 +7,8 @@
         "z-demos:budget-allocation:lint": "@z-cli @lint",
         "z-demos:budget-allocation:preview": "vite preview",
         "z-demos:budget-allocation:clean": "vite clean",
-        "z-demos:budget-allocation:typecheck": "@z-cli @typecheck"
+        "z-demos:budget-allocation:typecheck": "@z-cli @typecheck",
+        "z-demos:budget-allocation:deploy": "node ../../scripts/app-examples/budget-allocation/deploy.js"
     },
     "peerDependencies": {
         "typescript": "^5.0.0"

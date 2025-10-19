@@ -12,7 +12,7 @@ interface ButtonProps extends React.ComponentProps<typeof ButtonComponent> {
     onClickCommand: string
 }
 
-export const Button: DCommandFunctionComponent<ButtonProps> = ({ label, emoji, onClickCommand, ...props }) => {
+export const LoadingButton: DCommandFunctionComponent<ButtonProps> = ({ label, emoji, onClickCommand, ...props }) => {
     const [ isLoading, setIsLoading ] = React.useState( false );
 
     const command = useCommand( onClickCommand );

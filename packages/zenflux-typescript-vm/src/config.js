@@ -1,6 +1,6 @@
 import util from "node:util";
 
-import { zCreateResolvablePromise } from "@zenflux/utils/src/promise";
+import { zCreateResolvablePromise } from "@zenflux/utils/promise";
 
 import { verbose } from "./utils.js";
 

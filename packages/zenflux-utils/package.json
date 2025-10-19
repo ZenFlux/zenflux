@@ -1,6 +1,6 @@
 {
     "name": "@zenflux/utils",
-    "version": "0.1.0",
+    "version": "0.1.4",
     "type": "module",
     "publishConfig": {
         "access": "public"
@@ -13,10 +13,11 @@
     ],
     "exports": {
         "./package.json": "./package.json",
-        "./src/*": [
-            "./src/*.js",
-            "./src/*.ts"
-        ]
+        "./error": "./src/error.js",
+        "./object": "./src/object.js",
+        "./path": "./src/path.js",
+        "./promise": "./src/promise.js",
+        "./workspace": "./src/workspace.js"
     },
     "scripts": {
         "build-types": "rm src/*.d.ts >/dev/null 2>&1 ; tsc -p ./tsconfig.json"

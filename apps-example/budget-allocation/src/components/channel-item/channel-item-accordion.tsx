@@ -3,8 +3,6 @@ import React from "react";
 import { withCommands } from "@zenflux/react-commander/with-commands";
 import { useCommandState } from "@zenflux/react-commander/hooks";
 
-import "@zenflux/app-budget-allocation/src/components/channel-item/_channel-item-accordion.scss";
-
 import {
     ChannelBudgetFrequency,
     ChannelBudgetBaseline,
@@ -38,7 +36,7 @@ export const ChannelItemAccordion: DCommandFunctionComponent<{ meta: Channel["me
         );
 
         return (
-            <div className="channel-budget-settings">
+            <div className="grid gap-[350px]" style={{ gridTemplateColumns: "repeat(3, 0px)" }}>
                 <ChannelBudgetFrequency frequency={ state.frequency }/>
                 <ChannelBudgetBaseline frequency={ state.frequency } baseline={ state.baseline } allocation={ state.allocation }/>
                 <ChannelBudgetAllocation allocation={ state.allocation }/>

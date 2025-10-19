@@ -7,9 +7,9 @@ import nodeFs from "node:fs";
 import { Loaders, Resolvers, vm } from "@zenflux/typescript-vm";
 
 import process from "node:process";
-import { zFindRootPackageJsonPath } from "@zenflux/utils/src/workspace";
+import { zFindRootPackageJsonPath } from "@zenflux/utils/workspace";
 import * as util from "util";
-import { ErrorWithMeta } from "@zenflux/utils/src/error";
+import { ErrorWithMeta } from "@zenflux/utils/error";
 
 // Constants
 const CORE_PROJECT_NAME = "@zenflux/zenflux";

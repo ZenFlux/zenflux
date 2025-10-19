@@ -44,6 +44,7 @@ This repository is a monorepo that contains the following packages:
 - [`zenflux-jest`](https://github.com/ZenFlux/zenflux/tree/main/packages/zenflux-jest): A Jest runner designed for the monorepo workspaces.
 - [`zenflux-tsconfig-to-swc`](https://github.com/ZenFlux/zenflux/tree/main/packages/zenflux-tsconfig-to-swc): A utility to convert TypeScript configuration to SWC configuration.
 - [`zenflux-typescript-vm`](https://github.com/ZenFlux/zenflux/tree/main/packages/zenflux-typescript-vm): A TypeScript virtual machine used by ZenFlux ecosystem.
+- [`zenflux-react-commander`](https://github.com/ZenFlux/zenflux/tree/main/packages/zenflux-react-commander): React command orchestration (withCommands, hooks, Query modules).
 
 ### React packages
 - [`react-packages`](https://github.com/ZenFlux/zenflux/tree/main/packages-react): A TypeScript port of React mainly used to test the ZenFlux ecosystem.

@@ -8,7 +8,7 @@ import { fileURLToPath } from "node:url";
 
 import { normalize } from "jest-config";
 
-import { zFindRootPackageJsonPath } from "@zenflux/utils/src/workspace";
+import { zFindRootPackageJsonPath } from "@zenflux/utils/workspace";
 
 import { Package } from "@zenflux/cli/src/modules/npm/package";
 import { ConsoleManager } from "@zenflux/cli/src/managers/console-manager";

@@ -29,6 +29,7 @@
             "args": ["-l"]
         }
     },
+    "typescript.preferences.importModuleSpecifier": "project-relative",
     "typescript.preferences.includePackageJsonAutoImports": "on",
     "typescript.suggest.autoImports": true,
     "typescript.updateImportsOnFileMove.enabled": "always"

@@ -11,8 +11,8 @@ import path from "node:path";
 
 import { createContext, measureMemory } from "node:vm";
 
-import { zGetAbsoluteOrRelativePath } from "@zenflux/utils/src/path";
-import { zCreateResolvablePromise } from "@zenflux/utils/src/promise";
+import { zGetAbsoluteOrRelativePath } from "@zenflux/utils/path";
+import { zCreateResolvablePromise } from "@zenflux/utils/promise";
 
 import { defineConfig, externalConfig, waitForConfig } from "./config.js";
 

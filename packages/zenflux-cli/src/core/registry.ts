@@ -3,7 +3,7 @@
 import fs from "node:fs";
 import crypto from "node:crypto";
 
-import { zGetMatchingPathsRecursive } from "@zenflux/utils/src/path";
+import { zGetMatchingPathsRecursive } from "@zenflux/utils/path";
 
 import { zNetCheckPortOnline } from "@zenflux/cli/src/utils/net";
 

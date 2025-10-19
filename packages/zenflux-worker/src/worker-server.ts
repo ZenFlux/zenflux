@@ -14,7 +14,7 @@ import process from "node:process";
 
 import { ConsoleManager } from "@zenflux/cli/src/managers/console-manager";
 
-import { zCreateResolvablePromise } from "@zenflux/utils/src/promise";
+import { zCreateResolvablePromise } from "@zenflux/utils/promise";
 
 import type {
     DMessageInterface,

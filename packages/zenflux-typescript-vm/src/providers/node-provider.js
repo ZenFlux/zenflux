@@ -3,7 +3,7 @@ import path from "node:path";
 
 import { createRequire } from "node:module";
 
-import { zIsUnixOrFileProtocolPath } from "@zenflux/utils/src/path";
+import { zIsUnixOrFileProtocolPath } from "@zenflux/utils/path";
 
 import { ProviderBase } from "./base/provider-base.js";
 
