@@ -9,7 +9,7 @@ import { join, relative } from 'path';
 import { fileURLToPath } from 'url';
 import { dirname } from 'path';
 import dotenv from 'dotenv';
-import { zFindRootPackageJsonPath } from "@zenflux/utils/src/workspace";
+import { zFindRootPackageJsonPath } from "@zenflux/utils/workspace";
 
 // Load environment variables from root .env file
 const __filename = fileURLToPath(import.meta.url);
