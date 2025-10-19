@@ -1,6 +1,6 @@
 {
     "name": "@zenflux/cli",
-    "version": "0.1.2",
+    "version": "0.1.14",
     "type": "module",
     "types": "./types/index.d.ts",
     "bin": {
@@ -24,6 +24,7 @@
         "@zenflux/tsconfig-to-swc": "workspace:*",
         "@zenflux/typescript-vm": "workspace:*",
         "@zenflux/utils": "workspace:*",
+        "@zenflux/worker": "workspace:*",
         "blessed": "^0.1.81",
         "chokidar": "^3.5.3",
         "magic-string": "^0.30.5",
