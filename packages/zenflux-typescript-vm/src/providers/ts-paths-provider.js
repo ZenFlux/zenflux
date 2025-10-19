@@ -2,7 +2,7 @@ import fs from "node:fs";
 
 import { createMatchPathAsync } from "tsconfig-paths";
 
-import { zIsUnixOrFileProtocolPath } from "@zenflux/utils/src/path.js";
+import { zIsUnixOrFileProtocolPath } from "@zenflux/utils/path.js";
 
 import { ProviderBase } from "./base/provider-base.js";
 

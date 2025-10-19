@@ -8,7 +8,7 @@ import { Loaders, Resolvers, vm } from "@zenflux/typescript-vm";
 
 import { workerData } from "node:worker_threads";
 import process from "node:process";
-import { ErrorWithMeta } from "@zenflux/utils/src/error";
+import { ErrorWithMeta } from "@zenflux/utils/error";
 
 const currentFilePath = fileURLToPath( import.meta.url || `file://${__filename}` ),
     currentDirPath = path.dirname( currentFilePath ),

@@ -5,7 +5,7 @@ import process from "node:process";
 import path from "node:path";
 import util from "node:util";
 
-import { zFindRootPackageJsonPath } from "@zenflux/utils/src/workspace";
+import { zFindRootPackageJsonPath } from "@zenflux/utils/workspace";
 
 import { ConsoleManager } from "@zenflux/cli/src/managers/console-manager";
 

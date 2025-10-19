@@ -6,8 +6,8 @@ import path from "node:path";
 
 import { fileURLToPath } from "node:url";
 
-import { zFindRootPackageJsonPath } from "@zenflux/utils/src/workspace";
-import { zGetMatchingPathsRecursive } from "@zenflux/utils/src/path";
+import { zFindRootPackageJsonPath } from "@zenflux/utils/workspace";
+import { zGetMatchingPathsRecursive } from "@zenflux/utils/path";
 
 globalThis.__Z_ESLINT_CONFIG__ = globalThis.__Z_ESLINT_CONFIG__ ?? {
     zRootPackagePath: zFindRootPackageJsonPath(),

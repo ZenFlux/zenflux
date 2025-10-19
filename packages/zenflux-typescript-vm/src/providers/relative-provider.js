@@ -1,6 +1,6 @@
 import path from "node:path";
 
-import { zIsUnixOrFileProtocolPath } from "@zenflux/utils/src/path";
+import { zIsUnixOrFileProtocolPath } from "@zenflux/utils/path";
 
 import { ProviderBase } from "./base/provider-base.js";
 

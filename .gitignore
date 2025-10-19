@@ -11,3 +11,4 @@ log
 packages/zenflux-typescript-vm/.backups/
 
 .env
+.vercel

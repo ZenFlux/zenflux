@@ -5,8 +5,8 @@ import path from "node:path";
 
 import util from "node:util";
 
-import { zGetMatchingPathsRecursive } from "@zenflux/utils/src/path";
-import { zFindRootPackageJsonPath } from "@zenflux/utils/src/workspace";
+import { zGetMatchingPathsRecursive } from "@zenflux/utils/path";
+import { zFindRootPackageJsonPath } from "@zenflux/utils/workspace";
 
 import { ConsoleManager } from "@zenflux/cli/src/managers/console-manager";
 
