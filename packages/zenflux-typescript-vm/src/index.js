@@ -15,18 +15,21 @@ import { zGetAbsoluteOrRelativePath } from "@zenflux/utils/path";
 import { zCreateResolvablePromise } from "@zenflux/utils/promise";
 
 import { defineConfig, externalConfig, waitForConfig } from "./config.js";
+import { verbose } from "./utils.js";
 
 export { Resolvers } from "./resolvers.js";
 export { Loaders } from "./loaders.js";
 
-// Ensure '--experimental-vm-modules' flag is enabled.
-if ( ! process.execArgv.includes( '--experimental-vm-modules' ) ) {
-    throw new Error( "Please enable '--experimental-vm-modules' flag" );
-}
+const isBun = typeof process.versions.bun !== "undefined";
 
-// Ensure '--experimental-import-meta-resolve' flag is enabled.
-if ( ! process.execArgv.includes( '--experimental-import-meta-resolve' ) ) {
-    throw new Error( "Please enable '--experimental-import-meta-resolve' flag" );
+if ( ! isBun ) {
+    if ( ! process.execArgv.includes( '--experimental-vm-modules' ) ) {
+        throw new Error( "Please enable '--experimental-vm-modules' flag" );
+    }
+
+    if ( ! process.execArgv.includes( '--experimental-import-meta-resolve' ) ) {
+        throw new Error( "Please enable '--experimental-import-meta-resolve' flag" );
+    }
 }
 
 util.inspect.defaultOptions.colors = true;
@@ -223,10 +226,10 @@ const initialize = async () => {
             setInterval( printMemoryUsage, mode === "summary" ? 10000 : 1000 );
         }
 
-        // defer to next tick, allow to load all providers.
         return new Promise( ( resolve, reject ) => {
             setTimeout( () => {
                 async function linker( modulePath, referencingModule ) {
+                    verbose( 'core', 'linker', () => `linker() called for: ${ util.inspect( modulePath ) } referer ${ util.inspect( "file://" + referencingModule.identifier ) }` );
                     const result = await resolvers.try( modulePath, referencingModule ).resolve()
                         .catch( ( error ) => /* Lazy... but works */ referencingModule = error.referencingModule );
 
@@ -279,9 +282,16 @@ const initialize = async () => {
                     throw new Error( `Module not found: ${ util.inspect( modulePath ) } referer ${ util.inspect( "file://" + referencingModule.identifier ) }` );
                 }
 
+                console.log('[VM-DEBUG] About to call loaders.loadModule with entrypoint:', entrypointPath);
                 loaders.loadModule( entrypointPath, "esm", null , linker )
-                    .then( resolve )
-                    .catch( reject );
+                    .then( ( result ) => {
+                        verbose( 'core', 'linker', () => `Resolved to: ${ util.inspect( result ) }`)
+                        resolve( result );
+                    } )
+                    .catch( ( err ) => {
+                        verbose( 'core', 'linker', () => `Failed to resolve: ${ util.inspect( err ) }`)
+                        reject( err );
+                    } );
             } );
         } );
     }
