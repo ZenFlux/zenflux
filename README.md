@@ -39,7 +39,7 @@ Its value proposition lies in its ability to streamline the development workflow
 
 This repository is a monorepo that contains the following packages:
 
-- [`zenflux-cli`](https://github.com/ZenFlux/zenflux/tree/main/packages/zenflux-cli): A CLI tool that offers functionalities related to building, publishing, and watching monorepo workspaces.
+- [`zenflux-cli`](https://github.com/ZenFlux/zenflux/tree/main/packages/zenflux-cli): A CLI tool that offers functionalities related to building, publishing, watching monorepo workspaces, and generating projects from templates.
 - [`zenflux-eslint`](https://github.com/ZenFlux/zenflux/tree/main/packages/zenflux-eslint): An ESLint configuration for the ZenFlux ecosystem.
 - [`zenflux-jest`](https://github.com/ZenFlux/zenflux/tree/main/packages/zenflux-jest): A Jest runner designed for the monorepo workspaces.
 - [`zenflux-tsconfig-to-swc`](https://github.com/ZenFlux/zenflux/tree/main/packages/zenflux-tsconfig-to-swc): A utility to convert TypeScript configuration to SWC configuration.
