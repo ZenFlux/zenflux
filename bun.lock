@@ -7,8 +7,25 @@
         "@zenflux/app-budget-allocation": "workspace:*",
         "@zenflux/budget-allocation-server": "workspace:*",
         "@zenflux/cli": "workspace:*",
+        "@zenflux/core": "workspace:*",
         "@zenflux/eslint": "workspace:*",
+        "@zenflux/jest": "workspace:*",
+        "@zenflux/logging": "workspace:*",
+        "@zenflux/react-cache": "workspace:*",
+        "@zenflux/react-commander": "workspace:*",
+        "@zenflux/react-dom-bindings": "workspace:*",
+        "@zenflux/react-internal-test-utils": "workspace:*",
+        "@zenflux/react-jest": "workspace:*",
+        "@zenflux/react-noop-renderer": "workspace:*",
+        "@zenflux/react-reconciler": "workspace:*",
+        "@zenflux/react-scheduler": "workspace:*",
+        "@zenflux/react-shared": "workspace:*",
+        "@zenflux/react-test-renderer": "workspace:*",
         "@zenflux/react-ui": "workspace:*",
+        "@zenflux/react-x-env": "workspace:*",
+        "@zenflux/runner": "workspace:*",
+        "@zenflux/tsconfig-to-swc": "workspace:*",
+        "@zenflux/typescript-vm": "workspace:*",
         "@zenflux/utils": "workspace:*",
       },
       "devDependencies": {
@@ -208,7 +225,7 @@
     },
     "packages/zenflux-cli": {
       "name": "@zenflux/cli",
-      "version": "0.1.14",
+      "version": "0.1.15",
       "bin": {
         "@z-cli": "bin/cli.js",
       },
@@ -247,7 +264,7 @@
     },
     "packages/zenflux-eslint": {
       "name": "@zenflux/eslint",
-      "version": "0.1.12",
+      "version": "0.1.18",
       "bin": {
         "@z-lint": "bin/z-lint.js",
       },

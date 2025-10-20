@@ -9,7 +9,7 @@ import type {
     RejectedThenable,
     Thenable
 } from "@zenflux/react-shared/src/react-types";
-import type { Lane} from "@zenflux/react-shared/src/react-internal-types";
+import type { Lane } from "@zenflux/react-shared/src/react-internal-types";
 
 // If there are multiple, concurrent async actions, they are entangled. All
 // transition updates that occur while the async action is still in progress
@@ -26,9 +26,9 @@ let currentEntangledPendingCount: number = 0;
 let currentEntangledLane: Lane = NoLane;
 
 export function requestAsyncActionContext<S>( actionReturnValue: Thenable<any>, // If this is provided, this resulting thenable resolves to this value instead
-                                              // of the return value of the action. This is a perf trick to avoid composing
-                                              // an extra async function.
-                                              overrideReturnValue: S | null ): Thenable<S> {
+    // of the return value of the action. This is a perf trick to avoid composing
+    // an extra async function.
+    overrideReturnValue: S | null ): Thenable<S> {
     // This is an async action.
     //
     // Return a thenable that resolves once the action scope (i.e. the async
@@ -94,9 +94,9 @@ export function requestAsyncActionContext<S>( actionReturnValue: Thenable<any>, 
 }
 
 export function requestSyncActionContext<S>( actionReturnValue: any, // If this is provided, this resulting thenable resolves to this value instead
-                                             // of the return value of the action. This is a perf trick to avoid composing
-                                             // an extra async function.
-                                             overrideReturnValue: S | null ): Thenable<S> | S {
+    // of the return value of the action. This is a perf trick to avoid composing
+    // an extra async function.
+    overrideReturnValue: S | null ): Thenable<S> | S {
     const resultValue: S = overrideReturnValue !== null ? overrideReturnValue : ( actionReturnValue as any );
 
     // This is not an async action, but it may be part of an outer async action.

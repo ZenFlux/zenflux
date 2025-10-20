@@ -9,10 +9,10 @@ import { createUpdate, enqueueUpdate, ForceUpdate } from "@zenflux/react-reconci
 import type { Fiber, FiberRoot, Lanes } from "@zenflux/react-shared/src/react-internal-types";
 
 export function markSuspenseBoundaryShouldCapture( suspenseBoundary: Fiber,
-                                                   returnFiber: Fiber,
-                                                   sourceFiber: Fiber,
-                                                   root: FiberRoot,
-                                                   rootRenderLanes: Lanes ): Fiber | null {
+    returnFiber: Fiber,
+    sourceFiber: Fiber,
+    root: FiberRoot,
+    rootRenderLanes: Lanes ): Fiber | null {
     // This marks a Suspense boundary so that when we're unwinding the stack,
     // it captures the suspended "exception" and does a second (fallback) pass.
     if ( ( suspenseBoundary.mode & TypeOfMode.ConcurrentMode ) === TypeOfMode.NoMode ) {

@@ -67,11 +67,11 @@ type InputPropsWithoutWrapper = InputPropsBase & {
 export type InputProps = InputPropsWithWrapper | InputPropsWithoutWrapper;
 
 const Input = React.forwardRef<HTMLInputElement, InputProps>(
-    ({ className, type = "text", size, variant, radius, width, wrapper, wrapperClassName, withWrapper, disabled, ...props }, ref) => {
+    ( { className, type = "text", size, variant, radius, width, wrapper, wrapperClassName, withWrapper, disabled, ...props }, ref ) => {
         const inputElement = (
             <input
                 type={ type }
-                className={ cn(inputVariants({ size, variant, radius, width }), className) }
+                className={ cn( inputVariants( { size, variant, radius, width } ), className ) }
                 ref={ ref }
                 disabled={ disabled }
                 { ...props }
@@ -79,7 +79,7 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
         );
 
         const shouldWrap = withWrapper || !!wrapper || !!wrapperClassName;
-        if (!shouldWrap) return inputElement;
+        if ( !shouldWrap ) return inputElement;
 
         const wrapperClasses = cn(
             // legacy `.input-wrapper` + `.trigger` combined

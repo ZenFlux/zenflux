@@ -46,21 +46,21 @@ export function ChannelBudgetBaseline( props: ChannelBudgetBaselineProps ) {
 
     return (
         <ChannelBudgetSetting
-            label={`Baseline [${ frequencyLabel }] Budget`}
+            label={ `Baseline [${ frequencyLabel }] Budget` }
             width="w-[237px]"
             { ...( { "data-disabled": inputProps.disabled } ) }
         >
-            <div className={cn(
+            <div className={ cn(
                 "my-1 min-h-0 h-10 pt-0 pb-0 border-solid border-[2px] border-[#B2BBD57F] rounded-none",
                 inputProps.disabled ? "bg-[#F5F6FA]" : "bg-white"
-            )}>
+            ) }>
                 <Input
                     aria-labelledby="baseline"
                     { ... inputProps }
-                    className={cn(
+                    className={ cn(
                         "w-full h-full bg-transparent border-0 outline-none px-3 py-0 text-sm placeholder:text-[#99A4C2]",
                         inputProps.disabled ? "text-[#99A4C2]" : "text-[#2A3558]"
-                    )}
+                    ) }
                 />
             </div>
         </ChannelBudgetSetting>

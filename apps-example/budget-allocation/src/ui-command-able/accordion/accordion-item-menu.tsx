@@ -39,7 +39,7 @@ const AccordionDropdownMenu: React.FC<{
             { Object.entries( menuItems ).map( ( [ key, { label, color } ] ) => (
                 <DropdownMenuItem
                     key={ key }
-                    className={ color ? `text-${color}` : "" }
+                    className={ color ? `text-${ color }` : "" }
                     onSelect={ () => onAction( key ) }
                 >
                     { label }
@@ -73,7 +73,7 @@ export function AccordionItemMenu( args: {
         timer = setTimeout( () => setIsOpen( false ), 200 );
     };
 
-    const handleMouseEnter = ( force?: boolean) => {
+    const handleMouseEnter = ( force?: boolean ) => {
         clearTimeout( timer );
 
         if ( force ) {

@@ -4,7 +4,7 @@ import { REACT_PORTAL_TYPE } from "@zenflux/react-shared/src/react-symbols";
 import type { ReactNodeList, ReactPortal } from "@zenflux/react-shared/src/react-types";
 
 export function createPortal( children: ReactNodeList, containerInfo: any, // TODO: figure out the API for cross-renderer implementation.
-                              implementation: any, key: string | null | undefined = null ): ReactPortal {
+    implementation: any, key: string | null | undefined = null ): ReactPortal {
     if ( __DEV__ ) {
         checkKeyStringCoercion( key );
     }

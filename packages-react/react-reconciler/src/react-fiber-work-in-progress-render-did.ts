@@ -27,7 +27,7 @@ export function renderDidSuspendDelayIfPossible(): void {
     // Check if there are updates that we skipped tree that might have unblocked
     // this render.
     if ( (
-            includesNonIdleWork( getWorkInProgressRootSkippedLanes() ) ||
+        includesNonIdleWork( getWorkInProgressRootSkippedLanes() ) ||
             includesNonIdleWork( getWorkInProgressRootInterleavedUpdatedLanes() ) )
         && hasWorkInProgressRoot()
     ) {

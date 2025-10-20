@@ -1,14 +1,14 @@
-import * as ZenCore from "../../src/exports";
+import * as ZenCore from "@zenflux/core/src/exports";
 
-describe("managers", () => {
+describe( "managers", () => {
     describe( "Controllers", () => {
         test( "get() & register()", () => {
             // Arrange.
             const controller = ZenCore.managers.controllers.register( new class MyController extends ZenCore.bases.ControllerBase {
-                    public static getName() {
-                        return "Test/Controller";
-                    }
-                } );
+                public static getName() {
+                    return "Test/Controller";
+                }
+            } );
 
             // Act - Get controller.
             const result = ZenCore.managers.controllers.get( controller.getName() );

@@ -26,8 +26,8 @@ import type { LayoutProps } from "@zenflux/app-budget-allocation/src/ui-layout/l
 const BudgetAllocation = React.lazy( () => import( "@zenflux/app-budget-allocation/src/budget-allocation" ) ),
     BudgetOverview = React.lazy( () => import( "@zenflux/app-budget-allocation/src/budget-overview" ) );
 
-const client = new QueryClient( 
-    import.meta.env.VITE_DEPLOY_BUDGET_ALLOCATION_API_URL || "http://localhost:3002" 
+const client = new QueryClient(
+    import.meta.env.VITE_DEPLOY_BUDGET_ALLOCATION_API_URL || "http://localhost:3002"
 );
 
 client.registerModule( ChannelsListQuery );
@@ -64,13 +64,13 @@ export function App() {
     const [ getState, setState ] = useCommandState<AppState>( "App" );
 
     const appAddChannel = useCommand( "App/AddChannel", tabsRef );
-    const uiTabsSelect = useCommand( "UI/Tabs/Select", tabsRef);
+    const uiTabsSelect = useCommand( "UI/Tabs/Select", tabsRef );
 
     const channelsListAddRequest = useCommand( "App/ChannelsList/AddRequest" );
 
     useCommandHook( "App/AddChannel", async () => {
         if ( location.hash === "#overview" ) {
-            uiTabsSelect?.run({ key: "allocation" });
+            uiTabsSelect?.run( { key: "allocation" } );
 
             setTimeout( () => {
                 appAddChannel?.run();

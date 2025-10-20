@@ -1,6 +1,6 @@
 import { describe, test, expect } from "@jest/globals";
 
-import * as ZenCore from "../../src/exports";
+import * as ZenCore from "@zenflux/core/src/exports";
 
 describe( "managers", () => {
     describe( "Commands", () => {

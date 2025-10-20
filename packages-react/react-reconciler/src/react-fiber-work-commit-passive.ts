@@ -1147,9 +1147,9 @@ export function disconnectPassiveEffect( finishedWork: Fiber ): void {
 }
 
 export function reconnectPassiveEffects( finishedRoot: FiberRoot, finishedWork: Fiber, committedLanes: Lanes, committedTransitions: Array<Transition> | null, // This function visits both newly finished work and nodes that were re-used
-                                         // from a previously committed tree. We cannot check non-static flags if the
-                                         // node was reused.
-                                         includeWorkInProgressEffects: boolean ) {
+    // from a previously committed tree. We cannot check non-static flags if the
+    // node was reused.
+    includeWorkInProgressEffects: boolean ) {
     const flags = finishedWork.flags;
 
     switch ( finishedWork.tag ) {

@@ -10,7 +10,7 @@ export function schedulePostPaintCallback( callback: ( endTime: number ) => void
 
     if ( ! postPaintCallbackScheduled ) {
         postPaintCallbackScheduled = true;
-        requestPostPaintCallback( ( endTime: any) => {
+        requestPostPaintCallback( ( endTime: any ) => {
             for ( let i = 0 ; i < callbacks.length ; i++ ) {
                 callbacks[ i ]( endTime );
             }

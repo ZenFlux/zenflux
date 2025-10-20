@@ -27,9 +27,9 @@ export function createEffectInstance(): EffectInstance {
 }
 
 export function mountEffectImpl( fiberFlags: FiberFlags,
-                                 hookFlags: HookFlags,
-                                 create: Parameters<Dispatcher["useEffect"]>[0],
-                                 deps: DependencyList | undefined | null ): void {
+    hookFlags: HookFlags,
+    create: Parameters<Dispatcher["useEffect"]>[0],
+    deps: DependencyList | undefined | null ): void {
     const hook = mountWorkInProgressHook();
     const nextDeps = deps === undefined ? null : deps;
     ReactFiberHooksCurrent.renderingFiber.flags |= fiberFlags;

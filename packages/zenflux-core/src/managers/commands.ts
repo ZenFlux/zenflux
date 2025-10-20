@@ -91,7 +91,7 @@ export class Commands extends ObjectBase {
         return result;
     }
 
-    public register( commands: { [ key: string ]: typeof CommandBase }, controller: ControllerBase ) {// eslint-disable-line @typescript-eslint/no-unused-vars
+    public register( commands: { [ key: string ]: typeof CommandBase }, controller: ControllerBase ) {
         const result: { [ key: string ]: typeof CommandBase } = {};
 
         Object.values( commands ).forEach( ( command ) => {

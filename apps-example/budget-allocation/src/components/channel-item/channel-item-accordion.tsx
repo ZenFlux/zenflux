@@ -22,21 +22,21 @@ import type { DCommandFunctionComponent } from "@zenflux/react-commander/definit
 export const ChannelItemAccordion: DCommandFunctionComponent<{ meta: Channel["meta"]; $data?: Channel }, ChannelState> = () => {
     const ChannelBudgetSettings = () => {
         // Subscribe to all budget settings for automatic re-rendering
-        const [state] = useCommandState<ChannelState, {
+        const [ state ] = useCommandState<ChannelState, {
             frequency: ChannelState["frequency"];
             baseline: ChannelState["baseline"];
             allocation: ChannelState["allocation"]
         }>(
             "App/ChannelItem",
-            (state) => ({
+            ( state ) => ( {
                 frequency: state.frequency,
                 baseline: state.baseline,
                 allocation: state.allocation
-            })
+            } )
         );
 
         return (
-            <div className="grid gap-[350px]" style={{ gridTemplateColumns: "repeat(3, 0px)" }}>
+            <div className="grid gap-[350px]" style={ { gridTemplateColumns: "repeat(3, 0px)" } }>
                 <ChannelBudgetFrequency frequency={ state.frequency }/>
                 <ChannelBudgetBaseline frequency={ state.frequency } baseline={ state.baseline } allocation={ state.allocation }/>
                 <ChannelBudgetAllocation allocation={ state.allocation }/>

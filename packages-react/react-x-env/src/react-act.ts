@@ -109,35 +109,35 @@ export function act<T>( callback: () => T | Thenable<T> ): Thenable<T> {
 
             return {
                 then( resolve, reject ) {
-                didAwaitActCall = true;
-                thenable.then(
-                    returnValue => {
-                        popActScope( prevActQueue, prevActScopeDepth );
-                        if ( prevActScopeDepth === 0 ) {
+                    didAwaitActCall = true;
+                    thenable.then(
+                        returnValue => {
+                            popActScope( prevActQueue, prevActScopeDepth );
+                            if ( prevActScopeDepth === 0 ) {
                             // We're exiting the outermost `act` scope. Flush the queue.
-                            try {
-                                flushActQueue( queue );
-                                queueMacrotask( () =>
+                                try {
+                                    flushActQueue( queue );
+                                    queueMacrotask( () =>
                                     // Recursively flush tasks scheduled by a microtask.
-                                    recursivelyFlushAsyncActWork( returnValue, resolve, reject ),
-                                );
-                            } catch ( error ) {
+                                        recursivelyFlushAsyncActWork( returnValue, resolve, reject ),
+                                    );
+                                } catch ( error ) {
                                 // `thenable` might not be a real promise, and `flushActQueue`
                                 // might throw, so we need to wrap `flushActQueue` in a
                                 // try/catch.
-                                reject( error );
+                                    reject( error );
+                                }
+                            } else {
+                                resolve( returnValue );
                             }
-                        } else {
-                            resolve( returnValue );
-                        }
-                    },
-                    error => {
-                        popActScope( prevActQueue, prevActScopeDepth );
-                        reject( error );
-                    },
-                );
-            },
-        };
+                        },
+                        error => {
+                            popActScope( prevActQueue, prevActScopeDepth );
+                            reject( error );
+                        },
+                    );
+                },
+            };
         } else {
             const returnValue: T = result as any;
             // The callback is not an async function. Exit the current
@@ -187,20 +187,20 @@ export function act<T>( callback: () => T | Thenable<T> ): Thenable<T> {
             }
             return {
                 then( resolve, reject ) {
-                didAwaitActCall = true;
-                if ( prevActScopeDepth === 0 ) {
+                    didAwaitActCall = true;
+                    if ( prevActScopeDepth === 0 ) {
                     // If the `act` call is awaited, restore the queue we were
                     // using before (see long comment above) so we can flush it.
-                    ReactCurrentActQueue.current = queue;
-                    queueMacrotask( () =>
+                        ReactCurrentActQueue.current = queue;
+                        queueMacrotask( () =>
                         // Recursively flush tasks scheduled by a microtask.
-                        recursivelyFlushAsyncActWork( returnValue, resolve, reject ),
-                    );
-                } else {
-                    resolve( returnValue );
-                }
-            },
-        };
+                            recursivelyFlushAsyncActWork( returnValue, resolve, reject ),
+                        );
+                    } else {
+                        resolve( returnValue );
+                    }
+                },
+            };
         }
     } else {
         throw new Error( "act(...) is not supported in production builds of React." );

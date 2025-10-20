@@ -8,7 +8,7 @@
 import { ObjectBase } from "@z-core/bases";
 import { ControllerAlreadySet, ForceMethodImplementation } from "@z-core/errors";
 
-import type { ControllerBase} from "@z-core/bases";
+import type { ControllerBase } from "@z-core/bases";
 
 import type { ICommandArgsInterface, ICommandOptionsInterface, ILogger } from "@z-core/interfaces";
 

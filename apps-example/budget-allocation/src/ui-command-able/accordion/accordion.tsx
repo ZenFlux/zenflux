@@ -104,10 +104,10 @@ const Accordion: DCommandFunctionComponent<AccordionProps> = ( props ) => {
         }
     };
 
-    const safeChildren = React.useMemo(() => {
-        const filtered = children.filter((c) => c?.props?.itemKey != null);
+    const safeChildren = React.useMemo( () => {
+        const filtered = children.filter( ( c ) => c?.props?.itemKey != null );
         return filtered;
-    }, [children]);
+    }, [ children ] );
 
     return (
         <div className={ `loader ${ isLoaded ? "loaded" : "" }` }>

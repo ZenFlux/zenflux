@@ -1143,8 +1143,8 @@ async function createReactNoop( reconciler: typeof reactReconciler, useMutation:
                     if ( typeof child.text === "string" ) {
                         log( indent + "- " + child.text );
                     } else {
-                        log( indent + "- " + (child as Instance).type + "#" + child.id );
-                        logHostInstances( (child as Instance).children, depth + 1 );
+                        log( indent + "- " + ( child as Instance ).type + "#" + child.id );
+                        logHostInstances( ( child as Instance ).children, depth + 1 );
                     }
                 }
             }

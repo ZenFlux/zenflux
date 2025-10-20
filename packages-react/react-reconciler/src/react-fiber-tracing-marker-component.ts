@@ -69,9 +69,9 @@ export function processTransitionCallbacks( pendingTransitions: PendingTransitio
 
             if ( onMarkerIncomplete != null && markerIncomplete !== null ) {
                 markerIncomplete.forEach( ( {
-                                                transitions,
-                                                aborts
-                                            }, markerName ) => {
+                    transitions,
+                    aborts
+                }, markerName ) => {
                     transitions.forEach( transition => {
                         const filteredAborts: any[] = [];
                         aborts.forEach( abort => {

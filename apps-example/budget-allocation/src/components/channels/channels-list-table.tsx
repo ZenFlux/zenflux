@@ -9,7 +9,7 @@ import type { ChannelListState } from "@zenflux/app-budget-allocation/src/compon
 export const ChannelsListTable: React.FC = () => {
     const [ channelsListState ] = useCommandState<ChannelListState, ChannelListState>(
         "App/ChannelsList",
-        (state) => state
+        ( state ) => state
     );
 
     const channelsRenderer = channelsListState.channels.filter(
@@ -28,7 +28,7 @@ export const ChannelsListTable: React.FC = () => {
                 ) ||
                 channelsRenderer.map( ( channel, index ) => {
                     return (
-                        <div key={index} className="h-[130px] flex flex-row items-center">
+                        <div key={ index } className="h-[130px] flex flex-row items-center">
                             <div className="w-[220px] h-full">
                                 <div className="pt-[15px] ps-[40px] text-slate-400 text-[11px] font-bold uppercase leading-none">
                                     Channel #{ index + 1 }

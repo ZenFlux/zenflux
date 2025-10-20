@@ -1,4 +1,4 @@
-import shared from "./__shared__";
+import shared from "@zenflux/core/test/__shared__";
 
 beforeAll( async () => {
 } );
