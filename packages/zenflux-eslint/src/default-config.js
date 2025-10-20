@@ -199,6 +199,15 @@ export function zLintDefaultConfig( files, workspaces ) {
                 "array-bracket-spacing": "off",
                 "@stylistic/array-bracket-spacing": [ "error", "always" ],
 
+                "computed-property-spacing": "off",
+                "@stylistic/computed-property-spacing": [ "error", "always" ],
+
+                "template-curly-spacing": "off",
+                "@stylistic/template-curly-spacing": [ "error", "always" ],
+
+                "react/jsx-curly-spacing": "off",
+                "@stylistic/jsx-curly-spacing": [ "error", { "when": "always", "children": true, "attributes": true } ],
+
                 "space-in-parens": "off",
                 "@stylistic/space-in-parens": [
                     "error",
