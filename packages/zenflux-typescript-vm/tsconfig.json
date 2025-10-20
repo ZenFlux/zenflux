@@ -1,5 +1,7 @@
 {
+    "extends": "../../tsconfig.json",
     "compilerOptions": {
+        "composite": true,
         "outDir": "./types",
         "esModuleInterop": true,
         "allowJs": true,

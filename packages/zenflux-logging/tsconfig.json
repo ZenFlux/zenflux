@@ -1,9 +1,7 @@
 {
-    // Extends the configuration from "./tsconfig.paths.json"
-    "extends": "./tsconfig.paths.json",
-
-    // Compiler options
+    "extends": ["../../tsconfig.json", "./tsconfig.paths.json"],
     "compilerOptions": {
+        "composite": true,
         // Specifies the ECMAScript version to transpile to (e.g., ESNext)
         // TODO Which version should we use?
         "target": "ESNext",

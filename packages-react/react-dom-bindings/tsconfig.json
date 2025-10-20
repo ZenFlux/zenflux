@@ -1,5 +1,5 @@
 {
-    "extends": "./tsconfig.paths.json",
+    "extends": ["../../tsconfig.json", "./tsconfig.paths.json"],
     "compilerOptions": {
         "composite": true,
         "declaration": true,

@@ -5,5 +5,26 @@
         // In case global `tsconfig.json` is used, e.g: when running `@z-cli` from root.
         "target": "ESNext",
         "allowSyntheticDefaultImports": true
-    }
+    },
+    "references": [
+        { "path": "./apps-example/budget-allocation" },
+        { "path": "./apps-example/budget-allocation-server" },
+        { "path": "./packages/zenflux-cli" },
+        { "path": "./packages/zenflux-core" },
+        { "path": "./packages/zenflux-jest" },
+        { "path": "./packages/zenflux-logging" },
+        { "path": "./packages/zenflux-react-commander" },
+        { "path": "./packages/zenflux-react-ui" },
+        { "path": "./packages/zenflux-utils" },
+        { "path": "./packages/zenflux-worker" },
+        { "path": "./packages-react/react-cache" },
+        { "path": "./packages-react/react-dom-bindings" },
+        { "path": "./packages-react/react-internal-test-utils" },
+        { "path": "./packages-react/react-noop-renderer" },
+        { "path": "./packages-react/react-reconciler" },
+        { "path": "./packages-react/react-scheduler" },
+        { "path": "./packages-react/react-shared" },
+        { "path": "./packages-react/react-test-renderer" },
+        { "path": "./packages-react/react-x-env" }
+    ]
 }

@@ -282,7 +282,6 @@ const initialize = async () => {
                     throw new Error( `Module not found: ${ util.inspect( modulePath ) } referer ${ util.inspect( "file://" + referencingModule.identifier ) }` );
                 }
 
-                console.log('[VM-DEBUG] About to call loaders.loadModule with entrypoint:', entrypointPath);
                 loaders.loadModule( entrypointPath, "esm", null , linker )
                     .then( ( result ) => {
                         verbose( 'core', 'linker', () => `Resolved to: ${ util.inspect( result ) }`)

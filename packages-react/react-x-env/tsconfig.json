@@ -1,5 +1,7 @@
 {
+    "extends": "../../tsconfig.json",
     "compilerOptions": {
+        "composite": true,
         "rootDir": ".",
         "outDir": "dist",
         // Save `.tsbuildinfo` files to allow for incremental compilation of projects.

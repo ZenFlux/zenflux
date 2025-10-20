@@ -1,8 +1,9 @@
 {
     // Extends the configuration from "./tsconfig.paths.json"
-    "extends": "./tsconfig.paths.json",
+    "extends": ["../../tsconfig.json", "./tsconfig.paths.json"],
     // Compiler options
     "compilerOptions": {
+        "composite": true,
         // Save `.tsbuildinfo` files to allow for incremental compilation of projects.
         "incremental": true,
         // Specifies the ECMAScript version to transpile to (e.g., ESNext)
