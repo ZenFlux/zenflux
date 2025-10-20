@@ -194,7 +194,19 @@ export function zLintDefaultConfig( files, workspaces ) {
                 "@stylistic/indent": ["error", 4, {
                     "SwitchCase": 1,
                 }],
-                "@stylistic/object-curly-spacing": ["error", "always"]
+                "@stylistic/object-curly-spacing": ["error", "always"],
+
+                "array-bracket-spacing": "off",
+                "@stylistic/array-bracket-spacing": [ "error", "always" ],
+
+                "space-in-parens": "off",
+                "@stylistic/space-in-parens": [
+                    "error",
+                    "always",
+                    {
+                        "exceptions": [ "empty" ]
+                    }
+                ]
             },
         },
     ];
