@@ -1,0 +1,10 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(rm /Users/inewlegend/Desktop/dev/zenflux/apps-example/budget-allocation-server/fly.toml)",
+      "Read(//Users/inewlegend/Desktop/dev/iNewLegend/scripts/website/**)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}

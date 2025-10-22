@@ -1,7 +1,7 @@
 import Fastify from "fastify";
 
-import { channelsRoutes } from "@zenflux/budget-allocation-server/src/channels/channels.routes";
-import { serverConfig } from "@zenflux/budget-allocation-server/src/config/server.config";
+import { channelsRoutes } from "./channels/channels.routes.js";
+import { serverConfig } from "./config/server.config.js";
 
 async function bootstrap() {
     const fastify = Fastify( {

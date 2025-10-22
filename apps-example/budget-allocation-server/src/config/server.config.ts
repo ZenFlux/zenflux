@@ -25,12 +25,12 @@ export interface ServerConfig {
 }
 
 export const serverConfig: ServerConfig = {
-    port: 3000,
+    port: 3001,
     host: "0.0.0.0",
     cors: {
         origins: true, // Allow all origins for now
-        methods: ["GET", "POST", "PUT", "DELETE"],
-        allowedHeaders: ["Content-Type", "Authorization"],
+        methods: [ "GET", "POST", "PUT", "DELETE" ],
+        allowedHeaders: [ "Content-Type", "Authorization" ],
     },
     delays: {
         enabled: process.env.FAKE_DELAYS !== "false",

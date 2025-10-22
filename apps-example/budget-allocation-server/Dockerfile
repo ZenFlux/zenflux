@@ -5,10 +5,9 @@ WORKDIR /app
 COPY package.json bun.lockb* ./
 RUN bun install --frozen-lockfile
 
-COPY . .
-
-RUN bun run demos:budget-allocation-server-build
+COPY dist/main.js ./main.js
 
 EXPOSE 3000
 
 CMD ["bun", "run", "demos:budget-allocation-server-start:prod"]
+

@@ -1,4 +1,4 @@
-import type { Channel } from "@zenflux/budget-allocation-server/src/channels/channel.interface";
+import type { Channel } from "./channel.interface.js";
 
 export const defaultChannels: Channel[] = [
     {
