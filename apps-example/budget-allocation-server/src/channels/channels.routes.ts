@@ -5,7 +5,7 @@ import { serverConfig } from "@zenflux/budget-allocation-server/src/config/serve
 
 import type { FastifyInstance, FastifyPluginOptions } from "fastify";
 
-import type { CreateChannelDto, SetChannelNameDto, UpdateChannelDto, UpdateChannelsListDto } from "@zenflux/budget-allocation-server/src/channels/channel.interface";
+import type { CreateChannelDto, SetChannelNameDto, UpdateChannelDto, UpdateChannelsListDto } from "./channel.interface";
 
 const channelsService = new ChannelsService();
 
