@@ -36,10 +36,10 @@ ChannelContent.displayName = "ChannelContent";
 
 export const ChannelsListAccordion: React.FC = () => {
     const [ state, setState ] = useCommandState<ChannelListState, ChannelListState>( "App/ChannelsList",
-        ( state ) => ({
+        ( state ) => ( {
             channels: state.channels,
             selected: state.selected,
-        })
+        } )
     );
 
     const channelsCommands = useComponent( "App/ChannelsList" );

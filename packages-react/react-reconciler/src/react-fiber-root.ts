@@ -40,7 +40,7 @@ export type RootState = {
 };
 
 function FiberRootNode( this: any, containerInfo: any, // $FlowFixMe[missing-local-annot]
-                        tag: number, hydrate: any, identifierPrefix: any, onRecoverableError: any, formState: ReactFormState<any, any> | null ) {
+    tag: number, hydrate: any, identifierPrefix: any, onRecoverableError: any, formState: ReactFormState<any, any> | null ) {
     // @ts-ignore
     const self: any = this;
 

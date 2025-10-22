@@ -2224,9 +2224,9 @@ export function disappearLayoutEffects( finishedWork: Fiber ) {
 }
 
 export function reappearLayoutEffects( finishedRoot: FiberRoot, current: Fiber | null, finishedWork: Fiber, // This function visits both newly finished work and nodes that were re-used
-                                       // from a previously committed tree. We cannot check non-static flags if the
-                                       // node was reused.
-                                       includeWorkInProgressEffects: boolean ) {
+    // from a previously committed tree. We cannot check non-static flags if the
+    // node was reused.
+    includeWorkInProgressEffects: boolean ) {
     // Turn on layout effects in a tree that previously disappeared.
     const flags = finishedWork.flags;
 

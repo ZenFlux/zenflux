@@ -17,7 +17,7 @@ export function ChannelBudgetSetting( props: ChannelBudgetSettingProps ) {
     const { label, width = "w-fit", className, infoClassName, infoLabelClassName, children, ...rest } = props;
 
     return (
-        <div className={cn( width, "flex flex-col gap-2", className )} {...rest}>
+        <div className={ cn( width, "flex flex-col gap-2", className ) } { ...rest }>
             <Info
                 className={ infoClassName }
                 labelClassName={ infoLabelClassName || "font-sans text-[#232c4d] text-base font-light" }

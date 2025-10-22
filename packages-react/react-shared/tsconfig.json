@@ -1,8 +1,5 @@
 {
-    // Extends the configuration from "./tsconfig.paths.json"
-    "extends": "./tsconfig.paths.json",
-
-    // Compiler options
+    "extends": ["../../tsconfig.json", "./tsconfig.paths.json"],
     "compilerOptions": {
         "types": [
             "node"

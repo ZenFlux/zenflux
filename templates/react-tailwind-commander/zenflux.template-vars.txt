@@ -1,0 +1,3 @@
+$${@zenflux/project-name}$$,eg: @zenflux/react-commander
+$${project-name}$$,eg: react-commander
+$$server_port_number$$,eg 8080

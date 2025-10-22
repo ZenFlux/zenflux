@@ -81,5 +81,5 @@ export function useChannelsListAccordionInteractions() {
                 }
             }
         } );
-    }, [waitingForEditableTitle.values()] );
+    }, [ waitingForEditableTitle.values() ] );
 }

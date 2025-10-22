@@ -9,9 +9,9 @@
  */
 import { bases } from "@zenflux/core";
 
-import type { interfaces } from "@zenflux/core";
-
 import { getHexColorDelta, reduceCircularReferences } from "@z-logging/utils";
+
+import type { interfaces } from "@zenflux/core";
 
 // TODO: Should by dynamic/configure-able.
 const MAX_MAPPING_RECURSIVE_DEPTH = 4,
@@ -155,7 +155,7 @@ export abstract class LoggerBrowserInfra extends bases.ObjectBase {
         );
     }
 
-    protected printObjectEfficient( prefix: string, caller: interfaces.TCaller, params: string|object) {
+    protected printObjectEfficient( prefix: string, caller: interfaces.TCaller, params: string|object ) {
         params = Object.assign( {}, params );
 
         if ( typeof params === "string" ) {

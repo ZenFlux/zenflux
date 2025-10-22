@@ -29,8 +29,8 @@ export function addTransitionStartCallbackToPendingTransition( transition: Trans
 }
 
 export function addMarkerProgressCallbackToPendingTransition( markerName: string,
-                                                              transitions: Set<Transition>,
-                                                              pendingBoundaries: PendingBoundaries ) {
+    transitions: Set<Transition>,
+    pendingBoundaries: PendingBoundaries ) {
     if ( enableTransitionTracing ) {
         if ( currentPendingTransitionCallbacks === null ) {
             currentPendingTransitionCallbacks = ( {
@@ -55,8 +55,8 @@ export function addMarkerProgressCallbackToPendingTransition( markerName: string
 }
 
 export function addMarkerIncompleteCallbackToPendingTransition( markerName: string,
-                                                                transitions: Set<Transition>,
-                                                                aborts: Array<TransitionAbort> ) {
+    transitions: Set<Transition>,
+    aborts: Array<TransitionAbort> ) {
     if ( enableTransitionTracing ) {
         if ( currentPendingTransitionCallbacks === null ) {
             currentPendingTransitionCallbacks = {

@@ -1,5 +1,7 @@
 {
+    "extends": "../../tsconfig.json",
     "compilerOptions": {
+        "composite": true,
         // Specifies a list of included libraries
         // ESNext: Latest draft ECMAScript language standard, including all ECMAScript proposals
         // DOM: Type definitions for web browsers

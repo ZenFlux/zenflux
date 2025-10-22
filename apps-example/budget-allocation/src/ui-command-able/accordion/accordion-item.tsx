@@ -30,7 +30,7 @@ export interface AccordionItemProps extends Omit<UIThemeAccordionItemProps, "hea
     onRender?: () => void,
 }
 
-const AccordionItemEditableTitle = React.forwardRef<HTMLSpanElement, Omit<AccordionItemProps, "children"> & { collapsedState?: UIThemeAccordionCollapseStates }>((props, refForParent ) => {
+const AccordionItemEditableTitle = React.forwardRef<HTMLSpanElement, Omit<AccordionItemProps, "children"> & { collapsedState?: UIThemeAccordionCollapseStates }>( ( props, refForParent ) => {
     const [ isEditing, setIsEditing ] = React.useState( false ),
         [ isFocusCaptured, setIsFocusCaptured ] = React.useState( false );
 
@@ -72,7 +72,7 @@ const AccordionItemEditableTitle = React.forwardRef<HTMLSpanElement, Omit<Accord
                         return;
                     }
 
-                    sel.selectAllChildren(ref.current);
+                    sel.selectAllChildren( ref.current );
                     sel.collapseToEnd();
                 }
             }, 1000 );
@@ -134,7 +134,7 @@ const AccordionItemEditableTitle = React.forwardRef<HTMLSpanElement, Omit<Accord
         }
     }
 
-    (refForParent as any).current = ref.current;
+    ( refForParent as any ).current = ref.current;
 
     return <span
         className="accordion-item-title"
@@ -148,7 +148,7 @@ const AccordionItemEditableTitle = React.forwardRef<HTMLSpanElement, Omit<Accord
     >
         { props.heading?.title }
     </span>;
-});
+} );
 AccordionItemEditableTitle.displayName = "AccordionItemEditableTitle";
 
 const AccordionItem: DCommandFunctionComponent<AccordionItemProps> = ( props ) => {
@@ -183,7 +183,7 @@ const AccordionItem: DCommandFunctionComponent<AccordionItemProps> = ( props ) =
         heading: {
             ... heading,
 
-            title: <AccordionItemEditableTitle { ...props } ref={ref} />,
+            title: <AccordionItemEditableTitle { ...props } ref={ ref } />,
 
             extra:
                 <span className={ "accordion-item-menu" }>

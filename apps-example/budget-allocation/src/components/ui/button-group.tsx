@@ -32,12 +32,12 @@ export interface ButtonGroupProps
     children: React.ReactNode;
 }
 
-export function ButtonGroup({ className, children, variant, size, ...props }: ButtonGroupProps) {
+export function ButtonGroup( { className, children, variant, size, ...props }: ButtonGroupProps ) {
     return (
         <div
             role="group"
             className={ cn(
-                buttonGroupVariants({ variant, size }),
+                buttonGroupVariants( { variant, size } ),
                 variant === "flat" && [
                     "h-10 bg-transparent rounded-none",
                     "[&>*]:h-full [&>*]:px-5 [&>*]:text-[#707EA7] [&>*]:bg-[rgba(178,187,213,0.36)]",

@@ -19,8 +19,8 @@ interface TaskSignal extends AbortSignal {
     readonly aborted: boolean;
     readonly reason: any;
 
-    onprioritychange: (() => void) | null;
-    onabort: ((this: AbortSignal, ev: Event) => any) | null;
+    onprioritychange: ( () => void ) | null;
+    onabort: ( ( this: AbortSignal, ev: Event ) => any ) | null;
 }
 
 interface TaskController {

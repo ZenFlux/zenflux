@@ -77,127 +77,127 @@ interface TabProps {
 const TabsView = React.forwardRef<
     React.ElementRef<typeof TabsPrimitive.Root>,
     Omit<TabsProps, "onSelectionChange" | "selectedKey">
->(({ $$key: _key, items, classNames, children, variant, ...props }, ref) => {
-    const [selectedKey, setSelectedKey] = React.useState(props.defaultValue);
+>( ( { $$key: _key, items, classNames, children, variant, ...props }, ref ) => {
+    const [ selectedKey, setSelectedKey ] = React.useState( props.defaultValue );
 
-    const component = useComponent("UI/Tabs");
+    const component = useComponent( "UI/Tabs" );
 
-    React.useEffect(() => {
+    React.useEffect( () => {
         if ( ! component ) return;
 
-        const handle = component.hook( "UI/Tabs/Select", (_esult, args) => {
-            setSelectedKey(args?.key);
-        });
+        const handle = component.hook( "UI/Tabs/Select", ( _esult, args ) => {
+            setSelectedKey( args?.key );
+        } );
 
         return () => {
             handle?.dispose();
         };
-    }, [ component ]);
+    }, [ component ] );
 
-    useChildCommandHook("UI/Tabs/Trigger", "UI/Tabs/Trigger/Select", (result, args) => {
-        component.run("UI/Tabs/Select", { key: args?.key });
-    });
+    useChildCommandHook( "UI/Tabs/Trigger", "UI/Tabs/Trigger/Select", ( result, args ) => {
+        component.run( "UI/Tabs/Select", { key: args?.key } );
+    } );
 
-    if (items) {
+    if ( items ) {
         return (
             <TabsPrimitive.Root
-                ref={ref}
-                value={selectedKey}
-                className={cn(tabsVariants({ variant }), classNames?.base, props.className)}
-                {...props}
+                ref={ ref }
+                value={ selectedKey }
+                className={ cn( tabsVariants( { variant } ), classNames?.base, props.className ) }
+                { ...props }
             >
-                <TabsList variant={variant} className={classNames?.tabList}>
-                    {items.map((item) => (
-                        <TabsTrigger key={item.id} value={item.id} variant={variant} className={classNames?.tab}>
-                            {item.title}
+                <TabsList variant={ variant } className={ classNames?.tabList }>
+                    { items.map( ( item ) => (
+                        <TabsTrigger key={ item.id } value={ item.id } variant={ variant } className={ classNames?.tab }>
+                            { item.title }
                         </TabsTrigger>
-                    ))}
+                    ) ) }
                 </TabsList>
-                {items.map((item) => (
-                    <TabsContent key={item.id} value={item.id}>
-                        {item.content}
+                { items.map( ( item ) => (
+                    <TabsContent key={ item.id } value={ item.id }>
+                        { item.content }
                     </TabsContent>
-                ))}
+                ) ) }
             </TabsPrimitive.Root>
         );
     }
 
     return (
         <TabsPrimitive.Root
-            ref={ref}
-            value={selectedKey}
-            className={cn(tabsVariants({ variant }), classNames?.base, props.className)}
-            {...props}
+            ref={ ref }
+            value={ selectedKey }
+            className={ cn( tabsVariants( { variant } ), classNames?.base, props.className ) }
+            { ...props }
         >
-            {children}
+            { children }
         </TabsPrimitive.Root>
     );
-});
+} );
 TabsView.displayName = "Tabs";
 
-const Tabs = withCommands("UI/Tabs", TabsView, [
+const Tabs = withCommands( "UI/Tabs", TabsView, [
     class Select extends CommandBase {
         public static getName() {
             return "UI/Tabs/Select";
         }
     }
-]);
+] );
 
 const TabsList = React.forwardRef<
     React.ElementRef<typeof TabsPrimitive.List>,
     React.ComponentPropsWithoutRef<typeof TabsPrimitive.List> & VariantProps<typeof tabsListVariants>
->(({ className, variant, ...props }, ref) => (
+>( ( { className, variant, ...props }, ref ) => (
     <TabsPrimitive.List
-        ref={ref}
-        className={cn(tabsListVariants({ variant }), className)}
-        {...props}
+        ref={ ref }
+        className={ cn( tabsListVariants( { variant } ), className ) }
+        { ...props }
     />
-));
+) );
 TabsList.displayName = TabsPrimitive.List.displayName;
 
 const TabsTriggerView = React.forwardRef<
     React.ElementRef<typeof TabsPrimitive.Trigger>,
     Omit<React.ComponentPropsWithoutRef<typeof TabsPrimitive.Trigger> & VariantProps<typeof tabsTriggerVariants>, "onClick"> & { $$key?: number }
->(({ $$key: _key,className, variant, ...props }, ref) => {
-    const select = useCommand("UI/Tabs/Trigger/Select");
+>( ( { $$key: _key,className, variant, ...props }, ref ) => {
+    const select = useCommand( "UI/Tabs/Trigger/Select" );
 
     return (
         <TabsPrimitive.Trigger
-            ref={ref}
-            className={cn(tabsTriggerVariants({ variant }), className)}
-            onClick={() => select.run({ key: props.value })}
-            {...props}
+            ref={ ref }
+            className={ cn( tabsTriggerVariants( { variant } ), className ) }
+            onClick={ () => select.run( { key: props.value } ) }
+            { ...props }
         />
     );
-});
+} );
 
 TabsTriggerView.displayName = TabsPrimitive.Trigger.displayName;
 
-const TabsTrigger = withCommands("UI/Tabs/Trigger", TabsTriggerView, [
+const TabsTrigger = withCommands( "UI/Tabs/Trigger", TabsTriggerView, [
     class Select extends CommandBase {
         public static getName() {
             return "UI/Tabs/Trigger/Select";
         }
     }
-]);
+] );
 
 const TabsContent = React.forwardRef<
     React.ElementRef<typeof TabsPrimitive.Content>,
     React.ComponentPropsWithoutRef<typeof TabsPrimitive.Content>
->(({ className, ...props }, ref) => (
+>( ( { className, ...props }, ref ) => (
     <TabsPrimitive.Content
-        ref={ref}
-        className={cn(
+        ref={ ref }
+        className={ cn(
             "mt-2 ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
             className
-        )}
-        {...props}
+        ) }
+        { ...props }
     />
-));
+) );
 TabsContent.displayName = TabsPrimitive.Content.displayName;
 
-const Tab: React.FC<TabProps> = ({ children }) => {
-    return <>{children}</>;
+const Tab: React.FC<TabProps> = ( { children } ) => {
+    return <>{ children }</>;
 };
 
 export { Tabs, TabsList, TabsTrigger, TabsContent, Tab };

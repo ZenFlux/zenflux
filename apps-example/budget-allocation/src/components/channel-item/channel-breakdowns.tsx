@@ -49,20 +49,20 @@ export const ChannelBreakdowns: React.FC = () => {
         baseline: ChannelState["baseline"]
     }>(
         "App/ChannelItem",
-        ( state ) => ({
+        ( state ) => ( {
             allocation: state.allocation,
             frequency: state.frequency,
             baseline: state.baseline,
-        })
+        } )
     );
 
     const [ breaks ] = useCommandState<ChannelState, {
         breaks: ChannelBreakData[]
     }>(
         "App/ChannelItem",
-        (state) => ({
+        ( state ) => ( {
             breaks: state.breaks?.length ? state.breaks : generateBreaks( state.frequency, state.baseline )
-        }),
+        } ),
 
     );
 

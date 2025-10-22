@@ -1,0 +1,93 @@
+@use "sass:map";
+@use "@zenflux/app-budget-allocation/src/fonts/fonts.scss" as fonts;
+
+.fs-1 {
+    font-family: map.get( fonts.$karu-fonts, 'karu-regular' );
+    color: #182033;
+    font-size: 24px;
+    font-weight: 500;
+    letter-spacing: -0.2px;
+}
+
+.fs-2 {
+    font-family: map.get( fonts.$karu-fonts, 'karu-bold' );
+    color: #182033;
+    font-size: 18px;
+    font-weight: 600;
+}
+
+.loading {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 100%;
+    animation: bounce 1s infinite;
+
+    & span {
+        animation: spin 1s linear infinite;
+        padding: 1.25rem;
+        font-size: 50px;
+    }
+}
+
+img.icon {
+    width: 36px;
+    height: 36px;
+}
+
+.tabs {
+    div[role="tablist"]  {
+        background: transparent;
+
+        button[role="tab"] {
+            margin-bottom: 25px;
+            font-size: 1.5rem;
+            cursor: pointer;
+
+            .cursor {
+                width: 80%;
+                bottom: 0;
+                box-shadow: 0 1px 0px 0 rgba(0, 0, 0, 0.05);
+            }
+
+            &:hover {
+                text-decoration: underline;
+            }
+        }
+
+        [data-selected="true"] {
+            text-decoration: underline;
+        }
+    }
+}
+
+.layout header {
+    button {
+        font-size: 15px;
+        background: linear-gradient(to right, #e8e8e847, #F2F2F2, white);
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        border-radius: 0.25rem;
+        border: 1px solid rgba(178, 187, 213, 0.60);
+    }
+}
+
+@keyframes bounce {
+    0%, 100% {
+        transform: translateY(-25%);
+        animation-timing-function: cubic-bezier(0.8, 0, 1, 1);
+    }
+    50% {
+        transform: translateY(0);
+        animation-timing-function: cubic-bezier(0, 0, 0.2, 1);
+    }
+}
+
+@keyframes spin {
+    from {
+        transform: rotate(0deg);
+    }
+    to {
+        transform: rotate(360deg);
+    }
+}

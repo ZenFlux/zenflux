@@ -1,7 +1,7 @@
 {
-    // Change this to match your project
-
+    "extends": "../../tsconfig.json",
     "compilerOptions": {
+        "composite": true,
         "allowJs": true,
         "checkJs": true,
         "module": "NodeNext",

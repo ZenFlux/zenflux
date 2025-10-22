@@ -1,13 +1,11 @@
 {
-    // Extends the configuration from "./tsconfig.paths.json"
     "extends": [
+        "../../tsconfig.json",
         "./tsconfig.paths.json",
-        // Extends `import.meta`
         "@zenflux/typescript-vm/tsconfig.import-meta.json"
     ],
-
-    // Compiler options
     "compilerOptions": {
+        "composite": true,
         "rootDir": ".",
         "lib": [
             "ESNext"

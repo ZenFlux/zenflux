@@ -66,7 +66,7 @@ export function flushSync<R>( fn: ( () => R ) | void ): R | void {
         // Flush the immediate callbacks that were scheduled during this batch.
         // Note that this will happen even if batchedUpdates is higher up
         // the stack.
-        if ( isExecutionContextRenderOrCommitActivate()) {
+        if ( isExecutionContextRenderOrCommitActivate() ) {
             ReactFiberWorkOnRootShared.flushSyncWorkOnAllRoots();
         }
     }

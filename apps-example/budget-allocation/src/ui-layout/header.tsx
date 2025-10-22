@@ -17,7 +17,7 @@ export default function Header( props: HeaderProps ) {
                 <div className="flex flex-col gap-[15px]">
                     <p className="fs-2 leading-[27px]">Setup channels</p>
                     <p className="font-[Tahoma,system-ui] text-[#b7b7b7]">Setup your added channels by adding baseline budgets out of
-                            your total budget. See the forecast impact with the help of tips and insights.
+                        your total budget. See the forecast impact with the help of tips and insights.
                     </p>
                 </div>
                 <div className="flex justify-end">

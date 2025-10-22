@@ -1,12 +1,7 @@
 {
     "compilerOptions": {
         "outDir": "dist",
-        "baseUrl": "./",
-        "paths": {
-            "@z-logging/*": [
-                "src/*"
-            ]
-        }
+        "baseUrl": "./"
     },
     "include": [
         "src/**/*.ts"

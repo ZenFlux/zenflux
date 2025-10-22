@@ -1,5 +1,7 @@
 {
+    "extends": "../../tsconfig.json",
     "compilerOptions": {
+        "composite": true,
         "diagnostics": true,
         "extendedDiagnostics": true,
         "resolveJsonModule": true,

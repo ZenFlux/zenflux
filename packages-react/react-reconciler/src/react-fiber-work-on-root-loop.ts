@@ -84,9 +84,9 @@ if ( __DEV__ && replayFailedUnitOfWorkWithInvokeGuardedCallback ) {
                 didSuspendOrErrorWhileHydratingDEV() ||
                 originalError === SuspenseException ||
                 originalError === SelectiveHydrationException ||
-                (originalError !== null &&
+                ( originalError !== null &&
                     typeof originalError === "object" &&
-                    typeof originalError.then === "function")
+                    typeof originalError.then === "function" )
             ) {                // Don't replay promises.
                 // Don't replay errors if we are hydrating and have already suspended or handled an error
                 throw originalError;

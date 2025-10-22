@@ -334,7 +334,7 @@ function createChildReconciler( shouldTrackSideEffects: boolean ): ChildReconcil
 
         if ( current !== null ) {
             if ( current.elementType === elementType || ( // Keep this check inline so it only runs on the false path:
-                    __DEV__ ? isCompatibleFamilyForHotReloading( current, element ) : false ) || // Lazy types should reconcile their resolved type.
+                __DEV__ ? isCompatibleFamilyForHotReloading( current, element ) : false ) || // Lazy types should reconcile their resolved type.
                 // We need to do this after the Hot Reloading check above,
                 // because hot reloading has different semantics than prod because
                 // it doesn't resuspend. So we can't let the call below suspend.
@@ -1031,7 +1031,7 @@ function createChildReconciler( shouldTrackSideEffects: boolean ): ChildReconcil
                     }
                 } else {
                     if ( child.elementType === elementType || ( // Keep this check inline so it only runs on the false path:
-                            __DEV__ ? isCompatibleFamilyForHotReloading( child, element ) : false ) || // Lazy types should reconcile their resolved type.
+                        __DEV__ ? isCompatibleFamilyForHotReloading( child, element ) : false ) || // Lazy types should reconcile their resolved type.
                         // We need to do this after the Hot Reloading check above,
                         // because hot reloading has different semantics than prod because
                         // it doesn't resuspend. So we can't let the call below suspend.

@@ -131,7 +131,7 @@ export function useImperativeHandle<T>( ref: Ref<T>, create: () => T, deps: Depe
     return dispatcher.useImperativeHandle( ref, create, deps );
 }
 
-export function useDebugValue<T>(value: T, format?: (value: T) => any): void {
+export function useDebugValue<T>( value: T, format?: ( value: T ) => any ): void {
     if ( __DEV__ ) {
         const dispatcher = resolveDispatcher();
         return dispatcher.useDebugValue( value, format );
@@ -182,7 +182,7 @@ export function useEffectEvent<T extends Function>( callback: T ): T {
     return dispatcher.useEffectEvent?.( callback ) as T;
 }
 
-export function useOptimistic<S, A>( passthrough: S, reducer?: ( state: S, action: A ) => S ): [ S, ((action: A) => void) ] | undefined {
+export function useOptimistic<S, A>( passthrough: S, reducer?: ( state: S, action: A ) => S ): [ S, ( ( action: A ) => void ) ] | undefined {
     const dispatcher = resolveDispatcher();
     // $FlowFixMe[not-a-function] This is unstable, thus optional
     return dispatcher.useOptimistic?.( passthrough, reducer );

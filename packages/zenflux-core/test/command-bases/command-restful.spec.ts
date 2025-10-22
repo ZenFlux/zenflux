@@ -1,6 +1,6 @@
-import * as ZenCore from "../../src/exports";
+import * as ZenCore from "@zenflux/core/src/exports";
 
-import { __CommandRestful__Public__ } from "../__mock__/bases/command-restful--public";
+import { __CommandRestful__Public__ } from "@zenflux/core/test/__mock__/bases/command-restful--public";
 
 describe( "command-bases", () => {
     describe( "CommandRestful", () => {

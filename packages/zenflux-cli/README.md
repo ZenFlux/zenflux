@@ -2,7 +2,7 @@
 
 ## 📍 Overview
 
-The repository contains a CLI tool called `@z-cli` that offers functionalities related to building, publishing, and watching **monorepo** workspaces.
+The repository contains a CLI tool called `@z-cli` that offers functionalities related to building, publishing, watching **monorepo** workspaces, and generating projects from templates.
 
 It utilizes technologies like `Babel`, `Rollup`, `TypeScript`, `SWC` and `Verdaccio`.
 
@@ -295,6 +295,35 @@ The tool supports publishing npm packages to a registry. It includes features fo
     - Replacing **workspace** dependencies with corresponding **local** dependencies
     - Showing the user the packages/files that will be published
     - Asking the user for confirmation, and publishing the packages
+      <br /><br />
+
+---
+
+### Generating Projects from Templates
+
+The tool supports generating new projects from predefined templates stored in the `templates/` directory.
+
+- **CLI Commands**: `@generate`
+- **Default Behavior**: `@z-cli @generate`
+    - Lists all available templates from `templates/*`
+    - Prompts for template variable values (defined in `zenflux.template-vars.txt`)
+    - Lets user select target workspace from `package.json` workspaces
+    - Prompts for project name
+    - Copies template files with variable replacement to selected workspace
+      <br /><br />
+
+- **Template Variable Format** (`zenflux.template-vars.txt`):
+    ```
+    $${@zenflux/project-name}$$,eg: @zenflux/react-commander
+    $${project-name}$$,eg: react-commander
+    $$server_port_number$$,eg 8080
+    ```
+    - Format: `$${variable-name}$$,eg: example-value`
+    - Variables are replaced throughout all template files during generation
+      <br /><br />
+
+- **Examples**:
+    - `@z-cli @generate` - Start interactive template generation
       <br /><br />
 
 ---

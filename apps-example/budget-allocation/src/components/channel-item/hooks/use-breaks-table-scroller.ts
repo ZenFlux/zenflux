@@ -49,7 +49,3 @@ export function useBreaksTableScroller( durationMs = 500 ) {
     return { ref, direction, onArrowClick } as const;
 }
 
-
-
-
-

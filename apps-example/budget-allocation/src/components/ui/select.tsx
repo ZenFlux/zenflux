@@ -37,18 +37,18 @@ type ClassNames = {
 interface SelectProps extends React.ComponentPropsWithoutRef<typeof SelectPrimitive.Root>, VariantProps<typeof selectVariants> {
     classNames?: ClassNames;
     selectedKeys?: readonly string[] | any[];
-    onChange?: (e: { target: { value: string } }) => void;
+    onChange?: ( e: { target: { value: string } } ) => void;
 }
 
-export function Select(props: React.PropsWithChildren<SelectProps>) {
+export function Select( props: React.PropsWithChildren<SelectProps> ) {
     const { classNames, selectedKeys, onChange, children, variant, size, ...rest } = props as any;
-    const value = Array.isArray(selectedKeys) && selectedKeys.length ? String(selectedKeys[0]) : undefined;
+    const value = Array.isArray( selectedKeys ) && selectedKeys.length ? String( selectedKeys[ 0 ] ) : undefined;
 
     return (
-        <SelectPrimitive.Root value={ value } onValueChange={ (val) => onChange?.({ target: { value: val } }) } { ...rest }>
-            <div className={ cn("inline-flex flex-col", classNames?.base) }>
+        <SelectPrimitive.Root value={ value } onValueChange={ ( val ) => onChange?.( { target: { value: val } } ) } { ...rest }>
+            <div className={ cn( "inline-flex flex-col", classNames?.base ) }>
                 <SelectPrimitive.Trigger className={ cn(
-                    selectVariants({ variant, size }),
+                    selectVariants( { variant, size } ),
                     classNames?.trigger
                 ) }>
                     <SelectPrimitive.Value />
@@ -57,7 +57,7 @@ export function Select(props: React.PropsWithChildren<SelectProps>) {
                     </SelectPrimitive.Icon>
                 </SelectPrimitive.Trigger>
                 <SelectPrimitive.Portal>
-                    <SelectPrimitive.Content position="popper" sideOffset={4} align="start" className="bg-white border border-slate-200 rounded-md shadow-sm min-w-[var(--radix-select-trigger-width)] w-[var(--radix-select-trigger-width)]">
+                    <SelectPrimitive.Content position="popper" sideOffset={ 4 } align="start" className="bg-white border border-slate-200 rounded-md shadow-sm min-w-[var(--radix-select-trigger-width)] w-[var(--radix-select-trigger-width)]">
                         <SelectPrimitive.Viewport>
                             { children }
                         </SelectPrimitive.Viewport>
@@ -68,7 +68,7 @@ export function Select(props: React.PropsWithChildren<SelectProps>) {
     );
 }
 
-export function SelectItem({ className, children, value, ...props }: React.ComponentPropsWithoutRef<typeof SelectPrimitive.Item>) {
+export function SelectItem( { className, children, value, ...props }: React.ComponentPropsWithoutRef<typeof SelectPrimitive.Item> ) {
     return (
         <SelectPrimitive.Item
             className={ cn(

@@ -27,7 +27,7 @@ const AbortControllerLocal:
                 listeners.forEach( listener => listener() );
             };
         } : // $FlowFixMe[incompatible-type]
-    null;
+        null;
 
 // Intentionally not named imports because Rollup would
 // use dynamic dispatch for CommonJS interop named imports.

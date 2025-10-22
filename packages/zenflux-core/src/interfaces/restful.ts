@@ -2,7 +2,7 @@ export type TErrorHandlerCallbackType = ( data: any ) => boolean;
 
 export type TResponseFilterCallbackType = ( text: string ) => string;
 
-export type TResponseHandlerCallbackType = ( text: string) => boolean;
+export type TResponseHandlerCallbackType = ( text: string ) => boolean;
 
 export type TPossibleHandlersType = TErrorHandlerCallbackType | TResponseFilterCallbackType | TResponseHandlerCallbackType;
 

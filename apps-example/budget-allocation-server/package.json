@@ -5,11 +5,11 @@
   "type": "module",
   "main": "dist/main.js",
   "scripts": {
-    "demos:budget-allocation-server-build": "esbuild src/main.ts --bundle --platform=node --outfile=dist/main.js",
+    "demos:budget-allocation-server-build": "bun build src/main.ts --outdir=dist --target=node",
     "demos:budget-allocation-server-start": "bun dist/main.js",
-    "demos:budget-allocation-server-start:dev": "tsc --watch & nodemon",
-    "demos:budget-allocation-server-start:prod": "bun dist/main.js",
-    "demos:budget-allocation-server-deploy": "fly deploy"
+    "demos:budget-allocation-server-start:dev": "bun --watch src/main.ts",
+    "demos:budget-allocation-server-start:prod": "bun main.js",
+    "demos:budget-allocation-server-deploy": "bun ../../scripts/app-examples/budget-allocation-server/deploy.js"
   },
   "private": true,
   "devDependencies": {

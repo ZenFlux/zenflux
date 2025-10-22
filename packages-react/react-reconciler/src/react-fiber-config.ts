@@ -148,13 +148,13 @@ type CloneInstance = (
     newChildSet: null | ChildSet,
 ) => Instance;
 
-type CreateContainerChildSet = (container?: Container) => ChildSet;
+type CreateContainerChildSet = ( container?: Container ) => ChildSet;
 
-type AppendChildToContainerChildSet = (childSet: ChildSet, child: Instance | TextInstance) => void;
+type AppendChildToContainerChildSet = ( childSet: ChildSet, child: Instance | TextInstance ) => void;
 
-type FinalizeContainerChildren = (container: Container, newChildren: ChildSet) => void;
+type FinalizeContainerChildren = ( container: Container, newChildren: ChildSet ) => void;
 
-type ReplaceContainerChildren = (container: Container, newChildren: ChildSet) => void;
+type ReplaceContainerChildren = ( container: Container, newChildren: ChildSet ) => void;
 
 type CloneHiddenInstance = (
     instance: Instance,

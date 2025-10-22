@@ -4,7 +4,7 @@ import { queryCreateAutoSaveManager } from "@zenflux/react-commander/query/auto-
 
 import { CHANNEL_LIST_STATE_DATA } from "@zenflux/app-budget-allocation/src/components/channel-item/channel-constants";
 
-import { transformChannelFromListApi, transformChannelFromItemApi } from "@zenflux/app-budget-allocation/src/query/channels-domain";
+import { transformChannelFromItemApi } from "@zenflux/app-budget-allocation/src/query/channels-domain";
 
 import { pickEnforcedKeys } from "@zenflux/app-budget-allocation/src/utils";
 
