@@ -25,10 +25,15 @@ export function zWorkspaceExtractPackages( regex: string, rootPkg: Package, pack
     const regexPattern = new RegExp( regex );
 
     Object.keys( packages ).forEach( ( key ) => {
-        const packageName = packages[ key ] ? key : `${ rootPkg.json.name.split( "/" )[ 0 ] }/${ key }`,
-            packagePath = packages[ key ] ? packages[ key ].getPath() : null;
+        const packageName = packages[ key ] ? key : `${ rootPkg.json.name.split( "/" )[ 0 ] }/${ key }`;
 
-        if ( regexPattern.test( packageName ) && packages[ packageName ] ) {
+        if ( !packages[ packageName ] ) {
+            return;
+        }
+
+        const packagePath = packages[ key ] ? packages[ key ].getPath() : null;
+
+        if ( regexPattern.test( packageName ) ) {
             result[ packageName ] = packages[ packageName ];
 
             return;
@@ -36,6 +41,8 @@ export function zWorkspaceExtractPackages( regex: string, rootPkg: Package, pack
 
         if ( packagePath && regexPattern.test( packagePath ) ) {
             result[ packageName ] = packages[ packageName ];
+        } else {
+            ConsoleManager.$.debug( () => `package ${ packageName } does not match regex pattern ${ regex }` );
         }
     } );
 
@@ -68,6 +75,8 @@ export async function zWorkspaceFindPackages(
         useCache?: boolean
     } = {},
 ) {
+    names = names.filter( ( n ) => n.length );
+
     const result: TPackages = {};
 
     const { silent = false, useCache = true } = options;

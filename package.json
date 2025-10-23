@@ -26,6 +26,7 @@
         "@z-workspace:eslint": "eslint .",
         "@z-workspace:eslint:bun": "bunx --bun eslint .",
         "@z-workspace:dev": "@z-cli @watch --dev",
+        "@z-workspace:core-packages:typescheck": "bun run @z-cli @typecheck --workspace \"(?:^|[\\\\\\\\/])packages(?:[\\\\\\\\/]|$)\", --verbose --debug",
         "@z-workspace:core:build": "@z-cli @build --workspace core",
         "@z-workspace:react:build": "@z-cli @build --workspace react-* --dev",
         "@z-workspace:react:dev": "@z-cli @watch --workspace react-* --dev",
@@ -33,7 +34,6 @@
         "@z-workspace:react:eslint:ci": "time ( bunx --bun eslint packages-react --cache --cache-strategy content )",
         "@z-workspace:react:test:ci": "time ( @z-jest --ci --bail --selectedProjects react-test-renderer,react-cache,react-scheduler,internal-test-utils,react-reconciler )",
         "@z-workspace:react:build:ci": "time ( @z-cli @build --workspace \"react-*\" --haltOnDiagnosticError )",
-        "@z-workspace:packages:typecheck": "@z-cli @typecheck --workspace \"/packages/\"",
         "@z-examples:budget-allocation:dev": "node scripts/app-examples/budget-allocation/run-dev.js",
         "@z-examples:budget-allocation:prod": "node scripts/app-examples/budget-allocation/run-prod.js"
     },
