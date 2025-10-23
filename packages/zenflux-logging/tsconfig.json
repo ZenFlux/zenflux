@@ -14,7 +14,6 @@
 
         // Generates declaration files (.d.ts) without emitting JavaScript files
         "declaration": true,
-        "emitDeclarationOnly": true,
 
         // Allows importing modules that don't have default exports
         "allowSyntheticDefaultImports": true,
