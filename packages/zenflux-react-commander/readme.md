@@ -25,7 +25,7 @@ bun add @zenflux/react-commander
 
 ## Quick Start
 
-> **Live Demo**: See the complete budget allocation system in action at [apps-example/budget-allocation](https://github.com/ZenFlux/zenflux/tree/main/app-examples/budget-allocation)
+> **Live Demo**: See the complete budget allocation system in action at [apps-example/budget-allocation](../../apps-example//budget-allocation/)
 
 ### 1. Define a Command
 
