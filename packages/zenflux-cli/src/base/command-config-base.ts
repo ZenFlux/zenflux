@@ -38,7 +38,7 @@ export abstract class CommandConfigBase extends CommandBase {
             );
 
             if ( ! Object.keys( result ).length ) {
-                ConsoleManager.$.error( "build", "workspace", `Package(s) not found: ${ util.inspect( this.args[ workspaceArgIndex + 1 ] ) }` );
+                ConsoleManager.$.error( "build", "workspace", `package(s) not found: ${ util.inspect( this.args[ workspaceArgIndex + 1 ] ) }` );
             }
 
             this.initPathsArgs.projectsPaths = Object.values( result ).map( i => i.getPath() );

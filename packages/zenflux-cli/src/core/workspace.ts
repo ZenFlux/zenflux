@@ -25,12 +25,17 @@ export function zWorkspaceExtractPackages( regex: string, rootPkg: Package, pack
     const regexPattern = new RegExp( regex );
 
     Object.keys( packages ).forEach( ( key ) => {
-        const packageName = packages[ key ] ? key : `${ rootPkg.json.name.split( "/" )[ 0 ] }/${ key }`;
+        const packageName = packages[ key ] ? key : `${ rootPkg.json.name.split( "/" )[ 0 ] }/${ key }`,
+            packagePath = packages[ key ] ? packages[ key ].getPath() : null;
 
-        if ( regexPattern.test( packageName ) ) {
-            if ( packages[ packageName ] ) {
-                result[ packageName ] = packages[ packageName ];
-            }
+        if ( regexPattern.test( packageName ) && packages[ packageName ] ) {
+            result[ packageName ] = packages[ packageName ];
+
+            return;
+        }
+
+        if ( packagePath && regexPattern.test( packagePath ) ) {
+            result[ packageName ] = packages[ packageName ];
         }
     } );
 
