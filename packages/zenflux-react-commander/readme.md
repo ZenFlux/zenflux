@@ -1,62 +1,33 @@
 # @zenflux/react-commander
 
-A lightweight command orchestration layer for React that separates UI from behavior through typed Commands, per-instance component context, and a central command manager. Includes a minimal Query abstraction for data fetching, caching, and lifecycle wiring. a custom in-context state that operate on a level of that component, that should be wrapped by **withCommands()**, then you can define the state, and commands of this component.
+A lightweight command orchestration layer for React that separates UI from behavior through typed Commands, per-instance component context, and a central command manager. Includes a minimal Query abstraction for data fetching, caching, and lifecycle wiring.
 
 ## Table of contents
 
-- [Why](#why)
-- [Core concepts](#core-concepts)
-- [Quick start](#quick-start)
-  - [1) Define a Command (domain: Items)](#1-define-a-command-domain-items)
-  - [2) Wrap a component](#2-wrap-a-component)
-  - [3) Define a real Query module](#3-define-a-real-query-module)
-  - [4) Bootstrap Query and register modules](#4-bootstrap-query-and-register-modules)
-  - [5) Render a component with data via QueryComponent](#5-render-a-component-with-data-via-querycomponent)
-- [Benefits](#benefits)
-  - [Undo/redo and history](#undoredo-and-history)
-  - [Interaction logging and analytics](#interaction-logging-and-analytics)
-  - [LLM/MCP readiness](#llmmcp-readiness)
-  - [Testing](#testing)
-  - [Examples](#examples)
-- [Recorder pattern (overview)](#recorder-pattern-overview)
-  - [Minimal Recorder API (example)](#minimal-recorder-api-example)
-- [Observability and governance](#observability-and-governance)
-- [Conventions](#conventions)
-- [FAQ](#faq)
-- [How it fits together](#how-it-fits-together)
-  - [Big picture](#big-picture)
-  - [End-to-end flow (example)](#end-to-end-flow-example)
-  - [Lifecycle reference](#lifecycle-reference)
-  - [Adoption checklist](#adoption-checklist)
-- [Public API (used by @app-budget-allocation)](#public-api-used-by-app-budget-allocation)
-  - [CommandBase<TState, TArgs>](#commandbasetstate-targs)
-  - [withCommands(componentName, Component, [state?], commands[])](#withcommandscomponentname-component-state-commands)
-  - [commandsManager](#commandsmanager)
-  - [Types: DCommandFunctionComponent, DCommandArgs, DCommandSingleComponentContext](#types-dcommandfunctioncomponent-dcommandargs-dcommandsinglecomponentcontext)
-  - [React hooks](#react-hooks)
-    - [Command levels and context detection](#command-levels-and-context-detection)
-  - [Query/data modules](#querydata-modules)
+- [Installation](#installation)
+- [Quick Start](#quick-start)
+- [Core Concepts](#core-concepts)
+- [API Reference](#api-reference)
+  - [Commands](#commands)
+  - [Hooks](#hooks)
+  - [Query System](#query-system)
+- [Advanced Features](#advanced-features)
+- [Live Examples](#live-examples)
+- [Examples](#examples)
+- [Migration Guide](#migration-guide)
+- [Contributing](#contributing)
 
-## Why
+## Installation
 
-- Clear separation of concerns: UI renders; Commands mutate state; Query modules fetch/persist
-- Deterministic interactions: every user action is a named, typed Command
-- Scalable coordination: cross-component communication without prop drilling
-- Testability and observability built-in
+```bash
+bun add @zenflux/react-commander
+```
 
-## Core concepts
+## Quick Start
 
-- Commands: classes with a stable name and typed args/state that perform side effects and state transitions
-- Component context: each wrapped component has a unique id and event emitter; Commands run against a specific instance
-- Command manager: single entry point to run and hook Commands, including scoped and global hooks
-- Query modules: declare endpoints, request/response shaping, and cache keys; integrated with component lifecycles
+> **Live Demo**: See the complete budget allocation system in action at [apps-example/budget-allocation](../../apps-example//budget-allocation/)
 
-## Quick start
-
-Full working demo:
-- Budget Allocation app (end-to-end Commands + Query usage): [apps-example/budget-allocation](https://github.com/ZenFlux/zenflux/tree/tmp/apps-example/budget-allocation)
-
-### 1) Define a Command (domain: Items)
+### 1. Define a Command
 
 ```ts
 import { CommandBase } from "@zenflux/react-commander/command-base";
@@ -68,13 +39,15 @@ export class SetItemName extends CommandBase<ItemsState, { id: string; name: str
   static getName() { return "App/ItemsList/SetName" }
 
   protected apply(args: { id: string; name: string }) {
-    const items = (this.state.items ?? []).map(i => i.id === args.id ? { ...i, name: args.name } : i);
+    const items = (this.state.items ?? []).map(i => 
+      i.id === args.id ? { ...i, name: args.name } : i
+    );
     return this.setState({ items });
   }
 }
 ```
 
-### 2) Wrap a component
+### 2. Wrap a Component
 
 ```tsx
 import React from "react";
@@ -86,7 +59,10 @@ type ItemsState = { items: Item[] };
 
 function ItemsList() {
   const setName = useCommand("App/ItemsList/SetName");
-  const [slice] = useCommandState<ItemsState, { items: Item[] }>("App/ItemsList", s => ({ items: s.items ?? [] }));
+  const [slice] = useCommandState<ItemsState, { items: Item[] }>(
+    "App/ItemsList", 
+    s => ({ items: s.items ?? [] })
+  );
 
   const renameFirst = () => {
     const first = slice.items[0];
@@ -109,15 +85,10 @@ export const ItemsListWithCommands = withCommands<{}, ItemsState>(
 );
 ```
 
-### 3) Define a real Query module
-
-The module declares endpoints, shapes data, and wires lifecycle hooks to the wrapped component instance. On mount, it can set initial component state from fetched data.
+### 3. Add Data Fetching (Optional)
 
 ```ts
 import { QueryListModuleBase } from "@zenflux/react-commander/query/module-base";
-import type { DCommandFunctionComponent, DCommandSingleComponentContext } from "@zenflux/react-commander/definitions";
-
-type Item = { id: string; name: string };
 
 export class ItemsQuery extends QueryListModuleBase<Item> {
   static getName() { return "items" }
@@ -128,317 +99,64 @@ export class ItemsQuery extends QueryListModuleBase<Item> {
       "App/ItemsList",
       { method: "GET", path: "v1/items", prepareData: api => api.map(x => ({ id: x.id, name: x.name })) }
     );
-
     this.register("POST", "App/ItemsList/SetName", "v1/items/set-name");
   }
 
-  protected async requestHandler(_element: DCommandFunctionComponent, request: Record<string, unknown>) {
-    return request;
-  }
-
-  protected async responseHandler(_element: DCommandFunctionComponent, response: Response) {
-    return await response.json();
-  }
-
-  protected onMount(context: DCommandSingleComponentContext, resource?: Item[]) {
-    context.setState({ ...context.getState<Record<string, unknown>>(), items: resource ?? [] });
+  protected onMount(context, resource?: Item[]) {
+    context.setState({ ...context.getState(), items: resource ?? [] });
   }
 }
 ```
 
-See a full real-world module: `ChannelsListQuery`
-- Source: https://github.com/ZenFlux/zenflux/blob/tmp/apps-example/budget-allocation/src/components/channels/channels-list-query.ts
-
-### 4) Bootstrap Query and register modules
+### 4. Bootstrap Your App
 
 ```tsx
 import React from "react";
 import { QueryClient } from "@zenflux/react-commander/query/client";
 import { QueryProvider } from "@zenflux/react-commander/query/provider";
 
-const client = new QueryClient("<API_BASE_URL>");
+const client = new QueryClient("https://api.example.com");
 client.registerModule(ItemsQuery);
 
 export function App() {
   return (
     <QueryProvider client={client}>
-      {/* Render your query-backed components via Query.Component below */}
+      <ItemsListWithCommands />
     </QueryProvider>
   );
 }
 ```
 
-### 5) Render a component with data via Query.Component
-
-Query wires fetched data to the wrapped component through the module lifecycle (e.g., setting initial state in `onMount`).
-
-```tsx
-import { withCommands } from "@zenflux/react-commander/with-commands";
-
-type ItemsState = { items: Item[] };
-function ItemsList() {
-  const [slice] = useCommandState<ItemsState, { items: Item[] }>("App/ItemsList", s => ({ items: s.items ?? [] }));
-  return <ul>{slice.items.map(i => <li key={i.id}>{i.name}</li>)}</ul>;
-}
-
-export const ItemsListWithCommands = withCommands<{}, ItemsState>(
-  "App/ItemsList",
-  ItemsList,
-  { items: [] },
-  []
-);
-
-const QueryComponent = client.Component;
-
-<QueryComponent
-  module={ItemsQuery}
-  component={ItemsListWithCommands}
-  props={{}}
-/>;
-```
-
-## Benefits
-
-### Undo/redo and history
-
-- Every action is a named Command with args, enabling linear, replayable histories
-- Commands can capture pre-state or provide inverse payloads to implement reversible steps
-- Replaying histories rehydrates UI; higher-level undo is possible by squashing groups
-- Per-instance scoping ensures undo targets the exact component instance
-
-### Interaction logging and analytics
-
-- Single choke point: `commandsManager.run` and Command global hooks enable consistent logging of name, args, result, timestamps
-- Fully qualified names are stable keys for funnels, conversion, and anomaly detection
-
-### LLM/MCP readiness
-
-- Discoverable registry: enumerate commands to build a machine-readable catalog
-- Stable tool surface: names + arg schemas map to MCP tools; per-command validation and instance scoping provide guardrails
-- Replayable traces: plan, simulate, run, and roll back by composing Commands
-
-### Testing
-
-- Unit: instantiate Commands, call `execute` with state and `setState`, assert transitions and returns
-- Integration: use scoped hooks to assert cross-component effects without prop drilling
-- Data: memory query cache keeps tests fast; request/response shapers are easy to stub
-- Record/replay: capture command logs from sessions and replay in CI
-
-### Examples
-
-#### Unit testing a command
-
-```ts
-import { CommandBase } from "@zenflux/react-commander/command-base";
-
-type S = { count: number };
-class Inc extends CommandBase<S, { delta: number }> {
-  static getName() { return "App/Counter/Increment" }
-  protected apply(a){ return this.setState({ count: this.state.count + a.delta }) }
-}
-
-test("Inc applies delta", async () => {
-  const cmd = new (Inc as any)({})
-  const holder = { state: { count: 0 } }
-  ;(cmd as any).options = { state: holder.state, setState: (s: any, cb: any) => { holder.state = { ...holder.state, ...s }; cb?.(holder.state) } }
-  await cmd.execute({ on: () => [], listeners: () => [] } as any, { delta: 2 } as any)
-  expect(holder.state.count).toBe(2)
-})
-```
-
-#### Integration testing with hooks
-
-```tsx
-function RenameButton({ id }: { id: string }) {
-  const setName = useCommand("App/ChannelsList/SetName")
-  return <button onClick={() => setName.run({ id, name: "X" })}>ok</button>
-}
-
-test("rename dispatches", async () => {
-  const handler = vi.fn()
-  // Example: attach a scoped hook to assert dispatch (pseudo)
-  // commandsManager.hookByNameScoped({ commandName: "App/ChannelsList/SetName", componentName: "App/ChannelsList", ownerId: "t" }, handler)
-  // render <RenameButton id="a" /> and click...
-  expect(handler).toHaveBeenCalled()
-})
-```
-
-## Recorder pattern (overview)
-
-- Record: wrap dispatch to capture command name, args, component id, timestamp
-- Play: provide `play(records)` to re-run the sequence
-- Optional undo/redo: if commands provide inverses or pre-state snapshots
-- Suggested surface: `start()`, `stop()`, `clear()`, `get()`, `play(records?)`, `undo()`, `redo()`
-
-### Minimal Recorder API (example)
-
-```ts
-type Recorded = {
-  at: number
-  id: { commandName: string; componentName: string; componentNameUnique: string }
-  args: Record<string, unknown>
-};
-
-class CommandRecorder {
-  private records: Recorded[] = []
-  private running = false
-
-  start() { this.running = true }
-  stop() { this.running = false }
-  clear() { this.records = [] }
-  get() { return [...this.records] }
-
-  intercept(record: Recorded) { if (this.running) this.records.push(record) }
-
-  async play(records = this.get()) {
-    for (const r of records) {
-      await commandsManager.run(r.id, r.args)
-    }
-  }
-}
-
-// Wire it globally (dev convenience)
-const recorder = new CommandRecorder()
-;(window as any).$$recorder = recorder
-
-// Example: wrap calls to commandsManager.run to feed the recorder
-// (pseudo-code) commandsManager.run = wrap(commandsManager.run, (id, args) => recorder.intercept({ at: Date.now(), id, args }))
-```
-
-## Observability and governance
-
-- Global hooks for auditing and security checks per Command
-- Centralized permission checks at dispatch-time by command name and args
-
-## Conventions
-
-- Use monorepo imports like `@zenflux/react-commander/...`
-- All user actions should be Commands
-- Prefer typed args/state for Commands
-- Avoid hard-coded values; compute from context/props/state
-
-- Naming convention for commands/modules/states: `App/Namespace/Component[/Sub]/Action`
-  - Examples: `App/ChannelsList/SetName`, `App/ChannelItem/SetBreakdown`, `UI/Accordion/onSelectionAttached`
-  - Pick one convention and use it consistently across the app
-
-## FAQ
-
-- Target a specific instance: use `useComponent` or `useCommand`
-- Subscribe without rendering: use scoped hooks or global hooks
-- Prefetch/read cache: use `QueryClient.cache` methods and module query keys
-
-## How it fits together
-
-### Big picture
-
-- UI renders pure components.
-- Every user action is a Command (named, typed) that updates per-component state.
-- Components that need commands are wrapped with `withCommands` to get an instance context, state, and lifecycle wiring.
-- Cross-component reactions use hooks (`useCommand`, `useComponent`, `useCommandHook`) instead of prop drilling.
-- Data fetching/persistence is handled by Query modules, registered on a `QueryClient` and rendered via `QueryComponent` to wire module lifecycle into the wrapped component.
-- Autosave and analytics are centralized via global hooks and `queryCreateAutoSaveManager`.
-
-### End-to-end flow (example)
-
-1. App bootstraps Query
-
-```ts
-const client = new QueryClient(BASE_URL);
-client.registerModule(ChannelsListQuery);
-
-function Root() {
-  return (
-    <QueryProvider client={client}>
-      <App />
-    </QueryProvider>
-  );
-}
-```
-
-2. Define UI with commands
-
-```tsx
-function ChannelsList(_props: ChannelListProps & { $data?: Channel[] }) {
-  return <ChannelsListView />;
-}
-
-export const ChannelsListWithCommands = withCommands<ChannelListProps, ChannelListState>(
-  "App/ChannelsList",
-  ChannelsList,
-  { channels: [], selected: {} },
-  [AddRequest, SetName]
-);
-```
-
-3. Render with data via Query
-
-```tsx
-const QueryComponent = client.Component;
-
-<QueryComponent
-  module={ChannelsListQuery}
-  component={ChannelsListWithCommands}
-  props={{ view: "accordion" }}
-/>;
-```
-
-4. Handle user actions as commands
-
-```tsx
-function RenameButton({ id }: { id: string }) {
-  const setName = useCommand("App/ChannelsList/SetName");
-  return <button onClick={() => setName.run({ id, name: "New name" })}>Rename</button>;
-}
-```
-
-5. Persist and observe centrally
-
-```ts
-// Autosave list on selection changes
-const autosave = queryCreateAutoSaveManager<ChannelsListState, { key: string; channels: Channel[] }>({
-  getKey: () => "channels-list",
-  pickToSave: s => ({ key: "channels-list", channels: s.channels }),
-  save: async input => { await client.fetch("POST", "v1/channels/list", input, r => r.json()); }
-});
-
-// Global analytics on SetName
-const cmds = commandsManager.get("App/ChannelsList", true);
-cmds["App/ChannelsList/SetName"].global().globalHook((_r, a) => console.log("set-name", a));
-```
-
-### Lifecycle reference
-
-- `withCommands` injects lifecycle handlers from `QueryComponent` into the wrapped component instance via internal props.
-- `QueryModuleBase` supports:
-  - `load?(context)` → before initial render
-  - `onMount?(context, resource)` → after component mounts with data
-  - `onUpdate?(context, { currentProps, currentState, prevProps, prevState })`
-  - `onUnmount?(context, resource)` → cleanup and final flush
-  - `onContextStateUpdated?(context, hasChanged)` → granular state change hook
-
-Typical patterns:
-- Initialize component state in `onMount` using fetched `resource`.
-- Schedule debounced saves in `onContextStateUpdated`.
-- Flush pending work in `onUnmount`.
-
-### Adoption checklist
-
-- Define commands for all user actions with clear, fully-qualified names
-- Wrap components that need state or commands with `withCommands`
-- Use hooks (`useCommand`, `useCommandState`) in UI; avoid prop drilling
-- Create Query modules to fetch/persist; register them on a `QueryClient`
-- Render command-enabled components via `QueryComponent` for lifecycle wiring
-- Add autosave with `queryCreateAutoSaveManager` where appropriate
-- Attach global/scoped hooks for analytics and cross-component effects
-
-## Public API (used by @app-budget-allocation)
-
-### CommandBase<TState, TArgs>
-
-- Import: `import { CommandBase } from "@zenflux/react-commander/command-base"`
-- Purpose: Define a named, typed user action that can read/write component state and emit events
-- When: Any user interaction you want to model deterministically (logging, undo/redo, testing)
-- Signature (selected):
+## Core Concepts
+
+### Commands
+Commands are classes that encapsulate user actions with typed arguments and state transitions. They provide:
+- **Type Safety**: Full TypeScript support for arguments and state
+- **Testability**: Easy to unit test in isolation
+- **Observability**: Built-in logging and analytics hooks
+- **Reversibility**: Support for undo/redo patterns
+
+### Component Context
+Each wrapped component gets a unique context with:
+- **Per-instance State**: Isolated state management
+- **Command Registry**: Access to registered commands
+- **Lifecycle Hooks**: Mount, update, and unmount events
+- **Event System**: Cross-component communication
+
+### Query System
+A lightweight data fetching layer that provides:
+- **Endpoint Declaration**: Define API routes and data transformation
+- **Caching**: Automatic request deduplication and caching
+- **Lifecycle Integration**: Automatic data loading and state updates
+- **Type Safety**: End-to-end type safety from API to component
+
+## API Reference
+
+### Commands
+
+#### CommandBase<TState, TArgs>
+
+Base class for all commands.
 
 ```ts
 abstract class CommandBase<TState, TArgs = {}> {
@@ -452,329 +170,84 @@ abstract class CommandBase<TState, TArgs = {}> {
 }
 ```
 
-```ts
-class SetName extends CommandBase<ChannelListState, { id: string; name: string }> {
-  static getName() { return "App/ChannelsList/SetName"; }
-  protected apply(args) {
-    const channels = this.state.channels.map(c =>
-      c.meta.id === args.id ? { ...c, meta: { ...c.meta, name: args.name } } : c
-    );
-    return this.setState({ channels });
-  }
-}
-```
+#### withCommands(componentName, Component, [state?], commands[])
 
-### withCommands(componentName, Component, [state?], commands[])
-
-- Import: `import { withCommands } from "@zenflux/react-commander/with-commands"`
-- Purpose: Register command classes and provide a per-instance command context and optional state
-- When: Wrapping any component that executes commands or exposes state to commands
+Wraps a component with command capabilities.
 
 ```tsx
-export const ChannelsListWithCommands = withCommands<ChannelListProps, ChannelListState>(
-  "App/ChannelsList",
-  ChannelsList,
-  { channels: [], selected: {} },
-  [AddRequest, EditRequest, RemoveRequest, SetName]
+export const MyComponentWithCommands = withCommands<Props, State>(
+  "App/MyComponent",
+  MyComponent,
+  { initial: "state" },
+  [Command1, Command2]
 );
 ```
 
-### commandsManager
+### Hooks
 
-- Import: `import commandsManager from "@zenflux/react-commander/commands-manager"`
-- Purpose: Central registry and dispatcher; global/scoped hooks, discovery by component name
-- When: Cross-component coordination, global analytics/auditing
+#### useCommand(commandName, ref?)
 
-```ts
-const accordion = commandsManager.get("UI/Accordion", true);
-accordion["UI/Accordion/onSelectionAttached"].global().globalHook(save);
-accordion["UI/Accordion/onSelectionDetached"].global().globalHook(save);
-```
-
-### Types: DCommandFunctionComponent, DCommandArgs, DCommandSingleComponentContext
-
-- Import: `import type { DCommandFunctionComponent } from "@zenflux/react-commander/definitions"`
-- Purpose: Strong typing for command-enabled components and command payloads
-
-```ts
-export const ChannelsList: DCommandFunctionComponent<ChannelListProps & { $data?: Channel[] }, ChannelListState> = (props) => {/* ... */};
-type SetBreakdownArgs = { index: number; value: string; source: UpdateSource };
-```
-
-### React hooks
-
-All hooks are exported from `@zenflux/react-commander/hooks`:
-
-```ts
-export { useCommand } from "./use-command/use-command";
-export { useComponent } from "./use-component/use-component";
-export { useCommandState } from "./use-command-state";
-export { useComponentWithRef } from "./use-component/use-component-with-ref";
-export { useCommandRunner } from "./use-command/use-command-runner";
-export { useCommandHook } from "./use-command/use-command-hook";
-export { useChildCommandHook } from "./use-child-command/use-child-command-hook";
-export { useChildCommandRunner } from "./use-child-command/use-child-command-runner";
-```
-
-### Command levels and context detection
-
-- **use-component (Component-level)**: target a specific component instance by name and context.
-  - **Context detection flow**: validates the current `ComponentIdContext` matches the provided component name via `getSafeContext`. When a `context` is explicitly provided, it uses that instead of the current provider.
-  - **Best for**: operating on a known instance (current, parent, or injected instance), reading/writing state, and liveness checks.
-
-- **use-command (Command-level)**: target commands by their fully qualified name.
-  - **Context detection flow**:
-    - Without `ref`: current context → component name match → on-demand (latest matching instance)
-    - With `ref`: ref match → component name match → on-demand (latest matching instance)
-  - **Best for**: dispatching or subscribing to a command without hard-coding a specific instance.
-
-- **use-child-command (Child-level)**: target commands on descendant components of a given type.
-  - **Context detection flow**: enumerates child component contexts from the current `ComponentIdContext`, filters alive instances, then hooks/runs on the matching subset.
-  - **Best for**: broadcasting to or observing multiple child instances, or addressing a specific child by key.
-
-#### useCommand(commandName)
-
-- Import: `import { useCommand } from "@zenflux/react-commander/hooks"`
-- Purpose: Intelligent command adapter that resolves commands by context, supports refs, and includes built-in fallback strategies
-- Signature:
-  - `useCommand(commandName: string): UseCommandAdapter`
-  - `useCommand(commandName: string, ref: React.RefObject<any>): UseCommandAdapter | null`
-- Returns: `{ run, hook, unhook, unhookHandle?, getInternalContext }`
-
-- When to use:
-  - Dispatch or subscribe to a command without coupling to a specific instance
-  - Resolve the most relevant instance by context, name, or ref
-  - Target a specific instance via `ref`
-
-Resolution strategy:
-1. If `ref` provided: tries ref match → name match → on-demand
-2. Without `ref`: tries current context → name match → on-demand
+Intelligent command adapter that resolves commands by context.
 
 ```tsx
-const setBreakdown = useCommand("App/ChannelItem/SetBreakdown");
-setBreakdown.run({ index: 2, value: "1,000", source: UpdateSource.FROM_BUDGET_OVERVIEW });
+const setName = useCommand("App/ItemsList/SetName");
+setName.run({ id: "123", name: "New Name" });
 
-// With ref for targeting specific instance
+// With ref for specific instance
 const itemRef = React.useRef();
-const setName = useCommand("App/ChannelItem/SetName", itemRef);
-if (setName) setName.run({ name: "New" });
+const setName = useCommand("App/Item/SetName", itemRef);
 ```
 
 #### useComponent(componentName, context?, options?)
 
-- Import: `import { useComponent } from "@zenflux/react-commander/hooks"`
-- Purpose: Target a specific component instance (current/parent/child) by context
-- Returns: `{ run, hook, unhook, unhookHandle, getId, getKey, isAlive, getInternalContext, getContext, getState }`
-
-- When to use:
-  - Operate on a known instance (current, parent, or injected context)
-  - Need strict scoping for reads/writes and lifecycle checks
-  - Integrations that must not fall back to another instance
-
-Context detection flow:
-- Validates context with `getSafeContext`: the current provider must match `componentName` unless you pass a specific `context`.
-- Resolves internal context using the component's unique id; methods operate strictly on that instance.
-
-Methods:
-- `run(commandName, args, callback?)`: dispatch a command against this instance
-- `hook(commandName, handler)` / `unhook(commandName)`: subscribe/unsubscribe for this instance
-- `unhookHandle(handle)`: unsubscribe using a returned hook handle
-- `getId()`: get the unique id
-- `getKey()`: read the instance key from internal context
-- `isAlive()`: check if the instance is still mounted
-- `getInternalContext()` / `getContext()`: access internal and provider contexts
-- `getState<TState>()`: read current component state
+Target a specific component instance by context.
 
 ```tsx
-const item = useComponent("App/ChannelItem");
-item.run("App/ChannelItem/SetFrequency", { value: "monthly" });
-
-// Check if component is still mounted
-if (item.isAlive()) {
-  item.run("App/ChannelItem/SetName", { name: "Updated" });
-}
+const item = useComponent("App/Item");
+item.run("App/Item/SetName", { name: "New" });
+item.getState<ItemState>();
 ```
 
-#### useComponentWithRef(componentName, ref)
+#### useCommandState(componentName, selector?, options?)
 
-- Import: `import { useComponentWithRef } from "@zenflux/react-commander/hooks"`
-- Purpose: Target a component instance by ref
-
-- When to use:
-  - You have a ref to a rendered instance (lists, portals)
-  - You want exact targeting without relying on name mapping
+Subscribe to component state with optional selector.
 
 ```tsx
-const itemRef = React.useRef();
-const item = useComponentWithRef("App/ChannelItem", itemRef);
-if (item) {
-  item.run("App/ChannelItem/SetName", { name: "New" });
-}
-```
+// Basic usage
+const [getState, setState, isMounted] = useCommandState<ItemState>("App/Item");
 
-#### useCommandRunner(commandName, ref?)
-
-- Import: `import { useCommandRunner } from "@zenflux/react-commander/hooks"`
-- Purpose: Get a memoized runner function for a specific command using `useCommand` internally
-- Signature: `useCommandRunner(commandName: string, ref?: React.RefObject<any>)`
-
-- When to use:
-  - Need a stable, memoized function to run a command
-  - Passing a runner as a prop/callback without recreating the adapter
-  - Targeting a specific instance with `ref`
-
-```tsx
-const runSetName = useCommandRunner("App/ChannelsList/SetName");
-runSetName({ id: "123", name: "New" }, (result) => {
-  console.log("Completed:", result);
-});
-
-// With ref for targeting specific instance
-const itemRef = React.useRef();
-const runItemCommand = useCommandRunner("App/ChannelItem/SetName", itemRef);
-runItemCommand({ name: "New" });
-```
-
-#### useCommandState(componentName)
-
-- Import: `import { useCommandState } from "@zenflux/react-commander/hooks"`
-- Purpose: Read/write the injected component state (when provided via `withCommands`)
-- Signature: `useCommandState<TState>(componentName): [() => TState, setState, () => boolean]`
-
-```tsx
-const [getState, setState, isMounted] = useCommandState<ChannelListState>("App/ChannelsList");
-setState({ selected: { ...getState().selected, abc: true } });
-```
-
-- When to use:
-  - Read/write the per-instance state injected by `withCommands`
-  - Local UI state coordination and autosave flows
-  - Access `isMounted` for safe async updates
-
-Resolution strategy (current):
-- Attempts to resolve internal context via `useCommand(componentOrCommandName)` for dynamic accuracy.
-- If unavailable (e.g., early render or when passing a component name), falls back to resolving the current component context directly.
-- Returns stable `getState`, `setState`, and `isMounted` from the resolved internal context.
-
-#### useCommandState<TState, TSelected>(componentName, selector, options?)
-
-- Import: `import { useCommandState } from "@zenflux/react-commander/hooks"`
-- Purpose: Subscribe to derived slices with granular re-rendering using `useSyncExternalStore`
-- Signature: `useCommandState<TState, TSelector>(componentName, selector, options?): [TSelector, setState, () => boolean]`
-- Options: `{ equalityFn?: (a: TSelector, b: TSelector) => boolean }` (defaults to `shallowEqual`)
-
-```tsx
-const [slice, setState, isMounted] = useCommandState<ChannelItemTableState, { editing: boolean[] }>(
-  "App/ChannelItem",
-  s => ({ editing: s.editing ?? [] })
+// With selector for performance
+const [slice, setState, isMounted] = useCommandState<ItemState, { name: string }>(
+  "App/Item",
+  s => ({ name: s.name })
 );
 ```
 
-- When to use:
-  - Subscribe to a derived slice to minimize re-renders
-  - Fine-tune equality comparisons for complex slices
-  - Compose multiple lightweight selectors in a component
-
-Notes:
-- Uses `useSyncExternalStore` for consistent subscription semantics and change propagation.
-- Subscribes to `INTERNAL_STATE_UPDATED_EVENT` and recalculates only when the selected slice changes by `equalityFn`.
-
 #### useCommandHook(commandName, handler, ref?)
 
-- Import: `import { useCommandHook } from "@zenflux/react-commander/hooks"`
-- Purpose: Declarative (un)subscription to a command using `useCommand` internally with automatic cleanup
-- Uses the same resolution strategy as `useCommand` (current context → name match → on-demand)
-
-- When to use:
-  - Observe command results for analytics, logging, or side-effects
-  - React to commands dispatched from this or other instances
-  - Bind to a specific instance via `ref`
+Declarative subscription to command events.
 
 ```tsx
-useCommandHook("App/ChannelsList/SetName", (_result, args) => { /* analytics */ });
-
-// With ref for specific instance
-const itemRef = React.useRef();
-useCommandHook("App/ChannelItem/SetName", (result, args) => {
+useCommandHook("App/Item/SetName", (result, args) => {
   console.log("Item renamed:", args);
-}, itemRef);
+});
 ```
 
 #### useChildCommandHook(childComponentName, commandName, handler, opts?)
 
-- Import: `import { useChildCommandHook } from "@zenflux/react-commander/hooks"`
-- Purpose: Subscribe to a command on all child components of a specific type
-- Options: `{ filter?: (cmd) => boolean; ignoreDuplicate?: boolean }`
-- Automatically filters out unmounted children
-
-- When to use:
-  - Parent needs to observe events across many child instances
-  - Aggregate effects like autosave, analytics, or selection sync
-  - Optionally filter to a subset via `opts.filter`
-
-Context detection flow:
-- Discovers child instances from the current component tree, filters alive ones, applies optional `filter`, and hooks them.
+Subscribe to commands on child components.
 
 ```tsx
-useChildCommandHook("App/ChannelItem", "App/ChannelItem/SetName", (result, args) => {
+useChildCommandHook("App/Item", "App/Item/SetName", (result, args) => {
   console.log("Child item renamed:", args);
 });
 ```
 
-See a real usage example:
-- [Parent listening to child command updates in ChannelsList accordion interactions](https://github.com/ZenFlux/zenflux/blob/tmp/apps-example/budget-allocation/src/components/channels/channels-list-accordion-interactions.tsx#L25-L34)
-
-#### useChildCommandRunner(childComponentName, selector)
-
-- Import: `import { useChildCommandRunner } from "@zenflux/react-commander/hooks"`
-- Purpose: Run commands on child components by key/selector
-- Returns: `(key: string, commandName: string, args: DCommandArgs) => boolean`
-
-- When to use:
-  - Address a specific child by a stable key (e.g., id)
-  - Trigger actions from parent toolbars/menus onto a selected child
-  - Programmatic control over child instances without prop drilling
-
-Context detection flow:
-- Enumerates alive children; maps each internal context to a key via `selector`; dispatches to the matching child. Returns `true` if a target was found and run.
-
-```tsx
-const runOnChild = useChildCommandRunner("App/ChannelItem", ctx => ctx.key);
-runOnChild("item-123", "App/ChannelItem/SetName", { name: "New" });
-```
-
-See a real usage example:
-- [Parent targeting a specific child instance by key](https://github.com/ZenFlux/zenflux/blob/tmp/apps-example/budget-allocation/src/components/channels/channels-list-accordion-interactions.tsx#L36-L39)
-
-### Query/data modules
-
-#### QueryComponent
-
-- Import: `import { QueryComponent } from "@zenflux/react-commander/query/component"`
-- Purpose: Suspense bridge to load module data and inject lifecycle hooks
-
-```tsx
-<QueryComponent
-  module={ChannelsListQuery}
-  component={ChannelsListWithCommands}
-  props={{ view: "accordion" }}
-/>;
-```
-
-#### QueryProvider and helpers
-
-- Import: `import { QueryProvider, getQueryModule } from "@zenflux/react-commander/query/provider"`
-- Purpose: Provide a client to descendants and retrieve modules
-
-```tsx
-const module = getQueryModule(ChannelsListQuery);
-const channel = await module.request("App/ChannelsList/AddChannel");
-```
+### Query System
 
 #### QueryModuleBase<TResource>
 
-- Import: `import { QueryModuleBase } from "@zenflux/react-commander/query/module-base"`
-- Purpose: Define endpoints, request/response shaping, cache keys, and lifecycle hooks
+Base class for query modules.
 
 ```ts
 abstract class QueryModuleBase<TResource> {
@@ -788,63 +261,1156 @@ abstract class QueryModuleBase<TResource> {
 }
 ```
 
-#### QueryItemModuleBase<TEntity>
-
-- Import: `import { QueryItemModuleBase } from "@zenflux/react-commander/query/item-module-base"`
-- Purpose: Specialization for single-entity operations
-
-```ts
-export class ChannelItemQuery extends QueryItemModuleBase<ChannelItemApiResponse> {
-  static getName() { return "Query/ChannelItemQuery"; }
-  protected getResourceName() { return "channels"; }
-  protected registerEndpoints() {
-    this.defineEndpoint<ChannelItemApiResponse, Channel>("App/ChannelItem", { method: "GET", path: "v1/channels/:key" });
-    this.register("POST", "App/ChannelItem", "v1/channels/:key");
-  }
-}
-```
-
 #### QueryListModuleBase<TEntity>
 
-- Import: `import { QueryListModuleBase } from "@zenflux/react-commander/query/list-module-base"`
-- Purpose: Specialization for list operations (list/item cache keys, save/delete helpers)
+Specialized for list operations.
 
 ```ts
-export class ChannelsListQuery extends QueryListModuleBase<Channel> {
-  static getName() { return "channels"; }
-  protected getResourceName() { return "channels"; }
+export class ItemsQuery extends QueryListModuleBase<Item> {
+  static getName() { return "items"; }
+  protected getResourceName() { return "items"; }
+  
   protected registerEndpoints() {
-    this.defineEndpoint<ChannelListApiResponse[], Channel[]>("App/ChannelsList", {
+    this.defineEndpoint<ItemApiResponse[], Item[]>("App/ItemsList", {
       method: "GET",
-      path: "v1/channels",
-      prepareData: api => api.map(transformChannelFromListApi)
+      path: "v1/items",
+      prepareData: api => api.map(transformItem)
     });
-    this.register("POST", "App/ChannelsList/SetName", "v1/channels/set-name");
   }
 }
 ```
 
-#### queryCreateAutoSaveManager<TState, TSave>(options)
+## Advanced Features
 
-- Import: `import { queryCreateAutoSaveManager } from "@zenflux/react-commander/query/auto-save-manager"`
-- Purpose: Debounced/interval-batched autosave keyed by entity
+### Undo/Redo Support
+
+Every command can be made reversible by implementing inverse operations:
 
 ```ts
-const autosave = queryCreateAutoSaveManager<ChannelsListState, { key: string; channels: Channel[] }>({
-  getKey: () => "channels-list",
-  pickToSave: s => ({ key: "channels-list", channels: s.channels }),
-  save: async input => { await api.fetch("POST", "v1/channels/list", input, r => r.json()); },
+export class SetItemName extends CommandBase<ItemsState, { id: string; name: string }> {
+  static getName() { return "App/ItemsList/SetName" }
+
+  protected apply(args: { id: string; name: string }) {
+    const previousName = this.state.items.find(i => i.id === args.id)?.name;
+    const items = this.state.items.map(i => 
+      i.id === args.id ? { ...i, name: args.name } : i
+    );
+    this.setState({ items });
+    
+    // Return inverse for undo support
+    return { id: args.id, name: previousName };
+  }
+}
+```
+
+### Analytics and Logging
+
+Global hooks for analytics and auditing:
+
+```ts
+// Global analytics
+const cmds = commandsManager.get("App/ItemsList", true);
+cmds["App/ItemsList/SetName"].global().globalHook((result, args) => {
+  analytics.track("item_renamed", { itemId: args.id, newName: args.name });
+});
+```
+
+### Autosave
+
+Automatic saving with debouncing:
+
+```ts
+import { queryCreateAutoSaveManager } from "@zenflux/react-commander/query/auto-save-manager";
+
+const autosave = queryCreateAutoSaveManager<ItemsState, { items: Item[] }>({
+  getKey: () => "items-list",
+  pickToSave: s => ({ items: s.items }),
+  save: async input => { 
+    await api.fetch("POST", "v1/items/save", input); 
+  },
   debounceMs: 800,
   intervalMs: 5000
 });
 ```
 
-#### queryDiffById<T>(prev, curr, getId)
+### Testing
 
-- Import: `import { queryDiffById } from "@zenflux/react-commander/query/list-diff"`
-- Purpose: Compute `{ added, removed }` between two lists by id
+#### Unit Testing Commands
 
 ```ts
-const { added, removed } = queryDiffById(prevChannels, nextChannels, c => c.meta.id);
+test("SetItemName updates item name", async () => {
+  const cmd = new SetItemName({});
+  const holder = { state: { items: [{ id: "1", name: "Old" }] } };
+  
+  cmd.options = { 
+    state: holder.state, 
+    setState: (s, cb) => { 
+      holder.state = { ...holder.state, ...s }; 
+      cb?.(holder.state); 
+    } 
+  };
+  
+  await cmd.execute({ on: () => [], listeners: () => [] } as any, { id: "1", name: "New" });
+  expect(holder.state.items[0].name).toBe("New");
+});
 ```
 
+#### Integration Testing
+
+```tsx
+test("rename button dispatches command", async () => {
+  const handler = vi.fn();
+  commandsManager.hookByNameScoped(
+    { commandName: "App/ItemsList/SetName", componentName: "App/ItemsList", ownerId: "test" }, 
+    handler
+  );
+  
+  render(<RenameButton id="1" />);
+  fireEvent.click(screen.getByText("Rename"));
+  
+  expect(handler).toHaveBeenCalledWith(expect.any(Object), { id: "1", name: "New Name" });
+});
+```
+
+## Live Examples
+
+### Budget Allocation System
+
+A complete, production-ready application demonstrating all `@zenflux/react-commander` features:
+
+- **Commands**: Add, edit, remove channels with full CRUD operations
+- **Query System**: Data fetching, caching, and automatic persistence
+- **Cross-Component Communication**: Parent-child interactions and event handling
+- **Multiple Views**: Accordion and table layouts with dynamic switching
+- **Autosave**: Debounced persistence with interval-based flushing
+- **Real-world Patterns**: Error handling, loading states, and user interactions
+
+**🔗 [View Live Demo](https://github.com/ZenFlux/zenflux/tree/main/zenflux-react-app-examples/budget-allocation)**
+
+This example showcases:
+- Complex state management with typed commands
+- API integration with automatic sync
+- Child component orchestration
+- Performance optimizations with selectors
+- Production-ready error handling
+
+## Examples
+
+### Complete Budget Allocation System
+
+This comprehensive example demonstrates all features including Commands, Query system, child components, and real-world patterns.
+
+> **Live Demo**: [View the complete implementation](https://github.com/ZenFlux/zenflux/tree/main/zenflux-react-app-examples/budget-allocation)
+
+#### 1. Domain Types
+
+```ts
+// types.ts
+export interface Channel {
+  meta: {
+    id: string;
+    name: string;
+    icon: string;
+  };
+  breaks?: BudgetBreak[];
+}
+
+export interface BudgetBreak {
+  id: string;
+  amount: number;
+  description: string;
+}
+
+export interface ChannelListState {
+  channels: Channel[];
+  selected: { [key: string]: boolean };
+}
+
+export interface ChannelListProps {
+  view: "accordion" | "table";
+}
+```
+
+#### 2. Commands
+
+```ts
+// channels-commands.ts
+import { CommandBase } from "@zenflux/react-commander/command-base";
+import { getQueryModule } from "@zenflux/react-commander/query/provider";
+import { ChannelsListQuery } from "./channels-list-query";
+
+export class AddChannel extends CommandBase<ChannelListState> {
+  static getName() { return "App/ChannelsList/AddChannel" }
+  
+  async apply() {
+    const queryModule = getQueryModule(ChannelsListQuery);
+    const channel = await queryModule.request("App/ChannelsList/AddChannel");
+    return this.setState({ channels: [...this.state.channels, channel] });
+  }
+}
+
+export class SetChannelName extends CommandBase<ChannelListState, { id: string; name: string }> {
+  static getName() { return "App/ChannelsList/SetName" }
+  
+  apply(args: { id: string; name: string }) {
+    const channels = this.state.channels.map(c =>
+      c.meta.id === args.id 
+        ? { ...c, meta: { ...c.meta, name: args.name } }
+        : c
+    );
+    return this.setState({ channels });
+  }
+}
+
+export class EditChannel extends CommandBase<ChannelListState, { channel: Channel }> {
+  static getName() { return "App/ChannelsList/EditRequest" }
+  
+  apply(args: { channel: Channel }) {
+    // Logic for editing channel
+    return this.setState({ selected: { [args.channel.meta.id]: true } });
+  }
+}
+
+export class RemoveChannel extends CommandBase<ChannelListState, { channel: Channel }> {
+  static getName() { return "App/ChannelsList/RemoveRequest" }
+  
+  apply(args: { channel: Channel }) {
+    const channels = this.state.channels.filter(c => c.meta.id !== args.channel.meta.id);
+    return this.setState({ channels });
+  }
+}
+```
+
+#### 3. Query Module
+
+```ts
+// channels-list-query.ts
+import { QueryListModuleBase } from "@zenflux/react-commander/query/module-base";
+import { queryCreateAutoSaveManager } from "@zenflux/react-commander/query/auto-save-manager";
+import commandsManager from "@zenflux/react-commander/commands-manager";
+
+export class ChannelsListQuery extends QueryListModuleBase<Channel> {
+  private autosave: ReturnType<typeof queryCreateAutoSaveManager>;
+
+  constructor(client: QueryClient) {
+    super(client);
+    
+    this.autosave = queryCreateAutoSaveManager<ChannelListState, { key: string; channels: Channel[] }>({
+      getKey: () => "channels-list",
+      pickToSave: (state) => ({
+        key: "channels-list",
+        channels: state.channels
+      }),
+      save: async (input) => {
+        await this.api.fetch("POST", "v1/channels/list", input);
+      },
+      debounceMs: 800,
+      intervalMs: 5000
+    });
+  }
+
+  static getName() { return "channels" }
+  protected getResourceName() { return "channels" }
+
+  protected registerEndpoints() {
+    this.defineEndpoint<ChannelApiResponse[], Channel[]>("App/ChannelsList", {
+      method: "GET",
+      path: "v1/channels",
+      prepareData: (api) => api.map(transformChannel)
+    });
+
+    this.register("POST", "App/ChannelsList/AddChannel", "v1/channels/create");
+    this.register("POST", "App/ChannelsList/SetName", "v1/channels/set-name");
+  }
+
+  protected onMount(context, resource?: Channel[]) {
+    context.setState({ 
+      ...context.getState(), 
+      channels: resource ?? [] 
+    });
+
+    // Set up autosave on selection changes
+    const accordion = commandsManager.get("UI/Accordion", true);
+    if (accordion) {
+      const saveCallback = async () => {
+        const state = context.getState<ChannelListState>();
+        this.autosave.queryUpsert(state);
+        await this.autosave.queryFlush();
+      };
+
+      accordion["UI/Accordion/onSelectionAttached"].global().globalHook(saveCallback);
+      accordion["UI/Accordion/onSelectionDetached"].global().globalHook(saveCallback);
+    }
+
+    // Set up API sync for name changes
+    const channelsList = commandsManager.get("App/ChannelsList", true);
+    if (channelsList) {
+      channelsList["App/ChannelsList/SetName"].global().globalHook(async (_, args) => {
+        if (args?.id && args?.name) {
+          await this.request("App/ChannelsList/SetName", {
+            id: args.id as string,
+            name: args.name as string
+          });
+        }
+      });
+    }
+  }
+
+  protected onUnmount(context) {
+    this.autosave.queryFlush();
+    // Clean up global hooks
+  }
+}
+```
+
+#### 4. Main Component with Commands
+
+```tsx
+// channels-list.tsx
+import React from "react";
+import { withCommands } from "@zenflux/react-commander/with-commands";
+import { useCommandState } from "@zenflux/react-commander/hooks";
+import { QueryComponent } from "@zenflux/react-commander/query/component";
+
+function ChannelsList({ view }: ChannelListProps) {
+  const [state] = useCommandState<ChannelListState>("App/ChannelsList", s => s);
+  
+  switch (view) {
+    case "accordion":
+      return <ChannelsListAccordion />;
+    case "table":
+      return <ChannelsListTable />;
+    default:
+      throw new Error(`Unknown view: ${view}`);
+  }
+}
+
+export const ChannelsListWithCommands = withCommands<ChannelListProps, ChannelListState>(
+  "App/ChannelsList",
+  ChannelsList,
+  { channels: [], selected: {} },
+  [AddChannel, SetChannelName, EditChannel, RemoveChannel]
+);
+```
+
+#### 5. Accordion View with Interactions
+
+```tsx
+// channels-list-accordion.tsx
+import React from "react";
+import { useComponent, useCommandState, useChildCommandHook, useChildCommandRunner } from "@zenflux/react-commander/hooks";
+
+export function ChannelsListAccordion() {
+  const [state, setState] = useCommandState<ChannelListState>("App/ChannelsList", s => s);
+  const component = useComponent("App/ChannelsList");
+  
+  // Listen to child accordion item title edits
+  useChildCommandHook("UI/AccordionItem", "UI/AccordionItem/EditTitle", (_, args) => {
+    component.run("App/ChannelsList/SetName", {
+      id: args.itemKey,
+      name: args.title
+    });
+  });
+
+  // Runner for child components
+  const runAccordionItem = useChildCommandRunner("UI/AccordionItem", (ctx) => ctx.props.itemKey);
+
+  // Handle edit requests
+  useCommandHook("App/ChannelsList/EditRequest", (_, args) => {
+    const { channel } = args;
+    setState({ selected: { [channel.meta.id]: true } });
+    
+    // Enable editing mode on the accordion item
+    runAccordionItem(channel.meta.id, "UI/AccordionItem/EditableTitle", { state: true });
+  });
+
+  return (
+    <Accordion selected={state.selected} setSelected={(selected) => setState({ selected })}>
+      {state.channels.map(channel => (
+        <AccordionItem
+          key={channel.meta.id}
+          itemKey={channel.meta.id}
+          heading={{ title: channel.meta.name, icon: channel.meta.icon }}
+          menu={{
+            edit: {
+              label: "Edit",
+              action: () => component.run("App/ChannelsList/EditRequest", { channel })
+            },
+            remove: {
+              label: "Remove",
+              color: "danger" as const,
+              action: () => component.run("App/ChannelsList/RemoveRequest", { channel })
+            }
+          }}
+        >
+          <ChannelContent channelId={channel.meta.id} meta={channel.meta} />
+        </AccordionItem>
+      ))}
+    </Accordion>
+  );
+}
+```
+
+#### 6. Table View
+
+```tsx
+// channels-list-table.tsx
+import React from "react";
+import { useCommandState } from "@zenflux/react-commander/hooks";
+
+export function ChannelsListTable() {
+  const [state] = useCommandState<ChannelListState>("App/ChannelsList", s => s);
+  
+  const channelsWithBreaks = state.channels.filter(
+    channel => channel.breaks && channel.breaks.length > 0
+  );
+
+  return (
+    <div className="pt-[45px]">
+      {channelsWithBreaks.length === 0 ? (
+        <div className="pt-[15px] ps-[40px] text-slate-400 text-[11px] font-bold uppercase leading-none text-center">
+          There are {state.channels.length} channels, but none have budget allocation.
+        </div>
+      ) : (
+        channelsWithBreaks.map((channel, index) => (
+          <div key={index} className="h-[130px] flex flex-row items-center">
+            <div className="w-[220px] h-full">
+              <div className="pt-[15px] ps-[40px] text-slate-400 text-[11px] font-bold uppercase leading-none">
+                Channel #{index + 1}
+              </div>
+              <div className="pt-[30px] ps-[35px] text-slate-800 text-sm font-medium font-sans leading-[21px]">
+                <img src={channel.meta.icon} alt={channel.meta.name} className="inline-block mr-[10px] w-[36px] h-[36px]"/>
+                <span>{channel.meta.name}</span>
+              </div>
+            </div>
+            <div className="w-[80px] h-full border-e border-slate-300 bg-[linear-gradient(to_right,rgba(169,181,210,0.01),rgba(112,126,167,0.134))] opacity-50"/>
+            <ChannelItemTable $data={channel} key={channel.meta.id}/>
+          </div>
+        ))
+      )}
+    </div>
+  );
+}
+```
+
+#### 7. App Bootstrap
+
+```tsx
+// app.tsx
+import React from "react";
+import { QueryClient } from "@zenflux/react-commander/query/client";
+import { QueryProvider } from "@zenflux/react-commander/query/provider";
+import { ChannelsListQuery } from "./channels-list-query";
+import { ChannelsListWithCommands } from "./channels-list";
+
+const client = new QueryClient("https://api.example.com");
+client.registerModule(ChannelsListQuery);
+
+export function App() {
+  return (
+    <QueryProvider client={client}>
+      <QueryComponent
+        module={ChannelsListQuery}
+        component={ChannelsListWithCommands}
+        props={{ view: "accordion" }}
+      />
+    </QueryProvider>
+  );
+}
+```
+
+#### 8. Child Component Integration
+
+```tsx
+// channel-content.tsx
+import React from "react";
+import { QueryComponent } from "@zenflux/react-commander/query/component";
+import { ChannelItemQuery } from "./channel-item-query";
+import { ChannelItemAccordion } from "./channel-item-accordion";
+
+const ChannelContent = React.memo<{ channelId: string; meta: Channel["meta"] }>(({ channelId, meta }) => {
+  return (
+    <QueryComponent
+      key={channelId}
+      fallback={<div className="loading">Loading...</div>}
+      module={ChannelItemQuery}
+      component={ChannelItemAccordion}
+      props={{ meta }}
+    />
+  );
+}, (prevProps, nextProps) => prevProps.channelId === nextProps.channelId);
+```
+
+This comprehensive example demonstrates:
+
+- **Commands**: Add, edit, remove, and rename operations
+- **Query System**: Data fetching, caching, and lifecycle management
+- **Autosave**: Automatic persistence with debouncing
+- **Child Components**: Cross-component communication
+- **Multiple Views**: Accordion and table layouts
+- **Real-world Patterns**: Error handling, loading states, and user interactions
+- **Type Safety**: Full TypeScript integration throughout
+
+## Migration Guide
+
+### From Redux
+
+1. Replace actions with Commands
+2. Replace reducers with Command.apply methods
+3. Replace useSelector with useCommandState
+4. Replace dispatch with useCommand
+
+### From Context API
+
+1. Wrap components with withCommands
+2. Replace context consumers with useCommand/useCommandState
+3. Move state logic to Commands
+
+## API Reference
+
+### Core Classes
+
+#### CommandBase<TState, TArgs>
+
+Base class for all commands.
+
+```ts
+import { CommandBase } from "@zenflux/react-commander/command-base";
+
+abstract class CommandBase<TState = React.ComponentState, TArgs = DCommandArgs> {
+  static getName(): string
+  protected get state(): TState
+  protected setState<K extends keyof TState>(state: TState | Pick<TState, K>, cb?: (s: TState) => void): Promise<void>
+  protected validateArgs?(args: TArgs): void
+  protected apply?(args: TArgs): Promise<unknown> | unknown
+  static globalHook(fn: (result?: unknown, args?: TArgs) => void): void
+  static globalUnhook(): void
+}
+```
+
+#### withCommands(componentName, Component, [state?], commands[])
+
+Higher-order component that wraps components with command capabilities.
+
+```ts
+import { withCommands } from "@zenflux/react-commander/with-commands";
+
+function withCommands<TProps = any, TState = undefined>(
+  componentName: string,
+  Component: DCommandFunctionComponent<TProps, TState>,
+  state?: TState,
+  commands?: DCommandNewInstanceWithArgs<TState>[]
+): DCommandFunctionComponent<TProps, TState>
+```
+
+#### commandsManager
+
+Central registry and dispatcher for all commands.
+
+```ts
+import commandsManager from "@zenflux/react-commander/commands-manager";
+
+class CommandsManager {
+  register(args: DCommandRegisterArgs): CommandBase[]
+  run(id: DCommandIdArgs, args: DCommandArgs, callback?: (result: any) => any): Promise<any>
+  hook(id: DCommandIdArgs, callback: (result?: any, args?: DCommandArgs) => any): DCommandHookHandle
+  unhook(id: DCommandIdArgs): void
+  unhookHandle(handle: DCommandHookHandle): void
+  get(componentName: string, includeGlobal?: boolean): { [commandName: string]: CommandBase }
+}
+```
+
+### React Hooks
+
+#### useCommand(commandName, ref?)
+
+Intelligent command adapter that resolves commands by context.
+
+```ts
+import { useCommand } from "@zenflux/react-commander/hooks";
+
+function useCommand(commandName: string): UseCommandAdapter
+function useCommand(commandName: string, ref: React.RefObject<any>): UseCommandAdapter | null
+
+// Returns: { run, hook, unhook, unhookHandle?, getInternalContext }
+```
+
+**Example:**
+```tsx
+function TodoItem({ id, name }: { id: string; name: string }) {
+  const setName = useCommand("App/TodoList/SetName");
+  const deleteTodo = useCommand("App/TodoList/DeleteTodo");
+  
+  const handleRename = () => {
+    setName.run({ id, name: "New Name" });
+  };
+  
+  const handleDelete = () => {
+    deleteTodo.run({ id });
+  };
+  
+  return (
+    <div>
+      <span>{name}</span>
+      <button onClick={handleRename}>Rename</button>
+      <button onClick={handleDelete}>Delete</button>
+    </div>
+  );
+}
+```
+
+#### useComponent(componentName, context?, options?)
+
+Target a specific component instance by context.
+
+```ts
+import { useComponent } from "@zenflux/react-commander/hooks";
+
+function useComponent(
+  componentName: string, 
+  context?: DCommandComponentContextProps, 
+  options?: { silent?: boolean }
+): {
+  run: (commandName: string, args: DCommandArgs, callback?: (result: any) => void) => Promise<any>
+  hook: (commandName: string, callback: (result?: any, args?: DCommandArgs) => void) => DCommandHookHandle
+  unhook: (commandName: string) => void
+  unhookHandle: (handle: DCommandHookHandle) => void
+  getId: () => string
+  getKey: () => string
+  isAlive: () => boolean
+  getInternalContext: () => DCommandSingleComponentContext
+  getContext: () => DCommandComponentContextProps
+  getState: <TState extends React.ComponentState>() => TState
+}
+```
+
+**Example:**
+```tsx
+function TodoListToolbar() {
+  const todoList = useComponent("App/TodoList");
+  
+  const handleSelectAll = () => {
+    if (todoList.isAlive()) {
+      todoList.run("App/TodoList/SelectAll");
+    }
+  };
+  
+  const handleClearCompleted = () => {
+    todoList.run("App/TodoList/ClearCompleted", {}, (result) => {
+      console.log(`Cleared ${result.count} todos`);
+    });
+  };
+  
+  const currentState = todoList.getState<TodoListState>();
+  
+  return (
+    <div>
+      <button onClick={handleSelectAll}>Select All</button>
+      <button onClick={handleClearCompleted}>
+        Clear Completed ({currentState.completedCount})
+      </button>
+    </div>
+  );
+}
+```
+
+#### useCommandState(componentName, selector?, options?)
+
+Subscribe to component state with optional selector.
+
+```ts
+import { useCommandState } from "@zenflux/react-commander/hooks";
+
+// Basic usage
+function useCommandState<TState>(commandName: string): readonly [
+  () => TState,
+  (state: TState | ((prev: TState) => TState)) => void,
+  () => boolean
+]
+
+// With selector
+function useCommandState<TState, TSelector>(
+  commandName: string,
+  selector: (state: TState) => TSelector,
+  options?: { equalityFn?: (a: TSelector, b: TSelector) => boolean }
+): readonly [TSelector, (state: TState | ((prev: TState) => TState)) => void, () => boolean]
+```
+
+**Example:**
+```tsx
+function TodoList() {
+  // Basic usage - get full state
+  const [getState, setState, isMounted] = useCommandState<TodoListState>("App/TodoList");
+  
+  // With selector - only re-render when todos change
+  const [todos, setTodos, isMounted] = useCommandState<TodoListState, { todos: Todo[] }>(
+    "App/TodoList",
+    state => ({ todos: state.todos })
+  );
+  
+  // Custom equality function for complex objects
+  const [filteredTodos, setFilteredTodos] = useCommandState<TodoListState, Todo[]>(
+    "App/TodoList",
+    state => state.todos.filter(todo => !todo.completed),
+    { equalityFn: (a, b) => a.length === b.length && a.every((todo, i) => todo.id === b[i]?.id) }
+  );
+  
+  const handleAddTodo = () => {
+    if (isMounted()) {
+      setTodos(prev => ({
+        ...prev,
+        todos: [...prev.todos, { id: Date.now().toString(), text: "New Todo", completed: false }]
+      }));
+    }
+  };
+  
+  return (
+    <div>
+      <button onClick={handleAddTodo}>Add Todo</button>
+      <ul>
+        {filteredTodos.map(todo => (
+          <li key={todo.id}>{todo.text}</li>
+        ))}
+      </ul>
+    </div>
+  );
+}
+```
+
+#### useCommandHook(commandName, handler, ref?)
+
+Declarative subscription to command events.
+
+```ts
+import { useCommandHook } from "@zenflux/react-commander/hooks";
+
+function useCommandHook(
+  commandName: string,
+  handler: (result?: unknown, args?: DCommandArgs) => void,
+  ref?: React.RefObject<any>
+): void
+```
+
+**Example:**
+```tsx
+function TodoAnalytics() {
+  // Track todo creation
+  useCommandHook("App/TodoList/AddTodo", (result, args) => {
+    analytics.track("todo_created", {
+      todoId: result.id,
+      timestamp: Date.now()
+    });
+  });
+  
+  // Track todo completion
+  useCommandHook("App/TodoList/ToggleTodo", (result, args) => {
+    if (result.completed) {
+      analytics.track("todo_completed", {
+        todoId: args.id,
+        completionTime: Date.now()
+      });
+    }
+  });
+  
+  // Track with specific component instance
+  const todoItemRef = useRef();
+  useCommandHook("App/TodoItem/DeleteTodo", (result, args) => {
+    console.log(`Todo ${args.id} deleted from specific item`);
+  }, todoItemRef);
+  
+  return <div>Analytics tracking active</div>;
+}
+```
+
+#### useCommandRunner(commandName, ref?)
+
+Get a memoized runner function for a specific command.
+
+```ts
+import { useCommandRunner } from "@zenflux/react-commander/hooks";
+
+function useCommandRunner(
+  commandName: string, 
+  ref?: React.RefObject<any>
+): (args?: DCommandArgs, callback?: (result: unknown) => void) => unknown
+```
+
+**Example:**
+```tsx
+function TodoForm({ onSubmit }: { onSubmit: (todo: Todo) => void }) {
+  const addTodo = useCommandRunner("App/TodoList/AddTodo");
+  const [text, setText] = useState("");
+  
+  const handleSubmit = (e: FormEvent) => {
+    e.preventDefault();
+    
+    addTodo(
+      { text, completed: false },
+      (result) => {
+        console.log("Todo created:", result);
+        onSubmit(result);
+        setText("");
+      }
+    );
+  };
+  
+  return (
+    <form onSubmit={handleSubmit}>
+      <input 
+        value={text} 
+        onChange={(e) => setText(e.target.value)}
+        placeholder="Add a todo..."
+      />
+      <button type="submit">Add Todo</button>
+    </form>
+  );
+}
+
+// With ref for specific instance
+function TodoItemActions({ todoId }: { todoId: string }) {
+  const itemRef = useRef();
+  const toggleTodo = useCommandRunner("App/TodoItem/ToggleTodo", itemRef);
+  
+  const handleToggle = () => {
+    toggleTodo({ id: todoId });
+  };
+  
+  return <button onClick={handleToggle}>Toggle</button>;
+}
+```
+
+#### useComponentWithRef(componentName, ref)
+
+Target a component instance by ref.
+
+```ts
+import { useComponentWithRef } from "@zenflux/react-commander/hooks";
+
+function useComponentWithRef(
+  componentName: string, 
+  ref: React.RefObject<any>
+): ReturnType<typeof useComponent> | null
+```
+
+**Example:**
+```tsx
+function TodoList() {
+  const todoItemRefs = useRef<{ [key: string]: React.RefObject<any> }>({});
+  
+  return (
+    <div>
+      {todos.map(todo => {
+        const itemRef = useRef();
+        todoItemRefs.current[todo.id] = itemRef;
+        
+        return (
+          <TodoItem 
+            key={todo.id} 
+            ref={itemRef}
+            todo={todo} 
+          />
+        );
+      })}
+    </div>
+  );
+}
+
+function TodoItem({ todo }: { todo: Todo }) {
+  const itemRef = useRef();
+  const todoItem = useComponentWithRef("App/TodoItem", itemRef);
+  
+  const handleEdit = () => {
+    if (todoItem) {
+      todoItem.run("App/TodoItem/StartEdit");
+    }
+  };
+  
+  const handleDelete = () => {
+    if (todoItem) {
+      todoItem.run("App/TodoItem/Delete", { id: todo.id });
+    }
+  };
+  
+  return (
+    <div ref={itemRef}>
+      <span>{todo.text}</span>
+      <button onClick={handleEdit}>Edit</button>
+      <button onClick={handleDelete}>Delete</button>
+    </div>
+  );
+}
+```
+
+#### useChildCommandHook(childComponentName, commandName, handler, opts?)
+
+Subscribe to commands on child components.
+
+```ts
+import { useChildCommandHook } from "@zenflux/react-commander/hooks";
+
+function useChildCommandHook(
+  childComponentName: string,
+  commandName: string,
+  handler: (result?: unknown, args?: DCommandArgs) => void,
+  opts?: { filter?: (cmd: any) => boolean; ignoreDuplicate?: boolean }
+): void
+```
+
+**Example:**
+```tsx
+function TodoList() {
+  const [completedCount, setCompletedCount] = useState(0);
+  
+  // Listen to all child todo items being completed
+  useChildCommandHook("App/TodoItem", "App/TodoItem/ToggleTodo", (result, args) => {
+    if (result.completed) {
+      setCompletedCount(prev => prev + 1);
+      analytics.track("todo_completed", { todoId: args.id });
+    } else {
+      setCompletedCount(prev => prev - 1);
+    }
+  });
+  
+  // Listen to child items being deleted with filtering
+  useChildCommandHook(
+    "App/TodoItem", 
+    "App/TodoItem/DeleteTodo", 
+    (result, args) => {
+      console.log(`Todo ${args.id} deleted`);
+    },
+    { 
+      filter: (cmd) => cmd.args.priority === "high",
+      ignoreDuplicate: true 
+    }
+  );
+  
+  return (
+    <div>
+      <h2>Completed: {completedCount}</h2>
+      {todos.map(todo => (
+        <TodoItem key={todo.id} todo={todo} />
+      ))}
+    </div>
+  );
+}
+```
+
+#### useChildCommandRunner(childComponentName, selector)
+
+Run commands on child components by key/selector.
+
+```ts
+import { useChildCommandRunner } from "@zenflux/react-commander/hooks";
+
+function useChildCommandRunner(
+  childComponentName: string,
+  selector: (ctx: DCommandSingleComponentContext) => string
+): (key: string, commandName: string, args: DCommandArgs) => boolean
+```
+
+**Example:**
+```tsx
+function TodoList() {
+  const [selectedTodos, setSelectedTodos] = useState<string[]>([]);
+  
+  // Runner to target specific todo items by ID
+  const runOnTodoItem = useChildCommandRunner("App/TodoItem", (ctx) => ctx.props.todoId);
+  
+  const handleSelectAll = () => {
+    todos.forEach(todo => {
+      const success = runOnTodoItem(todo.id, "App/TodoItem/Select", { selected: true });
+      if (success) {
+        setSelectedTodos(prev => [...prev, todo.id]);
+      }
+    });
+  };
+  
+  const handleClearSelection = () => {
+    selectedTodos.forEach(todoId => {
+      runOnTodoItem(todoId, "App/TodoItem/Select", { selected: false });
+    });
+    setSelectedTodos([]);
+  };
+  
+  const handleCompleteSelected = () => {
+    selectedTodos.forEach(todoId => {
+      runOnTodoItem(todoId, "App/TodoItem/ToggleTodo", { completed: true });
+    });
+  };
+  
+  return (
+    <div>
+      <div>
+        <button onClick={handleSelectAll}>Select All</button>
+        <button onClick={handleClearSelection}>Clear Selection</button>
+        <button onClick={handleCompleteSelected}>
+          Complete Selected ({selectedTodos.length})
+        </button>
+      </div>
+      {todos.map(todo => (
+        <TodoItem key={todo.id} todo={todo} />
+      ))}
+    </div>
+  );
+}
+```
+
+### Query System
+
+#### QueryClient
+
+Main client for query operations.
+
+```ts
+import { QueryClient } from "@zenflux/react-commander/query/client";
+
+class QueryClient {
+  constructor(baseUrl: string)
+  registerModule<TResource extends object>(module: DQueryModuleBaseStatic<TResource>): void
+  fetch<T>(method: string, path: string, data?: any, responseHandler?: (response: Response) => Promise<T>): Promise<T>
+  get cache(): QueryCache
+  get Component(): typeof QueryComponent
+}
+```
+
+#### QueryModuleBase<TResource>
+
+Base class for query modules.
+
+```ts
+import { QueryModuleBase } from "@zenflux/react-commander/query/module-base";
+
+abstract class QueryModuleBase<TResource extends object = object> {
+  static getName(): string
+  protected getResourceName(): string
+  protected registerEndpoints(): void
+  protected defineEndpoint<TApi, TData>(name: string, cfg: { method: string; path: string; prepareData?: (api: TApi) => TData }): void
+  protected register(method: string, name: string, route: string | { path: string }): void
+  request<TResult>(name: string, args?: Record<string, unknown>): Promise<TResult>
+  getData<TData>(element: DCommandFunctionComponent, args?: Record<string, unknown>): Promise<TData>
+}
+```
+
+#### QueryListModuleBase<TEntity>
+
+Specialized for list operations.
+
+```ts
+import { QueryListModuleBase } from "@zenflux/react-commander/query/list-module-base";
+
+abstract class QueryListModuleBase<TEntity extends object> extends QueryModuleBase<TEntity[]> {
+  // Inherits all QueryModuleBase methods
+  // Provides list-specific cache keys and helpers
+}
+```
+
+#### QueryComponent
+
+Suspense bridge to load module data and inject lifecycle hooks.
+
+```ts
+import { QueryComponent } from "@zenflux/react-commander/query/component";
+
+class QueryComponent<TData, TProps, TResource, TState> extends React.PureComponent<DQueryComponentProps<TData, TProps, TResource, TState>>
+```
+
+#### QueryProvider
+
+Provides query client to descendants.
+
+```ts
+import { QueryProvider, useQueryClient, getQueryClient, getQueryModule } from "@zenflux/react-commander/query/provider";
+
+function QueryProvider(props: { client: QueryClient; children: React.ReactNode }): JSX.Element
+function useQueryClient(): QueryClient
+function getQueryClient(): QueryClient
+function getQueryModule<TResource extends object>(module: DQueryModuleBaseStatic<TResource>): QueryModuleBase<TResource>
+```
+
+### Query Utilities
+
+#### queryCreateAutoSaveManager
+
+Creates an autosave manager with debouncing.
+
+```ts
+import { queryCreateAutoSaveManager } from "@zenflux/react-commander/query/auto-save-manager";
+
+function queryCreateAutoSaveManager<TState extends object, TSave extends QuerySaveInput>(
+  options: QueryCreateAutoSaveManagerOptions<TState, TSave>
+): QueryAutoSaveManager<TState, TSave>
+```
+
+#### queryDiffById
+
+Computes differences between two lists by ID.
+
+```ts
+import { queryDiffById } from "@zenflux/react-commander/query/list-diff";
+
+function queryDiffById<T>(prev: T[], curr: T[], getId: (t: T) => string): { added: T[]; removed: T[] }
+```
+
+#### queryCreateMemoryCache
+
+Creates a memory-based cache.
+
+```ts
+import { queryCreateMemoryCache } from "@zenflux/react-commander/query/cache";
+
+function queryCreateMemoryCache(): QueryCache
+```
+
+### Type Definitions
+
+#### DCommandFunctionComponent<TProps, TState>
+
+Type for command-enabled functional components.
+
+```ts
+import type { DCommandFunctionComponent } from "@zenflux/react-commander/definitions";
+
+interface DCommandFunctionComponent<TProps = any, TState = undefined> extends React.FC<TProps> {
+  (props: TProps, state?: TState): React.ReactNode
+  getName?(): string
+}
+```
+
+#### DCommandSingleComponentContext
+
+Context for a single component instance.
+
+```ts
+import type { DCommandSingleComponentContext } from "@zenflux/react-commander/definitions";
+
+interface DCommandSingleCompzeonentContext {
+  commands: { [commandName: string]: CommandBase }
+  componentNameUnique: string
+  componentName: string
+  key: string
+  props: any
+  isMounted(): boolean
+  getState<TState>(): TState
+  setState<TState>(state: TState | ((prev: TState) => TState), callback?: (state: TState) => void): Promise<void>
+  getComponentContext(): any
+  emitter: EventEmitter
+  lifecycleHandlers: any
+}
+```
+
+#### DCommandArgs
+
+Type for command arguments.
+
+```ts
+
+import type { DCommandArgs } from "@zenflux/react-commander/definitions";
+
+type DCommandArgs = {
+  [key: string]: unknown
+}
+```
+
+## License
+
+MIT License - see [LICENSE](LICENSE) for details.
