@@ -114,6 +114,9 @@ export class ItemsQuery extends QueryListModuleBase<Item> {
 import React from "react";
 import { QueryClient } from "@zenflux/react-commander/query/client";
 import { QueryProvider } from "@zenflux/react-commander/query/provider";
+import { QueryComponent } from "@zenflux/react-commander/query/component";
+import { ItemsQuery } from "./items-query";
+import { ItemsListWithCommands } from "./items-list";
 
 const client = new QueryClient("https://api.example.com");
 client.registerModule(ItemsQuery);
@@ -121,7 +124,11 @@ client.registerModule(ItemsQuery);
 export function App() {
   return (
     <QueryProvider client={client}>
-      <ItemsListWithCommands />
+      <QueryComponent
+        module={ItemsQuery}
+        component={ItemsListWithCommands}
+        props={{}}
+      />
     </QueryProvider>
   );
 }
