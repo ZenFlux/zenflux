@@ -1,7 +1,7 @@
 /**
  * @author Leonid Vinikov <leonidvinikov@gmail.com>
  */
-import type { CommandBase } from "@z-core/command-bases/command-base";
+import type { CommandBase } from "@zenflux/core/src/command-bases/command-base";
 
 /**
  * @internal

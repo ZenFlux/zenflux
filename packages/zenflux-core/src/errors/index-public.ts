@@ -1,1 +1,1 @@
-export { ForceMethodImplementation } from "@z-core/errors/force-method-implementation";
+export { ForceMethodImplementation } from "@zenflux/core/src/errors/force-method-implementation";

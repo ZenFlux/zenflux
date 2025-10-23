@@ -1,7 +1,7 @@
 /**
  * @author Leonid Vinikov <leonidvinikov@gmail.com>
  */
-import type { ControllerBase } from "@z-core/bases";
+import type { ControllerBase } from "@zenflux/core/src/bases";
 
 /**
  * @internal

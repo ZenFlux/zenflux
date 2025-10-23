@@ -1,12 +1,5 @@
 {
     "extends": "./tsconfig.json",
-    "compilerOptions": {
-        "paths": {
-            "@z-core/*": [
-                "./dist/zenflux-core/src/*"
-            ]
-        }
-    },
     "include": [
         "dist/**/*.d.ts"
     ],

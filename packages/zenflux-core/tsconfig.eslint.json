@@ -1,10 +1,5 @@
 {
     "compilerOptions": {
-        "baseUrl": ".",
-        "paths": {
-            "@z-core/*": [
-                "src/*"
-            ],
-        }
+        "baseUrl": "."
     }
 }

@@ -2,9 +2,9 @@
  * @author Leonid Vinikov <leonidvinikov@gmail.com>
  */
 // @ts-ignore - TODO handle error in jest
-import * as pkg from "@zenflux/core/package.json" assert { type: "json" };
+import { bases, commandBases, errors, interfaces, managers, } from "@zenflux/core/src/exports-index";
 
-import { bases, commandBases, errors, interfaces, managers, } from "@z-core/exports-index";
+import * as pkg from "@zenflux/core/package.json" assert { type: "json" };
 
 declare global {
     var __ZEN_CORE__IS_INITIALIZED__: boolean;

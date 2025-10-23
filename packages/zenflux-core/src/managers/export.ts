@@ -1,12 +1,12 @@
 /**
  * @author Leonid Vinikov <leonidvinikov@gmail.com>
  */
-import { Commands } from "@z-core/managers/commands";
-import { Controllers } from "@z-core/managers/controllers";
-import { Restful } from "@z-core/managers/restful";
-import { Internal } from "@z-core/managers/internal";
+import { Commands } from "@zenflux/core/src/managers/commands";
+import { Controllers } from "@zenflux/core/src/managers/controllers";
+import { Restful } from "@zenflux/core/src/managers/restful";
+import { Internal } from "@zenflux/core/src/managers/internal";
 
-import type { IAPIConfig } from "@z-core/interfaces";
+import type { IAPIConfig } from "@zenflux/core/src/interfaces";
 
 export const afterInitializeCallbacks: ( () => void )[] = [];
 

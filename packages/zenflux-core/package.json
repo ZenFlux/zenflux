@@ -15,11 +15,18 @@
     },
     "exports": {
         ".": {
-            "import": "./dist/zenflux-core.es.js",
-            "default": "./dist/zenflux-core.es.js",
-            "require": "./dist/zenflux-core.cjs.js",
+            "import": "./dist/zenflux-core.mjs",
+            "default": "./dist/zenflux-core.cjs",
+            "require": "./dist/zenflux-core.mjs.js",
             "types": "./dist/zenflux-core.d.ts"
         },
+        "./dist/src/*": "./src/*",
+        "./src/bases": "./src/bases/index.ts",
+        "./src/clients": "./src/clients/index.ts",
+        "./src/command-bases": "./src/command-bases/index.ts",
+        "./src/errors": "./src/errors/index.ts",
+        "./src/interfaces": "./src/interfaces/index.ts",
+        "./src/managers": "./src/managers/index.ts",
         "./package.json": "./package.json"
     },
     "devDependencies": {

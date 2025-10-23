@@ -1,8 +1,8 @@
 // noinspection ES6PreferShortImport
 
-import * as ZenCore from "@zenflux/core/src/exports";
+import * as ZenCore from "@zenflux/core/src/src/exports";
 
-import type { IAPIConfig } from "@zenflux/core/src/interfaces/config";
+import type { IAPIConfig } from "@zenflux/core/src/src/interfaces/config";
 
 const shared = {
     globalizeZenCore: function() {

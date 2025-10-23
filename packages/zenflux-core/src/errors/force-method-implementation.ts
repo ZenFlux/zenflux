@@ -1,4 +1,4 @@
-import type { ObjectBase } from "@z-core/bases";
+import type { ObjectBase } from "@zenflux/core/src/bases";
 
 /**
  * @internal

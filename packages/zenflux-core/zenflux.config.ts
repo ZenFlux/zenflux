@@ -10,8 +10,9 @@ const config: IZConfig = {
     outputName: "@zenflux/core",
     outputFileName: "zenflux-core",
 
-    inputDtsPath: "dist/zenflux-core/src/index.d.ts",
+    inputDtsPath: "dist/src/index.d.ts",
     outputDtsPath: "dist/zenflux-core.d.ts",
+    importsDtsReplace: ["/src/", "/dist/src/"]
 };
 
 export default config;
