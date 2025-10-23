@@ -837,16 +837,16 @@ function useCommand(commandName: string, ref: React.RefObject<any>): UseCommandA
 
 **Example:**
 ```tsx
-function TodoItem({ id, name }: { id: string; name: string }) {
-  const setName = useCommand("App/TodoList/SetName");
-  const deleteTodo = useCommand("App/TodoList/DeleteTodo");
+function ItemComponent({ id, name }: { id: string; name: string }) {
+  const setName = useCommand("App/ItemsList/SetName");
+  const deleteItem = useCommand("App/ItemsList/DeleteItem");
   
   const handleRename = () => {
     setName.run({ id, name: "New Name" });
   };
   
   const handleDelete = () => {
-    deleteTodo.run({ id });
+    deleteItem.run({ id });
   };
   
   return (
@@ -886,28 +886,28 @@ function useComponent(
 
 **Example:**
 ```tsx
-function TodoListToolbar() {
-  const todoList = useComponent("App/TodoList");
+function ItemsListToolbar() {
+  const itemsList = useComponent("App/ItemsList");
   
   const handleSelectAll = () => {
-    if (todoList.isAlive()) {
-      todoList.run("App/TodoList/SelectAll");
+    if (itemsList.isAlive()) {
+      itemsList.run("App/ItemsList/SelectAll");
     }
   };
   
-  const handleClearCompleted = () => {
-    todoList.run("App/TodoList/ClearCompleted", {}, (result) => {
-      console.log(`Cleared ${result.count} todos`);
+  const handleClearSelected = () => {
+    itemsList.run("App/ItemsList/ClearSelected", {}, (result) => {
+      console.log(`Cleared ${result.count} items`);
     });
   };
   
-  const currentState = todoList.getState<TodoListState>();
+  const currentState = itemsList.getState<ItemsListState>();
   
   return (
     <div>
       <button onClick={handleSelectAll}>Select All</button>
-      <button onClick={handleClearCompleted}>
-        Clear Completed ({currentState.completedCount})
+      <button onClick={handleClearSelected}>
+        Clear Selected ({currentState.selectedCount})
       </button>
     </div>
   );
@@ -938,38 +938,38 @@ function useCommandState<TState, TSelector>(
 
 **Example:**
 ```tsx
-function TodoList() {
+function ItemsList() {
   // Basic usage - get full state
-  const [getState, setState, isMounted] = useCommandState<TodoListState>("App/TodoList");
+  const [getState, setState, isMounted] = useCommandState<ItemsListState>("App/ItemsList");
   
-  // With selector - only re-render when todos change
-  const [todos, setTodos, isMounted] = useCommandState<TodoListState, { todos: Todo[] }>(
-    "App/TodoList",
-    state => ({ todos: state.todos })
+  // With selector - only re-render when items change
+  const [items, setItems, isMounted] = useCommandState<ItemsListState, { items: Item[] }>(
+    "App/ItemsList",
+    state => ({ items: state.items })
   );
   
   // Custom equality function for complex objects
-  const [filteredTodos, setFilteredTodos] = useCommandState<TodoListState, Todo[]>(
-    "App/TodoList",
-    state => state.todos.filter(todo => !todo.completed),
-    { equalityFn: (a, b) => a.length === b.length && a.every((todo, i) => todo.id === b[i]?.id) }
+  const [filteredItems, setFilteredItems] = useCommandState<ItemsListState, Item[]>(
+    "App/ItemsList",
+    state => state.items.filter(item => !item.archived),
+    { equalityFn: (a, b) => a.length === b.length && a.every((item, i) => item.id === b[i]?.id) }
   );
   
-  const handleAddTodo = () => {
+  const handleAddItem = () => {
     if (isMounted()) {
-      setTodos(prev => ({
+      setItems(prev => ({
         ...prev,
-        todos: [...prev.todos, { id: Date.now().toString(), text: "New Todo", completed: false }]
+        items: [...prev.items, { id: Date.now().toString(), name: "New Item", archived: false }]
       }));
     }
   };
   
   return (
     <div>
-      <button onClick={handleAddTodo}>Add Todo</button>
+      <button onClick={handleAddItem}>Add Item</button>
       <ul>
-        {filteredTodos.map(todo => (
-          <li key={todo.id}>{todo.text}</li>
+        {filteredItems.map(item => (
+          <li key={item.id}>{item.name}</li>
         ))}
       </ul>
     </div>
@@ -993,30 +993,29 @@ function useCommandHook(
 
 **Example:**
 ```tsx
-function TodoAnalytics() {
-  // Track todo creation
-  useCommandHook("App/TodoList/AddTodo", (result, args) => {
-    analytics.track("todo_created", {
-      todoId: result.id,
+function ItemsAnalytics() {
+  // Track item creation
+  useCommandHook("App/ItemsList/AddItem", (result, args) => {
+    analytics.track("item_created", {
+      itemId: result.id,
       timestamp: Date.now()
     });
   });
   
-  // Track todo completion
-  useCommandHook("App/TodoList/ToggleTodo", (result, args) => {
-    if (result.completed) {
-      analytics.track("todo_completed", {
-        todoId: args.id,
-        completionTime: Date.now()
-      });
-    }
+  // Track item updates
+  useCommandHook("App/ItemsList/SetName", (result, args) => {
+    analytics.track("item_renamed", {
+      itemId: args.id,
+      newName: args.name,
+      timestamp: Date.now()
+    });
   });
   
   // Track with specific component instance
-  const todoItemRef = useRef();
-  useCommandHook("App/TodoItem/DeleteTodo", (result, args) => {
-    console.log(`Todo ${args.id} deleted from specific item`);
-  }, todoItemRef);
+  const itemRef = useRef();
+  useCommandHook("App/Item/DeleteItem", (result, args) => {
+    console.log(`Item ${args.id} deleted from specific component`);
+  }, itemRef);
   
   return <div>Analytics tracking active</div>;
 }
@@ -1037,19 +1036,19 @@ function useCommandRunner(
 
 **Example:**
 ```tsx
-function TodoForm({ onSubmit }: { onSubmit: (todo: Todo) => void }) {
-  const addTodo = useCommandRunner("App/TodoList/AddTodo");
-  const [text, setText] = useState("");
+function ItemForm({ onSubmit }: { onSubmit: (item: Item) => void }) {
+  const addItem = useCommandRunner("App/ItemsList/AddItem");
+  const [name, setName] = useState("");
   
   const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
     
-    addTodo(
-      { text, completed: false },
+    addItem(
+      { name, archived: false },
       (result) => {
-        console.log("Todo created:", result);
+        console.log("Item created:", result);
         onSubmit(result);
-        setText("");
+        setName("");
       }
     );
   };
@@ -1057,22 +1056,22 @@ function TodoForm({ onSubmit }: { onSubmit: (todo: Todo) => void }) {
   return (
     <form onSubmit={handleSubmit}>
       <input 
-        value={text} 
-        onChange={(e) => setText(e.target.value)}
-        placeholder="Add a todo..."
+        value={name} 
+        onChange={(e) => setName(e.target.value)}
+        placeholder="Add an item..."
       />
-      <button type="submit">Add Todo</button>
+      <button type="submit">Add Item</button>
     </form>
   );
 }
 
 // With ref for specific instance
-function TodoItemActions({ todoId }: { todoId: string }) {
+function ItemActions({ itemId }: { itemId: string }) {
   const itemRef = useRef();
-  const toggleTodo = useCommandRunner("App/TodoItem/ToggleTodo", itemRef);
+  const toggleItem = useCommandRunner("App/Item/ToggleItem", itemRef);
   
   const handleToggle = () => {
-    toggleTodo({ id: todoId });
+    toggleItem({ id: itemId });
   };
   
   return <button onClick={handleToggle}>Toggle</button>;
@@ -1094,20 +1093,20 @@ function useComponentWithRef(
 
 **Example:**
 ```tsx
-function TodoList() {
-  const todoItemRefs = useRef<{ [key: string]: React.RefObject<any> }>({});
+function ItemsList() {
+  const itemRefs = useRef<{ [key: string]: React.RefObject<any> }>({});
   
   return (
     <div>
-      {todos.map(todo => {
+      {items.map(item => {
         const itemRef = useRef();
-        todoItemRefs.current[todo.id] = itemRef;
+        itemRefs.current[item.id] = itemRef;
         
         return (
-          <TodoItem 
-            key={todo.id} 
+          <ItemComponent 
+            key={item.id} 
             ref={itemRef}
-            todo={todo} 
+            item={item} 
           />
         );
       })}
@@ -1115,25 +1114,25 @@ function TodoList() {
   );
 }
 
-function TodoItem({ todo }: { todo: Todo }) {
+function ItemComponent({ item }: { item: Item }) {
   const itemRef = useRef();
-  const todoItem = useComponentWithRef("App/TodoItem", itemRef);
+  const itemComponent = useComponentWithRef("App/Item", itemRef);
   
   const handleEdit = () => {
-    if (todoItem) {
-      todoItem.run("App/TodoItem/StartEdit");
+    if (itemComponent) {
+      itemComponent.run("App/Item/StartEdit");
     }
   };
   
   const handleDelete = () => {
-    if (todoItem) {
-      todoItem.run("App/TodoItem/Delete", { id: todo.id });
+    if (itemComponent) {
+      itemComponent.run("App/Item/Delete", { id: item.id });
     }
   };
   
   return (
     <div ref={itemRef}>
-      <span>{todo.text}</span>
+      <span>{item.name}</span>
       <button onClick={handleEdit}>Edit</button>
       <button onClick={handleDelete}>Delete</button>
     </div>
@@ -1158,25 +1157,25 @@ function useChildCommandHook(
 
 **Example:**
 ```tsx
-function TodoList() {
-  const [completedCount, setCompletedCount] = useState(0);
+function ItemsList() {
+  const [archivedCount, setArchivedCount] = useState(0);
   
-  // Listen to all child todo items being completed
-  useChildCommandHook("App/TodoItem", "App/TodoItem/ToggleTodo", (result, args) => {
-    if (result.completed) {
-      setCompletedCount(prev => prev + 1);
-      analytics.track("todo_completed", { todoId: args.id });
+  // Listen to all child items being archived
+  useChildCommandHook("App/Item", "App/Item/ToggleArchive", (result, args) => {
+    if (result.archived) {
+      setArchivedCount(prev => prev + 1);
+      analytics.track("item_archived", { itemId: args.id });
     } else {
-      setCompletedCount(prev => prev - 1);
+      setArchivedCount(prev => prev - 1);
     }
   });
   
   // Listen to child items being deleted with filtering
   useChildCommandHook(
-    "App/TodoItem", 
-    "App/TodoItem/DeleteTodo", 
+    "App/Item", 
+    "App/Item/DeleteItem", 
     (result, args) => {
-      console.log(`Todo ${args.id} deleted`);
+      console.log(`Item ${args.id} deleted`);
     },
     { 
       filter: (cmd) => cmd.args.priority === "high",
@@ -1186,9 +1185,9 @@ function TodoList() {
   
   return (
     <div>
-      <h2>Completed: {completedCount}</h2>
-      {todos.map(todo => (
-        <TodoItem key={todo.id} todo={todo} />
+      <h2>Archived: {archivedCount}</h2>
+      {items.map(item => (
+        <ItemComponent key={item.id} item={item} />
       ))}
     </div>
   );
@@ -1210,31 +1209,31 @@ function useChildCommandRunner(
 
 **Example:**
 ```tsx
-function TodoList() {
-  const [selectedTodos, setSelectedTodos] = useState<string[]>([]);
+function ItemsList() {
+  const [selectedItems, setSelectedItems] = useState<string[]>([]);
   
-  // Runner to target specific todo items by ID
-  const runOnTodoItem = useChildCommandRunner("App/TodoItem", (ctx) => ctx.props.todoId);
+  // Runner to target specific items by ID
+  const runOnItem = useChildCommandRunner("App/Item", (ctx) => ctx.props.itemId);
   
   const handleSelectAll = () => {
-    todos.forEach(todo => {
-      const success = runOnTodoItem(todo.id, "App/TodoItem/Select", { selected: true });
+    items.forEach(item => {
+      const success = runOnItem(item.id, "App/Item/Select", { selected: true });
       if (success) {
-        setSelectedTodos(prev => [...prev, todo.id]);
+        setSelectedItems(prev => [...prev, item.id]);
       }
     });
   };
   
   const handleClearSelection = () => {
-    selectedTodos.forEach(todoId => {
-      runOnTodoItem(todoId, "App/TodoItem/Select", { selected: false });
+    selectedItems.forEach(itemId => {
+      runOnItem(itemId, "App/Item/Select", { selected: false });
     });
-    setSelectedTodos([]);
+    setSelectedItems([]);
   };
   
-  const handleCompleteSelected = () => {
-    selectedTodos.forEach(todoId => {
-      runOnTodoItem(todoId, "App/TodoItem/ToggleTodo", { completed: true });
+  const handleArchiveSelected = () => {
+    selectedItems.forEach(itemId => {
+      runOnItem(itemId, "App/Item/ToggleArchive", { archived: true });
     });
   };
   
@@ -1243,12 +1242,12 @@ function TodoList() {
       <div>
         <button onClick={handleSelectAll}>Select All</button>
         <button onClick={handleClearSelection}>Clear Selection</button>
-        <button onClick={handleCompleteSelected}>
-          Complete Selected ({selectedTodos.length})
+        <button onClick={handleArchiveSelected}>
+          Archive Selected ({selectedItems.length})
         </button>
       </div>
-      {todos.map(todo => (
-        <TodoItem key={todo.id} todo={todo} />
+      {items.map(item => (
+        <ItemComponent key={item.id} item={item} />
       ))}
     </div>
   );
