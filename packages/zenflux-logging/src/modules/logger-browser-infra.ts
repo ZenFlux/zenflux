@@ -9,7 +9,7 @@
  */
 import { bases } from "@zenflux/core";
 
-import { getHexColorDelta, reduceCircularReferences } from "@z-logging/utils";
+import { getHexColorDelta, reduceCircularReferences } from "@zenflux/logging/src/utils";
 
 import type { interfaces } from "@zenflux/core";
 

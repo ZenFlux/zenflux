@@ -6,9 +6,9 @@
  *  - Add dark/light mode.
  */
 
-import { LoggerBrowserInfra } from "@z-logging/modules/logger-browser-infra";
+import { LoggerBrowserInfra } from "@zenflux/logging/src/modules/logger-browser-infra";
 
-import { reduceCircularReferences } from "@z-logging/utils";
+import { reduceCircularReferences } from "@zenflux/logging/src/utils";
 
 import type { interfaces } from "@zenflux/core";
 
