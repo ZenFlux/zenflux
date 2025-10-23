@@ -25,7 +25,7 @@ bun add @zenflux/react-commander
 
 ## Quick Start
 
-> **Live Demo**: See the complete budget allocation system in action at [apps-example/budget-allocation](https://github.com/ZenFlux/zenflux/tree/main/zenflux-react-app-examples/budget-allocation)
+> **Live Demo**: See the complete budget allocation system in action at [apps-example/budget-allocation](https://github.com/ZenFlux/zenflux/tree/main/app-examples/budget-allocation)
 
 ### 1. Define a Command
 
@@ -1383,7 +1383,7 @@ Context for a single component instance.
 ```ts
 import type { DCommandSingleComponentContext } from "@zenflux/react-commander/definitions";
 
-interface DCommandSingleComponentContext {
+interface DCommandSingleCompzeonentContext {
   commands: { [commandName: string]: CommandBase }
   componentNameUnique: string
   componentName: string
