@@ -189,7 +189,7 @@ export abstract class CommandBuildBase extends CommandConfigBase {
         // TODO: Add cache + optimization.
         configs.forEach( config => this.handleTSDiagnostics( config ).catch( () => {
             // Do nothing.
-        }) );
+        } ) );
 
         configs.forEach( ( config ) => {
             const promise = this.handleTSDeclaration( config )

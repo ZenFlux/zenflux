@@ -2,53 +2,37 @@
  * @author: Leonid Vinikov <leonidvinikov@gmail.com>
  */
 import type { IConfigFile as IAPIExtractorConfigFile } from "@microsoft/api-extractor";
-import type { TZFormatType } from "@zenflux/cli/src/definitions/zenflux";
-import type { TForceEnumKeys } from "@zenflux/cli/src/utils/common";
-
+import type { TZFormatType } from ".//src/definitions/zenflux";
+import type { TForceEnumKeys } from ".//src/utils/common";
 interface IConfigRequiredArgs {
-    inputPath: string,
-    outputFileName: string,
+    inputPath: string;
+    outputFileName: string;
 }
-
 interface IConfigOptionalArgs {
-    format?: TZFormatType[],
-    extensions?: string[],
-
-    external?: string[] | RegExp[],
+    format?: TZFormatType[];
+    extensions?: string[];
+    external?: string[] | RegExp[];
     globals?: {
-        [ key: string ]: string
-    },
-};
-
+        [key: string]: string;
+    };
+}
 interface IIConfigArgsGeneralBase {
     enableCustomLoader?: boolean;
     enableCjsAsyncWrap?: boolean;
-
-    omitWarningCodes?: string[],
-
-    // Dts probably built once, since it's not format dependent - TODO: Use tsconfig.json
-    // TODO: Merge with `apiExtractor`.
+    omitWarningCodes?: string[];
     inputDtsPath?: string;
     outputDtsPath?: string;
-    importsDtsReplace?: [ string, string ];
-
-    onBuiltFormat?: ( format: TZFormatType | undefined ) => void;
+    importsDtsReplace?: [string, string];
+    onBuiltFormat?: (format: TZFormatType | undefined) => void;
     onBuilt?: () => void;
-
-    apiExtractor?: Partial<IAPIExtractorConfigFile>
+    apiExtractor?: Partial<IAPIExtractorConfigFile>;
 }
-
 interface IIConfigArgsGeneralBasic extends IIConfigArgsGeneralBase {
-    enableCustomLoader?: false,
-
-    moduleForwarding?: never,
-
+    enableCustomLoader?: false;
+    moduleForwarding?: never;
 }
-
-// Here are properties that are not format dependent
 interface IConfigArgsGeneralWithCustomLoader extends IIConfigArgsGeneralBase {
-    enableCustomLoader: true,
-
+    enableCustomLoader: true;
     /**
      * This property is an object that maps module names to their respective paths.
      * It is used to redirect module imports to different locations, which can be useful in a monorepo setup.
@@ -74,32 +58,26 @@ interface IConfigArgsGeneralWithCustomLoader extends IIConfigArgsGeneralBase {
      * TODO: For while `moduleForwarding` will applies for all formats
      */
     moduleForwarding?: {
-        [ forModule: string ]: {
-            [ source: string ]: string
+        [forModule: string]: {
+            [source: string]: string;
         };
-    }
+    };
 }
-
 type IConfigArgsGeneral = IIConfigArgsGeneralBasic | IConfigArgsGeneralWithCustomLoader;
-
-interface IConfigArgsForEachFormat extends IConfigRequiredArgs, IConfigOptionalArgs {};
-
+interface IConfigArgsForEachFormat extends IConfigRequiredArgs, IConfigOptionalArgs {
+}
 export type IConfigArgsBase = IConfigOptionalArgs & IConfigArgsGeneral;
-
 export type TConfigType = "single" | "multi" | "unknown";
-
 /**
  * @public
  */
 export type IZConfig = IConfigArgsForEachFormat & IConfigArgsGeneral & {
-    outputName: string,
+    outputName: string;
 };
-
 /**
  * @public
  */
 export type IZConfigInMulti = IConfigArgsForEachFormat & IConfigArgsGeneral;
-
 /**
  * @public
  */
@@ -107,60 +85,40 @@ export interface IZConfigs {
     /**
      * Every config object will inherit from this object.
      */
-    $defaults?: IConfigArgsBase,
-
-    // TODO: add $overrides
-    // TODO: add $rollupOverrides
-
-    [ key: string ]: IZConfigInMulti | IConfigArgsBase | undefined,
-};
-
+    $defaults?: IConfigArgsBase;
+    [key: string]: IZConfigInMulti | IConfigArgsBase | undefined;
+}
 /**
  * @internal
  */
 export type IZConfigInternal = IZConfig & {
-    type: TConfigType,
-
-    // Path of self.
+    type: TConfigType;
     path: string;
-
-    // Required in internal use.
-    format: TZFormatType[],
-
-    // In multi config file it represent as key.
-    outputName: string,
-}
-
+    format: TZFormatType[];
+    outputName: string;
+};
 /**
  * @internal
  */
 export interface IZConfigArgsRequiredInternal {
-    extensions: string[],
+    extensions: string[];
 }
-
 /**
  * Represents a single configuration object for each format.
  *
  * @internal
  */
-export type TZConfigInternalArgs = Omit<IZConfigInternal, "format"> &
-    Required<IZConfigArgsRequiredInternal> & {
-        format: TZFormatType;
-    }
-
+export type TZConfigInternalArgs = Omit<IZConfigInternal, "format"> & Required<IZConfigArgsRequiredInternal> & {
+    format: TZFormatType;
+};
 /**
  * @internal
  */
-export const Z_CONFIG_DEFAULTS: IZConfigArgsRequiredInternal = {
-    extensions: [ ".ts", ".js" ],
-};
-
+export declare const Z_CONFIG_DEFAULTS: IZConfigArgsRequiredInternal;
 /**
  * @internal
  */
-export const Z_CONFIG_REQUIRED: TForceEnumKeys<IConfigRequiredArgs> = {
-    inputPath: true,
-    outputFileName: true,
-};
-
-export const Z_CONFIG_REQUIRED_KEYS = Object.keys( Z_CONFIG_REQUIRED ) as ( keyof IConfigRequiredArgs )[];
+export declare const Z_CONFIG_REQUIRED: TForceEnumKeys<IConfigRequiredArgs>;
+export declare const Z_CONFIG_REQUIRED_KEYS: (keyof IConfigRequiredArgs)[];
+export {};
+//# sourceMappingURL=config.d.ts.map

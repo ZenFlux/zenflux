@@ -71,14 +71,14 @@ export function zApiExporter(
 
                 additionalPaths[ `${ ref.originalPath }/*` ] = [ `./dist/${ path.basename( ref.path ) }/*` ];
             }
-        });
-        additionalPaths[ selfPackageLocalize ] = [ `./dist/${ path.basename( projectPath )}/*` ];
+        } );
+        additionalPaths[ selfPackageLocalize ] = [ `./dist/${ path.basename( projectPath ) }/*` ];
     } else {
         additionalPaths[ selfPackageLocalize ] = [ "./dist/*" ];
     }
 
-    tsConfigExtractor.raw.compilerOptions["paths"] = {
-        ... tsConfigExtractor.raw.compilerOptions["paths"] ?? {},
+    tsConfigExtractor.raw.compilerOptions[ "paths" ] = {
+        ... tsConfigExtractor.raw.compilerOptions[ "paths" ] ?? {},
         ... additionalPaths,
     };
     // End - Refactor
@@ -107,6 +107,8 @@ export function zApiExporter(
         logLevel: ExtractorLogLevel.Error
     };
 
+    activeConsole.debug( () => [ zApiExporter.name, util.inspect( baseConfig ) ] );
+
     const extractorConfig: ExtractorConfig = ExtractorConfig.prepare( baseConfig );
 
     if ( logDiagnosticsFile && fs.existsSync( logDiagnosticsFile ) ) {
@@ -134,12 +136,12 @@ export function zApiExporter(
 
                     const { text, ... raw } = message;
 
-                    logLine = `${text}, metadata: ${ util.inspect(raw, { colors: false } ) }`;
+                    logLine = `${ text }, metadata: ${ util.inspect( raw, { colors: false } ) }`;
                 } else {
                     logLine = message.text;
                 }
 
-                devDiagnostics.push( `${ message.logLevel }: ${ logLine}` );
+                devDiagnostics.push( `${ message.logLevel }: ${ logLine }` );
             } else {
                 switch ( message.logLevel ) {
                     case "error":

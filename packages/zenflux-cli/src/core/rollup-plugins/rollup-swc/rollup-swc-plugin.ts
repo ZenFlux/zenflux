@@ -68,8 +68,15 @@ export default function zRollupSwcPlugin( args: Required<IPluginArgs> ): Plugin 
                 if ( path.extname( id ) === ".json" ) {
                     // Process JSON manually
                     const jsonContent = fs.readFileSync( id, "utf-8" );
+                    const jsonData = JSON.parse( jsonContent );
+
+                    // Export both default and named exports for JSON files
+                    const namedExports = Object.keys( jsonData ).map( key =>
+                        `export const ${ key } = ${ JSON.stringify( jsonData[ key ] ) };`
+                    ).join( "\n" );
+
                     output = {
-                        code: `export default ${ jsonContent };`,
+                        code: `export default ${ jsonContent };\n${ namedExports }`,
                     };
                 } else {
                     // Process with SWC for non-JSON files
