@@ -89,10 +89,16 @@ export class WorkerServer {
 
         const argv = [];
 
+        // TODO: Find better solution
         if ( process.argv.includes( "--z-worker-vm-verbose" ) ) {
             argv.push( "--zvm-verbose" );
         }
-
+        if ( process.argv.includes( "--verbose" ) ) {
+            argv.push( "--verbose" );
+        }
+        if ( process.argv.includes( "--debug" ) ) {
+            argv.push( "--debug" );
+        }
         if ( process.argv.includes( "--z-worker-vm-memory-verbose" ) ) {
             argv.push( "--zvm-memory-verbose" );
             argv.push( "isolated" );
@@ -208,6 +214,9 @@ export class WorkerServer {
 
                 this.errorInternal( error );
 
+                // Reject the runPromise so the error is propagated to the calling code
+                this.runPromise.reject( error );
+
                 break;
             }
 
@@ -305,7 +314,7 @@ export class WorkerServer {
     }
 
     public addTask( task: DWorkerTaskWithWorkPath ) {
-        if ( "function" === typeof task.workFunction) {
+        if ( "function" === typeof task.workFunction ) {
             task.workFunction = task.workFunction.name;
         }
 

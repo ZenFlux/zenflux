@@ -21,6 +21,15 @@ import {
 
 import type { TForceEnumKeys } from "@zenflux/cli/src/utils/common";
 
+interface PublishResponse {
+    ok: boolean;
+    status: number;
+    statusText: string;
+    headers: any;
+    json(): Promise<unknown>;
+    text(): Promise<string>;
+}
+
 export type TPackages = { [ packageName: string ]: Package };
 
 export type TPackageDependencies = { [ packageName: string ]: string };
@@ -84,7 +93,7 @@ export class Package {
         fs.writeFileSync( path, JSON.stringify( this.json, null, 2 ) );
     }
 
-    public async publish() {
+    public async publish(): Promise<PublishResponse> {
         const manifest = await pacote.manifest( this.getPath() ) as any;
 
         // Passing `dryRun` to avoid writing on disk
