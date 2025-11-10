@@ -11,6 +11,7 @@
             "ESNext"
         ],
         "types": [
+            "libnpmpack",
             "node",
             "bun"
         ],
