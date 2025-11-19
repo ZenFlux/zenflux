@@ -1,25 +1,25 @@
 {
-    "name": "@zenflux/worker",
-    "version": "0.0.1",
-    "type": "module",
-    "dependencies": {
-        "@zenflux/typescript-vm": "workspace:*",
-        "@zenflux/runner": "workspace:*"
-    },
-    "devDependencies": {
-        "@types/bun": "^1.1.3"
-    },
-    "publishConfig": {
-        "access": "public"
-    },
-    "exports": {
-        ".": "./src/index.ts",
-        "./definitions": "./src/definitions.ts",
-        "./package.json": "./package.json",
-        "./utils": "./src/utils.ts",
-        "./worker-client": "./src/worker-client.ts",
-        "./worker-pool": "./src/worker-pool.ts",
-        "./worker-runner": "./src/worker-runner.ts",
-        "./worker-server": "./src/worker-server.ts"
-    }
+  "name": "@zenflux/worker",
+  "version": "0.0.6",
+  "type": "module",
+  "dependencies": {
+    "@zenflux/typescript-vm": "workspace:*",
+    "@zenflux/runner": "workspace:*"
+  },
+  "devDependencies": {
+    "@types/bun": "^1.1.3"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "exports": {
+    ".": "./src/index.ts",
+    "./definitions": "./src/definitions.ts",
+    "./package.json": "./package.json",
+    "./utils": "./src/utils.ts",
+    "./worker-client": "./src/worker-client.ts",
+    "./worker-pool": "./src/worker-pool.ts",
+    "./worker-runner": "./src/worker-runner.ts",
+    "./worker-server": "./src/worker-server.ts"
+  }
 }

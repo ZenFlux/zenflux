@@ -1,6 +1,6 @@
 {
     "extends": [
-        "../tsconfig.paths.json",
+        "../tsconfig.json",
     ],
     "compilerOptions": {
         "diagnostics": true,

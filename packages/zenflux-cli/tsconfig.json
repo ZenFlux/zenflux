@@ -1,6 +1,5 @@
 {
     "extends": [
-        "../../tsconfig.json",
         "./tsconfig.paths.json",
         "@zenflux/typescript-vm/tsconfig.import-meta.json"
     ],

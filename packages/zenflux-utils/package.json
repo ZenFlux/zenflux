@@ -1,25 +1,25 @@
 {
-    "name": "@zenflux/utils",
-    "version": "0.1.4",
-    "type": "module",
-    "publishConfig": {
-        "access": "public"
-    },
-    "files": [
-        "src",
-        "package.json",
-        "tsconfig.json",
-        "tsconfig.eslint.json"
-    ],
-    "exports": {
-        "./package.json": "./package.json",
-        "./error": "./src/error.js",
-        "./object": "./src/object.js",
-        "./path": "./src/path.js",
-        "./promise": "./src/promise.js",
-        "./workspace": "./src/workspace.js"
-    },
-    "scripts": {
-        "build-types": "rm src/*.d.ts >/dev/null 2>&1 ; tsc -p ./tsconfig.json"
-    }
+  "name": "@zenflux/utils",
+  "version": "0.1.5",
+  "type": "module",
+  "publishConfig": {
+    "access": "public"
+  },
+  "files": [
+    "src",
+    "package.json",
+    "tsconfig.json",
+    "tsconfig.eslint.json"
+  ],
+  "exports": {
+    "./package.json": "./package.json",
+    "./error": "./src/error.js",
+    "./object": "./src/object.js",
+    "./path": "./src/path.js",
+    "./promise": "./src/promise.js",
+    "./workspace": "./src/workspace.js"
+  },
+  "scripts": {
+    "build-types": "rm src/*.d.ts >/dev/null 2>&1 ; tsc -p ./tsconfig.json"
+  }
 }

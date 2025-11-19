@@ -6,6 +6,7 @@ import * as util from "util";
 import fs from "fs";
 import path from "path";
 import process from "process";
+import semver from "semver";
 
 import { ConsoleMenu } from "@zenflux/cli/src/modules/console";
 
@@ -27,11 +28,18 @@ import type { TNewPackageOptions, TPackages } from "@zenflux/cli/src/modules/npm
 
 const localPublishRequirements = [ "publishConfig", "version" ];
 
+type PublishPackageMeta = {
+    needsVersionBump: boolean;
+    statusLabel: string;
+};
+
 export default class Publish extends CommandBase {
     private newPackageOptions: TNewPackageOptions = {
         registryUrl: DEFAULT_NPM_REMOTE_REGISTRY_URL,
         npmRcPath: DEFAULT_NPM_RC_PATH,
     };
+
+    private publishPackagesMeta: Map<string, PublishPackageMeta> = new Map();
 
     public async runImpl(): Promise<void> {
         const workspacePackage = new Package( this.paths.workspace ),
@@ -72,6 +80,8 @@ export default class Publish extends CommandBase {
         if ( ! Object.keys( publishAblePackages ).length ) {
             return ConsoleManager.$.log( "No publishable packages found" );
         }
+
+        await this.autoIncrementPackageVersions( publishAblePackages );
 
         ConsoleManager.$.log( util.inspect(
             Object.values( publishAblePackages ).map( p => p.getDisplayName() )
@@ -153,37 +163,41 @@ export default class Publish extends CommandBase {
     }
 
     private async ensurePublishAblePackages( packages: TPackages ) {
-        const result: TPackages = {},
+        const eligiblePackages: TPackages = {},
             restrictedPackages: {
                 pkg: Package,
                 terms: { [ key: string ]: any }
             }[] = [];
 
+        this.publishPackagesMeta.clear();
+
         await Promise.all( Object.values( packages ).map( async ( pkg: Package ) => {
             const json = pkg.json,
                 missingRequirements = localPublishRequirements.filter( key => ! json[ key as keyof typeof json ] );
 
-            let isVersionExists = false;
+            if ( missingRequirements.length ) {
+                restrictedPackages.push( {
+                    pkg,
+                    terms: {
+                        missing: missingRequirements,
+                        isVersionExists: false,
+                    }
+                } );
 
-            if ( missingRequirements.length === 0 ) {
-                const registry = await pkg.loadRegistry();
-
-                isVersionExists = registry.isExists() && registry.isVersionUsed( json.version as string );
-
-                if ( ! isVersionExists ) {
-                    result[ pkg.json.name ] = pkg;
-
-                    return;
-                }
+                return;
             }
 
-            restrictedPackages.push( {
-                pkg,
-                terms: {
-                    missing: missingRequirements,
+            const registry = await pkg.loadRegistry(),
+                isVersionExists = registry.isExists() && registry.isVersionUsed( json.version as string ),
+                statusLabel = registry.isExists() ?
+                    ( isVersionExists ? "version already published – will auto increment" : "ready" ) :
+                    "not published yet";
 
-                    isVersionExists,
-                }
+            eligiblePackages[ pkg.json.name ] = pkg;
+
+            this.publishPackagesMeta.set( pkg.json.name, {
+                needsVersionBump: Boolean( isVersionExists ),
+                statusLabel,
             } );
         } ) );
 
@@ -207,31 +221,45 @@ export default class Publish extends CommandBase {
             process.stdout.write( "\n" );
         }
 
-        const resultValues = Object.values( result );
+        const eligibleList = Object.values( eligiblePackages )
+            .sort( ( a, b ) => a.json.name.localeCompare( b.json.name ) );
 
-        if ( Object.keys( resultValues ).length ) {
-            ConsoleManager.$.log( "Packages that meet the publish requirements:" );
-
-            const selectedPackages = await ( new ConsoleMenuCheckbox(
-                Object.values( resultValues ).map( ( pkg ) => {
-                    return {
-                        title: pkg.json.name,
-                        checked: true,
-                    };
-                } )
-            ) ).start();
-
-            if ( selectedPackages ) {
-                Object.keys( result ).forEach( ( key ) => {
-                    // Remove not selected packages
-                    if ( ! selectedPackages.find( i => i.title === key ) ) {
-                        delete result[ key ];
-                    }
-                } );
-
-                return result;
-            }
+        if ( ! eligibleList.length ) {
+            return {};
         }
+
+        ConsoleManager.$.log( "Packages that meet the publish requirements:" );
+
+        const selectedPackages = await ( new ConsoleMenuCheckbox(
+            eligibleList.map( ( pkg ) => {
+                const meta = this.publishPackagesMeta.get( pkg.json.name );
+
+                return {
+                    title: `${ pkg.getDisplayName() } (${ meta?.statusLabel ?? "ready" })`,
+                    value: pkg.json.name,
+                    checked: true,
+                };
+            } ),
+            {
+                headMessage: "Select the packages you want to publish",
+            }
+        ) ).start();
+
+        if ( selectedPackages?.length ) {
+            const result: TPackages = {};
+
+            selectedPackages.forEach( ( item ) => {
+                const pkgName = item?.value;
+
+                if ( pkgName && eligiblePackages[ pkgName ] ) {
+                    result[ pkgName ] = eligiblePackages[ pkgName ];
+                }
+            } );
+
+            return result;
+        }
+
+        ConsoleManager.$.log( "No packages selected" );
 
         return {};
     }
@@ -340,5 +368,54 @@ export default class Publish extends CommandBase {
         } );
 
         return result;
+    }
+
+    private async autoIncrementPackageVersions( packages: TPackages ) {
+        let bumpedPackages = 0;
+
+        for ( const pkg of Object.values( packages ) ) {
+            const currentVersion = pkg.json.version;
+
+            if ( ! currentVersion ) {
+                ConsoleManager.$.warn( `Skipping version bump for ${ pkg.json.name } because it has no version defined.` );
+                continue;
+            }
+
+            const meta = this.publishPackagesMeta.get( pkg.json.name );
+
+            if ( ! meta?.needsVersionBump ) {
+                continue;
+            }
+
+            const registry = await pkg.loadRegistry();
+            const remoteLatest = registry.isExists() ? registry.getLastVersion() : null;
+
+            const baseVersion = remoteLatest && semver.gt( remoteLatest, currentVersion ) ? remoteLatest : currentVersion;
+            let nextVersion = semver.inc( baseVersion, "patch" );
+
+            if ( ! nextVersion ) {
+                throw new Error( `Failed to increment version for ${ pkg.json.name } starting from ${ baseVersion }` );
+            }
+
+            while ( registry.isExists() && registry.isVersionUsed( nextVersion ) ) {
+                const candidate = semver.inc( nextVersion, "patch" );
+
+                if ( ! candidate ) {
+                    throw new Error( `Unable to find available version for ${ pkg.json.name }` );
+                }
+
+                nextVersion = candidate;
+            }
+
+            pkg.json.version = nextVersion;
+            pkg.saveAs( path.join( pkg.getPath(), "package.json" ) );
+
+            ConsoleManager.$.log( `${ pkg.json.name }: auto incremented ${ currentVersion } -> ${ nextVersion }` );
+            bumpedPackages++;
+        }
+
+        if ( ! bumpedPackages ) {
+            ConsoleManager.$.log( "Selected packages already use unpublished versions – skipping automatic version bumps." );
+        }
     }
 }

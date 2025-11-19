@@ -1,48 +1,47 @@
 {
-    "name": "@zenflux/typescript-vm",
-    "description": "A simple VM for running Typescript code in a NodeJS environment, with favor of tsconfig.json",
-    "version": "0.1.2",
-    "type": "module",
-    "files": [
-        "src",
-        "types",
-        "tsconfig.json",
-        "tsconfig.import-meta.json"
-    ],
-    "main": "src/index.js",
-    "exports": {
-        ".": {
-            "import": "./src/index.js"
-        },
-        "./utils": {
-            "import": "./src/utils.js",
-            "types": "./types/utils.d.ts"
-        },
-        "./import-meta": {
-            "types": "./types/import-meta.d.ts"
-        },
-
-        "./tsconfig.import-meta.json": "./tsconfig.import-meta.json"
+  "name": "@zenflux/typescript-vm",
+  "description": "A simple VM for running Typescript code in a NodeJS environment, with favor of tsconfig.json",
+  "version": "0.1.3",
+  "type": "module",
+  "files": [
+    "src",
+    "types",
+    "tsconfig.json",
+    "tsconfig.import-meta.json"
+  ],
+  "main": "src/index.js",
+  "exports": {
+    ".": {
+      "import": "./src/index.js"
     },
-    "publishConfig": {
-        "access": "public"
+    "./utils": {
+      "import": "./src/utils.js",
+      "types": "./types/utils.d.ts"
     },
-    "repository": {
-        "type": "git",
-        "url": "https://github.com/ZenFlux/zenflux.git",
-        "directory": "packages/typescript-vm"
+    "./import-meta": {
+      "types": "./types/import-meta.d.ts"
     },
-    "dependencies": {
-        "@zenflux/tsconfig-to-swc": "workspace:*",
-        "@zenflux/utils": "workspace:*",
-        "@swc/core": "latest",
-        "ts-node": "^10.9.1",
-        "tsconfig-paths": "^4.2.0",
-        "source-map-support": "^0.5.21",
-        "ajv": "^8.17.1",
-        "npm-packlist": "^8.0.2",
-        "libnpmpack": "^6.0.2",
-        "pacote": "^17.0.4",
-        "libnpmpublish": "^9.0.1"
-    }
+    "./tsconfig.import-meta.json": "./tsconfig.import-meta.json"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/ZenFlux/zenflux.git",
+    "directory": "packages/typescript-vm"
+  },
+  "dependencies": {
+    "@zenflux/tsconfig-to-swc": "workspace:*",
+    "@zenflux/utils": "workspace:*",
+    "@swc/core": "latest",
+    "ts-node": "^10.9.1",
+    "tsconfig-paths": "^4.2.0",
+    "source-map-support": "^0.5.21",
+    "ajv": "^8.17.1",
+    "npm-packlist": "^8.0.2",
+    "libnpmpack": "^6.0.2",
+    "pacote": "^17.0.4",
+    "libnpmpublish": "^9.0.1"
+  }
 }

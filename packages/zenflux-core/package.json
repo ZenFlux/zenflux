@@ -1,38 +1,38 @@
 {
-    "name": "@zenflux/core",
-    "version": "0.1.0",
-    "types": "dist/zenflux-core.d.ts",
-    "type": "module",
-    "files": [
-        "dist",
-        "src",
-        "types"
-    ],
-    "scripts": {
-        "@z-core--test": "jest",
-        "@z-core--build": "@z-cli @build",
-        "@z-core--dev": "@z-cli @watch --dev"
+  "name": "@zenflux/core",
+  "version": "0.1.1",
+  "types": "dist/zenflux-core.d.ts",
+  "type": "module",
+  "files": [
+    "dist",
+    "src",
+    "types"
+  ],
+  "scripts": {
+    "@z-core--test": "jest",
+    "@z-core--build": "@z-cli @build",
+    "@z-core--dev": "@z-cli @watch --dev"
+  },
+  "exports": {
+    ".": {
+      "import": "./dist/zenflux-core.mjs",
+      "default": "./dist/zenflux-core.cjs",
+      "require": "./dist/zenflux-core.mjs.js",
+      "types": "./dist/zenflux-core.d.ts"
     },
-    "exports": {
-        ".": {
-            "import": "./dist/zenflux-core.mjs",
-            "default": "./dist/zenflux-core.cjs",
-            "require": "./dist/zenflux-core.mjs.js",
-            "types": "./dist/zenflux-core.d.ts"
-        },
-        "./dist/src/*": "./src/*",
-        "./src/bases": "./src/bases/index.ts",
-        "./src/clients": "./src/clients/index.ts",
-        "./src/command-bases": "./src/command-bases/index.ts",
-        "./src/errors": "./src/errors/index.ts",
-        "./src/interfaces": "./src/interfaces/index.ts",
-        "./src/managers": "./src/managers/index.ts",
-        "./package.json": "./package.json"
-    },
-    "devDependencies": {
-        "@zenflux/cli": "workspace:*"
-    },
-    "publishConfig": {
-        "access": "public"
-    }
+    "./dist/src/*": "./src/*",
+    "./src/bases": "./src/bases/index.ts",
+    "./src/clients": "./src/clients/index.ts",
+    "./src/command-bases": "./src/command-bases/index.ts",
+    "./src/errors": "./src/errors/index.ts",
+    "./src/interfaces": "./src/interfaces/index.ts",
+    "./src/managers": "./src/managers/index.ts",
+    "./package.json": "./package.json"
+  },
+  "devDependencies": {
+    "@zenflux/cli": "workspace:*"
+  },
+  "publishConfig": {
+    "access": "public"
+  }
 }

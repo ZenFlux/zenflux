@@ -1,25 +1,25 @@
 {
-    "name": "@zenflux/tsconfig-to-swc",
-    "version": "0.1.0",
-    "description": "A tsconfig.json to swc.config.js converter",
-    "type": "module",
-    "main": "src/index",
-    "types": "src/index",
-    "scripts": {
-        "@z-tsconfig-to-swc--build-dts": "rm -f ./src/*.d.ts ; tsc"
-    },
-    "repository": {
-        "type": "git",
-        "url": "https://github.com/ZenFlux/zenflux.git",
-        "directory": "packages/zenflux-tsconfig-to-swc"
-    },
-    "publishConfig": {
-        "access": "public"
-    },
-    "dependencies": {
-        "typescript": "latest"
-    },
-    "devDependencies": {
-        "@swc/types": "latest"
-    }
+  "name": "@zenflux/tsconfig-to-swc",
+  "version": "0.1.1",
+  "description": "A tsconfig.json to swc.config.js converter",
+  "type": "module",
+  "main": "src/index",
+  "types": "src/index",
+  "scripts": {
+    "@z-tsconfig-to-swc--build-dts": "rm -f ./src/*.d.ts ; tsc"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/ZenFlux/zenflux.git",
+    "directory": "packages/zenflux-tsconfig-to-swc"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "dependencies": {
+    "typescript": "latest"
+  },
+  "devDependencies": {
+    "@swc/types": "latest"
+  }
 }

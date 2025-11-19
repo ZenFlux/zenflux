@@ -1,32 +1,32 @@
 {
-    "name": "@zenflux/eslint",
-    "author": "Leonid Vinikov <leonidvinikov@gmail.com> (https://github.com/iNewLegend)",
-    "type": "module",
-    "version": "0.1.19",
-    "main": "src/main.js",
-    "types": "types/main.d.ts",
-    "bin": {
-        "@z-lint": "bin/z-lint.js"
-    },
-    "repository": {
-        "type": "git",
-        "url": "https://github.com/zenflux/zenflux.git",
-        "directory": "packages/eslint"
-    },
-    "publishConfig": {
-        "access": "public"
-    },
-    "dependencies": {
-        "@eslint/compat": "latest",
-        "@eslint/eslintrc": "latest",
-        "@stylistic/eslint-plugin": "latest",
-        "@zenflux/utils": "workspace:*",
-        "eslint-import-resolver-typescript": "latest",
-        "eslint-plugin-import": "latest",
-        "eslint-plugin-react": "latest",
-        "eslint-plugin-react-hooks": "latest",
-        "eslint-plugin-react-refresh": "latest",
-        "eslint-plugin-unused-imports": "^4.3.0",
-        "typescript-eslint": "latest"
-    }
+  "name": "@zenflux/eslint",
+  "author": "Leonid Vinikov <leonidvinikov@gmail.com> (https://github.com/iNewLegend)",
+  "type": "module",
+  "version": "0.1.20",
+  "main": "src/main.js",
+  "types": "types/main.d.ts",
+  "bin": {
+    "@z-lint": "bin/z-lint.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/zenflux/zenflux.git",
+    "directory": "packages/eslint"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "dependencies": {
+    "@eslint/compat": "latest",
+    "@eslint/eslintrc": "latest",
+    "@stylistic/eslint-plugin": "latest",
+    "@zenflux/utils": "workspace:*",
+    "eslint-import-resolver-typescript": "latest",
+    "eslint-plugin-import": "latest",
+    "eslint-plugin-react": "latest",
+    "eslint-plugin-react-hooks": "latest",
+    "eslint-plugin-react-refresh": "latest",
+    "eslint-plugin-unused-imports": "^4.3.0",
+    "typescript-eslint": "latest"
+  }
 }

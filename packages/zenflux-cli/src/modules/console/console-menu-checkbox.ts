@@ -7,6 +7,7 @@ import type { IConsoleMenuItem, TConsoleMenuKey } from "@zenflux/cli/src/modules
 
 interface MenuItemCheckbox extends IConsoleMenuItem {
     checked?: boolean;
+    value?: string;
 }
 
 export class ConsoleMenuCheckbox extends ConsoleMenu<MenuItemCheckbox[] | undefined> {
