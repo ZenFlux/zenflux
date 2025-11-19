@@ -1,7 +1,7 @@
 import pc from "picocolors";
 
-import { EventBus } from "@zenflux/core/src/modules/event-bus/event-bus";
-import { ObjectBase } from "@zenflux/core/src/bases";
+import { EventBus } from "../event-bus/event-bus";
+import { ObjectBase } from "../../bases";
 
 import {
     getLoggerLogLevel,
@@ -9,13 +9,13 @@ import {
     isLoggerDebugEnabled,
     isLoggerDisabled,
     isLoggerPreviousSourceDisabled
-} from "@zenflux/core/src/modules/logger/config";
+} from "./config";
 
 import { LoggerBrowserInfra } from "./logger-browser-infra";
 
-import { reduceCircularReferences } from "../utils";
+import { reduceCircularReferences } from "./utils";
 
-import type { interfaces } from "@zenflux/core";
+import type * as interfaces from "../../interfaces";
 
 const DEFAULT_LOG_PREFIX = pc.white( "⚪  - [LOG]" ),
     DEFAULT_INFO_PREFIX = pc.blue( "🔵 - [INFO]" ),
@@ -43,7 +43,7 @@ export class Logger extends LoggerBrowserInfra implements interfaces.ILogger {
     private config: LoggerOptions = {};
 
     public static getName(): string {
-        return "ZenFlux/Logging/Modules/Logger";
+        return "ZenFlux/Core/Modules/Logger";
     }
 
     public static getLogLevelString(): string {
@@ -284,3 +284,4 @@ export class Logger extends LoggerBrowserInfra implements interfaces.ILogger {
 }
 
 export default Logger;
+

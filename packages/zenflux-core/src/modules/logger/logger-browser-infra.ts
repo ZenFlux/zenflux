@@ -7,11 +7,11 @@
  *      - https://stackoverflow.com/questions/41961037/is-there-a-way-to-detect-if-chromes-devtools-are-using-dark-mode
  *      - Maybe 'zenflux-logging` should be chrome extension.
  */
-import { ObjectBase } from "@zenflux/core/src/bases/object-base";
+import { ObjectBase } from "../../bases/object-base";
 
-import { getHexColorDelta, reduceCircularReferences } from "../utils";
+import { getHexColorDelta, reduceCircularReferences } from "./utils";
 
-import type { interfaces } from "@zenflux/core";
+import type * as interfaces from "../../interfaces";
 
 // TODO: Should by dynamic/configure-able.
 const MAX_MAPPING_RECURSIVE_DEPTH = 4,
@@ -303,3 +303,4 @@ export abstract class LoggerBrowserInfra extends ObjectBase {
         return fReturn;
     }
 }
+

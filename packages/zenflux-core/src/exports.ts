@@ -4,6 +4,8 @@
 // @ts-ignore - TODO handle error in jest
 import { bases, commandBases, errors, interfaces, managers, } from "./exports-index";
 
+import { Logger } from "./modules/logger";
+
 import * as pkg from "../package.json" assert { type: "json" };
 
 declare global {
@@ -14,21 +16,7 @@ export const classes = {
     /* eslint-disable @typescript-eslint/no-unused-vars */
     /* eslint-disable @typescript-eslint/explicit-member-accessibility */
 
-    Logger: class NullLogger implements interfaces.ILogger {
-        constructor( owner: typeof bases.ObjectBase | bases.ObjectBase | string, params: any = {} ) {
-        }
-
-        log( caller: interfaces.TCaller, message: string, ... params: any[] ) {}
-        warn( caller: interfaces.TCaller, message: string, ... params: any[] ) {}
-        error( caller: interfaces.TCaller, message: string, ... params: any[] ) {}
-        info( caller: interfaces.TCaller, message: string, ... params: any[] ) {}
-        debug( caller: interfaces.TCaller, message: string, ... params: any[] ) {}
-        addMessagePrefix( prefix: string ) {}
-        startsEmpty( caller: interfaces.TCaller ) {}
-        startsWith( caller: interfaces.TCaller, params: object | string ) {}
-        dump( caller: interfaces.TCaller, data: any, notice?: string ) {}
-        drop( caller: interfaces.TCaller, according: { [ key: string ]: string }, data: any ) {}
-    }
+    Logger,
 
     /* eslint-enable */
 };

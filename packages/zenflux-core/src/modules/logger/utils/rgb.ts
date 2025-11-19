@@ -31,3 +31,4 @@ export const getHexColorDelta = function ( hex1: string, hex2: string ): number 
     // 0 means opposite colors, 1 means same colors
     return ( r + g + b ) / 3;
 };
+

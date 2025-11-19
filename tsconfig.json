@@ -12,7 +12,6 @@
         { "path": "./packages/zenflux-cli" },
         { "path": "./packages/zenflux-core" },
         { "path": "./packages/zenflux-jest" },
-        { "path": "./packages/zenflux-logging" },
         { "path": "./packages/zenflux-react-commander" },
         { "path": "./packages/zenflux-react-ui" },
         { "path": "./packages/zenflux-utils" },
