@@ -5,12 +5,12 @@
  * TODO
  *  - Add validateArgs method or find something better.
  */
-import { ObjectBase } from "@zenflux/core/src/bases";
-import { ControllerAlreadySet, ForceMethodImplementation } from "@zenflux/core/src/errors";
+import { ObjectBase } from "../bases";
+import { ControllerAlreadySet, ForceMethodImplementation } from "../errors";
 
-import type { ControllerBase } from "@zenflux/core/src/bases";
+import type { ControllerBase } from "../bases";
 
-import type { ICommandArgsInterface, ICommandOptionsInterface, ILogger } from "@zenflux/core/src/interfaces";
+import type { ICommandArgsInterface, ICommandOptionsInterface, ILogger } from "../interfaces";
 
 export abstract class CommandBase extends ObjectBase {
     private static controller: ControllerBase;

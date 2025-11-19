@@ -2,7 +2,6 @@ import EventEmitter from "eventemitter3";
 
 import React from "react";
 
-// eslint-disable-next-line no-restricted-imports, @zenflux/no-relative-imports
 import {
     GET_INTERNAL_SYMBOL,
     INTERNAL_PROPS,
@@ -17,7 +16,6 @@ import {
     INTERNAL_STATE_UPDATED_EVENT
 } from "./_internal/constants";
 
-// eslint-disable-next-line no-restricted-imports, @zenflux/no-relative-imports
 import core from "./_internal/core";
 
 import { ComponentIdContext } from "@zenflux/react-commander/commands-context";
@@ -209,17 +207,17 @@ export function withCommands(
                     const currentState = this.store.getState();
 
                     if ( this.isMounted() ) {
-                        const hasChanged = ! shallowEqual(prevState, currentState);
+                        const hasChanged = ! shallowEqual( prevState, currentState );
 
                         if ( hasChanged ) {
-                            queueMicrotask(() => {
+                            queueMicrotask( () => {
                                 if ( this.isMounted() ) {
                                     const ctx = core[ GET_INTERNAL_SYMBOL ]( this.context.getNameUnique() );
 
                                     ctx.emitter.emit( INTERNAL_STATE_UPDATED_EVENT );
                                     this.$$commander.lifecycleHandlers[ INTERNAL_ON_CONTEXT_STATE_UPDATED ]?.( ctx, true );
                                 }
-                            });
+                            } );
                         }
                     }
 

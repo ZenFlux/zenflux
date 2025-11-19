@@ -62,9 +62,9 @@ function sendMessage( message: DMessageInterface ) {
     parentPort?.postMessage( JSON.stringify( message ) );
 }
 
-    if ( null === parentPort ) {
-        throw new Error( "Parent port is not defined" );
-    }
+if ( null === parentPort ) {
+    throw new Error( "Parent port is not defined" );
+}
 
 sendMessage( { type: "started" } );
 

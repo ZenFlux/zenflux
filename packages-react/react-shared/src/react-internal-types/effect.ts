@@ -20,12 +20,12 @@ import type { HookFlags } from "@zenflux/react-shared/src/react-internal-constan
 // the additional memory and we can follow up with performance
 // optimizations later.
 export type EffectInstance = {
-    destroy: ReturnType<Parameters<Dispatcher["useEffect"]>[0]>
+    destroy: ReturnType<Parameters<Dispatcher[ "useEffect" ]>[ 0 ]>
 };
 
 export type Effect = {
     tag: HookFlags;
-    create: Parameters<Dispatcher["useEffect"]>[0]
+    create: Parameters<Dispatcher[ "useEffect" ]>[ 0 ]
     inst: EffectInstance;
     deps: DependencyList | null;
     next: Effect;

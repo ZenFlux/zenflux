@@ -10,44 +10,44 @@ export class ChannelsService {
     }
 
     private initializeDefaultChannels(): void {
-        defaultChannels.forEach(channel => {
-            this.channels.set(channel.key, channel);
-        });
+        defaultChannels.forEach( channel => {
+            this.channels.set( channel.key, channel );
+        } );
     }
 
     public findAll(): Channel[] {
-        return Array.from(this.channels.values()).sort((a, b) =>
+        return Array.from( this.channels.values() ).sort( ( a, b ) =>
             a.meta.createdAt - b.meta.createdAt
         );
     }
 
     public findAllMetaOnly(): Pick<Channel, "key" | "meta">[] {
-        return Array.from(this.channels.values())
-            .sort((a, b) => a.meta.createdAt - b.meta.createdAt)
-            .map(channel => ({
+        return Array.from( this.channels.values() )
+            .sort( ( a, b ) => a.meta.createdAt - b.meta.createdAt )
+            .map( channel => ( {
                 key: channel.key,
                 meta: channel.meta
-            }));
+            } ) );
     }
 
     public findAllWithBreaks(): Pick<Channel, "key" | "meta" | "frequency" | "baseline" | "allocation" | "breaks">[] {
-        return Array.from(this.channels.values())
-            .sort((a, b) => a.meta.createdAt - b.meta.createdAt)
-            .map(channel => ({
+        return Array.from( this.channels.values() )
+            .sort( ( a, b ) => a.meta.createdAt - b.meta.createdAt )
+            .map( channel => ( {
                 key: channel.key,
                 meta: channel.meta,
                 frequency: channel.frequency,
                 baseline: channel.baseline,
                 allocation: channel.allocation,
                 breaks: channel.breaks
-            }));
+            } ) );
     }
 
-    public findOne(key: string): Channel | undefined {
-        return this.channels.get(key);
+    public findOne( key: string ): Channel | undefined {
+        return this.channels.get( key );
     }
 
-    public create(createChannelDto: CreateChannelDto): Channel {
+    public create( createChannelDto: CreateChannelDto ): Channel {
         const id = performance.now().toString();
 
         const channel: Channel = {
@@ -65,14 +65,14 @@ export class ChannelsService {
             breaks: createChannelDto.breaks || [],
         };
 
-        this.channels.set(channel.key, channel);
+        this.channels.set( channel.key, channel );
 
         return channel;
     }
 
-    public update(key: string, updateChannelDto: UpdateChannelDto): Channel | undefined {
-        const existingChannel = this.channels.get(key);
-        if (!existingChannel) {
+    public update( key: string, updateChannelDto: UpdateChannelDto ): Channel | undefined {
+        const existingChannel = this.channels.get( key );
+        if ( !existingChannel ) {
             return undefined;
         }
 
@@ -85,12 +85,12 @@ export class ChannelsService {
             key,
         };
 
-        this.channels.set(key, updatedChannel);
+        this.channels.set( key, updatedChannel );
         return updatedChannel;
     }
 
-    public remove(key: string): boolean {
-        return this.channels.delete(key);
+    public remove( key: string ): boolean {
+        return this.channels.delete( key );
     }
 
     public reset(): void {
@@ -98,12 +98,12 @@ export class ChannelsService {
         this.initializeDefaultChannels();
     }
 
-    public updateList(updateListDto: UpdateChannelsListDto): Channel[] {
-        updateListDto.channels.forEach(channelData => {
+    public updateList( updateListDto: UpdateChannelsListDto ): Channel[] {
+        updateListDto.channels.forEach( channelData => {
             const key = channelData.meta.id;
-            const existingChannel = this.channels.get(key);
+            const existingChannel = this.channels.get( key );
 
-            if (existingChannel) {
+            if ( existingChannel ) {
                 const updatedChannel: Channel = {
                     ...existingChannel,
                     meta: { ...existingChannel.meta, ...channelData.meta },
@@ -114,17 +114,17 @@ export class ChannelsService {
                     key,
                 };
 
-                this.channels.set(key, updatedChannel);
+                this.channels.set( key, updatedChannel );
             }
-        });
+        } );
 
         return this.findAll();
     }
 
-    public setName(setNameDto: SetChannelNameDto): Channel | undefined {
-        const existingChannel = this.channels.get(setNameDto.id);
+    public setName( setNameDto: SetChannelNameDto ): Channel | undefined {
+        const existingChannel = this.channels.get( setNameDto.id );
 
-        if (!existingChannel) {
+        if ( !existingChannel ) {
             return undefined;
         }
 
@@ -136,7 +136,7 @@ export class ChannelsService {
             },
         };
 
-        this.channels.set(setNameDto.id, updatedChannel);
+        this.channels.set( setNameDto.id, updatedChannel );
 
         return updatedChannel;
     }

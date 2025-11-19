@@ -1,4 +1,4 @@
-/* eslint-disable no-restricted-imports, @zenflux/no-relative-imports */
+
 import React from "react";
 
 import { useComponent } from "./use-component/use-component";
@@ -8,25 +8,7 @@ import commandsManager from "../commands-manager";
 
 import type { DCommandComponentContextProps } from "../definitions";
 
-export function getSafeContext( componentName: string, context?: DCommandComponentContextProps ) {
-    function maybeWrongContext( componentName: string, componentNameUnique: string ) {
-        if ( componentName === componentNameUnique ) {
-            return;
-        }
-        throw new Error(
-            `You are not in: '${ componentName }', you are in '${ componentNameUnique }' which is not your context\n` +
-            "If you are trying to reach sub-component context, it has to rendered, before you can use it\n",
-        );
-    }
-
-    const componentContext = context || React.useContext( ComponentIdContext );
-
-    const componentNameContext = componentContext.getComponentName();
-
-    maybeWrongContext( componentName, componentNameContext );
-
-    return componentContext;
-}
+export { getSafeContext } from "./use-component/use-component";
 
 export function shallowEqual<T extends Record<string, unknown>>( a: T, b: T ): boolean {
     if ( a === b ) return true;
@@ -81,7 +63,7 @@ export function useCommanderChildrenComponents(
 
                 if ( child.getComponentName() === componentName ) {
                     const id = child.getNameUnique();
-                    if (commandsManager.isContextRegistered(id)) {
+                    if ( commandsManager.isContextRegistered( id ) ) {
                         const childComponent = useComponent( componentName, child );
                         newChildrenComponents.push( childComponent );
                     }
@@ -106,4 +88,3 @@ export function useCommanderChildrenComponents(
 
     return childrenComponents;
 }
-

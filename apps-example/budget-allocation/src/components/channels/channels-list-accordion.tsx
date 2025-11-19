@@ -16,9 +16,9 @@ import type { Channel, ChannelItemApiResponse } from "@zenflux/app-budget-alloca
 import type { ChannelListState } from "@zenflux/app-budget-allocation/src/components/channels/channels-types";
 import type { ChannelState } from "@zenflux/app-budget-allocation/src/components/channel-item/channel-item-types";
 
-const ChannelContent = React.memo<{ channelId: string, meta: Channel["meta"] }>( ( { channelId, meta } ) => {
+const ChannelContent = React.memo<{ channelId: string, meta: Channel[ "meta" ] }>( ( { channelId, meta } ) => {
     return (
-        <QueryComponent<ChannelItemApiResponse, { meta: Channel["meta"] }, ChannelItemApiResponse, ChannelState>
+        <QueryComponent<ChannelItemApiResponse, { meta: Channel[ "meta" ] }, ChannelItemApiResponse, ChannelState>
             key={ channelId }
             fallback={ <div className="loading">Loading <span className="dots">◌</span></div> }
             module={ ChannelItemQuery }

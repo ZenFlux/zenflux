@@ -57,13 +57,13 @@ export function validateInputProps( element: Element, props: Record<string, any>
 
 export function updateInput(
     element: Element,
-    value: Props["value"],
-    defaultValue: Props["defaultValue"],
-    lastDefaultValue: Props["lastDefaultValue"],
-    checked: Props["checked"],
-    defaultChecked: Props["defaultChecked"],
-    type: Props["type"],
-    name: Props["name"]
+    value: Props[ "value" ],
+    defaultValue: Props[ "defaultValue" ],
+    lastDefaultValue: Props[ "lastDefaultValue" ],
+    checked: Props[ "checked" ],
+    defaultChecked: Props[ "defaultChecked" ],
+    type: Props[ "type" ],
+    name: Props[ "name" ]
 ) {
     const node: HTMLInputElement = ( element as any );
     // Temporarily disconnect the input from any radio buttons.
@@ -161,12 +161,12 @@ export function updateInput(
 
 export function initInput(
     element: Element,
-    value: Props["value"] ,
-    defaultValue: Props["defaultValue"],
-    checked: Props["checked"],
-    defaultChecked: Props["defaultChecked"],
-    type: Props["type"],
-    name: Props["name"],
+    value: Props[ "value" ] ,
+    defaultValue: Props[ "defaultValue" ],
+    checked: Props[ "checked" ],
+    defaultChecked: Props[ "defaultChecked" ],
+    type: Props[ "type" ],
+    name: Props[ "name" ],
     isHydrating: boolean
 ) {
     const node: HTMLInputElement = ( element as any );
@@ -353,7 +353,7 @@ export function restoreControlledInputState( element: Element, props: Record<str
 // when the user is inputting text
 //
 // https://github.com/facebook/react/issues/7253
-export function setDefaultValue( node: HTMLInputElement, type: Props["type"], value: ToStringValue ) {
+export function setDefaultValue( node: HTMLInputElement, type: Props[ "type" ], value: ToStringValue ) {
     if ( // Focused number inputs synchronize on blur. See ChangeEventPlugin.js
         type !== "number" || getActiveElement( node.ownerDocument ) !== node ) {
         if ( node.defaultValue !== toString( value ) ) {

@@ -1,6 +1,10 @@
 {
     "name": "@zenflux/app-budget-allocation",
     "type": "module",
+    "exports": {
+        "./package.json": "./package.json",
+        "./src/*": "./src/*"
+    },
     "scripts": {
         "z-demos:budget-allocation:dev": "vite",
         "z-demos:budget-allocation:build": "vite build",

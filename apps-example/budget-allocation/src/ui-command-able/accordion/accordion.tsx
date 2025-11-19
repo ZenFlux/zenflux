@@ -61,7 +61,7 @@ const Accordion: DCommandFunctionComponent<AccordionProps> = ( props ) => {
 
     const [ isLoaded, setIsLoaded ] = React.useState<boolean>( false );
 
-    const accordionUIProps: Omit<AccordionUIComponent["props"], "children"> = {
+    const accordionUIProps: Omit<AccordionUIComponent[ "props" ], "children"> = {
         setSelected,
         selected,
 

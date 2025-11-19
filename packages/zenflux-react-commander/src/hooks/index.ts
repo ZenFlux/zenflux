@@ -1,4 +1,4 @@
-/* eslint-disable no-restricted-imports */
+
 export { useCommand } from "./use-command/use-command";
 export { useComponent } from "./use-component/use-component";
 export { useCommandState } from "./use-command/use-command-state";

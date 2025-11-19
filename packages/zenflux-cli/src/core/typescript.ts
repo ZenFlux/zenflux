@@ -300,7 +300,7 @@ export async function zTSGetCompilerHost( tsConfig: ts.ParsedCommandLine, active
 
         // If one of configs in the chain have `projectReferences` and they are part of this workspace, then try to add paths.
         const workspaces = await zWorkspaceGetPackages(),
-            paths: ts.ParsedCommandLine["options"]["paths"] = tsConfig.options.paths ?? {};
+            paths: ts.ParsedCommandLine[ "options" ][ "paths" ] = tsConfig.options.paths ?? {};
 
         if ( mergedTsConfig.projectReferences ) {
             mergedTsConfig.projectReferences.forEach( projectReference => {

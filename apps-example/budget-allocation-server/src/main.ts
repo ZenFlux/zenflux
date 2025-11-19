@@ -20,8 +20,8 @@ async function bootstrap() {
 
     try {
         await fastify.listen( { port: serverConfig.port, host: serverConfig.host } );
-        console.log( `Budget Allocation Server running on http://localhost:${serverConfig.port}` );
-        console.log( `Fake delays: ${serverConfig.delays.enabled ? "enabled" : "disabled"}` );
+        console.log( `Budget Allocation Server running on http://localhost:${ serverConfig.port }` );
+        console.log( `Fake delays: ${ serverConfig.delays.enabled ? "enabled" : "disabled" }` );
     } catch ( err ) {
         fastify.log.error( err );
         process.exit( 1 );

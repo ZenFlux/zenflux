@@ -8,9 +8,9 @@ export interface Channel extends ChannelState {
 export interface ChannelListApiResponse {
     key: string;
     meta: ChannelMetaData;
-    frequency?: Channel["frequency"];
+    frequency?: Channel[ "frequency" ];
     baseline?: string;
-    allocation?: Channel["allocation"];
+    allocation?: Channel[ "allocation" ];
     breaks?: Array<{
         date: string;
         value: string;
@@ -27,9 +27,9 @@ export interface ChannelListWithBreaksApiResponse {
 }
 
 export interface ChannelItemApiResponseBase {
-    frequency: Channel["frequency"];
+    frequency: Channel[ "frequency" ];
     baseline: string;
-    allocation: Channel["allocation"];
+    allocation: Channel[ "allocation" ];
     breaks?: Array<{
         date: string;
         value: string;

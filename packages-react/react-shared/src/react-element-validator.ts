@@ -479,7 +479,7 @@ export function createElementWithValidation( type: any, props: any, children: an
         }
     }
 
-    const element = createElement.apply(this, arguments);
+    const element = createElement.apply( this, arguments );
 
     // The result can be nullish if a mock or a custom function is used.
     // TODO: Drop this when these are no longer allowed as the type argument.
@@ -542,7 +542,7 @@ export function createFactoryWithValidation( type: any ) {
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 export function cloneElementWithValidation( element: any, props: any, children: any ) {
-    const newElement = cloneElement.apply(this, arguments);
+    const newElement = cloneElement.apply( this, arguments );
     for ( let i = 2 ; i < arguments.length ; i++ ) {
         validateChildKeys( arguments[ i ], newElement.type );
     }

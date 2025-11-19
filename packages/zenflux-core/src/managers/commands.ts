@@ -2,10 +2,10 @@
  * @author Leonid Vinikov <leonidvinikov@gmail.com>
  * @description Responsible for manging/running/hooking commands.
  */
-import { ObjectBase } from "@zenflux/core/src/bases/object-base";
+import { ObjectBase } from "../bases/object-base";
 
-import { CommandNotFound } from "@zenflux/core/src/errors/command-not-found";
-import { CommandAlreadyRegistered } from "@zenflux/core/src/errors/command-already-registered";
+import { CommandNotFound } from "../errors/command-not-found";
+import { CommandAlreadyRegistered } from "../errors/command-already-registered";
 
 import type {
     TCommandCallbackType,
@@ -17,10 +17,10 @@ import type {
     ICommandOptionsInterface,
 
     ILogger,
-} from "@zenflux/core/src/interfaces";
+} from "../interfaces";
 
-import type { ControllerBase } from "@zenflux/core/src/bases/controller-base";
-import type { CommandBase } from "@zenflux/core/src/command-bases/command-base";
+import type { ControllerBase } from "../bases/controller-base";
+import type { CommandBase } from "../command-bases/command-base";
 
 export class Commands extends ObjectBase {
     public static readonly trace:string[] = [];

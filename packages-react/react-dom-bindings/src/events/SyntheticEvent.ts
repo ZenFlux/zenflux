@@ -381,7 +381,7 @@ export const SyntheticInputEvent = SyntheticCompositionEvent;
  * @see https://developer.mozilla.org/en-US/docs/Web/API/KeyboardEvent#Key_names
  */
 const normalizeKey: {
-    [ key: typeof KeyboardEvent.prototype["key"] ]: typeof KeyboardEvent.prototype["key"]
+    [ key: typeof KeyboardEvent.prototype[ "key" ] ]: typeof KeyboardEvent.prototype[ "key" ]
 } = {
     Esc: "Escape",
     Spacebar: " ",
@@ -403,7 +403,7 @@ const normalizeKey: {
  * @see https://developer.mozilla.org/en-US/docs/Web/API/KeyboardEvent#Key_names
  */
 const translateToKey: {
-    [ key: typeof KeyboardEvent.prototype["code"] ]: typeof KeyboardEvent.prototype["code"]
+    [ key: typeof KeyboardEvent.prototype[ "code" ] ]: typeof KeyboardEvent.prototype[ "code" ]
 } = {
     8: "Backspace",
     9: "Tab",

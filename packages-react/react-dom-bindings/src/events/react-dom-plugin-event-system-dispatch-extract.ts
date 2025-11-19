@@ -13,7 +13,7 @@ import type { AnyNativeEvent } from "@zenflux/react-dom-bindings/src/events/Plug
 import type { Fiber } from "@zenflux/react-shared/src/react-internal-types";
 import type { DOMEventName } from "@zenflux/react-dom-bindings/src/events/DOMEventNames";
 import type { DispatchQueue } from "@zenflux/react-dom-bindings/src/events/DOMPluginEventSystem";
-import type { EventSystemFlags} from "@zenflux/react-dom-bindings/src/events/EventSystemFlags";
+import type { EventSystemFlags } from "@zenflux/react-dom-bindings/src/events/EventSystemFlags";
 
 export function extractEvents( dispatchQueue: DispatchQueue, domEventName: DOMEventName, targetInst: null | Fiber, nativeEvent: AnyNativeEvent, nativeEventTarget: null | EventTarget, eventSystemFlags: EventSystemFlags, targetContainer: EventTarget ) {
     // TODO: we should remove the concept of a "SimpleEventPlugin".

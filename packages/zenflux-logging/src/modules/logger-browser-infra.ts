@@ -7,9 +7,9 @@
  *      - https://stackoverflow.com/questions/41961037/is-there-a-way-to-detect-if-chromes-devtools-are-using-dark-mode
  *      - Maybe 'zenflux-logging` should be chrome extension.
  */
-import { bases } from "@zenflux/core";
+import { ObjectBase } from "@zenflux/core/src/bases/object-base";
 
-import { getHexColorDelta, reduceCircularReferences } from "@zenflux/logging/src/utils";
+import { getHexColorDelta, reduceCircularReferences } from "../utils";
 
 import type { interfaces } from "@zenflux/core";
 
@@ -20,7 +20,7 @@ const MAX_MAPPING_RECURSIVE_DEPTH = 4,
 // TODO: Should by dynamic/configure-able.
 Error.stackTraceLimit = 50;
 
-export abstract class LoggerBrowserInfra extends bases.ObjectBase {
+export abstract class LoggerBrowserInfra extends ObjectBase {
     public static mappers: Function[] = [];
     public static mapperDepth = 0;
 
@@ -29,7 +29,7 @@ export abstract class LoggerBrowserInfra extends bases.ObjectBase {
 
     public defaultStyle: string[];
 
-    protected readonly owner: typeof bases.ObjectBase;
+    protected readonly owner: ObjectBase | typeof ObjectBase | string;
 
     protected args: {
         repeatedly: boolean;
@@ -98,7 +98,7 @@ export abstract class LoggerBrowserInfra extends bases.ObjectBase {
         return result;
     }
 
-    public constructor( owner: typeof bases.ObjectBase, args = {} ) {
+    public constructor( owner: ObjectBase | typeof ObjectBase | string, args = {} ) {
         super();
 
         this.args = {
@@ -112,8 +112,24 @@ export abstract class LoggerBrowserInfra extends bases.ObjectBase {
         this.initialize();
     }
 
+    protected getOwnerName() {
+        if ( typeof this.owner === "string" ) {
+            return this.owner;
+        }
+
+        if ( this.owner instanceof ObjectBase ) {
+            return this.owner.getName();
+        }
+
+        if ( this.owner && typeof ( this.owner as typeof ObjectBase ).getName === "function" ) {
+            return ( this.owner as typeof ObjectBase ).getName();
+        }
+
+        return "UnknownOwner";
+    }
+
     protected initialize() {
-        const ownerName = this.owner.getName();
+        const ownerName = this.getOwnerName();
 
         if ( this.args.repeatedly && LoggerBrowserInfra.colorsOwners[ ownerName ] ) {
             this.color = LoggerBrowserInfra.colorsOwners[ ownerName ];
@@ -149,7 +165,7 @@ export abstract class LoggerBrowserInfra extends bases.ObjectBase {
 
         this.output.apply(
             this,
-            [ `%c(${ prefix })-> %c%c${ this.owner.getName() }%c::%c${ callerName }%c() ${ output }%c` ].concat(
+            [ `%c(${ prefix })-> %c%c${ this.getOwnerName() }%c::%c${ callerName }%c() ${ output }%c` ].concat(
                 this.defaultStyle
             )
         );
@@ -185,7 +201,7 @@ export abstract class LoggerBrowserInfra extends bases.ObjectBase {
 
     protected printInLineElement( prefix: string, caller: interfaces.TCaller, key: string, value: any, notice = "" ) {
         const callerName = this.getCallerName( caller ),
-            ownerName = this.owner.getName(),
+            ownerName = this.getOwnerName(),
             format = notice.length ?
                 `%c(${ prefix })-> %c%c${ ownerName }%c::%c${ callerName }%c() ->> [${ notice }] ->> ${ key }: '${ value }'%c` :
                 `%c(${ prefix })-> %c%c${ ownerName }%c::%c${ callerName }%c() ->> ${ key }: '${ value }'%c`;
@@ -210,7 +226,7 @@ export abstract class LoggerBrowserInfra extends bases.ObjectBase {
         this.output.apply(
             this,
             [
-                `%c(${ prefix })-> %c%c${ this.owner.getName() }%c::%c${ callerName }%c() ->> ${ key } %c↓`,
+                `%c(${ prefix })-> %c%c${ this.getOwnerName() }%c::%c${ callerName }%c() ->> ${ key } %c↓`,
             ].concat( this.defaultStyle )
         );
 
@@ -224,7 +240,7 @@ export abstract class LoggerBrowserInfra extends bases.ObjectBase {
         this.output.apply(
             this,
             [
-                `%c(${ prefix })-> %c%c${ this.owner.getName() }%c::%c${ callerName }%c(${ Object.keys( obj )
+                `%c(${ prefix })-> %c%c${ this.getOwnerName() }%c::%c${ callerName }%c(${ Object.keys( obj )
                     .join( ", " ) }) %c↓`,
             ].concat( this.defaultStyle )
         );
@@ -268,9 +284,9 @@ export abstract class LoggerBrowserInfra extends bases.ObjectBase {
         return color;
     }
 
-    private getCallerName( caller: interfaces.TCaller ) {
+    protected getCallerName( caller: interfaces.TCaller ) {
         if ( "function" === typeof caller ) {
-            return caller.prototype instanceof bases.ObjectBase ? "constructor" : caller.name;
+            return caller.prototype instanceof ObjectBase ? "constructor" : caller.name;
         }
 
         throw new Error( "Invalid caller" );
@@ -287,4 +303,3 @@ export abstract class LoggerBrowserInfra extends bases.ObjectBase {
         return fReturn;
     }
 }
-

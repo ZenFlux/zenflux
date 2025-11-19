@@ -12,13 +12,13 @@ interface NewLifecycle<P, S, SS> {
      * Note: the presence of getSnapshotBeforeUpdate prevents any of the deprecated
      * lifecycle events from running.
      */
-    getSnapshotBeforeUpdate?(prevProps: Readonly<P>, prevState: Readonly<S>): SS | null;
+    getSnapshotBeforeUpdate?( prevProps: Readonly<P>, prevState: Readonly<S> ): SS | null;
     /**
      * Called immediately after updating occurs. Not called for the initial render.
      *
      * The snapshot is only present if getSnapshotBeforeUpdate is present and returns non-null.
      */
-    componentDidUpdate?(prevProps: Readonly<P>, prevState: Readonly<S>, snapshot?: SS): void;
+    componentDidUpdate?( prevProps: Readonly<P>, prevState: Readonly<S>, snapshot?: SS ): void;
 }
 
 interface DeprecatedLifecycle<P, S> {
@@ -62,7 +62,7 @@ interface DeprecatedLifecycle<P, S> {
      * @see https://legacy.reactjs.org/blog/2018/03/27/update-on-async-rendering.html#updating-state-based-on-props
      * @see https://legacy.reactjs.org/blog/2018/03/27/update-on-async-rendering.html#gradual-migration-path
      */
-    componentWillReceiveProps?(nextProps: Readonly<P>, nextContext: any): void;
+    componentWillReceiveProps?( nextProps: Readonly<P>, nextContext: any ): void;
     /**
      * Called when the component may be receiving new props.
      * React may call this even if props have not changed, so be sure to compare new and existing
@@ -79,7 +79,7 @@ interface DeprecatedLifecycle<P, S> {
      * @see https://legacy.reactjs.org/blog/2018/03/27/update-on-async-rendering.html#updating-state-based-on-props
      * @see https://legacy.reactjs.org/blog/2018/03/27/update-on-async-rendering.html#gradual-migration-path
      */
-    UNSAFE_componentWillReceiveProps?(nextProps: Readonly<P>, nextContext: any): void;
+    UNSAFE_componentWillReceiveProps?( nextProps: Readonly<P>, nextContext: any ): void;
     /**
      * Called immediately before rendering when new props or state is received. Not called for the initial render.
      *
@@ -92,7 +92,7 @@ interface DeprecatedLifecycle<P, S> {
      * @see https://legacy.reactjs.org/blog/2018/03/27/update-on-async-rendering.html#reading-dom-properties-before-an-update
      * @see https://legacy.reactjs.org/blog/2018/03/27/update-on-async-rendering.html#gradual-migration-path
      */
-    componentWillUpdate?(nextProps: Readonly<P>, nextState: Readonly<S>, nextContext: any): void;
+    componentWillUpdate?( nextProps: Readonly<P>, nextState: Readonly<S>, nextContext: any ): void;
     /**
      * Called immediately before rendering when new props or state is received. Not called for the initial render.
      *
@@ -107,7 +107,7 @@ interface DeprecatedLifecycle<P, S> {
      * @see https://legacy.reactjs.org/blog/2018/03/27/update-on-async-rendering.html#reading-dom-properties-before-an-update
      * @see https://legacy.reactjs.org/blog/2018/03/27/update-on-async-rendering.html#gradual-migration-path
      */
-    UNSAFE_componentWillUpdate?(nextProps: Readonly<P>, nextState: Readonly<S>, nextContext: any): void;
+    UNSAFE_componentWillUpdate?( nextProps: Readonly<P>, nextState: Readonly<S>, nextContext: any ): void;
 }
 
 interface ComponentLifecycle<P, S, SS = any> extends NewLifecycle<P, S, SS>, DeprecatedLifecycle<P, S> {
@@ -125,7 +125,7 @@ interface ComponentLifecycle<P, S, SS = any> extends NewLifecycle<P, S, SS>, Dep
      * If false is returned, `Component#render`, `componentWillUpdate`
      * and `componentDidUpdate` will not be called.
      */
-    shouldComponentUpdate?(nextProps: Readonly<P>, nextState: Readonly<S>, nextContext: any): boolean;
+    shouldComponentUpdate?( nextProps: Readonly<P>, nextState: Readonly<S>, nextContext: any ): boolean;
     /**
      * Called immediately before a component is destroyed. Perform any necessary cleanup in this method, such as
      * cancelled network requests, or cleaning up any DOM elements created in `componentDidMount`.
@@ -135,11 +135,11 @@ interface ComponentLifecycle<P, S, SS = any> extends NewLifecycle<P, S, SS>, Dep
      * Catches exceptions generated in descendant components. Unhandled exceptions will cause
      * the entire component tree to unmount.
      */
-    componentDidCatch?(error: Error, errorInfo: {
+    componentDidCatch?( error: Error, errorInfo: {
         // TODO: Create type for this.
         digest?: string | null | undefined;
         componentStack?: string | null | undefined;
-    }): void;
+    } ): void;
 }
 
 /* Handles static members */

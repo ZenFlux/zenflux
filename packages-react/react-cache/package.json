@@ -5,6 +5,10 @@
     "description": "React package for snapshot testing.",
     "license": "MIT",
     "type": "module",
+    "exports": {
+        "./package.json": "./package.json",
+        "./src/*": "./src/*"
+    },
     "main": "dist/zenflux-react-cache.cjs",
     "scripts": {
         "@z-react-cache--build": "bun run @z-cli @build",

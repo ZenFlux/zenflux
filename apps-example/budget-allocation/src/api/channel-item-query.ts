@@ -62,7 +62,7 @@ export class ChannelItemQuery extends QueryModuleBase<Channel> {
         return await response.json();
     }
 
-    protected async onMount( context: DCommandSingleComponentContext, resource: Channel ) {
+    protected async onMount( _context: DCommandSingleComponentContext, _resource: Channel ) {
     }
 
     protected async onUnmount( context: DCommandSingleComponentContext ) {
@@ -78,8 +78,8 @@ export class ChannelItemQuery extends QueryModuleBase<Channel> {
     protected onUpdate( _context: DCommandSingleComponentContext, state: {
         currentState: Readonly<Channel>,
         prevState: Readonly<Channel>,
-        currentProps: Readonly<{ meta: Channel["meta"] }>,
-        prevProps: Readonly<{ meta: Channel["meta"] }>,
+        currentProps: Readonly<{ meta: Channel[ "meta" ] }>,
+        prevProps: Readonly<{ meta: Channel[ "meta" ] }>,
         snapshot: never
     } ) {
         if ( ! state.currentState.meta || ! state.currentState.meta.id ) return;

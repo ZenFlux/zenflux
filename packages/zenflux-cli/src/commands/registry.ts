@@ -117,7 +117,7 @@ export default class Registry extends CommandBase {
 
                 // Get registry host
                 const hostId = args[ 1 ],
-                    npmRc = ( await zRegistryGetAllNpmRcs()).find( ( host => host.id === hostId ) );
+                    npmRc = ( await zRegistryGetAllNpmRcs() ).find( ( host => host.id === hostId ) );
 
                 if ( ! npmRc ) {
                     ConsoleManager.$.error( `No registry host found with id '${ hostId }'` );

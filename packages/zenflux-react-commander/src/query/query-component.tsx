@@ -1,6 +1,5 @@
 import React from "react";
 
-// eslint-disable-next-line no-restricted-imports, @zenflux/no-relative-imports
 import {
     INTERNAL_ON_LOAD,
     INTERNAL_ON_MOUNT,
@@ -48,14 +47,14 @@ export class QueryComponent<
 
     public render() {
         // The resource will start loading
-        const resource = wrapPromiseSuspendable( (async () => {
+        const resource = wrapPromiseSuspendable( ( async () => {
             const data = await this.queryModule.getData<TData, TProps & { $data: TData }, TState>( this.props.component, this.props.props as Record<string, unknown> );
 
             return {
                 element: React.createElement( this.props.component, this.props.props as TProps & { $data: TData  /* TODO remove */ } ),
                 data,
             };
-        })() );
+        } )() );
 
         // The API Wrapper Component
         const Component = () => {
@@ -80,11 +79,11 @@ export class QueryComponent<
             const mount = () => {
                 return (
                     <response.element.type { ... internalProps }>
-                        {/* { data.children.map( ( child: React.ReactElement, index: number ) => (
+                        { /* { data.children.map( ( child: React.ReactElement, index: number ) => (
                             <child.type key={ index } { ... child.props }>
                                 { child.props.children }
                             </child.type>
-                        ) ) } */}
+                        ) ) } */ }
                     </response.element.type>
                 );
             };

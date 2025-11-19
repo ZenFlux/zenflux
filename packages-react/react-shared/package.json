@@ -2,6 +2,10 @@
     "name": "@zenflux/react-shared",
     "version": "0.0.0",
     "private": true,
+    "exports": {
+        "./package.json": "./package.json",
+        "./src/*": "./src/*"
+    },
     "devDependencies": {
         "@zenflux/react-x-env": "workspace:*"
     }

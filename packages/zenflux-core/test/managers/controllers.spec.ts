@@ -1,4 +1,4 @@
-import * as ZenCore from "@zenflux/core/src/src/exports";
+import * as ZenCore from "../../src/exports";
 
 describe( "managers", () => {
     describe( "Controllers", () => {

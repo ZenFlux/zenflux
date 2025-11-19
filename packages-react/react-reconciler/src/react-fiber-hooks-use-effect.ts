@@ -28,7 +28,7 @@ export function createEffectInstance(): EffectInstance {
 
 export function mountEffectImpl( fiberFlags: FiberFlags,
     hookFlags: HookFlags,
-    create: Parameters<Dispatcher["useEffect"]>[0],
+    create: Parameters<Dispatcher[ "useEffect" ]>[ 0 ],
     deps: DependencyList | undefined | null ): void {
     const hook = mountWorkInProgressHook();
     const nextDeps = deps === undefined ? null : deps;
@@ -36,7 +36,7 @@ export function mountEffectImpl( fiberFlags: FiberFlags,
     hook.memoizedState = pushEffect( HookFlags.HasEffect | hookFlags, create, createEffectInstance(), nextDeps );
 }
 
-export function mountEffect( create: Parameters<Dispatcher["useEffect"]>[0], deps: DependencyList | undefined ): void {
+export function mountEffect( create: Parameters<Dispatcher[ "useEffect" ]>[ 0 ], deps: DependencyList | undefined ): void {
     if (
         __DEV__ &&
         ( ReactFiberHooksCurrent.renderingFiber.mode & TypeOfMode.StrictEffectsMode ) !== TypeOfMode.NoMode &&
@@ -71,7 +71,7 @@ export function useEffectEventImpl<Args, Return, F extends ( ... args: Array<Arg
     }
 }
 
-export function pushEffect( tag: HookFlags, create: Parameters<Dispatcher["useEffect"]>[0], inst: EffectInstance, deps: DependencyList | null ): Effect {
+export function pushEffect( tag: HookFlags, create: Parameters<Dispatcher[ "useEffect" ]>[ 0 ], inst: EffectInstance, deps: DependencyList | null ): Effect {
     const effect: Effect = {
         tag,
         create,

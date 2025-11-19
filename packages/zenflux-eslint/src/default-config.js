@@ -91,19 +91,24 @@ export function zLintDefaultConfig( files, workspaces ) {
 
                 "import/default": "off",
                 // Custom rules
-                "@zenflux/no-relative-imports": "error",
-
+                // "@zenflux/no-relative-imports": "error",
                 "no-restricted-imports": [
                     "error",
                     {
-                        "patterns": [ {
-                            "group": [
-                                "./*",
-                                "../*",
-                                "!*../package.json"
-                            ],
-                            "message": "Please use path aliases import e.g. import { foo } from '@/foo';",
-                        } ],
+                        "patterns": [
+                            {
+                                "group": [ "../node_modules/*", "**/node_modules/*" ],
+                                "message": "Do not import from node_modules directly.",
+                            },
+                            // {
+                            //     "group": [
+                            //         "./*",
+                            //         "../*",
+                            //         "!*../package.json"
+                            //     ],
+                            //     "message": "Please use path aliases import e.g. import { foo } from '@/foo';",
+                            // }
+                        ],
                     },
                 ],
 

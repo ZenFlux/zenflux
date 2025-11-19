@@ -29,7 +29,9 @@
     },
     "dependencies": {
         "loose-envify": "^1.1.0",
-        "@zenflux/react-scheduler": "workspace:*"
+        "@zenflux/react-dom-bindings": "workspace:*",
+        "@zenflux/react-scheduler": "workspace:*",
+        "@zenflux/react-shared": "workspace:*"
     },
     "devDependencies": {
         "@babel/plugin-transform-react-jsx": "^7.22.15",

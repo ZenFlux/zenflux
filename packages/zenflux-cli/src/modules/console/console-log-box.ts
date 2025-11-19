@@ -69,7 +69,7 @@ function zConsoleNormalizeLogBox( log: ReturnType<typeof blessed.log> ) {
     }
 
     // Calculate max column widths and real log lines in a separate pass
-    lines.forEach((line: string, position: number) => {
+    lines.forEach( ( line: string, position: number ) => {
         if ( ! realLogLines[ logIndex ][ position ] ) {
             realLogLines[ logIndex ][ position ] = line;
         }
@@ -98,7 +98,7 @@ function zConsoleNormalizeLogBox( log: ReturnType<typeof blessed.log> ) {
                 maxColWidths[ logIndex ][ i ] = colWidth;
             }
         } );
-    });
+    } );
 
     // Format the log entries
     const newContent = lines.map( ( line: string, position: number ) => {

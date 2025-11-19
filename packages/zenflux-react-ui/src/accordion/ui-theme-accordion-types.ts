@@ -12,14 +12,14 @@ export type UIThemeAccordionCollapseStates = "initial" | "detached" | "attached"
  */
 export type UIThemeAccordionItemProps = {
     itemKey: React.Key,
-    
+
     unmount?: boolean,
 
     children: React.ReactNode,
 
     heading: {
         title: string,
-        icon?: HTMLImageElement["src"],
+        icon?: HTMLImageElement[ "src" ],
         iconAlt?: string,
         extra?: React.ReactNode,
     }
@@ -50,8 +50,8 @@ export type UIThemeAccordionItemProps = {
 export type UIThemeAccordionProps = {
     children: React.ReactComponentElement<typeof UIThemeAccordionItem>[]
 
-    selected?: UIThemeAccordionItemProps["selected"],
-    setSelected?: UIThemeAccordionItemProps["setSelected"],
+    selected?: UIThemeAccordionItemProps[ "selected" ],
+    setSelected?: UIThemeAccordionItemProps[ "setSelected" ],
 
     // `onClick` api can only abort the click event, not trigger it.
     onClick?: ( event: React.MouseEvent<HTMLButtonElement>, key: string, state: UIThemeAccordionCollapseStates, signal?: AbortController ) => void,

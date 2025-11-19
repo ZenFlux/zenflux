@@ -4,6 +4,10 @@
     "author": "Leonid Vinikov <leonidvinikov@gmail.com> (https://github.com/iNewLegend)",
     "version": "0.0.1-dev",
     "type": "module",
+    "exports": {
+        "./package.json": "./package.json",
+        "./src/*": "./src/*"
+    },
     "repository": {
         "type": "git",
         "url": "https://github.com/zenflux/zenflux.git",

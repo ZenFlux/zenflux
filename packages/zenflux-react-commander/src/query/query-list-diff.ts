@@ -6,4 +6,3 @@ export function queryDiffById<T>( prev: T[], curr: T[], getId: ( t: T ) => strin
     return { added, removed };
 }
 
-

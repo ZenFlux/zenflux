@@ -1,6 +1,6 @@
-// eslint-disable-next-line no-restricted-imports, @zenflux/no-relative-imports
+
 import { GET_INTERNAL_SYMBOL } from "./_internal/constants";
-// eslint-disable-next-line no-restricted-imports, @zenflux/no-relative-imports
+
 import core from "./_internal/core.ts";
 
 import type { CommandBase } from "@zenflux/react-commander/command-base";

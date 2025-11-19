@@ -972,7 +972,7 @@ export function setInitialProperties( domElement: Element, tag: string, anyProps
             // We listen to this event in case to ensure emulated bubble
             // listeners still fire for the invalid event.
             listenToNonDelegatedEvent( "invalid", domElement );
-            let value: Props["value"] | null = null;
+            let value: Props[ "value" ] | null = null;
             let defaultValue = null;
             let multiple = null;
 
@@ -1029,7 +1029,7 @@ export function setInitialProperties( domElement: Element, tag: string, anyProps
             listenToNonDelegatedEvent( "invalid", domElement );
             let value = null;
             let defaultValue = null;
-            let children: Props["children"] = null;
+            let children: Props[ "children" ] = null;
 
             for ( const key in props ) {
                 if ( ! props.hasOwnProperty( key ) ) {

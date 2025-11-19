@@ -24,14 +24,14 @@ import type { DCommandComponentContextProps } from "@zenflux/react-commander/def
  * );
  * ```
  **/
-export function ComponentIdProvider(props: {
+export function ComponentIdProvider( props: {
     children: React.ReactNode;
     context: DCommandComponentContextProps,
-}) {
+} ) {
     const { children, context } = props;
     return (
-        <ComponentIdContext.Provider value={context}>
-            {children}
+        <ComponentIdContext.Provider value={ context }>
+            { children }
         </ComponentIdContext.Provider>
     );
 }

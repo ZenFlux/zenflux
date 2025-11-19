@@ -1,7 +1,7 @@
 /**
  * @author Leonid Vinikov <leonidvinikov@gmail.com>
  */
-/* eslint-disable no-restricted-imports */
+
 export type * from "./commands";
 export type * from "./config";
 export type * from "./logger";

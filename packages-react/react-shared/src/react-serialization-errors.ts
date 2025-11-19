@@ -234,14 +234,14 @@ export function describeObjectForErrorMessage( objectOrArray: ( { [key in string
             str += "]";
         }
     } else {
-        if ( (objectOrArray as ReactElement).$$typeof === REACT_ELEMENT_TYPE ) {
-            str = "<" + describeElementType( (objectOrArray as ReactElement).type ) + "/>";
+        if ( ( objectOrArray as ReactElement ).$$typeof === REACT_ELEMENT_TYPE ) {
+            str = "<" + describeElementType( ( objectOrArray as ReactElement ).type ) + "/>";
         } else if ( __DEV__ && jsxPropsParents.has( objectOrArray ) ) {
             // Print JSX
             const type = jsxPropsParents.get( objectOrArray );
             str = "<" + ( describeElementType( type ) || "..." );
 
-            const object: { [ key: string | number | symbol ]: any} = objectOrArray;
+            const object: { [ key: string | number | symbol ]: any } = objectOrArray;
             const names = Object.keys( object );
 
             for ( let i = 0 ; i < names.length ; i++ ) {
@@ -276,7 +276,7 @@ export function describeObjectForErrorMessage( objectOrArray: ( { [key in string
         } else {
             // Print Object
             str = "{";
-            const object: { [ key: string | number | symbol ]: any} = objectOrArray;
+            const object: { [ key: string | number | symbol ]: any } = objectOrArray;
             const names = Object.keys( object );
 
             for ( let i = 0 ; i < names.length ; i++ ) {

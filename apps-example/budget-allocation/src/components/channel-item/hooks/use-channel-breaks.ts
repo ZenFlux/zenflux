@@ -11,7 +11,7 @@ export function useChannelBreaks( initialChannel: Channel ): {
     breaks: ChannelBreaks;
     setBreakdown: ( index: number, value: string ) => void;
 } {
-    const [ slice, setState ] = useCommandState<ChannelItemTableState, { breaks: ChannelItemTableState["breaks"] }>(
+    const [ slice, setState ] = useCommandState<ChannelItemTableState, { breaks: ChannelItemTableState[ "breaks" ] }>(
         "App/ChannelItem",
         ( state ) => ( { breaks: state.breaks ?? [] } ),
     );

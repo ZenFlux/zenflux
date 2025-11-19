@@ -1,4 +1,4 @@
-/* eslint-disable no-restricted-imports, @zenflux/no-relative-imports */
+
 import React from "react";
 
 import { useComponent } from "./use-component";
@@ -7,7 +7,7 @@ import core from "../../_internal/core";
 
 import { GET_INTERNAL_MATCH_SYMBOL } from "../../_internal/constants";
 
-export function useComponentWithRef(componentName: string, ref: React.RefObject<any> ): ReturnType<typeof useComponent> | null {
+export function useComponentWithRef( componentName: string, ref: React.RefObject<any> ): ReturnType<typeof useComponent> | null {
     const [ id, setId ] = React.useState<ReturnType<typeof useComponent> | null>( null );
 
     React.useEffect( () => {

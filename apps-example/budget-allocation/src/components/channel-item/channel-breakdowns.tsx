@@ -44,9 +44,9 @@ export const ChannelBreakdowns: React.FC = () => {
     };
 
     const [ settings ] = useCommandState<ChannelState, {
-        allocation: ChannelState["allocation"]
-        frequency: ChannelState["frequency"]
-        baseline: ChannelState["baseline"]
+        allocation: ChannelState[ "allocation" ]
+        frequency: ChannelState[ "frequency" ]
+        baseline: ChannelState[ "baseline" ]
     }>(
         "App/ChannelItem",
         ( state ) => ( {
@@ -81,7 +81,7 @@ export const ChannelBreakdowns: React.FC = () => {
 };
 
 const generateBreaks = (
-    frequency: ChannelBudgetFrequencyProps["frequency"],
+    frequency: ChannelBudgetFrequencyProps[ "frequency" ],
     baseline: string,
 ) => {
     const breaks: ChannelBreakData[] = [];
@@ -142,7 +142,7 @@ const generateBreaks = (
 
 const useBreakElements = (
     breaks: ChannelBreakData[],
-    allocation: ChannelState["allocation"],
+    allocation: ChannelState[ "allocation" ],
     onInputChange: ( index: number, value: string ) => void
 ) => {
     const elementsRef = React.useRef<React.JSX.Element[]>( [] );

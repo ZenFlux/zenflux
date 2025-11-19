@@ -23,7 +23,7 @@ import type { CommandBase } from "@zenflux/react-commander/command-base";
  * Sugar, e.g `ComponentType.getName` not `ComponentInstance`
  **/
 export interface DCommandFunctionComponent<TProps = any, TState = undefined> extends React.FC<TProps> {
-    (props: TProps, state?: TState): React.ReactNode;
+    ( props: TProps, state?: TState ): React.ReactNode;
 
     // Those methods always implemented "under the hood"
     getName?(): string;

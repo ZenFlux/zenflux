@@ -70,7 +70,7 @@ export function updateTextarea( element: Element, value: string | null | undefin
     }
 }
 
-export function initTextarea( element: Element, value: Props["value"], defaultValue: Props["defaultValue"], children: Props["children"] ) {
+export function initTextarea( element: Element, value: Props[ "value" ], defaultValue: Props[ "defaultValue" ], children: Props[ "children" ] ) {
     const node: HTMLTextAreaElement = ( element as any );
     let initialValue = value;
 

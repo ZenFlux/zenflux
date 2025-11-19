@@ -11,8 +11,8 @@ export class DelayUtil {
         max: 3000,
     };
 
-    public static async delay(config?: DelayConfig): Promise<void> {
-        if (config?.enabled === false) {
+    public static async delay( config?: DelayConfig ): Promise<void> {
+        if ( config?.enabled === false ) {
             return;
         }
 
@@ -20,22 +20,22 @@ export class DelayUtil {
 
         let delayMs: number;
 
-        if (delayConfig.fixed !== undefined) {
+        if ( delayConfig.fixed !== undefined ) {
             delayMs = delayConfig.fixed;
         } else {
             const min = delayConfig.min || 1000;
             const max = delayConfig.max || 3000;
-            delayMs = Math.floor(Math.random() * (max - min + 1)) + min;
+            delayMs = Math.floor( Math.random() * ( max - min + 1 ) ) + min;
         }
 
-        return new Promise(resolve => setTimeout(resolve, delayMs));
+        return new Promise( resolve => setTimeout( resolve, delayMs ) );
     }
 
     public static async withDelay<T>(
         operation: () => T | Promise<T>,
         config?: DelayConfig
     ): Promise<T> {
-        await this.delay(config);
+        await this.delay( config );
         return await operation();
     }
 }

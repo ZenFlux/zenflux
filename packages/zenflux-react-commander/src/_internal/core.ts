@@ -1,4 +1,4 @@
-// eslint-disable-next-line no-restricted-imports, @zenflux/no-relative-imports
+
 import {
     GET_INTERNAL_MATCH_SYMBOL,
     GET_INTERNAL_SYMBOL,
@@ -7,7 +7,6 @@ import {
     UNREGISTER_INTERNAL_SYMBOL
 } from "./constants";
 
-// eslint-disable-next-line no-restricted-imports, @zenflux/no-relative-imports
 import type { DCoreContext, DCoreInterface, DCoreRegisterArgs } from "./definitions";
 
 import type { DCommandSingleComponentContext } from "@zenflux/react-commander/definitions";

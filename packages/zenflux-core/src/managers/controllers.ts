@@ -2,11 +2,11 @@
  * @author Leonid Vinikov <leonidvinikov@gmail.com>
  * @description Responsible for manging controllers, each controller is global singleton instance.
  */
-import { ControllerAlreadyRegistered } from "@zenflux/core/src/errors/controller-already-registered";
+import { ControllerAlreadyRegistered } from "../errors/controller-already-registered";
 
-import { ObjectBase } from "@zenflux/core/src/bases/object-base";
+import { ObjectBase } from "../bases/object-base";
 
-import type { ControllerBase } from "@zenflux/core/src/bases/controller-base";
+import type { ControllerBase } from "../bases/controller-base";
 
 export class Controllers extends ObjectBase {
     private controllers: { [ key: string ]: ControllerBase } = {};

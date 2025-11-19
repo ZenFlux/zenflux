@@ -69,7 +69,7 @@ if ( canUseDOM ) {
  * @param {string} eventName
  * @returns {string}
  */
-function getVendorPrefixedEventName( eventName: keyof typeof vendorPrefixes) {
+function getVendorPrefixedEventName( eventName: keyof typeof vendorPrefixes ) {
     if ( prefixedEventNames[ eventName ] ) {
         return prefixedEventNames[ eventName ];
     } else if ( ! vendorPrefixes[ eventName ] ) {

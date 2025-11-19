@@ -8,7 +8,7 @@ import util from "node:util";
 import nodeResolve from "@rollup/plugin-node-resolve";
 import nodeCommonJsToEsm from "@rollup/plugin-commonjs";
 
-import { ConsoleManager}  from "@zenflux/cli/src/managers/console-manager";
+import { ConsoleManager }  from "@zenflux/cli/src/managers/console-manager";
 
 import { zGlobalPathsGet } from "@zenflux/cli/src/core/global";
 import { zWorkspaceGetPackages } from "@zenflux/cli/src/core/workspace";

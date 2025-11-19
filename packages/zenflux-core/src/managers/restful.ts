@@ -2,16 +2,16 @@
  * @author Leonid Vinikov <leonidvinikov@gmail.com>
  * @description Responsible for manging restful commands which are wrappers for HTTP requests.
  */
-import { Commands } from "@zenflux/core/src/managers/commands";
+import { Commands } from "./commands";
 
-import { Http } from "@zenflux/core/src/clients/http";
+import { Http } from "../clients/http";
 
 import {
     E_RESPONSE_HANDLER_TYPE,
     E_HTTP_METHOD_TYPE
-} from "@zenflux/core/src/interfaces";
+} from "../interfaces";
 
-import type { CommandRestful } from "@zenflux/core/src/command-bases";
+import type { CommandRestful } from "../command-bases";
 
 import type {
     IAPIConfig,
@@ -22,7 +22,7 @@ import type {
     TPossibleHandlersType,
     TResponseFilterCallbackType,
     TResponseHandlerCallbackType
-} from "@zenflux/core/src/interfaces";
+} from "../interfaces";
 
 export class Restful extends Commands {
     private static client: Http;

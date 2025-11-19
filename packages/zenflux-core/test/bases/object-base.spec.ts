@@ -1,4 +1,4 @@
-import { __ObjectBase__Public__ } from "@zenflux/core/src/test/__mock__/bases/object-base--public";
+import { __ObjectBase__Public__ } from "../__mock__/bases/object-base--public";
 
 describe( "bases", () => {
     describe( "ObjectBase", () => {

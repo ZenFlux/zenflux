@@ -58,8 +58,8 @@ function generateRandomString( length = 10 ) {
     let result = "";
     let characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
     let charactersLength = characters.length;
-    for (let i = 0; i < length; i++) {
-        result += characters.charAt(Math.floor(Math.random() * charactersLength));
+    for ( let i = 0; i < length; i++ ) {
+        result += characters.charAt( Math.floor( Math.random() * charactersLength ) );
     }
     return result;
 }
@@ -73,11 +73,11 @@ export default function zRollupCjsAsyncWrapPlugin( args: IPluginArgs ): Plugin {
 
             wrapInjection.path = path.resolve( currentDir, "rollup-cjs-async-wrap.js" );
             wrapInjection.code = fs.readFileSync( wrapInjection.path, "utf-8" );
-            wrapInjection.code = `/* rollup-cjs-async-wrap.js */\n${wrapInjection.code}`;
+            wrapInjection.code = `/* rollup-cjs-async-wrap.js */\n${ wrapInjection.code }`;
 
             runInjection.path = path.resolve( currentDir, "rollup-cjs-async-run.js" );
             runInjection.code = fs.readFileSync( runInjection.path, "utf-8" );
-            runInjection.code = `/* rollup-cjs-async-run.js */\n${runInjection.code}`;
+            runInjection.code = `/* rollup-cjs-async-run.js */\n${ runInjection.code }`;
         },
 
         // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -95,7 +95,7 @@ export default function zRollupCjsAsyncWrapPlugin( args: IPluginArgs ): Plugin {
             if ( hasTopLevelAwait( ast ) ) {
                 const magicString: MagicStringType = new MagicString( code );
 
-                magicString.prependLeft( ast.body[0].start, "\n" );
+                magicString.prependLeft( ast.body[ 0 ].start, "\n" );
 
                 ast.body.forEach( ( node ) => {
                     // TODO: Remove `isNodeTopLevelAwait`
@@ -108,7 +108,7 @@ export default function zRollupCjsAsyncWrapPlugin( args: IPluginArgs ): Plugin {
 
                             magicString.overwrite( node.start, node.end,
                                 "globalThis.__Z_CJS_WARP__.zRollupCjsAsyncWrap( async() => {\n" +
-                                magicString.snip( node.start, node.end ).toString().replace("var", "") + "\n" +
+                                magicString.snip( node.start, node.end ).toString().replace( "var", "" ) + "\n" +
                                 `}, ${ node.start } );`
                             );
                         } else if ( node.type === "ExportNamedDeclaration" ) {
@@ -116,15 +116,15 @@ export default function zRollupCjsAsyncWrapPlugin( args: IPluginArgs ): Plugin {
                                 const originalCode = magicString.snip( node.start, node.end ).toString();
 
                                 const refName = generateRandomString() + "_tempTopLevelAwait",
-                                    vars = node.declaration.declarations[0].id.properties.map( p => p.key.name );
+                                    vars = node.declaration.declarations[ 0 ].id.properties.map( p => p.key.name );
 
                                 magicString.prependLeft( node.start - 1, "\n" );
-                                magicString.prependLeft( node.start, `const ${ refName } = { ${ vars.join( ": undefined, ") }: undefined };\n\n` );
+                                magicString.prependLeft( node.start, `const ${ refName } = { ${ vars.join( ": undefined, " ) }: undefined };\n\n` );
 
                                 magicString.overwrite( node.start, node.end,
                                     "globalThis.__Z_CJS_WARP__.zRollupCjsAsyncWrap( async() => {\n" +
-                                    originalCode.replace( "export", "    ") + "\n" +
-                                    `${ vars.map( v => `    ${ "exports" }.${ v } = ${ v };`).join("\n") }\n` +
+                                    originalCode.replace( "export", "    " ) + "\n" +
+                                    `${ vars.map( v => `    ${ "exports" }.${ v } = ${ v };` ).join( "\n" ) }\n` +
                                     `}, ${ node.start } );\n`
                                 );
 

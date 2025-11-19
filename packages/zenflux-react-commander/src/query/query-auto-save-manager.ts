@@ -8,7 +8,7 @@ export type QueryCreateAutoSaveManagerOptions<TState extends object, TSave exten
     intervalMs?: number;
 };
 
-export type QueryAutoSaveManager<TState extends object, TSave extends QuerySaveInput> = {
+export type QueryAutoSaveManager<TState extends object, _TSave extends QuerySaveInput> = {
     queryUpsert( state: TState, immediate?: boolean ): Promise<void>;
     queryFlush(): Promise<void>;
     queryFlushKey( key: string ): Promise<void>;
@@ -51,5 +51,4 @@ export function queryCreateAutoSaveManager<TState extends object, TSave extends 
 
     return { queryUpsert, queryFlush, queryFlushKey };
 }
-
 

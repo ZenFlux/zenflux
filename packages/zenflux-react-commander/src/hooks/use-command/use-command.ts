@@ -1,4 +1,4 @@
-/* eslint-disable no-restricted-imports, @zenflux/no-relative-imports */
+
 import React from "react";
 
 import { GET_INTERNAL_SYMBOL, GET_INTERNAL_MATCH_SYMBOL } from "../../_internal/constants";

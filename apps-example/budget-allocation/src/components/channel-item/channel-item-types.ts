@@ -5,7 +5,7 @@ import type {
     BudgetAllocationType
 } from "@zenflux/app-budget-allocation/src/components/channel-item/channel-budget-settings";
 
-export type ChannelFrequency = ChannelBudgetFrequencyProps["frequency"];
+export type ChannelFrequency = ChannelBudgetFrequencyProps[ "frequency" ];
 export type ChannelAllocation = BudgetAllocationType;
 
 export enum UpdateSource {

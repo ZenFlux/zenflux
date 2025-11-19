@@ -6,6 +6,7 @@ import * as util from "util";
 import fs from "fs";
 import path from "path";
 import process from "process";
+
 import semver from "semver";
 
 import { ConsoleMenu } from "@zenflux/cli/src/modules/console";
@@ -154,8 +155,8 @@ export default class Publish extends CommandBase {
 
         for ( const pkg of Object.values( packages ) ) {
             promises.push( pkg.publish()
-                    .then( () => ConsoleManager.$.log( util.inspect( pkg.getDisplayName() ) + " Package published successfully" ) )
-                    .catch( e => ConsoleManager.$.error( "Error while publishing => " + ( e.stack ) ) )
+                .then( () => ConsoleManager.$.log( util.inspect( pkg.getDisplayName() ) + " Package published successfully" ) )
+                .catch( e => ConsoleManager.$.error( "Error while publishing => " + ( e.stack ) ) )
             );
         }
 

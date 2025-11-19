@@ -10,5 +10,9 @@
     "scripts": {
         "@z-logging--build": "@z-cli @build",
         "@z-logging--dev": "@z-cli @watch --dev"
+    },
+    "dependencies": {
+        "@zenflux/core": "workspace:*",
+        "picocolors": "^1.0.0"
     }
 }

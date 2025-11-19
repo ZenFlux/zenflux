@@ -19,13 +19,13 @@ import type { Channel } from "@zenflux/app-budget-allocation/src/query/channels-
 
 import type { DCommandFunctionComponent } from "@zenflux/react-commander/definitions";
 
-export const ChannelItemAccordion: DCommandFunctionComponent<{ meta: Channel["meta"]; $data?: Channel }, ChannelState> = () => {
+export const ChannelItemAccordion: DCommandFunctionComponent<{ meta: Channel[ "meta" ]; $data?: Channel }, ChannelState> = () => {
     const ChannelBudgetSettings = () => {
         // Subscribe to all budget settings for automatic re-rendering
         const [ state ] = useCommandState<ChannelState, {
-            frequency: ChannelState["frequency"];
-            baseline: ChannelState["baseline"];
-            allocation: ChannelState["allocation"]
+            frequency: ChannelState[ "frequency" ];
+            baseline: ChannelState[ "baseline" ];
+            allocation: ChannelState[ "allocation" ]
         }>(
             "App/ChannelItem",
             ( state ) => ( {
@@ -61,7 +61,7 @@ export const ChannelItemAccordion: DCommandFunctionComponent<{ meta: Channel["me
     );
 };
 
-const $$ = withCommands<{ meta: Channel["meta"] }, ChannelState>( "App/ChannelItem", ChannelItemAccordion, {
+const $$ = withCommands<{ meta: Channel[ "meta" ] }, ChannelState>( "App/ChannelItem", ChannelItemAccordion, {
     frequency: "annually",
     baseline: "0",
     allocation: "equal",

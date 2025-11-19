@@ -46,16 +46,16 @@ export function removeComments( code: string ) {
     // Matches both single-line (//) and multi-line (/** */) comments
     const commentPattern = /.*(?:\/\*[\s\S]*?\*\/|\/\/.*).*/g;
 
-    let magicString: MagicStringType = new MagicString(code );
+    let magicString: MagicStringType = new MagicString( code );
 
     let match;
-    while ((match = commentPattern.exec(code)) !== null) {
+    while ( ( match = commentPattern.exec( code ) ) !== null ) {
         // Get the start and end indices of the match
         const start = match.index;
-        const end = start + match[0].length;
+        const end = start + match[ 0 ].length;
 
         // Remove the comment from magicString
-        magicString.remove(start, end);
+        magicString.remove( start, end );
     }
 
     return magicString.toString();
@@ -76,7 +76,7 @@ export default function zRollupCustomLoaderPlugin( args: IPluginArgs ): Plugin {
             let hasReplacements = false;
 
             // Create a new MagicString instance from the string without comments
-            const magicString = new MagicString(code);
+            const magicString = new MagicString( code );
 
             const sourceId = Math.random().toString( 36 ).slice( 2 );
 

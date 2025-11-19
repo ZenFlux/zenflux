@@ -2,9 +2,9 @@
  * @author Leonid Vinikov <leonidvinikov@gmail.com>
  */
 // @ts-ignore - TODO handle error in jest
-import { bases, commandBases, errors, interfaces, managers, } from "@zenflux/core/src/exports-index";
+import { bases, commandBases, errors, interfaces, managers, } from "./exports-index";
 
-import * as pkg from "@zenflux/core/package.json" assert { type: "json" };
+import * as pkg from "../package.json" assert { type: "json" };
 
 declare global {
     var __ZEN_CORE__IS_INITIALIZED__: boolean;
@@ -15,7 +15,7 @@ export const classes = {
     /* eslint-disable @typescript-eslint/explicit-member-accessibility */
 
     Logger: class NullLogger implements interfaces.ILogger {
-        constructor( owner: typeof bases.ObjectBase, params: any = {} ) {
+        constructor( owner: typeof bases.ObjectBase | bases.ObjectBase | string, params: any = {} ) {
         }
 
         log( caller: interfaces.TCaller, message: string, ... params: any[] ) {}
@@ -23,9 +23,10 @@ export const classes = {
         error( caller: interfaces.TCaller, message: string, ... params: any[] ) {}
         info( caller: interfaces.TCaller, message: string, ... params: any[] ) {}
         debug( caller: interfaces.TCaller, message: string, ... params: any[] ) {}
+        addMessagePrefix( prefix: string ) {}
         startsEmpty( caller: interfaces.TCaller ) {}
-        startsWith( caller: interfaces.TCaller, params: object ) {}
-        dump( caller: interfaces.TCaller, data: any ) {}
+        startsWith( caller: interfaces.TCaller, params: object | string ) {}
+        dump( caller: interfaces.TCaller, data: any, notice?: string ) {}
         drop( caller: interfaces.TCaller, according: { [ key: string ]: string }, data: any ) {}
     }
 

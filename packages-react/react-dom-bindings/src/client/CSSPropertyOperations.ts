@@ -13,7 +13,7 @@ import isUnitlessNumber from "@zenflux/react-dom-bindings/src/shared/isUnitlessN
 
 import { shorthandToLonghand } from "@zenflux/react-dom-bindings/src/client/CSSShorthandProperty";
 
-import type { CSSShorthandKeys} from "@zenflux/react-dom-bindings/src/client/CSSShorthandProperty";
+import type { CSSShorthandKeys } from "@zenflux/react-dom-bindings/src/client/CSSShorthandProperty";
 
 /**
  * Operations for dealing with CSS properties.
@@ -320,8 +320,8 @@ function validateShorthandPropertyCollisionInDev( prevStyles: Record<CSSShorthan
                     "conflicting property is set (%s) can lead to styling bugs. To " + "avoid this, don't mix shorthand and non-shorthand properties " +
                     "for the same value; instead, replace the shorthand with " +
                     "separate values.",
-                    isValueEmpty( nextStyles[ originalKey ] as string ) ?
-                        "Removing" : "Updating", originalKey, correctOriginalKey
+                isValueEmpty( nextStyles[ originalKey ] as string ) ?
+                    "Removing" : "Updating", originalKey, correctOriginalKey
                 );
             }
         } );

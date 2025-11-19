@@ -62,7 +62,7 @@ export function zApiExporter(
         "dist/src/**/*.d.ts"
     );
 
-    const additionalPaths: ts.ParsedCommandLine["options"]["paths"] = {};
+    const additionalPaths: ts.ParsedCommandLine[ "options" ][ "paths" ] = {};
 
     if ( ! tsConfigVirtual.options.rootDir && tsConfigVirtual.projectReferences?.length ) {
         // For each reference that starts with "@" add path to `dist/${ref}/*`/.

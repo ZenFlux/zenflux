@@ -39,12 +39,12 @@ function registerEvents() {
  * the `mouseover` top-level event.
  */
 function extractEvents( dispatchQueue: DispatchQueue,
-                        domEventName: DOMEventName,
-                        targetInst: null | Fiber,
-                        nativeEvent: AnyNativeEvent,
-                        nativeEventTarget: null | EventTarget,
-                        _eventSystemFlags: EventSystemFlags,
-                        _targetContainer: EventTarget ) {
+    domEventName: DOMEventName,
+    targetInst: null | Fiber,
+    nativeEvent: AnyNativeEvent,
+    nativeEventTarget: null | EventTarget,
+    _eventSystemFlags: EventSystemFlags,
+    _targetContainer: EventTarget ) {
     const isOverEvent = domEventName === "mouseover" || domEventName === "pointerover";
     const isOutEvent = domEventName === "mouseout" || domEventName === "pointerout";
 

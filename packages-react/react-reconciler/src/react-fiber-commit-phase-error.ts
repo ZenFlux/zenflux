@@ -25,7 +25,7 @@ function captureCommitPhaseErrorOnRoot( rootFiber: Fiber, sourceFiber: Fiber, er
     }
 }
 
-export function safelyCallDestroy( current: Fiber, nearestMountedAncestor: Fiber | null, destroy: ReturnType<Parameters<Dispatcher["useEffect"]>[0]> ) {
+export function safelyCallDestroy( current: Fiber, nearestMountedAncestor: Fiber | null, destroy: ReturnType<Parameters<Dispatcher[ "useEffect" ]>[ 0 ]> ) {
     try {
         ( destroy as any )();
     } catch ( error ) {

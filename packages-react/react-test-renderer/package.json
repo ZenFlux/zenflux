@@ -5,6 +5,10 @@
     "description": "React package for snapshot testing.",
     "license": "MIT",
     "type": "module",
+    "exports": {
+        "./package.json": "./package.json",
+        "./src/*": "./src/*"
+    },
     "main": "dist/zenflux-react-test-renderer.cjs",
     "scripts": {
         "@z-react-test-renderer--build": "bun run @z-cli @build",
@@ -13,8 +17,10 @@
         "@z-react-test-renderer--test": "@z-jest --selectedProjects react-test-renderer"
     },
     "dependencies": {
+        "@zenflux/react-reconciler": "workspace:*",
         "@zenflux/react-scheduler": "workspace:*",
         "@zenflux/react-shared": "workspace:*",
+        "@zenflux/react-x-env": "workspace:*",
         "react-is": "^18.2.0",
         "react-shallow-renderer": "^16.15.0"
     },

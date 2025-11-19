@@ -1,14 +1,33 @@
-/* eslint-disable no-restricted-imports, @zenflux/no-relative-imports */
+
+import React from "react";
 
 import { GET_INTERNAL_SYMBOL } from "../../_internal/constants";
-import { getSafeContext } from "../utils";
 
 import core from "../../_internal/core";
 import commandsManager from "../../commands-manager";
+import { ComponentIdContext } from "../../commands-context";
 
 import type { DCommandArgs, DCommandComponentContextProps, DCommandHookHandle } from "../../definitions";
 
-import type React from "react";
+export function getSafeContext( componentName: string, context?: DCommandComponentContextProps ) {
+    function maybeWrongContext( componentName: string, componentNameUnique: string ) {
+        if ( componentName === componentNameUnique ) {
+            return;
+        }
+        throw new Error(
+            `You are not in: '${ componentName }', you are in '${ componentNameUnique }' which is not your context\n` +
+            "If you are trying to reach sub-component context, it has to rendered, before you can use it\n",
+        );
+    }
+
+    const componentContext = context || React.useContext( ComponentIdContext );
+
+    const componentNameContext = componentContext.getComponentName();
+
+    maybeWrongContext( componentName, componentNameContext );
+
+    return componentContext;
+}
 
 export function useComponent( componentName: string, context?: DCommandComponentContextProps, options = { silent: false } ) {
     if ( ! options.silent ) {
@@ -35,4 +54,3 @@ export function useComponent( componentName: string, context?: DCommandComponent
         getState: <TState extends React.ComponentState>() => core[ GET_INTERNAL_SYMBOL ]( id ).getState() as TState,
     };
 }
-

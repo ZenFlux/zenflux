@@ -1,4 +1,3 @@
-/* eslint-disable no-restricted-imports */
 
 export type { Dispatcher, CacheDispatcher } from "./dispatcher";
 export type { Cache, SpawnedCachePool } from "./cache";

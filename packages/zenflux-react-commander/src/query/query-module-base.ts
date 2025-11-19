@@ -24,7 +24,7 @@ export abstract class QueryModuleBase<TResource extends object = object> {
     protected api: QueryClient;
     protected router: QueryRouterBase<TResource, QueryModuleBase<TResource>>;
 
-    private routes: Map<RequestInit["method"], Map<Route<unknown, unknown>["path"], Route<unknown, unknown>>> = new Map();
+    private routes: Map<RequestInit[ "method" ], Map<Route<unknown, unknown>[ "path" ], Route<unknown, unknown>>> = new Map();
 
     public static getName(): string {
         throw new Error( "Please extend QueryModuleBase and implement static getName()" );

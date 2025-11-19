@@ -23,8 +23,8 @@ function containsNode( outerNode: Node, innerNode: Node | null ) {
         return containsNode( outerNode, innerNode.parentNode );
     } else if ( "contains" in outerNode ) {
         return outerNode.contains( innerNode );
-    } else if ( (outerNode as Node).compareDocumentPosition ) {
-        return !! ( (outerNode as Node).compareDocumentPosition( innerNode ) & 16 );
+    } else if ( ( outerNode as Node ).compareDocumentPosition ) {
+        return !! ( ( outerNode as Node ).compareDocumentPosition( innerNode ) & 16 );
     } else {
         return false;
     }
@@ -98,7 +98,7 @@ export function getSelectionInformation() {
  * restore it. This is useful when performing operations that could remove dom
  * nodes and place them back in, resulting in focus being lost.
  */
-export function restoreSelection( priorSelectionInformation: { focusedElem: HTMLInputElement; selectionRange: { start:number, end:number} } ) {
+export function restoreSelection( priorSelectionInformation: { focusedElem: HTMLInputElement; selectionRange: { start:number, end:number } } ) {
     const curFocusedElem = getActiveElementDeep();
     const priorFocusedElem = priorSelectionInformation.focusedElem;
     const priorSelectionRange = priorSelectionInformation.selectionRange;
@@ -171,7 +171,7 @@ export function getSelection( input: Element | DocumentFragment | HTMLTextAreaEl
  * -@input     Set selection bounds of this input or textarea
  * -@offsets   Object of same form that is returned from get*
  */
-export function setSelection( input: HTMLInputElement | DocumentFragment, offsets: { start:number, end:number} ) {
+export function setSelection( input: HTMLInputElement | DocumentFragment, offsets: { start:number, end:number } ) {
     const start = offsets.start;
     let end = offsets.end;
 

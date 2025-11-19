@@ -13,6 +13,7 @@
   ],
   "exports": {
     "./package.json": "./package.json",
+    "./environment": "./src/environment.js",
     "./error": "./src/error.js",
     "./object": "./src/object.js",
     "./path": "./src/path.js",

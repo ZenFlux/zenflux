@@ -2,11 +2,11 @@
  * @author Leonid Vinikov <leonidvinikov@gmail.com>
  * @description Each rest command should represent a final REST endpoint.
  */
-import { CommandBase } from "@zenflux/core/src/command-bases/command-base";
+import { CommandBase } from "./command-base";
 
-import { ForceMethodImplementation } from "@zenflux/core/src/errors";
+import { ForceMethodImplementation } from "../errors";
 
-import * as managers from "@zenflux/core/src/managers/export";
+import * as managers from "../managers/export";
 
 export abstract class CommandRestful extends CommandBase {
     public static getName() {

@@ -1,4 +1,4 @@
-/* eslint-disable no-restricted-imports, @zenflux/no-relative-imports */
+
 import React from "react";
 
 import { useCommand } from "./use-command";
@@ -52,9 +52,9 @@ function useCommandStateSelectorInternal<TState, TSelector>(
     const equalityFn = options?.equalityFn ?? ( shallowEqual as unknown as ( a: TSelector, b: TSelector ) => boolean );
 
     const valueRef = React.useRef<TSelector>( selector( internalContext.getState<TState>() ) );
-    const onChangeRef = React.useRef<(() => void) | null>( null );
+    const onChangeRef = React.useRef<( () => void ) | null>( null );
 
-    const handlerRef = React.useRef<(() => void) | null>( null );
+    const handlerRef = React.useRef<( () => void ) | null>( null );
 
     if ( ! handlerRef.current ) {
         const handleStateChange = () => {
@@ -74,7 +74,7 @@ function useCommandStateSelectorInternal<TState, TSelector>(
         internalContext.emitter.on( INTERNAL_STATE_UPDATED_EVENT, handleStateChange );
     }
 
-    React.useEffect(() => {
+    React.useEffect( () => {
         return () => {
             if ( handlerRef.current ) {
                 internalContext.emitter.off( INTERNAL_STATE_UPDATED_EVENT, handlerRef.current );

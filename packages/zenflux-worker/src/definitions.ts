@@ -65,9 +65,9 @@ export const DEFAULT_WORKER_STATE = [
     "error"
 ] as const;
 
-export type DWorkerEvent = typeof DEFAULT_WORKER_EVENTS[number];
+export type DWorkerEvent = typeof DEFAULT_WORKER_EVENTS[ number ];
 
-export type DWorkerState = typeof DEFAULT_WORKER_STATE[number]
+export type DWorkerState = typeof DEFAULT_WORKER_STATE[ number ]
 
 export interface DWorkerTask {
     workFunction: Function | string;

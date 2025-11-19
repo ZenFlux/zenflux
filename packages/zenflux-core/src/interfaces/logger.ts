@@ -9,10 +9,11 @@ export interface ILogger {
     error( caller: TCaller, message: string, ...params: any[] ): void;
     info( caller: TCaller, message: string, ...params: any[] ): void;
     debug( caller: TCaller, message: string, ...params: any[] ): void;
+    addMessagePrefix( prefix: string ): void;
 
     startsEmpty( caller: TCaller ): void;
-    startsWith( caller: TCaller, params: object ): void;
+    startsWith( caller: TCaller, params: object | string ): void;
 
-    dump( caller: TCaller, params: { [ key: string ]: object|string } ): void;
+    dump( caller: TCaller, params: { [ key: string ]: object|string }, notice?: string ): void;
     drop( caller: TCaller, according: { [ key: string ]: string }, data: any ): void;
 }

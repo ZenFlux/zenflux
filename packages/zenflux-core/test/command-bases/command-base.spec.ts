@@ -1,8 +1,8 @@
-import * as ZenCore from "@zenflux/core/src/src/exports";
+import * as ZenCore from "../../src/exports";
 
-import { __CommandBase__Public__ } from "@zenflux/core/src/test/__mock__/bases/command-base--public";
+import { __CommandBase__Public__ } from "../__mock__/bases/command-base--public";
 
-import { ControllerAlreadySet } from "@zenflux/core/src/src/errors";
+import { ControllerAlreadySet } from "../../src/errors";
 
 describe( "command-bases" , () => {
     describe( "CommandBase", () => {

@@ -17,7 +17,7 @@ import { getInstanceFromNode } from "@zenflux/react-dom-bindings/src/client/Reac
 import type { AnyNativeEvent } from "@zenflux/react-dom-bindings/src/events/PluginModuleType";
 import type { DOMEventName } from "@zenflux/react-dom-bindings/src/events/DOMEventNames";
 
-import type { EventSystemFlags} from "@zenflux/react-dom-bindings/src/events/EventSystemFlags";
+import type { EventSystemFlags } from "@zenflux/react-dom-bindings/src/events/EventSystemFlags";
 
 export function dispatchEventEx( domEventName: DOMEventName, eventSystemFlags: EventSystemFlags, targetContainer: EventTarget, nativeEvent: AnyNativeEvent ): void {
     if ( ! isEnabled() ) {

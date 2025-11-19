@@ -5,7 +5,7 @@ import {
 
 import { IS_CAPTURE_PHASE } from "@zenflux/react-dom-bindings/src/events/EventSystemFlags";
 
-import type { EventSystemFlags} from "@zenflux/react-dom-bindings/src/events/EventSystemFlags";
+import type { EventSystemFlags } from "@zenflux/react-dom-bindings/src/events/EventSystemFlags";
 import type { DispatchListener, DispatchQueue } from "@zenflux/react-dom-bindings/src/events/DOMPluginEventSystem";
 import type { ReactSyntheticEvent } from "@zenflux/react-dom-bindings/src/events/ReactSyntheticEventType";
 

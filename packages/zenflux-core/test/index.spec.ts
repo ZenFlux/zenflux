@@ -2,7 +2,7 @@
  * Validate that the `ZenCore` get cleared on each test.
  * In other words - ensuring that `setup.ts` is working correctly.
  */
-import * as ZenCore from "@zenflux/core/src/src/exports";
+import * as ZenCore from "../src/exports";
 
 describe( "ZenCore", () => {
     it( "Add something for next test", () => {

@@ -16,9 +16,9 @@ export const accordionHandleSelection = (
         key: string,
         collapsedState: UIThemeAccordionCollapseStates,
         setCollapsedState: React.Dispatch<React.SetStateAction<UIThemeAccordionCollapseStates>>,
-        selected: UIThemeAccordionItemProps["selected"],
-        setSelected: NonNullable<UIThemeAccordionItemProps["setSelected"]>,
-        onClick: UIThemeAccordionItemProps["onClick"],
+        selected: UIThemeAccordionItemProps[ "selected" ],
+        setSelected: NonNullable<UIThemeAccordionItemProps[ "setSelected" ]>,
+        onClick: UIThemeAccordionItemProps[ "onClick" ],
         isTransitioning: boolean,
     }
 ) => {
@@ -64,13 +64,13 @@ export const accordionHandleSelection = (
  * solution.
  */
 export const accordionHandleExternalSelection = ( args: {
-    selected: NonNullable<UIThemeAccordionItemProps["selected"]>,
-    setSelected: NonNullable<UIThemeAccordionItemProps["setSelected"]>,
+    selected: NonNullable<UIThemeAccordionItemProps[ "selected" ]>,
+    setSelected: NonNullable<UIThemeAccordionItemProps[ "setSelected" ]>,
 
-    prevSelected: NonNullable<UIThemeAccordionItemProps["selected"]>,
-    setPrevSelected: NonNullable<UIThemeAccordionItemProps["setSelected"]>,
+    prevSelected: NonNullable<UIThemeAccordionItemProps[ "selected" ]>,
+    setPrevSelected: NonNullable<UIThemeAccordionItemProps[ "setSelected" ]>,
 
-    onSelectionChanged: NonNullable<UIThemeAccordionProps["onSelectionChanged"]>,
+    onSelectionChanged: NonNullable<UIThemeAccordionProps[ "onSelectionChanged" ]>,
 
     sharedProps: { [ key: string ]: UIThemeAccordionItemProps },
 } ) => {

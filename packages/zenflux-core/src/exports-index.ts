@@ -1,8 +1,8 @@
-import * as bases from "@zenflux/core/src/bases";
-import * as commandBases from "@zenflux/core/src/command-bases";
-import * as errors from "@zenflux/core/src/errors/index-public";
-import * as interfaces from "@zenflux/core/src/interfaces";
-import * as managers from "@zenflux/core/src/managers/export";
+import * as bases from "./bases";
+import * as commandBases from "./command-bases";
+import * as errors from "./errors/index-public";
+import * as interfaces from "./interfaces";
+import * as managers from "./managers/export";
 
 export {
     bases,

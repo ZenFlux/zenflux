@@ -205,9 +205,9 @@ export type AnyProps =
     | PreloadModuleProps
     | {
     // PreconnectProps from ReactFizzConfigDOM
-    rel: "preconnect" | "dns-prefetch";
-    href: string;
-};
+        rel: "preconnect" | "dns-prefetch";
+        href: string;
+    };
 
 export type Props = PropsInternal;
 
@@ -1562,11 +1562,11 @@ export type HoistableRoot = Document | ShadowRoot;
 export function getHoistableRoot( container: Container ): HoistableRoot {
     // $FlowFixMe[method-unbinding]
     return ( typeof container.getRootNode === "function" ?
-            /**
+    /**
              * $FlowFixMe[incompatible-return] Flow types this as returning a `Node`,
              * but it's either a `Document` or `ShadowRoot`.
              */
-            container.getRootNode() : container.ownerDocument
+        container.getRootNode() : container.ownerDocument
     ) as any;
 }
 

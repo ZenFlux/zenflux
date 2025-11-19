@@ -93,7 +93,7 @@ export class ChannelsListQuery extends QueryListModuleBase<Channel> {
         return await response.json();
     }
 
-    protected onMount( context: DCommandSingleComponentContext, resource?: ChannelsListState["channels"] ) {
+    protected onMount( context: DCommandSingleComponentContext, resource?: ChannelsListState[ "channels" ] ) {
         context.setState( {
             ... context.getState<ChannelsListState>(),
             channels: resource
@@ -135,7 +135,7 @@ export class ChannelsListQuery extends QueryListModuleBase<Channel> {
         }
     }
 
-    protected onUnmount( context: DCommandSingleComponentContext ) {
+    protected onUnmount( _context: DCommandSingleComponentContext ) {
         void this.autosave.queryFlush();
 
         const accordion = commandsManager.get( "UI/Accordion", true );

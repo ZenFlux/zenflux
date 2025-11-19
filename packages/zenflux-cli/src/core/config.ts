@@ -10,7 +10,7 @@ import { ConsoleManager } from "@zenflux/cli/src/managers/console-manager";
 
 import { Z_CONFIG_REQUIRED_KEYS } from "@zenflux/cli/src/definitions/config";
 
-import type { IZConfigInternal , IConfigArgsBase, IZConfigs, TConfigType} from "@zenflux/cli/src/definitions/config";
+import type { IZConfigInternal , IConfigArgsBase, IZConfigs, TConfigType } from "@zenflux/cli/src/definitions/config";
 
 function hasRequiredKeys( config: IZConfigInternal ) {
     return Z_CONFIG_REQUIRED_KEYS.every( ( key ) => {

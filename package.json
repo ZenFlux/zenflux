@@ -38,29 +38,8 @@
         "@z-examples:budget-allocation:prod": "node scripts/app-examples/budget-allocation/run-prod.js"
     },
     "dependencies": {
-        "@zenflux/cli": "workspace:*",
         "@zenflux/eslint": "workspace:*",
-        "@zenflux/core": "workspace:*",
-        "@zenflux/jest": "workspace:*",
-        "@zenflux/logging": "workspace:*",
-        "@zenflux/react-commander": "workspace:*",
-        "@zenflux/react-ui": "workspace:*",
-        "@zenflux/runner": "workspace:*",
-        "@zenflux/tsconfig-to-swc": "workspace:*",
-        "@zenflux/typescript-vm": "workspace:*",
-        "@zenflux/utils": "workspace:*",
-        "@zenflux/app-budget-allocation": "workspace:*",
-        "@zenflux/budget-allocation-server": "workspace:*",
-        "@zenflux/react-cache": "workspace:*",
-        "@zenflux/react-dom-bindings": "workspace:*",
-        "@zenflux/react-internal-test-utils": "workspace:*",
-        "@zenflux/react-jest": "workspace:*",
-        "@zenflux/react-noop-renderer": "workspace:*",
-        "@zenflux/react-reconciler": "workspace:*",
-        "@zenflux/react-scheduler": "workspace:*",
-        "@zenflux/react-shared": "workspace:*",
-        "@zenflux/react-test-renderer": "workspace:*",
-        "@zenflux/react-x-env": "workspace:*"
+        "@zenflux/utils": "workspace:*"
     },
     "devDependencies": {
         "ajv": "^8.17.1",

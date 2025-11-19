@@ -18,4 +18,3 @@ export abstract class QueryListModuleBase<TEntity extends object> extends QueryM
     }
 }
 
-

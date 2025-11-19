@@ -123,7 +123,7 @@ export function validateSelectProps( element: Element, props: Record<string, any
     }
 }
 
-export function initSelect( element: Element, value: Props["value"], defaultValue: Props["defaultValue"], multiple: Props["multiple"] ) {
+export function initSelect( element: Element, value: Props[ "value" ], defaultValue: Props[ "defaultValue" ], multiple: Props[ "multiple" ] ) {
     const node: HTMLSelectElement = ( element as any );
     node.multiple = !! multiple;
 
@@ -136,9 +136,9 @@ export function initSelect( element: Element, value: Props["value"], defaultValu
 
 export function updateSelect(
     element: Element,
-    value: Props["value"],
-    defaultValue: Props["defaultValue"],
-    multiple: Props["multiple"],
+    value: Props[ "value" ],
+    defaultValue: Props[ "defaultValue" ],
+    multiple: Props[ "multiple" ],
     wasMultiple: boolean | null | undefined
 ) {
     const node: HTMLSelectElement = ( element as any );

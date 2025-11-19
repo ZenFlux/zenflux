@@ -14,7 +14,7 @@ export type ChannelBudgetFrequencyProps = {
 
 // Baseline
 export type ChannelBudgetBaselineProps = {
-    frequency: ChannelBudgetFrequencyProps["frequency"],
-    allocation: ChannelBudgetAllocationProps["allocation"],
+    frequency: ChannelBudgetFrequencyProps[ "frequency" ],
+    allocation: ChannelBudgetAllocationProps[ "allocation" ],
     baseline: string | undefined,
 };

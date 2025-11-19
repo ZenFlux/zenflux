@@ -51,7 +51,7 @@ export class QueryClient {
         const moduleName = module.getName();
 
         if ( this.modules[ moduleName ] ) {
-            throw new Error(`Query module ${moduleName} already registered`);
+            throw new Error( `Query module ${ moduleName } already registered` );
         }
 
         this.modules[ moduleName ] = new module( this ) as unknown as QueryModuleBase<object>;

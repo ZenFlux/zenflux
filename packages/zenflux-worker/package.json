@@ -3,6 +3,7 @@
   "version": "0.0.12",
   "type": "module",
   "dependencies": {
+    "@zenflux/cli": "workspace:*",
     "@zenflux/typescript-vm": "workspace:*",
     "@zenflux/runner": "workspace:*"
   },

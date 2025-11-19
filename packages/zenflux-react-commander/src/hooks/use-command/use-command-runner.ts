@@ -1,4 +1,4 @@
-/* eslint-disable no-restricted-imports, @zenflux/no-relative-imports */
+
 import React from "react";
 
 import { useCommand } from "./use-command";

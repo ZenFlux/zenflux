@@ -137,7 +137,7 @@ const ReactFiberConfigPersistentMethods = [
     "cloneHiddenTextInstance",
 ] as const;
 
-type ReactFiberConfigPersistentMethods = typeof ReactFiberConfigPersistentMethods[number];
+type ReactFiberConfigPersistentMethods = typeof ReactFiberConfigPersistentMethods[ number ];
 
 type CloneInstance = (
     instance: Instance,
@@ -323,69 +323,69 @@ class ReactFiberConfig implements ReactReconcilerConfig {
     public supportsResources: ReactFiberConfigBase[ "supportsResources" ];
     public supportsSingletons: ReactFiberConfigBase[ "supportsSingletons" ];
 
-    public getPublicInstance: ReactFiberConfigBase["getPublicInstance"];
-    public getRootHostContext: ReactFiberConfigBase["getRootHostContext"];
-    public getChildHostContext: ReactFiberConfigBase["getChildHostContext"];
-    public prepareForCommit: ReactFiberConfigBase["prepareForCommit"];
-    public resetAfterCommit: ReactFiberConfigBase["resetAfterCommit"];
-    public createInstance: ReactFiberConfigBase["createInstance"];
-    public appendInitialChild: ReactFiberConfigBase["appendInitialChild"];
-    public finalizeInitialChildren: ReactFiberConfigBase["finalizeInitialChildren"];
-    public shouldSetTextContent: ReactFiberConfigBase["shouldSetTextContent"];
-    public createTextInstance: ReactFiberConfigBase["createTextInstance"];
-    public scheduleTimeout: ReactFiberConfigBase["scheduleTimeout"];
-    public cancelTimeout: ReactFiberConfigBase["cancelTimeout"];
-    public noTimeout: ReactFiberConfigBase["noTimeout"];
-    public isPrimaryRenderer: ReactFiberConfigBase["isPrimaryRenderer"];
-    public warnsIfNotActing: ReactFiberConfigBase["warnsIfNotActing"];
-    public getInstanceFromNode: ReactFiberConfigBase["getInstanceFromNode"];
-    public beforeActiveInstanceBlur: ReactFiberConfigBase["beforeActiveInstanceBlur"];
-    public afterActiveInstanceBlur: ReactFiberConfigBase["afterActiveInstanceBlur"];
-    public preparePortalMount: ReactFiberConfigBase["preparePortalMount"];
-    public prepareScopeUpdate: ReactFiberConfigBase["prepareScopeUpdate"];
-    public getInstanceFromScope: ReactFiberConfigBase["getInstanceFromScope"];
-    public getCurrentEventPriority: ReactFiberConfigBase["getCurrentEventPriority"];
-    public shouldAttemptEagerTransition: ReactFiberConfigBase["shouldAttemptEagerTransition"];
-    public detachDeletedInstance: ReactFiberConfigBase["detachDeletedInstance"];
-    public requestPostPaintCallback: ReactFiberConfigBase["requestPostPaintCallback"];
-    public maySuspendCommit: ReactFiberConfigBase["maySuspendCommit"];
-    public preloadInstance: ReactFiberConfigBase["preloadInstance"];
-    public startSuspendingCommit: ReactFiberConfigBase["startSuspendingCommit"];
-    public suspendInstance: ReactFiberConfigBase["suspendInstance"];
-    public waitForCommitToBeReady: ReactFiberConfigBase["waitForCommitToBeReady"];
-    public NotPendingTransition: ReactFiberConfigBase["NotPendingTransition"];
+    public getPublicInstance: ReactFiberConfigBase[ "getPublicInstance" ];
+    public getRootHostContext: ReactFiberConfigBase[ "getRootHostContext" ];
+    public getChildHostContext: ReactFiberConfigBase[ "getChildHostContext" ];
+    public prepareForCommit: ReactFiberConfigBase[ "prepareForCommit" ];
+    public resetAfterCommit: ReactFiberConfigBase[ "resetAfterCommit" ];
+    public createInstance: ReactFiberConfigBase[ "createInstance" ];
+    public appendInitialChild: ReactFiberConfigBase[ "appendInitialChild" ];
+    public finalizeInitialChildren: ReactFiberConfigBase[ "finalizeInitialChildren" ];
+    public shouldSetTextContent: ReactFiberConfigBase[ "shouldSetTextContent" ];
+    public createTextInstance: ReactFiberConfigBase[ "createTextInstance" ];
+    public scheduleTimeout: ReactFiberConfigBase[ "scheduleTimeout" ];
+    public cancelTimeout: ReactFiberConfigBase[ "cancelTimeout" ];
+    public noTimeout: ReactFiberConfigBase[ "noTimeout" ];
+    public isPrimaryRenderer: ReactFiberConfigBase[ "isPrimaryRenderer" ];
+    public warnsIfNotActing: ReactFiberConfigBase[ "warnsIfNotActing" ];
+    public getInstanceFromNode: ReactFiberConfigBase[ "getInstanceFromNode" ];
+    public beforeActiveInstanceBlur: ReactFiberConfigBase[ "beforeActiveInstanceBlur" ];
+    public afterActiveInstanceBlur: ReactFiberConfigBase[ "afterActiveInstanceBlur" ];
+    public preparePortalMount: ReactFiberConfigBase[ "preparePortalMount" ];
+    public prepareScopeUpdate: ReactFiberConfigBase[ "prepareScopeUpdate" ];
+    public getInstanceFromScope: ReactFiberConfigBase[ "getInstanceFromScope" ];
+    public getCurrentEventPriority: ReactFiberConfigBase[ "getCurrentEventPriority" ];
+    public shouldAttemptEagerTransition: ReactFiberConfigBase[ "shouldAttemptEagerTransition" ];
+    public detachDeletedInstance: ReactFiberConfigBase[ "detachDeletedInstance" ];
+    public requestPostPaintCallback: ReactFiberConfigBase[ "requestPostPaintCallback" ];
+    public maySuspendCommit: ReactFiberConfigBase[ "maySuspendCommit" ];
+    public preloadInstance: ReactFiberConfigBase[ "preloadInstance" ];
+    public startSuspendingCommit: ReactFiberConfigBase[ "startSuspendingCommit" ];
+    public suspendInstance: ReactFiberConfigBase[ "suspendInstance" ];
+    public waitForCommitToBeReady: ReactFiberConfigBase[ "waitForCommitToBeReady" ];
+    public NotPendingTransition: ReactFiberConfigBase[ "NotPendingTransition" ];
     // -------------------
     //      Microtasks (optional)
     // -------------------
-    public scheduleMicrotask: MicrotaskReconcilerConfig["scheduleMicrotask"];
+    public scheduleMicrotask: MicrotaskReconcilerConfig[ "scheduleMicrotask" ];
     // -------------------
     //      Test selectors (optional)
     // -------------------
-    public findFiberRoot: TestSelectorReconcilerConfig["findFiberRoot"];
-    public getBoundingRect: TestSelectorReconcilerConfig["getBoundingRect"];
-    public getTextContent: TestSelectorReconcilerConfig["getTextContent"];
-    public isHiddenSubtree: TestSelectorReconcilerConfig["isHiddenSubtree"];
-    public matchAccessibilityRole: TestSelectorReconcilerConfig["matchAccessibilityRole"];
-    public setFocusIfFocusable: TestSelectorReconcilerConfig["setFocusIfFocusable"];
-    public setupIntersectionObserver: TestSelectorReconcilerConfig["setupIntersectionObserver"];
+    public findFiberRoot: TestSelectorReconcilerConfig[ "findFiberRoot" ];
+    public getBoundingRect: TestSelectorReconcilerConfig[ "getBoundingRect" ];
+    public getTextContent: TestSelectorReconcilerConfig[ "getTextContent" ];
+    public isHiddenSubtree: TestSelectorReconcilerConfig[ "isHiddenSubtree" ];
+    public matchAccessibilityRole: TestSelectorReconcilerConfig[ "matchAccessibilityRole" ];
+    public setFocusIfFocusable: TestSelectorReconcilerConfig[ "setFocusIfFocusable" ];
+    public setupIntersectionObserver: TestSelectorReconcilerConfig[ "setupIntersectionObserver" ];
     // -------------------
     //      Mutation (optional)
     // -------------------
-    public appendChild: MutationReconcilerConfig["appendChild"];
-    public appendChildToContainer: MutationReconcilerConfig["appendChildToContainer"];
-    public insertBefore: MutationReconcilerConfig["insertBefore"];
-    public insertInContainerBefore: MutationReconcilerConfig["insertInContainerBefore"];
-    public removeChild: MutationReconcilerConfig["removeChild"];
-    public removeChildFromContainer: MutationReconcilerConfig["removeChildFromContainer"];
-    public resetTextContent: MutationReconcilerConfig["resetTextContent"];
-    public commitTextUpdate: MutationReconcilerConfig["commitTextUpdate"];
-    public commitMount: MutationReconcilerConfig["commitMount"];
-    public commitUpdate: MutationReconcilerConfig["commitUpdate"];
-    public hideInstance: MutationReconcilerConfig["hideInstance"];
-    public hideTextInstance: MutationReconcilerConfig["hideTextInstance"];
-    public unhideInstance: MutationReconcilerConfig["unhideInstance"];
-    public unhideTextInstance: MutationReconcilerConfig["unhideTextInstance"];
-    public clearContainer: MutationReconcilerConfig["clearContainer"];
+    public appendChild: MutationReconcilerConfig[ "appendChild" ];
+    public appendChildToContainer: MutationReconcilerConfig[ "appendChildToContainer" ];
+    public insertBefore: MutationReconcilerConfig[ "insertBefore" ];
+    public insertInContainerBefore: MutationReconcilerConfig[ "insertInContainerBefore" ];
+    public removeChild: MutationReconcilerConfig[ "removeChild" ];
+    public removeChildFromContainer: MutationReconcilerConfig[ "removeChildFromContainer" ];
+    public resetTextContent: MutationReconcilerConfig[ "resetTextContent" ];
+    public commitTextUpdate: MutationReconcilerConfig[ "commitTextUpdate" ];
+    public commitMount: MutationReconcilerConfig[ "commitMount" ];
+    public commitUpdate: MutationReconcilerConfig[ "commitUpdate" ];
+    public hideInstance: MutationReconcilerConfig[ "hideInstance" ];
+    public hideTextInstance: MutationReconcilerConfig[ "hideTextInstance" ];
+    public unhideInstance: MutationReconcilerConfig[ "unhideInstance" ];
+    public unhideTextInstance: MutationReconcilerConfig[ "unhideTextInstance" ];
+    public clearContainer: MutationReconcilerConfig[ "clearContainer" ];
     // -------------------
     //      Persistent (optional)
     // -------------------
@@ -399,68 +399,68 @@ class ReactFiberConfig implements ReactReconcilerConfig {
     // -------------------
     //      Hydration (optional)
     // -------------------
-    public isHydratableText: HydrationReconcilerConfig["isHydratableText"];
-    public isSuspenseInstancePending: HydrationReconcilerConfig["isSuspenseInstancePending"];
-    public isSuspenseInstanceFallback: HydrationReconcilerConfig["isSuspenseInstanceFallback"];
-    public getSuspenseInstanceFallbackErrorDetails: HydrationReconcilerConfig["getSuspenseInstanceFallbackErrorDetails"];
-    public registerSuspenseInstanceRetry: HydrationReconcilerConfig["registerSuspenseInstanceRetry"];
-    public canHydrateFormStateMarker: HydrationReconcilerConfig["canHydrateFormStateMarker"];
-    public isFormStateMarkerMatching: HydrationReconcilerConfig["isFormStateMarkerMatching"];
-    public getNextHydratableSibling: HydrationReconcilerConfig["getNextHydratableSibling"];
-    public getFirstHydratableChild: HydrationReconcilerConfig["getFirstHydratableChild"];
-    public getFirstHydratableChildWithinContainer: HydrationReconcilerConfig["getFirstHydratableChildWithinContainer"];
-    public getFirstHydratableChildWithinSuspenseInstance: HydrationReconcilerConfig["getFirstHydratableChildWithinSuspenseInstance"];
-    public canHydrateInstance: HydrationReconcilerConfig["canHydrateInstance"];
-    public canHydrateTextInstance: HydrationReconcilerConfig["canHydrateTextInstance"];
-    public canHydrateSuspenseInstance: HydrationReconcilerConfig["canHydrateSuspenseInstance"];
-    public hydrateInstance: HydrationReconcilerConfig["hydrateInstance"];
-    public hydrateTextInstance: HydrationReconcilerConfig["hydrateTextInstance"];
-    public hydrateSuspenseInstance: HydrationReconcilerConfig["hydrateSuspenseInstance"];
-    public getNextHydratableInstanceAfterSuspenseInstance: HydrationReconcilerConfig["getNextHydratableInstanceAfterSuspenseInstance"];
-    public commitHydratedContainer: HydrationReconcilerConfig["commitHydratedContainer"];
-    public commitHydratedSuspenseInstance: HydrationReconcilerConfig["commitHydratedSuspenseInstance"];
-    public clearSuspenseBoundary: HydrationReconcilerConfig["clearSuspenseBoundary"];
-    public clearSuspenseBoundaryFromContainer: HydrationReconcilerConfig["clearSuspenseBoundaryFromContainer"];
-    public shouldDeleteUnhydratedTailInstances: HydrationReconcilerConfig["shouldDeleteUnhydratedTailInstances"];
-    public didNotMatchHydratedContainerTextInstance: HydrationReconcilerConfig["didNotMatchHydratedContainerTextInstance"];
-    public didNotMatchHydratedTextInstance: HydrationReconcilerConfig["didNotMatchHydratedTextInstance"];
-    public didNotHydrateInstanceWithinContainer: HydrationReconcilerConfig["didNotHydrateInstanceWithinContainer"];
-    public didNotHydrateInstanceWithinSuspenseInstance: HydrationReconcilerConfig["didNotHydrateInstanceWithinSuspenseInstance"];
-    public didNotHydrateInstance: HydrationReconcilerConfig["didNotHydrateInstance"];
-    public didNotFindHydratableInstanceWithinContainer: HydrationReconcilerConfig["didNotFindHydratableInstanceWithinContainer"];
-    public didNotFindHydratableTextInstanceWithinContainer: HydrationReconcilerConfig["didNotFindHydratableTextInstanceWithinContainer"];
-    public didNotFindHydratableSuspenseInstanceWithinContainer: HydrationReconcilerConfig["didNotFindHydratableSuspenseInstanceWithinContainer"];
-    public didNotFindHydratableInstanceWithinSuspenseInstance: HydrationReconcilerConfig["didNotFindHydratableInstanceWithinSuspenseInstance"];
-    public didNotFindHydratableTextInstanceWithinSuspenseInstance: HydrationReconcilerConfig["didNotFindHydratableTextInstanceWithinSuspenseInstance"];
-    public didNotFindHydratableSuspenseInstanceWithinSuspenseInstance: HydrationReconcilerConfig["didNotFindHydratableSuspenseInstanceWithinSuspenseInstance"];
-    public didNotFindHydratableInstance: HydrationReconcilerConfig["didNotFindHydratableInstance"];
-    public didNotFindHydratableTextInstance: HydrationReconcilerConfig["didNotFindHydratableTextInstance"];
-    public didNotFindHydratableSuspenseInstance: HydrationReconcilerConfig["didNotFindHydratableSuspenseInstance"];
-    public errorHydratingContainer: HydrationReconcilerConfig["errorHydratingContainer"];
+    public isHydratableText: HydrationReconcilerConfig[ "isHydratableText" ];
+    public isSuspenseInstancePending: HydrationReconcilerConfig[ "isSuspenseInstancePending" ];
+    public isSuspenseInstanceFallback: HydrationReconcilerConfig[ "isSuspenseInstanceFallback" ];
+    public getSuspenseInstanceFallbackErrorDetails: HydrationReconcilerConfig[ "getSuspenseInstanceFallbackErrorDetails" ];
+    public registerSuspenseInstanceRetry: HydrationReconcilerConfig[ "registerSuspenseInstanceRetry" ];
+    public canHydrateFormStateMarker: HydrationReconcilerConfig[ "canHydrateFormStateMarker" ];
+    public isFormStateMarkerMatching: HydrationReconcilerConfig[ "isFormStateMarkerMatching" ];
+    public getNextHydratableSibling: HydrationReconcilerConfig[ "getNextHydratableSibling" ];
+    public getFirstHydratableChild: HydrationReconcilerConfig[ "getFirstHydratableChild" ];
+    public getFirstHydratableChildWithinContainer: HydrationReconcilerConfig[ "getFirstHydratableChildWithinContainer" ];
+    public getFirstHydratableChildWithinSuspenseInstance: HydrationReconcilerConfig[ "getFirstHydratableChildWithinSuspenseInstance" ];
+    public canHydrateInstance: HydrationReconcilerConfig[ "canHydrateInstance" ];
+    public canHydrateTextInstance: HydrationReconcilerConfig[ "canHydrateTextInstance" ];
+    public canHydrateSuspenseInstance: HydrationReconcilerConfig[ "canHydrateSuspenseInstance" ];
+    public hydrateInstance: HydrationReconcilerConfig[ "hydrateInstance" ];
+    public hydrateTextInstance: HydrationReconcilerConfig[ "hydrateTextInstance" ];
+    public hydrateSuspenseInstance: HydrationReconcilerConfig[ "hydrateSuspenseInstance" ];
+    public getNextHydratableInstanceAfterSuspenseInstance: HydrationReconcilerConfig[ "getNextHydratableInstanceAfterSuspenseInstance" ];
+    public commitHydratedContainer: HydrationReconcilerConfig[ "commitHydratedContainer" ];
+    public commitHydratedSuspenseInstance: HydrationReconcilerConfig[ "commitHydratedSuspenseInstance" ];
+    public clearSuspenseBoundary: HydrationReconcilerConfig[ "clearSuspenseBoundary" ];
+    public clearSuspenseBoundaryFromContainer: HydrationReconcilerConfig[ "clearSuspenseBoundaryFromContainer" ];
+    public shouldDeleteUnhydratedTailInstances: HydrationReconcilerConfig[ "shouldDeleteUnhydratedTailInstances" ];
+    public didNotMatchHydratedContainerTextInstance: HydrationReconcilerConfig[ "didNotMatchHydratedContainerTextInstance" ];
+    public didNotMatchHydratedTextInstance: HydrationReconcilerConfig[ "didNotMatchHydratedTextInstance" ];
+    public didNotHydrateInstanceWithinContainer: HydrationReconcilerConfig[ "didNotHydrateInstanceWithinContainer" ];
+    public didNotHydrateInstanceWithinSuspenseInstance: HydrationReconcilerConfig[ "didNotHydrateInstanceWithinSuspenseInstance" ];
+    public didNotHydrateInstance: HydrationReconcilerConfig[ "didNotHydrateInstance" ];
+    public didNotFindHydratableInstanceWithinContainer: HydrationReconcilerConfig[ "didNotFindHydratableInstanceWithinContainer" ];
+    public didNotFindHydratableTextInstanceWithinContainer: HydrationReconcilerConfig[ "didNotFindHydratableTextInstanceWithinContainer" ];
+    public didNotFindHydratableSuspenseInstanceWithinContainer: HydrationReconcilerConfig[ "didNotFindHydratableSuspenseInstanceWithinContainer" ];
+    public didNotFindHydratableInstanceWithinSuspenseInstance: HydrationReconcilerConfig[ "didNotFindHydratableInstanceWithinSuspenseInstance" ];
+    public didNotFindHydratableTextInstanceWithinSuspenseInstance: HydrationReconcilerConfig[ "didNotFindHydratableTextInstanceWithinSuspenseInstance" ];
+    public didNotFindHydratableSuspenseInstanceWithinSuspenseInstance: HydrationReconcilerConfig[ "didNotFindHydratableSuspenseInstanceWithinSuspenseInstance" ];
+    public didNotFindHydratableInstance: HydrationReconcilerConfig[ "didNotFindHydratableInstance" ];
+    public didNotFindHydratableTextInstance: HydrationReconcilerConfig[ "didNotFindHydratableTextInstance" ];
+    public didNotFindHydratableSuspenseInstance: HydrationReconcilerConfig[ "didNotFindHydratableSuspenseInstance" ];
+    public errorHydratingContainer: HydrationReconcilerConfig[ "errorHydratingContainer" ];
     // -------------------
     //      Resource (optional)
     // -------------------
-    public isHostHoistableType: ResourceReconcilerConfig["isHostHoistableType"];
-    public getHoistableRoot: ResourceReconcilerConfig["getHoistableRoot"];
-    public getResource: ResourceReconcilerConfig["getResource"];
-    public acquireResource: ResourceReconcilerConfig["acquireResource"];
-    public releaseResource: ResourceReconcilerConfig["releaseResource"];
-    public hydrateHoistable: ResourceReconcilerConfig["hydrateHoistable"];
-    public mountHoistable: ResourceReconcilerConfig["mountHoistable"];
-    public unmountHoistable: ResourceReconcilerConfig["unmountHoistable"];
-    public createHoistableInstance: ResourceReconcilerConfig["createHoistableInstance"];
-    public prepareToCommitHoistables: ResourceReconcilerConfig["prepareToCommitHoistables"];
-    public mayResourceSuspendCommit: ResourceReconcilerConfig["mayResourceSuspendCommit"];
-    public preloadResource: ResourceReconcilerConfig["preloadResource"];
-    public suspendResource: ResourceReconcilerConfig["suspendResource"];
+    public isHostHoistableType: ResourceReconcilerConfig[ "isHostHoistableType" ];
+    public getHoistableRoot: ResourceReconcilerConfig[ "getHoistableRoot" ];
+    public getResource: ResourceReconcilerConfig[ "getResource" ];
+    public acquireResource: ResourceReconcilerConfig[ "acquireResource" ];
+    public releaseResource: ResourceReconcilerConfig[ "releaseResource" ];
+    public hydrateHoistable: ResourceReconcilerConfig[ "hydrateHoistable" ];
+    public mountHoistable: ResourceReconcilerConfig[ "mountHoistable" ];
+    public unmountHoistable: ResourceReconcilerConfig[ "unmountHoistable" ];
+    public createHoistableInstance: ResourceReconcilerConfig[ "createHoistableInstance" ];
+    public prepareToCommitHoistables: ResourceReconcilerConfig[ "prepareToCommitHoistables" ];
+    public mayResourceSuspendCommit: ResourceReconcilerConfig[ "mayResourceSuspendCommit" ];
+    public preloadResource: ResourceReconcilerConfig[ "preloadResource" ];
+    public suspendResource: ResourceReconcilerConfig[ "suspendResource" ];
     // -------------------
     //      Singleton (optional)
     // -------------------
-    public resolveSingletonInstance: SingletonReconcilerConfig["resolveSingletonInstance"];
-    public clearSingleton: SingletonReconcilerConfig["clearSingleton"];
-    public acquireSingletonInstance: SingletonReconcilerConfig["acquireSingletonInstance"];
-    public releaseSingletonInstance: SingletonReconcilerConfig["releaseSingletonInstance"];
-    public isHostSingletonType: SingletonReconcilerConfig["isHostSingletonType"];
+    public resolveSingletonInstance: SingletonReconcilerConfig[ "resolveSingletonInstance" ];
+    public clearSingleton: SingletonReconcilerConfig[ "clearSingleton" ];
+    public acquireSingletonInstance: SingletonReconcilerConfig[ "acquireSingletonInstance" ];
+    public releaseSingletonInstance: SingletonReconcilerConfig[ "releaseSingletonInstance" ];
+    public isHostSingletonType: SingletonReconcilerConfig[ "isHostSingletonType" ];
 
     private config: Partial<ReactReconcilerConfig> = {};
     private configInternal: ReactReconcilerConfig = {

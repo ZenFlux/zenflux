@@ -36,6 +36,7 @@
         "react": "^18.2.0"
     },
     "dependencies": {
-        "@zenflux/react-scheduler": "workspace:*"
+        "@zenflux/react-scheduler": "workspace:*",
+        "@zenflux/react-shared": "workspace:*"
     }
 }

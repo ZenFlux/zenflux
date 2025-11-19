@@ -9,7 +9,7 @@ import ReactSharedInternals from "@zenflux/react-shared/src/react-shared-interna
 
 import { dispatchEventEx } from "@zenflux/react-dom-bindings/src/client/react-dom-event-listener-dispatch-ex";
 
-import type { EventSystemFlags} from "@zenflux/react-dom-bindings/src/events/EventSystemFlags";
+import type { EventSystemFlags } from "@zenflux/react-dom-bindings/src/events/EventSystemFlags";
 import type { AnyNativeEvent } from "@zenflux/react-dom-bindings/src/events/PluginModuleType";
 import type { DOMEventName } from "@zenflux/react-dom-bindings/src/events/DOMEventNames";
 

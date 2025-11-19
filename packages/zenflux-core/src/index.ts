@@ -1,7 +1,7 @@
 /**
  * @author Leonid Vinikov <leonidvinikov@gmail.com>
  */
-/* eslint-disable @zenflux/no-relative-imports,no-restricted-imports */
+
 import * as ZenCore from "./exports";
 
 // TODO: Only in development mode

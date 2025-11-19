@@ -27,7 +27,7 @@ function ensureZenfluxConfigDirectory() {
 }
 
 export default async function boot( args = process.argv.slice( 2 ) ) {
-    ConsoleManager.$.log( `(${ packageJSON.name }~v${ packageJSON.version }) Starting...`);
+    ConsoleManager.$.log( `(${ packageJSON.name }~v${ packageJSON.version }) Starting...` );
 
     // Ensure .z config directory exists
     ensureZenfluxConfigDirectory();

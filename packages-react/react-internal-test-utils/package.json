@@ -3,9 +3,14 @@
     "name": "@zenflux/react-internal-test-utils",
     "version": "0.0.0",
     "type": "module",
+    "exports": {
+        "./package.json": "./package.json",
+        "./src/*": "./src/*"
+    },
     "main": "./dist/zenflux-react-internal-test-utils.cjs",
     "types": "./src/index.ts",
     "dependencies": {
+        "@jest/expect-utils": "^29.7.0",
         "@zenflux/react-noop-renderer": "workspace:*",
         "@zenflux/react-scheduler": "workspace:*",
         "@zenflux/react-shared": "workspace:*",

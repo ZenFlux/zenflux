@@ -178,4 +178,3 @@ export default class Lint extends CommandConfigBase {
     }
 }
 
-

@@ -23,7 +23,7 @@ export class ConsoleThreadReceive extends ConsoleThreadFormat {
         DEFAULT_WORKER_CONSOLE_EVENTS.forEach( ( event ) => {
             worker.on( event, ( ... args: any[] ) => {
                 newConsole[ event ].call( newConsole, ... args );
-            });
+            } );
         } );
 
         return newConsole;
@@ -41,7 +41,7 @@ export class ConsoleThreadReceive extends ConsoleThreadFormat {
     }
 
     public getThreadId() {
-        return this.threadId.match(/\d+/)?.[ 0 ] ?? this.threadId;
+        return this.threadId.match( /\d+/ )?.[ 0 ] ?? this.threadId;
     }
 
     public getThreadCode(): string {

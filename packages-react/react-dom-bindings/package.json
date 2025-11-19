@@ -3,6 +3,10 @@
     "description": "React implementation details for react-dom.",
     "version": "18.2.0",
     "private": true,
+    "exports": {
+        "./package.json": "./package.json",
+        "./src/*": "./src/*"
+    },
     "main": "index.js",
     "repository": {
         "type": "git",
@@ -21,7 +25,9 @@
         "react": "^18.2.0"
     },
     "dependencies": {
-        "@zenflux/react-scheduler": "workspace:*"
+        "@zenflux/react-reconciler": "workspace:*",
+        "@zenflux/react-scheduler": "workspace:*",
+        "@zenflux/react-shared": "workspace:*"
     },
     "devDependencies": {
         "@types/react": "^18.2.45"

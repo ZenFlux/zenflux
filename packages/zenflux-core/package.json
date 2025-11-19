@@ -21,18 +21,27 @@
       "types": "./dist/zenflux-core.d.ts"
     },
     "./dist/src/*": "./src/*",
+    "./src/*": "./src/*",
     "./src/bases": "./src/bases/index.ts",
     "./src/clients": "./src/clients/index.ts",
     "./src/command-bases": "./src/command-bases/index.ts",
     "./src/errors": "./src/errors/index.ts",
     "./src/interfaces": "./src/interfaces/index.ts",
     "./src/managers": "./src/managers/index.ts",
+    "./src/modules/logger": "./src/modules/logger/index.ts",
     "./package.json": "./package.json"
   },
   "devDependencies": {
+    "@jest/globals": "^29.7.0",
     "@zenflux/cli": "workspace:*"
   },
   "publishConfig": {
     "access": "public"
+  },
+  "dependencies": {
+    "fastmcp": "^3.23.1",
+    "zod": "^4.1.12",
+    "picocolors": "^1.0.0",
+    "@zenflux/utils": "workspace:*"
   }
 }

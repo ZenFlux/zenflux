@@ -163,7 +163,7 @@ export class WorkerServer {
     private resolveRunnerPath() {
         try {
             return requireModule.resolve( "@zenflux/runner/src/index.js" );
-        } catch ( error ) {
+        } catch {
             const paths = [
                 ... ( process.env.PATH ? process.env.PATH.split( path.delimiter ) : [] ),
                 process.env.PWD ? path.join( process.env.PWD, "node_modules/.bin" ) : undefined,

@@ -15,6 +15,10 @@
     "./bin/cli.js": "./bin/cli.js",
     "./definitions": "./src/definitions.ts"
   },
+  "dependencies": {
+    "jest-config": "^29.7.0",
+    "@jest/core": "^29.7.0"
+  },
   "devDependencies": {
     "@zenflux/cli": "workspace:*",
     "@zenflux/utils": "workspace:*",

@@ -15,7 +15,7 @@ export const ChannelItemBreak: React.FC<{
     label: string;
     value: string;
     index: number;
-    allocation: ChannelState["allocation"];
+    allocation: ChannelState[ "allocation" ];
     onInputChange: ( index: number, value: string ) => void;
 }> = ( props ) => {
     const { label, index, allocation, onInputChange } = props,

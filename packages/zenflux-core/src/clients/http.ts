@@ -3,16 +3,16 @@
  *
  * @author Leonid Vinikov <leonidvinikov@gmail.com>
  */
-import { E_HTTP_METHOD_TYPE } from "@zenflux/core/src/interfaces";
+import { E_HTTP_METHOD_TYPE } from "../interfaces";
 
-import { ObjectBase } from "@zenflux/core/src/bases/object-base";
+import { ObjectBase } from "../bases/object-base";
 
 import type {
     ILogger,
     TErrorHandlerCallbackType,
     TResponseFilterCallbackType,
     TResponseHandlerCallbackType
-} from "@zenflux/core/src/interfaces";
+} from "../interfaces";
 
 // noinspection ExceptionCaughtLocallyJS
 

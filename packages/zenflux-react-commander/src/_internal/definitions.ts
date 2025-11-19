@@ -1,6 +1,5 @@
 import type React from "react";
 
-// eslint-disable-next-line no-restricted-imports, @zenflux/no-relative-imports
 import type {
     GET_INTERNAL_MATCH_SYMBOL,
     GET_INTERNAL_SYMBOL,
@@ -20,13 +19,13 @@ export type DCoreContext = {
 export type DCoreRegisterArgs = {
     componentNameUnique: string;
     componentName: string;
-    commands: DCommandSingleComponentContext["commands"];
+    commands: DCommandSingleComponentContext[ "commands" ];
     emitter: EventEmitter;
     isMounted(): boolean;
     key: React.Key;
-    getComponentContext: DCommandSingleComponentContext["getComponentContext"];
-    getState: DCommandSingleComponentContext["getState"];
-    setState: DCommandSingleComponentContext["setState"];
+    getComponentContext: DCommandSingleComponentContext[ "getComponentContext" ];
+    getState: DCommandSingleComponentContext[ "getState" ];
+    setState: DCommandSingleComponentContext[ "setState" ];
     lifecycleHandlers: any;
 };
 

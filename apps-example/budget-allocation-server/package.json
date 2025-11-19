@@ -3,6 +3,10 @@
   "version": "1.0.0",
   "description": "Fastify server for budget allocation app",
   "type": "module",
+  "exports": {
+    "./package.json": "./package.json",
+    "./src/*": "./src/*"
+  },
   "main": "dist/main.js",
   "scripts": {
     "demos:budget-allocation-server-build": "bun build src/main.ts --outdir=dist --target=node",
