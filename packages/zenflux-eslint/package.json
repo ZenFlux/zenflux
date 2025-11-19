@@ -2,7 +2,7 @@
   "name": "@zenflux/eslint",
   "author": "Leonid Vinikov <leonidvinikov@gmail.com> (https://github.com/iNewLegend)",
   "type": "module",
-  "version": "0.1.26",
+  "version": "0.1.27",
   "main": "src/main.js",
   "types": "types/main.d.ts",
   "bin": {

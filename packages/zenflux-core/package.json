@@ -1,6 +1,6 @@
 {
   "name": "@zenflux/core",
-  "version": "0.1.7",
+  "version": "0.1.8",
   "types": "dist/zenflux-core.d.ts",
   "type": "module",
   "files": [
