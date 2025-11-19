@@ -292,7 +292,9 @@ The tool supports publishing npm packages to a registry. It includes features fo
     - Determining if local npm will be used
     - Determining if the package is publishable
     - Asking the user for packages to publish
-    - Replacing **workspace** dependencies with corresponding **local** dependencies
+    - Replacing **workspace:** dependency ranges with concrete semver versions
+        - Uses the just-bumped local version when the dependency is part of the current publish batch
+        - Falls back to the latest version from the npm registry if no local version is available
     - Showing the user the packages/files that will be published
     - Asking the user for confirmation, and publishing the packages
       <br /><br />
@@ -385,4 +387,3 @@ The tool handles interactions with npm registries, creating a local npm registry
 
 ![image](https://github.com/ZenFlux/zenflux/assets/10234691/47dce715-f1a3-4309-a924-4e704894a35f)
 *Verbose mode for watching all React packages.*
-
