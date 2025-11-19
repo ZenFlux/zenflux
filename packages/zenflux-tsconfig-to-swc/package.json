@@ -1,6 +1,6 @@
 {
   "name": "@zenflux/tsconfig-to-swc",
-  "version": "0.1.8",
+  "version": "0.1.9",
   "description": "A tsconfig.json to swc.config.js converter",
   "type": "module",
   "main": "src/index",
