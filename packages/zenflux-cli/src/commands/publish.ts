@@ -289,20 +289,14 @@ export default class Publish extends CommandBase {
 
             let selectedVersion: string | null = null;
 
-            // If only local version exists, ask if it should be used as the version for the package.
-            if (
-                localVersion &&
-                await ConsoleManager.$.confirm( `    - > Do you want to use local version: '${ localVersion }' for ${ util.inspect( dependencyName ) } ?` )
-            ) {
+            if ( localVersion ) {
                 selectedVersion = localVersion;
-            }
-
-            if ( null === selectedVersion ) {
-                selectedVersion = await ConsoleManager.$.prompt( `    - > Please type the version you want use for ${ util.inspect( dependencyName ) }` );
-
-                if ( ! selectedVersion.length ) {
-                    throw new Error( `Invalid version: ${ util.inspect( selectedVersion ) }` );
-                }
+                ConsoleManager.$.log( `    - Selected concrete version from workspace: ${ selectedVersion }` );
+            } else if ( latestVersion ) {
+                selectedVersion = latestVersion;
+                ConsoleManager.$.log( `    - Selected concrete version from registry: ${ selectedVersion }` );
+            } else {
+                throw new Error( `Unable to resolve version for ${ dependencyName }, please ensure it has a version locally or remotely.` );
             }
 
             // Update dependency version for current package.

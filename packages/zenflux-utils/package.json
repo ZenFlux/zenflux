@@ -1,6 +1,6 @@
 {
   "name": "@zenflux/utils",
-  "version": "0.1.5",
+  "version": "0.1.11",
   "type": "module",
   "publishConfig": {
     "access": "public"

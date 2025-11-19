@@ -5,6 +5,7 @@ import * as fs from "node:fs";
 import { fileURLToPath } from "node:url";
 
 import * as path from "path";
+import { createRequire } from "node:module";
 
 import { Worker as NodeWorker } from "node:worker_threads";
 
@@ -22,6 +23,8 @@ import type {
     DWorkerState,
     DWorkerTaskWithWorkPath
 } from "@zenflux/worker/definitions";
+
+const requireModule = createRequire( import.meta.url );
 
 const workerIds = new Map<string, boolean>();
 
@@ -70,22 +73,19 @@ export class WorkerServer {
     }
 
     public async initialize() {
-        const runnerTarget = path.join( path.dirname( fileURLToPath( import.meta.url ) ), DEFAULT_WORKER_CLIENT ),
-            paths = [
-                ... process.env.PATH!.split( path.delimiter ),
-                process.env.PWD + "/node_modules/.bin",
-            ],
-            binPath = paths.find( ( p: string ) =>
-                p.endsWith( "node_modules/.bin" ) && fs.existsSync( path.resolve( p, "@z-runner" ) )
-            );
+        const runnerTarget = path.join( path.dirname( fileURLToPath( import.meta.url ) ), DEFAULT_WORKER_CLIENT );
 
-        if ( ! binPath ) {
-            throw new Error( `'@z-runner' not found in PATHs: ${ util.inspect( paths ) }` );
-        }
-
-        const runnerPath = path.resolve( binPath, "@z-runner" );
+        const runnerPath = this.resolveRunnerPath();
 
         process.env.Z_RUN_TARGET = runnerTarget;
+
+        if ( ! process.env.Z_RUN_TSCONFIG_PATH ) {
+            const workspaceTsConfig = path.resolve( process.cwd(), "tsconfig.json" );
+
+            if ( fs.existsSync( workspaceTsConfig ) ) {
+                process.env.Z_RUN_TSCONFIG_PATH = workspaceTsConfig;
+            }
+        }
 
         const argv = [];
 
@@ -158,6 +158,27 @@ export class WorkerServer {
         } );
 
         return this.createPromise.await;
+    }
+
+    private resolveRunnerPath() {
+        try {
+            return requireModule.resolve( "@zenflux/runner/src/index.js" );
+        } catch ( error ) {
+            const paths = [
+                ... ( process.env.PATH ? process.env.PATH.split( path.delimiter ) : [] ),
+                process.env.PWD ? path.join( process.env.PWD, "node_modules/.bin" ) : undefined,
+            ].filter( Boolean ) as string[];
+
+            const binPath = paths.find( ( p: string ) =>
+                p.endsWith( "node_modules/.bin" ) && fs.existsSync( path.resolve( p, "@z-runner" ) )
+            );
+
+            if ( ! binPath ) {
+                throw new Error( `'@z-runner' not found in PATHs: ${ util.inspect( paths ) }` );
+            }
+
+            return path.resolve( binPath, "@z-runner" );
+        }
     }
 
     protected errorInternal( error: Error ) {
