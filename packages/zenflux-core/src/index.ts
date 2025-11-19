@@ -1,7 +1,8 @@
 /**
  * @author Leonid Vinikov <leonidvinikov@gmail.com>
  */
-import * as ZenCore from "@zenflux/core/src/exports";
+/* eslint-disable @zenflux/no-relative-imports,no-restricted-imports */
+import * as ZenCore from "./exports";
 
 // TODO: Only in development mode
 if ( ! globalThis?.zCore ) {
@@ -12,6 +13,6 @@ declare global {
     var zCore: typeof ZenCore;
 }
 
-export * from "@zenflux/core/src/exports-index";
+export * from "./exports-index";
 
 export default ZenCore;

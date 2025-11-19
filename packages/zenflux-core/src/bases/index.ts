@@ -1,2 +1,6 @@
-export { ControllerBase } from "@zenflux/core/src/bases/controller-base";
-export { ObjectBase } from "@zenflux/core/src/bases/object-base";
+/**
+ * @author Leonid Vinikov <leonidvinikov@gmail.com>
+ */
+/* eslint-disable no-restricted-imports */
+export { ControllerBase } from "./controller-base";
+export { ObjectBase } from "./object-base";
