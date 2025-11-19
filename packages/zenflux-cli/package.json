@@ -1,6 +1,6 @@
 {
     "name": "@zenflux/cli",
-    "version": "0.1.17",
+    "version": "0.1.19",
     "type": "module",
     "types": "./types/index.d.ts",
     "bin": {
@@ -15,7 +15,9 @@
         "src",
         "types",
         "tsconfig.json",
-        "tsconfig.paths.json"
+        "tsconfig.eslint.json",
+        "tsconfig.paths.json",
+        "tsconfig.types.json"
     ],
     "dependencies": {
         "@microsoft/api-extractor": "^7.53.2",
