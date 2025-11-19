@@ -3,6 +3,7 @@ declare module "picocolors" {
         ( input: string ): string;
         red( input: string ): string;
         blue( input: string ): string;
+        green( input: string ): string;
         yellow( input: string ): string;
         gray( input: string ): string;
         white( input: string ): string;

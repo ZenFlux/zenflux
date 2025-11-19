@@ -31,13 +31,10 @@ export abstract class CommandBase {
             return;
         }
 
-        this.initializePromise = this.initialize?.() ?? Promise.resolve();
-
-        this.initializePromise.then( () => {
-            // Allow to override paths in the child class.
+        this.initializePromise = ( async () => {
+            await ( this.initialize?.() ?? Promise.resolve() );
             this.paths = zGlobalInitPaths( this.initPathsArgs );
-        } );
-
+        } )();
     }
 
     public showHelp( name = this.options.name, optionsText = "options" ): void {

@@ -8,8 +8,6 @@ import { Logger } from "./logger";
 
 import { ObjectBase } from "../bases/object-base";
 
-import type { PermissionOverwriteManager, PermissionOverwrites } from "discord.js";
-
 // Define options interface for Debugger
 interface DebuggerOptions {
     skipEventBusHook?: boolean;
@@ -44,8 +42,6 @@ export class Debugger extends ObjectBase {
             // Bypass all the methods
             this.log = () => {};
             this.dumpDown = () => {};
-            this.debugPermission = () => {};
-            this.debugPermissions = () => {};
             this.enableCleanupDebug = () => {};
         }
     }
@@ -79,26 +75,6 @@ export class Debugger extends ObjectBase {
             source,
             `${ objectName ? objectName + ":" : "" } ` + "🔽" + "\n" + pc.green( util.inspect( object, false, null, true ) )
         );
-    }
-
-    public debugPermission( source: Function, overwrite: PermissionOverwrites ) {
-        let { id, allow, deny, type } = overwrite;
-
-        this.log(
-            source,
-            JSON.stringify( {
-                id,
-                allow: allow.toArray(),
-                deny: deny.toArray(),
-                type
-            } )
-        );
-    }
-
-    public debugPermissions( source: Function, permissionOverwrites: PermissionOverwriteManager ) {
-        for ( const overwrite of permissionOverwrites.cache.values() ) {
-            this.debugPermission( source, overwrite );
-        }
     }
 
     public isEnabled() {
