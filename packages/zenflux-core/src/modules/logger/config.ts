@@ -6,12 +6,13 @@ const DEFAULT_LOG_LEVEL = "5";
 function getEnvVar( key: string ): string | undefined {
     // Node / SSR
     if ( typeof process !== "undefined" && process?.env ) {
-        return process.env[ key ];
+        return process.env[ key ] ?? process.env[ `VITE_${ key }` ];
     }
 
     // Vite / ESM build-time injected env
     if ( typeof import.meta !== "undefined" && ( import.meta as any ).env ) {
-        return ( import.meta as any ).env[ key ];
+        const env = ( import.meta as any ).env;
+        return env[ key ] ?? env[ `VITE_${ key }` ];
     }
 
     return undefined;
@@ -24,6 +25,11 @@ export function getLoggerDefaultLevel(): string {
 export function getLoggerLogLevel(): number {
     const raw = getEnvVar( "LOGGER_LOG_LEVEL" );
     return parseInt( raw ?? DEFAULT_LOG_LEVEL, 10 );
+}
+
+export function getLoggerTimeFormat(): string {
+    // Example: "[Y-M-D h:m:s]" or "Y/M/D". Empty string disables timestamp prefix.
+    return ( getEnvVar( "LOGGER_TIME_FORMAT" ) || "" ).trim();
 }
 
 export function getLoggerLogLevelString(): string {

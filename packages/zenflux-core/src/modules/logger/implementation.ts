@@ -1,11 +1,9 @@
 import pc from "picocolors";
 
-import { EventBus } from "../event-bus/event-bus";
-import { ObjectBase } from "../../bases";
-
 import {
     getLoggerLogLevel,
     getLoggerLogLevelString,
+    getLoggerTimeFormat,
     isLoggerDebugEnabled,
     isLoggerDisabled,
     isLoggerPreviousSourceDisabled
@@ -14,6 +12,9 @@ import {
 import { LoggerBrowserInfra } from "./logger-browser-infra";
 
 import { reduceCircularReferences } from "./utils";
+
+import { ObjectBase } from "../../bases";
+import { EventBus } from "../event-bus/event-bus";
 
 import type * as interfaces from "../../interfaces";
 
@@ -35,12 +36,21 @@ interface LoggerOptions {
 
 export class Logger extends LoggerBrowserInfra implements interfaces.ILogger {
     private static lastLogTime: number = Date.now();
+    private static timestampFormat: string = getLoggerTimeFormat();
 
     private readonly ownerName: string;
 
     private messagePrefixes: string[] = [];
 
     private config: LoggerOptions = {};
+
+    public static setTimestampFormat( format: string ) {
+        Logger.timestampFormat = ( format || "" ).trim();
+    }
+
+    public static getTimestampFormat() {
+        return Logger.timestampFormat;
+    }
 
     public static getName(): string {
         return "ZenFlux/Core/Modules/Logger";
@@ -273,15 +283,45 @@ export class Logger extends LoggerBrowserInfra implements interfaces.ILogger {
 
         const timeDiff = ( Date.now() - Logger.lastLogTime ).toString().padStart( 4, "0" );
 
+        const timeFormat = Logger.getTimestampFormat();
+        const timestamp = timeFormat ? this.formatTime( new Date(), timeFormat ) : "";
+
         this.outputEvent( prefix, timeDiff, source, messagePrefix, message, params );
 
-        const output = `${ prefix }[+${ timeDiff }ms][${ source }]${ messagePrefix }: ${ message }`;
+        const timestampPart = timestamp ? `${ timestamp } ` : "";
+        const output = `${ timestampPart }${ prefix }[+${ timeDiff }ms][${ source }]${ messagePrefix }: ${ message }`;
 
         console.log( output, ...params );
 
         Logger.lastLogTime = Date.now();
     }
+
+    private formatTime( date: Date, format: string ): string {
+        // Supported tokens (longest matched first):
+        //   YYYY / Y  year
+        //   M        month (01-12)
+        //   D        day (01-31)
+        //   HH / hh  hours 00-23
+        //   mm       minutes 00-59
+        //   ss       seconds 00-59
+        //   SSS / S  milliseconds (000-999)
+        const pad = ( num: number, size = 2 ) => num.toString().padStart( size, "0" );
+
+        const tokens: Record<string, string> = {
+            "YYYY": date.getFullYear().toString(),
+            "Y": date.getFullYear().toString(),
+            "M": pad( date.getMonth() + 1 ),
+            "D": pad( date.getDate() ),
+            "HH": pad( date.getHours() ),
+            "hh": pad( date.getHours() ),
+            "mm": pad( date.getMinutes() ),
+            "ss": pad( date.getSeconds() ),
+            "SSS": pad( date.getMilliseconds(), 3 ),
+            "S": pad( date.getMilliseconds(), 3 ),
+        };
+
+        return format.replace( /YYYY|HH|hh|mm|ss|SSS|Y|M|D|S|h|m|s/g, ( token ) => tokens[ token ] ?? token );
+    }
 }
 
 export default Logger;
-
