@@ -1,7 +1,7 @@
 {
   "name": "@zenflux/typescript-vm",
   "description": "A simple VM for running Typescript code in a NodeJS environment, with favor of tsconfig.json",
-  "version": "0.1.18",
+  "version": "0.1.19",
   "type": "module",
   "files": [
     "src",

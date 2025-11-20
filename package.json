@@ -26,6 +26,7 @@
         "@z-workspace:eslint": "eslint .",
         "@z-workspace:eslint:bun": "bunx --bun eslint .",
         "@z-workspace:dev": "@z-cli @watch --dev",
+        "@z-workspace:packages": "bun run @z-cli @watch --verbose --filter \"packages/*\"",
         "@z-workspace:core-packages:typescheck": "bun run @z-cli @typecheck --workspace \"(?:^|[\\\\\\\\/])packages(?:[\\\\\\\\/]|$)\", --verbose --debug",
         "@z-workspace:core:build": "@z-cli @build --workspace core",
         "@z-workspace:react:build": "@z-cli @build --workspace react-* --dev",

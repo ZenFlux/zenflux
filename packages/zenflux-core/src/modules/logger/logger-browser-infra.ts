@@ -13,6 +13,34 @@ import { ObjectBase } from "../../bases/object-base";
 
 import type * as interfaces from "../../interfaces";
 
+export type LoggerOutputLevel = "log" | "info" | "debug" | "warn" | "error" | "admin";
+
+export interface LoggerOutputFormat {
+    format: string;
+    styles: string[];
+}
+
+export interface LoggerOutputMetadata {
+    id?: string;
+    level?: LoggerOutputLevel;
+    namespace?: string;
+    callerName?: string;
+    message?: string;
+    messagePrefix?: string;
+    payload?: unknown;
+    timestamp?: number;
+    formatted?: LoggerOutputFormat;
+}
+
+export interface LoggerOutputEvent {
+    logger: LoggerBrowserInfra;
+    namespace: string;
+    args: any[];
+    metadata?: LoggerOutputMetadata;
+}
+
+export type LoggerOutputSubscriber = ( event: LoggerOutputEvent ) => void;
+
 // TODO: Should by dynamic/configure-able.
 const MAX_MAPPING_RECURSIVE_DEPTH = 4,
     UNKNOWN_CALLER_NAME = "anonymous function";
@@ -27,6 +55,8 @@ export abstract class LoggerBrowserInfra extends ObjectBase {
     public static colorsOwners: { [ key: string ]: string } = {};
     public static colorsUsed: string[] = [];
 
+    private static outputSubscribers = new Set<LoggerOutputSubscriber>();
+
     public defaultStyle: string[];
 
     protected readonly owner: ObjectBase | typeof ObjectBase | string;
@@ -38,6 +68,7 @@ export abstract class LoggerBrowserInfra extends ObjectBase {
     protected color: string;
 
     private outputHandler: Function = console.log;
+    private pendingOutputMetadata?: LoggerOutputMetadata;
 
     public static getName() {
         return "ZenFlux/Logging/Modules/LoggerBrowserInfra";
@@ -51,6 +82,15 @@ export abstract class LoggerBrowserInfra extends ObjectBase {
         LoggerBrowserInfra.mapperDepth = 0;
         LoggerBrowserInfra.colorsUsed = [];
         LoggerBrowserInfra.colorsOwners = {};
+        LoggerBrowserInfra.outputSubscribers.clear();
+    }
+
+    public static attachOutputSubscriber( subscriber: LoggerOutputSubscriber ) {
+        LoggerBrowserInfra.outputSubscribers.add( subscriber );
+
+        return () => {
+            LoggerBrowserInfra.outputSubscribers.delete( subscriber );
+        };
     }
 
     /**
@@ -152,10 +192,41 @@ export abstract class LoggerBrowserInfra extends ObjectBase {
 
     public output( ... args: any ) {
         this.outputHandler.apply( this, args );
+
+        if ( LoggerBrowserInfra.outputSubscribers.size === 0 ) {
+            return;
+        }
+
+        const event: LoggerOutputEvent = {
+            logger: this,
+            namespace: this.getOwnerName(),
+            args,
+            metadata: this.pendingOutputMetadata,
+        };
+
+        LoggerBrowserInfra.outputSubscribers.forEach( ( subscriber ) => {
+            try {
+                subscriber( event );
+            } catch ( error ) {
+                // eslint-disable-next-line no-console -- emitting errors here would create loops
+                console.error( "[ZenFlux][Logger] output subscriber failed", error );
+            }
+        } );
     }
 
     protected setOutputHandler( outputHandler: Function ) {
         this.outputHandler = outputHandler;
+    }
+
+    protected runWithOutputMetadata<T> ( metadata: LoggerOutputMetadata | undefined, callback: () => T ): T {
+        const previous = this.pendingOutputMetadata;
+        this.pendingOutputMetadata = metadata;
+
+        try {
+            return callback();
+        } finally {
+            this.pendingOutputMetadata = previous;
+        }
     }
 
     protected printFunctionNotify( prefix: string, caller: interfaces.TCaller, output: any ) {

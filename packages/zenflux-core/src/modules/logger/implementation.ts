@@ -9,7 +9,7 @@ import {
     isLoggerPreviousSourceDisabled
 } from "./config";
 
-import { LoggerBrowserInfra } from "./logger-browser-infra";
+import { LoggerBrowserInfra, type LoggerOutputFormat, type LoggerOutputMetadata, type LoggerOutputSubscriber } from "./logger-browser-infra";
 
 import { reduceCircularReferences } from "./utils";
 
@@ -24,6 +24,17 @@ const DEFAULT_LOG_PREFIX = pc.white( "⚪  - [LOG]" ),
     DEFAULT_WARN_PREFIX = pc.yellow( "🟡 - [WARN]" ),
     DEFAULT_ERROR_PREFIX = pc.red( "🔴 - [ERROR]" ),
     DEFAULT_ADMIN_PREFIX = pc.bold( "🟣 - [ADMIN]" );
+
+type LoggerLevel = "log" | "info" | "debug" | "warn" | "error" | "admin";
+
+const LEVEL_LABELS: Record<LoggerLevel, string> = {
+    log: "LOG",
+    info: "INFO",
+    debug: "DEBUG",
+    warn: "WARN",
+    error: "ERROR",
+    admin: "ADMIN",
+};
 
 const registeredNames: Record<string, boolean> = {};
 
@@ -62,6 +73,10 @@ export class Logger extends LoggerBrowserInfra implements interfaces.ILogger {
 
     public static getLogLevel(): number {
         return getLoggerLogLevel();
+    }
+
+    public static attachOutputListener( listener: LoggerOutputSubscriber ) {
+        return LoggerBrowserInfra.attachOutputSubscriber( listener );
     }
 
     public static isDebugEnabled() {
@@ -121,27 +136,27 @@ export class Logger extends LoggerBrowserInfra implements interfaces.ILogger {
     }
 
     public log( caller: ICaller, message: string, ...params: any[] ): void {
-        this.writeLog( DEFAULT_LOG_PREFIX, caller, message, ...params );
+        this.writeLog( "log", DEFAULT_LOG_PREFIX, caller, message, ...params );
     }
 
     public info( caller: ICaller, message: string, ...params: any[] ): void {
-        this.writeLog( DEFAULT_INFO_PREFIX, caller, message, ...params );
+        this.writeLog( "info", DEFAULT_INFO_PREFIX, caller, message, ...params );
     }
 
     public debug( caller: ICaller, message: string, ...params: any[] ): void {
-        this.writeLog( DEFAULT_DEBUG_PREFIX, caller, message, ...params );
+        this.writeLog( "debug", DEFAULT_DEBUG_PREFIX, caller, message, ...params );
     }
 
     public warn( caller: ICaller, message: string, ...params: any[] ): void {
-        this.writeLog( DEFAULT_WARN_PREFIX, caller, message, ...params );
+        this.writeLog( "warn", DEFAULT_WARN_PREFIX, caller, message, ...params );
     }
 
     public error( caller: ICaller, message: string, ...params: any[] ): void {
-        this.writeLog( DEFAULT_ERROR_PREFIX, caller, message, ...params );
+        this.writeLog( "error", DEFAULT_ERROR_PREFIX, caller, message, ...params );
     }
 
     public admin( caller: ICaller, message: string, ...params: any[] ): void {
-        this.writeLog( DEFAULT_ADMIN_PREFIX, caller, message, ...params );
+        this.writeLog( "admin", DEFAULT_ADMIN_PREFIX, caller, message, ...params );
     }
 
     public startsEmpty( caller: interfaces.TCaller ) {
@@ -272,8 +287,9 @@ export class Logger extends LoggerBrowserInfra implements interfaces.ILogger {
         return previousSource;
     }
 
-    private writeLog( prefix: string, caller: ICaller, message: string, ...params: any[] ): void {
-        const source = this.getPreviousSource() + pc.white( `${ this.ownerName }::${ this.getCallerName( caller ) }` );
+    private writeLog( level: LoggerLevel, prefix: string, caller: ICaller, message: string, ...params: any[] ): void {
+        const callerName = this.getCallerName( caller );
+        const source = this.getPreviousSource() + pc.white( `${ this.ownerName }::${ callerName }` );
 
         let messagePrefix = "";
 
@@ -281,19 +297,45 @@ export class Logger extends LoggerBrowserInfra implements interfaces.ILogger {
             messagePrefix = `[${ this.messagePrefixes.join( "][" ) }]`;
         }
 
-        const timeDiff = ( Date.now() - Logger.lastLogTime ).toString().padStart( 4, "0" );
+        const timestampValue = Date.now();
+        const timeDiff = ( timestampValue - Logger.lastLogTime ).toString().padStart( 4, "0" );
 
         const timeFormat = Logger.getTimestampFormat();
-        const timestamp = timeFormat ? this.formatTime( new Date(), timeFormat ) : "";
+        const timestamp = timeFormat ? this.formatTime( new Date( timestampValue ), timeFormat ) : "";
 
         this.outputEvent( prefix, timeDiff, source, messagePrefix, message, params );
 
         const timestampPart = timestamp ? `${ timestamp } ` : "";
         const output = `${ timestampPart }${ prefix }[+${ timeDiff }ms][${ source }]${ messagePrefix }: ${ message }`;
 
-        console.log( output, ...params );
+        const formatted = this.createBrowserFormat( level, callerName, messagePrefix, message );
+        const metadata: LoggerOutputMetadata = {
+            id: `${ timestampValue }-${ Math.random().toString( 16 ).slice( 2 ) }`,
+            level,
+            namespace: this.ownerName,
+            callerName,
+            message,
+            messagePrefix,
+            payload: params.length === 0 ? undefined : ( params.length === 1 ? params[ 0 ] : params ),
+            timestamp: timestampValue,
+            formatted,
+        };
 
-        Logger.lastLogTime = Date.now();
+        this.runWithOutputMetadata( metadata, () => {
+            this.output( output, ...params );
+        } );
+
+        Logger.lastLogTime = timestampValue;
+    }
+
+    private createBrowserFormat( level: LoggerLevel, callerName: string, messagePrefix: string, message: string ): LoggerOutputFormat {
+        const prefixLabel = LEVEL_LABELS[ level ] || level.toUpperCase();
+        const prefixPart = messagePrefix ? `${ messagePrefix } ` : "";
+
+        return {
+            format: `%c(${ prefixLabel })-> %c%c${ this.ownerName }%c::%c${ callerName }%c() ${ prefixPart }${ message }%c`,
+            styles: [ ...this.defaultStyle ],
+        };
     }
 
     private formatTime( date: Date, format: string ): string {
