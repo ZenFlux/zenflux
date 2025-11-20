@@ -39,6 +39,7 @@ Its value proposition lies in its ability to streamline the development workflow
 
 This repository is a monorepo that contains the following packages:
 
+- [`zenflux-core`](https://github.com/ZenFlux/zenflux/tree/main/packages/zenflux-core): Core runtime for commands, controllers, REST modules, logging, and error handling utilities.
 - [`zenflux-cli`](https://github.com/ZenFlux/zenflux/tree/main/packages/zenflux-cli): A CLI tool that offers functionalities related to building, publishing, watching monorepo workspaces, and generating projects from templates.
 - [`zenflux-eslint`](https://github.com/ZenFlux/zenflux/tree/main/packages/zenflux-eslint): An ESLint configuration for the ZenFlux ecosystem.
 - [`zenflux-jest`](https://github.com/ZenFlux/zenflux/tree/main/packages/zenflux-jest): A Jest runner designed for the monorepo workspaces.
