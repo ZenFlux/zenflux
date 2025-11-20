@@ -12,7 +12,12 @@ const config: IZConfig = {
 
     inputDtsPath: "dist/src/index.d.ts",
     outputDtsPath: "dist/zenflux-core.d.ts",
-    importsDtsReplace: ["/src/", "/dist/src/"]
+    importsDtsReplace: ["/src/", "/dist/src/"],
+
+    external: [
+        "react",
+        "react-dom",
+    ]
 };
 
 export default config;

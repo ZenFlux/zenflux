@@ -1,6 +1,40 @@
-import EventEmitter from "events";
-
 import { ObjectBase } from "../../bases/object-base";
+
+// Minimal event emitter that works in both Node and the browser.
+class SimpleEventEmitter {
+    private listeners = new Map<string, Set<Function>>();
+
+    on( event: string, callback: Function ) {
+        if ( ! this.listeners.has( event ) ) {
+            this.listeners.set( event, new Set() );
+        }
+
+        this.listeners.get( event )!.add( callback );
+    }
+
+    off( event: string, callback: Function ) {
+        this.listeners.get( event )?.delete( callback );
+    }
+
+    emit( event: string, ...args: any[] ) {
+        const callbacks = this.listeners.get( event );
+
+        if ( ! callbacks || callbacks.size === 0 ) {
+            return false;
+        }
+
+        callbacks.forEach( ( cb ) => cb( ...args ) );
+        return true;
+    }
+
+    removeAllListeners( event: string ) {
+        this.listeners.delete( event );
+    }
+
+    eventNames() {
+        return Array.from( this.listeners.keys() );
+    }
+}
 
 export class EventBus extends ObjectBase {
     protected static instance: EventBus | null = null;
@@ -13,7 +47,7 @@ export class EventBus extends ObjectBase {
         }
     >();
 
-    private eventEmitter = new EventEmitter();
+    private eventEmitter = new SimpleEventEmitter();
 
     private lastEmittedEvents = new Map<string, any[]>();
 

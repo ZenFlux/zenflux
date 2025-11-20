@@ -7,9 +7,9 @@
  *      - https://stackoverflow.com/questions/41961037/is-there-a-way-to-detect-if-chromes-devtools-are-using-dark-mode
  *      - Maybe 'zenflux-logging` should be chrome extension.
  */
-import { ObjectBase } from "../../bases/object-base";
+import { reduceCircularReferences } from "./utils";
 
-import { getHexColorDelta, reduceCircularReferences } from "./utils";
+import { ObjectBase } from "../../bases/object-base";
 
 import type * as interfaces from "../../interfaces";
 
@@ -135,8 +135,6 @@ export abstract class LoggerBrowserInfra extends ObjectBase {
             this.color = LoggerBrowserInfra.colorsOwners[ ownerName ];
         } else {
             this.color = this.getRandomColor();
-
-            LoggerBrowserInfra.colorsUsed.push( this.color );
         }
 
         LoggerBrowserInfra.colorsOwners[ ownerName ] = this.color;
@@ -271,16 +269,6 @@ export abstract class LoggerBrowserInfra extends ObjectBase {
             color += hex[ Math.floor( Math.random() * 16 ) ];
         }
 
-        let similar = LoggerBrowserInfra.colorsUsed.some( ( value ) => {
-            // it returns the ratio of difference... closer to 1.0 is less difference.
-            return getHexColorDelta( color, value ) >= 0.8;
-        } );
-
-        // if the color is similar, try again.
-        if ( similar ) {
-            return this.getRandomColor();
-        }
-
         return color;
     }
 
@@ -303,4 +291,3 @@ export abstract class LoggerBrowserInfra extends ObjectBase {
         return fReturn;
     }
 }
-

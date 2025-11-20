@@ -1,13 +1,29 @@
-import process from "process";
-
 const DEFAULT_LOG_LEVEL = "5";
+
+// Note: avoid importing `process` so browser bundles (Vite) don't inject an
+// external shim that throws. Instead, safely peek at both process.env (Node)
+// and import.meta.env (bundlers) when present.
+function getEnvVar( key: string ): string | undefined {
+    // Node / SSR
+    if ( typeof process !== "undefined" && process?.env ) {
+        return process.env[ key ];
+    }
+
+    // Vite / ESM build-time injected env
+    if ( typeof import.meta !== "undefined" && ( import.meta as any ).env ) {
+        return ( import.meta as any ).env[ key ];
+    }
+
+    return undefined;
+}
 
 export function getLoggerDefaultLevel(): string {
     return DEFAULT_LOG_LEVEL;
 }
 
 export function getLoggerLogLevel(): number {
-    return parseInt( process.env.LOGGER_LOG_LEVEL || DEFAULT_LOG_LEVEL, 10 );
+    const raw = getEnvVar( "LOGGER_LOG_LEVEL" );
+    return parseInt( raw ?? DEFAULT_LOG_LEVEL, 10 );
 }
 
 export function getLoggerLogLevelString(): string {
@@ -36,9 +52,9 @@ export function isLoggerDebugEnabled(): boolean {
 }
 
 export function isLoggerDisabled(): boolean {
-    return process.env.LOGGER_DISABLED === "true";
+    return getEnvVar( "LOGGER_DISABLED" ) === "true";
 }
 
 export function isLoggerPreviousSourceDisabled(): boolean {
-    return process.env.LOGGER_LOG_PREVIOUS_CALLER_SOURCE_DISABLED === "true";
+    return getEnvVar( "LOGGER_LOG_PREVIOUS_CALLER_SOURCE_DISABLED" ) === "true";
 }

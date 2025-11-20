@@ -1,7 +1,7 @@
 {
   "name": "@zenflux/jest",
   "type": "module",
-  "version": "0.1.16",
+  "version": "0.1.22",
   "publishConfig": {
     "access": "public"
   },

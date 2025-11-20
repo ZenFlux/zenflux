@@ -1,11 +1,10 @@
 {
   "name": "@zenflux/core",
-  "version": "0.1.9",
+  "version": "0.1.15",
   "types": "dist/zenflux-core.d.ts",
   "type": "module",
   "files": [
     "dist",
-    "src",
     "types"
   ],
   "scripts": {

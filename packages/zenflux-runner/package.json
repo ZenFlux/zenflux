@@ -1,6 +1,6 @@
 {
   "name": "@zenflux/runner",
-  "version": "0.0.8",
+  "version": "0.0.14",
   "description": "Running code in a sandboxed environment",
   "type": "module",
   "bin": {
