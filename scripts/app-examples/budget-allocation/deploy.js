@@ -32,6 +32,7 @@ const {
     DEPLOY_BUDGET_ALLOCATION_SSH_PORT,
     DEPLOY_BUDGET_ALLOCATION_SSH_USER,
     DEPLOY_BUDGET_ALLOCATION_SSH_PASS,
+    DEPLOY_BUDGET_ALLOCATION_SSH_KEY,
     DEPLOY_BUDGET_ALLOCATION_SSH_PWD,
     DEPLOY_BUDGET_ALLOCATION_PUBLIC_URL
 } = process.env;
@@ -48,6 +49,22 @@ for (const envVar of requiredEnvVars) {
     if (!process.env[envVar]) {
         console.error(`❌ Missing required environment variable: ${envVar}`);
         process.exit(1);
+    }
+}
+
+if ( !DEPLOY_BUDGET_ALLOCATION_SSH_PASS && !DEPLOY_BUDGET_ALLOCATION_SSH_KEY ) {
+    console.error( '❌ Either DEPLOY_BUDGET_ALLOCATION_SSH_PASS or DEPLOY_BUDGET_ALLOCATION_SSH_KEY must be provided' );
+    process.exit( 1 );
+}
+
+let privateKey;
+if ( DEPLOY_BUDGET_ALLOCATION_SSH_KEY ) {
+    try {
+        const SSH_KEY_PATH = DEPLOY_BUDGET_ALLOCATION_SSH_KEY.replace( '~', process.env.HOME );
+        privateKey = readFileSync( SSH_KEY_PATH );
+    } catch ( error ) {
+        console.error( `❌ Failed to read SSH key: ${ DEPLOY_BUDGET_ALLOCATION_SSH_KEY }`, error.message );
+        process.exit( 1 );
     }
 }
 
@@ -210,8 +227,13 @@ function uploadFiles() {
             host: DEPLOY_BUDGET_ALLOCATION_SSH_HOST,
             port: parseInt(DEPLOY_BUDGET_ALLOCATION_SSH_PORT),
             username: DEPLOY_BUDGET_ALLOCATION_SSH_USER,
-            password: DEPLOY_BUDGET_ALLOCATION_SSH_PASS,
         };
+
+        if ( privateKey ) {
+            sshConfig.privateKey = privateKey;
+        } else if ( DEPLOY_BUDGET_ALLOCATION_SSH_PASS ) {
+            sshConfig.password = DEPLOY_BUDGET_ALLOCATION_SSH_PASS;
+        }
         
         console.log('\n🔐 Connecting to server...');
         conn.connect(sshConfig);
@@ -232,5 +254,3 @@ async function deploy() {
 
 // Run deployment
 deploy();
-
-

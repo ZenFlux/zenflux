@@ -100,6 +100,10 @@ export function zLintDefaultConfig( files, workspaces ) {
                                 "group": [ "../node_modules/*", "**/node_modules/*" ],
                                 "message": "Do not import from node_modules directly.",
                             },
+                            {
+                                "group": [ "/src/*" ],
+                                "message": "Imports from /src/* are restricted. monorepo imports e.g. @vertix/bot/src/index.ts should be used instead.",
+                            },
                             // {
                             //     "group": [
                             //         "./*",
@@ -196,10 +200,10 @@ export function zLintDefaultConfig( files, workspaces ) {
                 ],
                 // Configure indentation with JSX support
                 "indent": "off",
-                "@stylistic/indent": ["error", 4, {
+                "@stylistic/indent": [ "error", 4, {
                     "SwitchCase": 1,
-                }],
-                "@stylistic/object-curly-spacing": ["error", "always"],
+                } ],
+                "@stylistic/object-curly-spacing": [ "error", "always" ],
 
                 "array-bracket-spacing": "off",
                 "@stylistic/array-bracket-spacing": [ "error", "always" ],
@@ -220,7 +224,13 @@ export function zLintDefaultConfig( files, workspaces ) {
                     {
                         "exceptions": [ "empty" ]
                     }
-                ]
+                ],
+                "@stylistic/space-before-function-paren": [ "error", "never" ],
+                "@stylistic/space-before-blocks": [ "error", "always" ],
+                "@stylistic/keyword-spacing": [ "error", {
+                    "before": true,
+                    "after": true,
+                } ],
             },
         },
     ];
@@ -246,7 +256,7 @@ export function zLintDefaultExclude( addToExclude = [] ) {
         "**/node_modules/**",
         "**/.backups/**",
 
-        ... addToExclude,
+        ...addToExclude,
     ]
 }
 

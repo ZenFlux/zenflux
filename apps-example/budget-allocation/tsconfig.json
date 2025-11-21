@@ -8,6 +8,10 @@
         ],
         "esModuleInterop": true,
         "baseUrl": "./src/",
+        "paths": {
+            "@zenflux/app-budget-allocation/src/*": [ "./*" ],
+            "@zenflux/react-ui/src/*": [ "../../../packages/zenflux-react-ui/src/*" ]
+        },
         "module": "esnext",
         "target": "esnext",
         "moduleResolution": "bundler",
