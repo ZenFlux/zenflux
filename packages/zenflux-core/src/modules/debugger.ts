@@ -8,7 +8,6 @@ import { Logger } from "./logger";
 
 import { ObjectBase } from "../bases/object-base";
 
-// Define options interface for Debugger
 interface DebuggerOptions {
     skipEventBusHook?: boolean;
 }
@@ -26,12 +25,11 @@ export class Debugger extends ObjectBase {
         owner: ObjectBase | typeof ObjectBase | string,
         prefix?: string,
         private shouldDebug = Logger.isDebugEnabled(),
-        options?: DebuggerOptions // Add options parameter
+        options?: DebuggerOptions
     ) {
         super();
 
         if ( shouldDebug ) {
-            // Pass logger options down if skipEventBusHook is set
             const loggerOptions = options?.skipEventBusHook ? { skipEventBusHook: true } : undefined;
             this.logger = new Logger( owner, loggerOptions );
 
@@ -39,7 +37,6 @@ export class Debugger extends ObjectBase {
                 this.logger.addMessagePrefix( prefix );
             }
         } else {
-            // Bypass all the methods
             this.log = () => {};
             this.dumpDown = () => {};
             this.enableCleanupDebug = () => {};

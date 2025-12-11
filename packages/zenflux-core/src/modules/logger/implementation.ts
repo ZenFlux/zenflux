@@ -13,7 +13,7 @@ import { LoggerBrowserInfra, type LoggerOutputFormat, type LoggerOutputMetadata,
 
 import { reduceCircularReferences } from "./utils";
 
-import { ObjectBase } from "../../bases";
+import { ObjectBase } from "../../bases/object-base";
 import { EventBus } from "../event-bus/event-bus";
 
 import type * as interfaces from "../../interfaces";

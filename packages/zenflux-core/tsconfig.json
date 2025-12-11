@@ -13,7 +13,7 @@
         "module": "ESNext",
 
         // Defines how TypeScript resolves module import paths (Node.js style)
-        "moduleResolution": "node",
+        "moduleResolution": "bundler",
 
         // Enables json resolve for imports
         "resolveJsonModule": true,
