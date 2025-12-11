@@ -287,7 +287,18 @@ The tool supports publishing npm packages to a registry. It includes features fo
 
 - **CLI Commands**: `@publish`
 - **Default Behavior**: `@z-cli @publish`
-    - Trying to publish all publishable packages in the workspace (select able by console menu
+    - Trying to publish all publishable packages in the workspace (select able by console menu)
+
+- **CLI Options**
+    - **--token:**
+        - Description: Specify an npm authentication token for publishing
+        - Examples:
+            - `--token=npm_xxxxxxxxxxxx`
+            - `--token npm_xxxxxxxxxxxx`
+        - Note: Token can also be set via `NPM_TOKEN` environment variable or `.npmrc` file
+        - Priority: `--token` flag > `NPM_TOKEN` env > `.npmrc` file
+          <br /><br />
+
 - **Flow**:
     - Determining if local npm will be used
     - Determining if the package is publishable
