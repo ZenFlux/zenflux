@@ -1,6 +1,6 @@
 import * as util from "util";
 
-import { isDebugEnabled } from "@zenflux/utils/src/environment";
+import { isDebugEnabled } from "@zenflux/utils/environment";
 
 import pc from "picocolors";
 

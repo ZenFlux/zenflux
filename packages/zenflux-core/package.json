@@ -1,6 +1,6 @@
 {
   "name": "@zenflux/core",
-  "version": "0.1.20",
+  "version": "0.1.21",
   "types": "dist/zenflux-core.d.ts",
   "type": "module",
   "files": [
@@ -20,14 +20,17 @@
       "types": "./dist/zenflux-core.d.ts"
     },
     "./dist/src/*": "./src/*",
-    "./src/*": "./src/*",
+    "./src/*.ts": "./src/*.ts",
+    "./src/*": "./src/*.ts",
     "./src/bases": "./src/bases/index.ts",
+    "./src/bases/*": "./src/bases/*.ts",
     "./src/clients": "./src/clients/index.ts",
     "./src/command-bases": "./src/command-bases/index.ts",
     "./src/errors": "./src/errors/index.ts",
     "./src/interfaces": "./src/interfaces/index.ts",
     "./src/managers": "./src/managers/index.ts",
     "./src/modules/logger": "./src/modules/logger/index.ts",
+    "./src/modules/*": "./src/modules/*.ts",
     "./package.json": "./package.json"
   },
   "devDependencies": {

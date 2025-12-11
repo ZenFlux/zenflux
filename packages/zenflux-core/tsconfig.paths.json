@@ -2,14 +2,15 @@
     "compilerOptions": {
         "outDir": "dist",
         "baseUrl": "./",
+        "rootDir": ".",
     },
     "include": [
         "src/**/*.ts",
-        "zenflux.config.ts",
         "package.json"
     ],
     "exclude": [
         "node_modules",
-        "dist"
+        "dist",
+        "zenflux.config.ts"
     ]
 }

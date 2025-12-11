@@ -1,4 +1,6 @@
 import fs from "node:fs";
+import path from "node:path";
+import os from "node:os";
 import * as inspector from "node:inspector";
 
 import swc from "@swc/core";
@@ -6,6 +8,7 @@ import swc from "@swc/core";
 import { convertTsConfig, readTsConfig } from "@zenflux/tsconfig-to-swc";
 
 import { ProviderBase } from "./base/provider-base.js";
+import { DiskCache } from "../disk-cache.js";
 
 import sourceMapSupport from "source-map-support";
 
@@ -40,6 +43,7 @@ export class SwcProvider extends ProviderBase {
      * @param {object} args
      * @param {string} args.tsConfigPath
      * @param {( path:string ) => string|undefined } args.tsConfigReadCallback
+     * @param {string} [args.cacheDir]
      */
     constructor( args ) {
         super( args );
@@ -48,6 +52,9 @@ export class SwcProvider extends ProviderBase {
         this.tsReadConfigCallback = args.tsConfigReadCallback;
 
         this.transformedFiles = {};
+
+        const cacheDir = args.cacheDir || path.join( os.tmpdir(), "zenflux-vm-cache", "swc" );
+        this.diskCache = new DiskCache( cacheDir );
     }
 
     initialize() {
@@ -83,24 +90,39 @@ export class SwcProvider extends ProviderBase {
         return null;
     }
 
-    async load( path, options ) {
-        const source = fs.readFileSync( path, "utf-8" );
+    async load( filePath, options ) {
+        const cached = this.diskCache.get( filePath );
+
+        if ( cached ) {
+            this.transformedFiles[ filePath ] = cached;
+            return cached.output;
+        }
+
+        const source = fs.readFileSync( filePath, "utf-8" );
 
         /**
          * @type {import("@swc/core").Options}
          */
         const swcOptions = {
             ...this.swcConfig,
-            filename: path,
+            filename: filePath,
             sourceMaps: true,
         };
 
         const result = await swc.transform( source, swcOptions );
 
-        this.transformedFiles[ path ] = result;
-
-        // Since the code runs from memory, and the source always comes from the file system,
-        return result.code + '\n//# sourceMappingURL=data:application/json;base64,' +
+        const output = result.code + "\n//# sourceMappingURL=data:application/json;base64," +
             btoa( result.map );
+
+        const cacheEntry = {
+            code: result.code,
+            map: result.map,
+            output,
+        };
+
+        this.transformedFiles[ filePath ] = cacheEntry;
+        this.diskCache.set( filePath, cacheEntry );
+
+        return output;
     }
 }
