@@ -1,6 +1,7 @@
 /**
  * @author: Leonid Vinikov <leonidvinikov@gmail.com>
  */
+import fs from "node:fs";
 import path from "node:path";
 import process from "node:process";
 import util from "node:util";
@@ -34,7 +35,7 @@ const DEFAULT_BASE_SRC_PATH = "/src";
 export async function zRollupPluginModuleResolve( args: Required<IPluginArgs> ): Promise<Plugin> {
     const tsConfig = args.tsConfig!,
         projectPath = args.projectPath,
-        baseSrcPath = tsConfig?.options.baseUrl ?? function useDefaultSrcPath () {
+        baseSrcPath = tsConfig?.options.baseUrl ?? function useDefaultSrcPath() {
             const srcPath = path.join( projectPath, DEFAULT_BASE_SRC_PATH );
 
             ConsoleManager.$.debug(
@@ -62,6 +63,11 @@ export async function zRollupPluginModuleResolve( args: Required<IPluginArgs> ):
                 if ( tsConfig.fileNames.includes( tryPath ) ) {
                     return tryPath;
                 }
+
+                // If not in tsConfig, check if file exists on disk
+                if ( fs.existsSync( tryPath ) ) {
+                    return tryPath;
+                }
             }
         }
 
@@ -87,19 +93,27 @@ export async function zRollupPluginModuleResolve( args: Required<IPluginArgs> ):
             return workspaceCache.get( modulePath );
         }
 
-        // Cross `modulePath` with `packages`
-        const modulePathParts = modulePath.split( "/", 2 ),
-            modulePathRest = modulePath.substring(
-                modulePathParts[ 0 ].length + ( modulePathParts[ 1 ]?.length ?? 0 ) + 1,
-                modulePath.length
-            );
+        const modulePathParts = modulePath.split( "/" );
 
-        for ( const [ packageName, packageObj ] of Object.entries( workspacePackages ) ) {
-            if ( packageName === modulePathParts[ 0 ] || packageName === modulePathParts[ 0 ]  + "/" + modulePathParts[ 1 ] ) {
+        let packageName: string;
+        let restStartIndex: number;
+
+        if ( modulePathParts[ 0 ].startsWith( "@" ) ) {
+            packageName = modulePathParts[ 0 ] + "/" + modulePathParts[ 1 ];
+            restStartIndex = 2;
+        } else {
+            packageName = modulePathParts[ 0 ];
+            restStartIndex = 1;
+        }
+
+        const modulePathRest = modulePathParts.slice( restStartIndex ).join( "/" );
+
+        for ( const [ pkgName, packageObj ] of Object.entries( workspacePackages ) ) {
+            if ( pkgName === packageName ) {
                 const tryPath = path.join( packageObj.getPath(), modulePathRest );
 
                 ConsoleManager.$.debug(
-                    () => [ "path-resolve" , resolveRelative.name,  util.inspect( tryPath ) ]
+                    () => [ "path-resolve" , resolveWorkspace.name,  util.inspect( tryPath ) ]
                 );
 
                 const tryResolve = resolveExt( tryPath );
@@ -189,7 +203,7 @@ export async function zRollupPluginModuleResolve( args: Required<IPluginArgs> ):
 /**
  * Function zRollupGetPlugins(): This function returns an array of Rollup plugins based on the provided arguments.
  */
-export const zRollupGetPlugins = async ( args: IPluginArgs ): Promise<OutputPlugin[]> => {
+export const zRollupGetPlugins = async( args: IPluginArgs ): Promise<OutputPlugin[]> => {
     // TODO: Should plugins be recreated for each format?
     const { extensions, format } = args;
 
@@ -284,7 +298,7 @@ export const zRollupGetOutput = ( args: IOutputArgs, projectPath: string ): Outp
  * Function zRollupGetConfig(): This function generates a Rollup configuration object based on the provided arguments.
  * It assembles the input, output, and plugin configurations for Rollup.
  */
-export const zRollupGetConfig = async ( args: TZConfigInternalArgs, projectPath: string ): Promise<RollupOptions> => {
+export const zRollupGetConfig = async( args: TZConfigInternalArgs, projectPath: string ): Promise<RollupOptions> => {
     const {
         extensions,
         external,

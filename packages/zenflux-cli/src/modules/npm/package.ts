@@ -14,6 +14,8 @@ import pack from "libnpmpack";
 
 import { Registry } from "@zenflux/cli/src/modules/npm/registry";
 
+import { ConsoleManager } from "@zenflux/cli/src/managers/console-manager";
+
 import {
     DEFAULT_NPM_RC_PATH,
     DEFAULT_NPM_REMOTE_REGISTRY_URL
@@ -53,6 +55,7 @@ export type TPackagePartialJson = TPackagePartialDependencies & {
 export type TNewPackageOptions = {
     registryUrl: string;
     npmRcPath: string;
+    token?: string;
 }
 
 const defaultDependenciesKeys: TForceEnumKeys<TPackagePartialDependencies> = {
@@ -96,12 +99,11 @@ export class Package {
     public async publish(): Promise<PublishResponse> {
         const manifest = await pacote.manifest( this.getPath() ) as any;
 
-        // Passing `dryRun` to avoid writing on disk
         const tarData = await pack( this.getPath(), {
             dryRun: true,
         } );
 
-        const token = this.getToken();
+        const { token } = this.getToken();
 
         const options = {
             registry: this.options.registryUrl,
@@ -113,26 +115,37 @@ export class Package {
         return await npmpublish.publish( manifest, tarData, options );
     }
 
-    private getToken() {
-        let token = "";
+    private getToken(): { token: string; source: string } {
+        const maskToken = ( t: string ) => t.length > 8 ? t.slice( 0, 4 ) + "****" + t.slice( -4 ) : "****";
+
+        if ( this.options.token ) {
+            ConsoleManager.$.log( `Token source: --token flag, value: ${ maskToken( this.options.token ) }` );
+            return { token: this.options.token, source: "--token" };
+        }
+
+        if ( process.env.NPM_TOKEN ) {
+            ConsoleManager.$.log( `Token source: NPM_TOKEN env, value: ${ maskToken( process.env.NPM_TOKEN ) }` );
+            return { token: process.env.NPM_TOKEN, source: "NPM_TOKEN env" };
+        }
 
         if ( ! fs.existsSync( this.options.npmRcPath ) ) {
             throw new Error( `NPM RC file not found at ${ this.options.npmRcPath }` );
         }
 
-        // Read token according to registry from binary file
         const content = fs.readFileSync( this.options.npmRcPath, "utf8" );
         const lines = content.split( "\n" );
         const registryHost = this.options.registryUrl.replace( /^https?:\/\//, "" ).replace( /\/$/, "" );
 
         for ( const line of lines ) {
             if ( line.includes( registryHost ) ) {
-                token = line.split( "=" )[ 1 ];
-
-                break;
+                const token = line.split( "=" )[ 1 ];
+                ConsoleManager.$.log( `Token source: .npmrc (${ this.options.npmRcPath }), value: ${ maskToken( token ) }` );
+                return { token, source: ".npmrc" };
             }
         }
-        return token;
+
+        ConsoleManager.$.warn( "No token found!" );
+        return { token: "", source: "none" };
     }
 
     public getPath() {

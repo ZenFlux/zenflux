@@ -43,6 +43,7 @@ export default class Publish extends CommandBase {
     private publishPackagesMeta: Map<string, PublishPackageMeta> = new Map();
 
     public async runImpl(): Promise<void> {
+        this.parseTokenArg();
         const workspacePackage = new Package( this.paths.workspace ),
             packages = await zWorkspaceGetPackages( workspacePackage, this.newPackageOptions );
 
@@ -411,6 +412,20 @@ export default class Publish extends CommandBase {
 
         if ( ! bumpedPackages ) {
             ConsoleManager.$.log( "Selected packages already use unpublished versions – skipping automatic version bumps." );
+        }
+    }
+
+    private parseTokenArg(): void {
+        const tokenArgIndex = this.args.findIndex( arg => arg.startsWith( "--token" ) );
+
+        if ( tokenArgIndex !== -1 ) {
+            const tokenArg = this.args[ tokenArgIndex ];
+
+            if ( tokenArg.includes( "=" ) ) {
+                this.newPackageOptions.token = tokenArg.split( "=" )[ 1 ];
+            } else if ( this.args[ tokenArgIndex + 1 ] ) {
+                this.newPackageOptions.token = this.args[ tokenArgIndex + 1 ];
+            }
         }
     }
 }

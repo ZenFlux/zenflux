@@ -148,7 +148,7 @@ export async function zRollupBuildInWorker(
         rollupOptions.plugins = await zRollupGetPlugins( {
             enableCustomLoader: !! config.enableCustomLoader,
             enableCjsAsyncWrap: !! config.enableCjsAsyncWrap,
-            extensions: config.extensions || [],
+            extensions: config.extensions?.length ? config.extensions : [ ".ts", ".tsx", ".js", ".jsx", ".json" ],
             format: convertFormatToInternalFormat( output.format! ),
             moduleForwarding: config.moduleForwarding,
             sourcemap: !! output.sourcemap,
