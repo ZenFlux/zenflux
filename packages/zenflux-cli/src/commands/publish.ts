@@ -42,8 +42,25 @@ export default class Publish extends CommandBase {
 
     private publishPackagesMeta: Map<string, PublishPackageMeta> = new Map();
 
+    private targetPackageNames: string[] = [];
+
+    public showHelp( name: string ) {
+        super.showHelp( name, "[package-name] [options]" );
+
+        ConsoleManager.$.log( util.inspect( {
+            "[package-name]": {
+                description: "Specify package(s) to publish directly, skipping interactive selection",
+                examples: [
+                    "publish @zenflux/core",
+                    "publish @zenflux/core,@zenflux/cli",
+                ]
+            },
+        } ) );
+    }
+
     public async runImpl(): Promise<void> {
         this.parseTokenArg();
+        this.parsePackageArg();
         const workspacePackage = new Package( this.paths.workspace ),
             packages = await zWorkspaceGetPackages( workspacePackage, this.newPackageOptions );
 
@@ -231,6 +248,32 @@ export default class Publish extends CommandBase {
         }
 
         ConsoleManager.$.log( "Packages that meet the publish requirements:" );
+
+        if ( this.targetPackageNames.length > 0 ) {
+            const result: TPackages = {};
+            const notFound: string[] = [];
+
+            for ( const targetName of this.targetPackageNames ) {
+                if ( eligiblePackages[ targetName ] ) {
+                    result[ targetName ] = eligiblePackages[ targetName ];
+                    const meta = this.publishPackagesMeta.get( targetName );
+                    ConsoleManager.$.log( `  - ${ util.inspect( targetName ) } (${ meta?.statusLabel ?? "ready" })` );
+                } else {
+                    notFound.push( targetName );
+                }
+            }
+
+            if ( notFound.length > 0 ) {
+                ConsoleManager.$.warn( `Packages not found or not eligible: ${ util.inspect( notFound ) }` );
+            }
+
+            if ( Object.keys( result ).length === 0 ) {
+                ConsoleManager.$.log( "No matching packages found" );
+                return {};
+            }
+
+            return result;
+        }
 
         const selectedPackages = await ( new ConsoleMenuCheckbox(
             eligibleList.map( ( pkg ) => {
@@ -426,6 +469,17 @@ export default class Publish extends CommandBase {
             } else if ( this.args[ tokenArgIndex + 1 ] ) {
                 this.newPackageOptions.token = this.args[ tokenArgIndex + 1 ];
             }
+        }
+    }
+
+    private parsePackageArg(): void {
+        const positionalArg = this.args.find( arg => ! arg.startsWith( "--" ) );
+
+        if ( positionalArg ) {
+            this.targetPackageNames = positionalArg
+                .split( "," )
+                .map( name => name.trim() )
+                .filter( name => name.length > 0 );
         }
     }
 }

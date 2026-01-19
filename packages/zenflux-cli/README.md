@@ -290,6 +290,12 @@ The tool supports publishing npm packages to a registry. It includes features fo
     - Trying to publish all publishable packages in the workspace (select able by console menu)
 
 - **CLI Options**
+    - **[package-name]:**
+        - Description: Specify package(s) to publish directly, skipping interactive selection
+        - Examples:
+            - `@z-cli @publish @zenflux/core`
+            - `@z-cli @publish @zenflux/core,@zenflux/cli`
+          <br /><br />
     - **--token:**
         - Description: Specify an npm authentication token for publishing
         - Examples:
