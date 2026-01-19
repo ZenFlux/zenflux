@@ -347,7 +347,19 @@ class CommandsManager {
     }
 }
 
-export const commands = new CommandsManager();
+const COMMANDS_MANAGER_KEY = Symbol.for( "@zenflux/react-commander/commands-manager" );
+
+function getOrCreateCommandsManager(): CommandsManager {
+    const globalStore = globalThis as unknown as Record<symbol, CommandsManager>;
+
+    if ( ! globalStore[ COMMANDS_MANAGER_KEY ] ) {
+        globalStore[ COMMANDS_MANAGER_KEY ] = new CommandsManager();
+    }
+
+    return globalStore[ COMMANDS_MANAGER_KEY ];
+}
+
+export const commands = getOrCreateCommandsManager();
 
 if ( import.meta.env.DEV ) {
     ( window as any ).$$commands = commands;

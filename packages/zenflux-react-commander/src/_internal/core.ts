@@ -7,20 +7,47 @@ import {
     UNREGISTER_INTERNAL_SYMBOL
 } from "./constants";
 
+import { version } from "../../package.json";
+
 import type { DCoreContext, DCoreInterface, DCoreRegisterArgs } from "./definitions";
 
 import type { DCommandSingleComponentContext } from "@zenflux/react-commander/definitions";
 
-const context: DCoreContext = {};
+const CORE_CONTEXT_KEY = Symbol.for( "@zenflux/react-commander/core-context" );
+const CORE_SORTED_KEYS_KEY = Symbol.for( "@zenflux/react-commander/core-sorted-keys" );
 
-// This will hold the sorted keys for the binary search
-let sortedContextKeys: string[] = [];
+type GlobalStore = {
+    [ CORE_CONTEXT_KEY ]: DCoreContext;
+    [ CORE_SORTED_KEYS_KEY ]: string[];
+};
+
+const globalObj = globalThis as unknown as GlobalStore;
+
+if ( ! globalObj[ CORE_CONTEXT_KEY ] ) {
+    globalObj[ CORE_CONTEXT_KEY ] = {};
+}
+
+if ( ! globalObj[ CORE_SORTED_KEYS_KEY ] ) {
+    globalObj[ CORE_SORTED_KEYS_KEY ] = [];
+}
+
+const context = globalObj[ CORE_CONTEXT_KEY ];
+
+function getSortedContextKeys() {
+    return globalObj[ CORE_SORTED_KEYS_KEY ];
+}
+
+function setSortedContextKeys( keys: string[] ) {
+    globalObj[ CORE_SORTED_KEYS_KEY ] = keys;
+}
 
 /**
  * Core class is responsible for managing the command context for each component.
  * It provides methods to register, unregister, get and link components.
  */
 class Core implements DCoreInterface {
+    public version = version;
+
     /**
      * Registers the context for a React component.
      */
@@ -110,7 +137,7 @@ class Core implements DCoreInterface {
 
             const anyMatchComponent = componentName.substring( 0, componentName.length - 1 );
 
-            sortedContextKeys.forEach( ( componentNameUnique ) => {
+            getSortedContextKeys().forEach( ( componentNameUnique ) => {
                 if ( componentNameUnique.includes( anyMatchComponent ) ) {
                     result.push( context[ componentNameUnique ] );
                 }
@@ -118,9 +145,10 @@ class Core implements DCoreInterface {
 
             return result;
         } else {
-            const index = this.binarySearch( sortedContextKeys, componentName );
+            const sortedKeys = getSortedContextKeys();
+            const index = this.binarySearch( sortedKeys, componentName );
             if ( index !== -1 ) {
-                return [ context[ sortedContextKeys[ index ] ] ];
+                return [ context[ sortedKeys[ index ] ] ];
             }
         }
 
@@ -145,7 +173,7 @@ class Core implements DCoreInterface {
      * Updates the sorted keys for binary search.
      */
     private updateSortedContextKeys() {
-        sortedContextKeys = Object.keys( context ).sort();
+        setSortedContextKeys( Object.keys( context ).sort() );
     }
 
     /**
@@ -181,7 +209,19 @@ class Core implements DCoreInterface {
     declare public __devGetContextValues: () => DCommandSingleComponentContext[];
 }
 
-const core: DCoreInterface = new Core();
+const CORE_INSTANCE_KEY = Symbol.for( "@zenflux/react-commander/core-instance" );
+
+function getOrCreateCore(): DCoreInterface {
+    const globalStore = globalThis as unknown as Record<symbol, DCoreInterface>;
+
+    if ( ! globalStore[ CORE_INSTANCE_KEY ] ) {
+        globalStore[ CORE_INSTANCE_KEY ] = new Core();
+    }
+
+    return globalStore[ CORE_INSTANCE_KEY ];
+}
+
+const core = getOrCreateCore();
 
 if ( /* from vite */ import.meta.env.DEV ) {
     if ( ( window as any ).__DEBUG__ ) {

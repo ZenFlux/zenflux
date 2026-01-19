@@ -30,6 +30,8 @@ export type DCoreRegisterArgs = {
 };
 
 export interface DCoreInterface {
+    version: string;
+
     __devGetContextValues: () => DCommandSingleComponentContext[];
     __devGetContextKeys: () => string[];
     __devGetContextLength: () => number;

@@ -1,18 +1,17 @@
-// Same as https://github.com/facebook/react/blob/main/packages/react-dom-bindings/src/client/ReactDOMComponentTree.js#L39
-const randomKey = "__" + Math.random().toString( 36 ).slice( 2 );
+const NAMESPACE = "@zenflux/react-commander";
 
-export const REGISTER_INTERNAL_SYMBOL = Symbol( "REGISTER_INTERNAL" + randomKey );
-export const UNREGISTER_INTERNAL_SYMBOL = Symbol( "UNREGISTER_INTERNAL" + randomKey );
-export const GET_INTERNAL_SYMBOL = Symbol( "GET_INTERNAL" + randomKey );
-export const GET_INTERNAL_MATCH_SYMBOL = Symbol( "GET_INTERNAL_MATCH" + randomKey );
-export const SET_TO_CONTEXT_SYMBOL = Symbol( "SET_TO_CONTEXT" + randomKey );
+export const REGISTER_INTERNAL_SYMBOL = Symbol.for( `${ NAMESPACE }/REGISTER_INTERNAL` );
+export const UNREGISTER_INTERNAL_SYMBOL = Symbol.for( `${ NAMESPACE }/UNREGISTER_INTERNAL` );
+export const GET_INTERNAL_SYMBOL = Symbol.for( `${ NAMESPACE }/GET_INTERNAL` );
+export const GET_INTERNAL_MATCH_SYMBOL = Symbol.for( `${ NAMESPACE }/GET_INTERNAL_MATCH` );
+export const SET_TO_CONTEXT_SYMBOL = Symbol.for( `${ NAMESPACE }/SET_TO_CONTEXT` );
 
-export const INTERNAL_ON_LOAD = "__internalOnLoad" + randomKey;
-export const INTERNAL_ON_MOUNT = "__internalOnMount" + randomKey;
-export const INTERNAL_ON_UNMOUNT = "__internalOnUnmount" + randomKey;
-export const INTERNAL_ON_UPDATE = "__internalOnUpdate" + randomKey;
-export const INTERNAL_ON_CONTEXT_STATE_UPDATED = "__internalOnContextStateUpdated" + randomKey;
+export const INTERNAL_ON_LOAD = `${ NAMESPACE }/__internalOnLoad`;
+export const INTERNAL_ON_MOUNT = `${ NAMESPACE }/__internalOnMount`;
+export const INTERNAL_ON_UNMOUNT = `${ NAMESPACE }/__internalOnUnmount`;
+export const INTERNAL_ON_UPDATE = `${ NAMESPACE }/__internalOnUpdate`;
+export const INTERNAL_ON_CONTEXT_STATE_UPDATED = `${ NAMESPACE }/__internalOnContextStateUpdated`;
 
-export const INTERNAL_PROPS = "__internalProps" + randomKey;
+export const INTERNAL_PROPS = `${ NAMESPACE }/__internalProps`;
 
-export const INTERNAL_STATE_UPDATED_EVENT = "__internalStateUpdated" + randomKey;
+export const INTERNAL_STATE_UPDATED_EVENT = `${ NAMESPACE }/__internalStateUpdated`;

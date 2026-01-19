@@ -2,8 +2,9 @@
   "$schema": "https://raw.githubusercontent.com/SchemaStore/schemastore/master/src/schemas/json/package.json",
   "name": "@zenflux/react-commander",
   "author": "Leonid Vinikov <leonidvinikov@gmail.com> (https://github.com/iNewLegend)",
-  "version": "0.0.1",
+  "version": "0.0.8",
   "type": "module",
+  "sideEffects": false,
   "types": "src/index.ts",
   "files": [
     "src"

@@ -190,7 +190,7 @@ export default class Publish extends CommandBase {
 
         this.publishPackagesMeta.clear();
 
-        await Promise.all( Object.values( packages ).map( async ( pkg: Package ) => {
+        await Promise.all( Object.values( packages ).map( async( pkg: Package ) => {
             const json = pkg.json,
                 missingRequirements = localPublishRequirements.filter( key => ! json[ key as keyof typeof json ] );
 
