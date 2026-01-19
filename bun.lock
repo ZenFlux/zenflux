@@ -216,7 +216,7 @@
     },
     "packages/zenflux-cli": {
       "name": "@zenflux/cli",
-      "version": "0.1.41",
+      "version": "0.1.42",
       "bin": {
         "@z-cli": "bin/cli.js",
       },
@@ -257,7 +257,7 @@
     },
     "packages/zenflux-core": {
       "name": "@zenflux/core",
-      "version": "0.1.19",
+      "version": "0.1.21",
       "dependencies": {
         "@zenflux/utils": "workspace:*",
         "fastmcp": "^3.23.1",
@@ -271,7 +271,7 @@
     },
     "packages/zenflux-eslint": {
       "name": "@zenflux/eslint",
-      "version": "0.1.40",
+      "version": "0.1.41",
       "bin": {
         "@z-lint": "bin/z-lint.js",
       },
@@ -291,7 +291,7 @@
     },
     "packages/zenflux-jest": {
       "name": "@zenflux/jest",
-      "version": "0.1.26",
+      "version": "0.1.27",
       "bin": {
         "@z-jest": "bin/cli.js",
       },
@@ -313,6 +313,10 @@
       "version": "0.0.1-dev",
       "dependencies": {
         "eventemitter3": "^5.0.1",
+      },
+      "devDependencies": {
+        "@types/react": "^19.2.0",
+        "@types/react-dom": "^19.2.0",
       },
       "peerDependencies": {
         "react": "^19.2.0",
@@ -344,7 +348,7 @@
     },
     "packages/zenflux-runner": {
       "name": "@zenflux/runner",
-      "version": "0.0.18",
+      "version": "0.0.19",
       "bin": {
         "@z-runner": "./src/index.js",
       },
@@ -355,7 +359,7 @@
     },
     "packages/zenflux-tsconfig-to-swc": {
       "name": "@zenflux/tsconfig-to-swc",
-      "version": "0.1.19",
+      "version": "0.1.20",
       "dependencies": {
         "typescript": "latest",
       },
@@ -365,7 +369,7 @@
     },
     "packages/zenflux-typescript-vm": {
       "name": "@zenflux/typescript-vm",
-      "version": "0.1.21",
+      "version": "0.1.23",
       "dependencies": {
         "@swc/core": "latest",
         "@zenflux/tsconfig-to-swc": "workspace:*",
@@ -382,11 +386,11 @@
     },
     "packages/zenflux-utils": {
       "name": "@zenflux/utils",
-      "version": "0.1.23",
+      "version": "0.1.24",
     },
     "packages/zenflux-worker": {
       "name": "@zenflux/worker",
-      "version": "0.0.24",
+      "version": "0.0.25",
       "dependencies": {
         "@zenflux/cli": "workspace:*",
         "@zenflux/runner": "workspace:*",

@@ -1,45 +1,61 @@
 {
-    "$schema": "https://raw.githubusercontent.com/SchemaStore/schemastore/master/src/schemas/json/package.json",
-    "name": "@zenflux/react-commander",
-    "author": "Leonid Vinikov <leonidvinikov@gmail.com> (https://github.com/iNewLegend)",
-    "version": "0.0.1-dev",
-    "type": "module",
-    "repository": {
-        "type": "git",
-        "url": "https://github.com/zenflux/zenflux.git",
-        "directory": "packages/zenflux-react-commander"
+  "$schema": "https://raw.githubusercontent.com/SchemaStore/schemastore/master/src/schemas/json/package.json",
+  "name": "@zenflux/react-commander",
+  "author": "Leonid Vinikov <leonidvinikov@gmail.com> (https://github.com/iNewLegend)",
+  "version": "0.0.1",
+  "type": "module",
+  "types": "src/index.ts",
+  "files": [
+    "src"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/zenflux/zenflux.git",
+    "directory": "packages/zenflux-react-commander"
+  },
+  "exports": {
+    ".": {
+      "import": "./src/index.ts",
+      "default": "./src/index.ts",
+      "types": "./src/index.ts"
     },
-    "exports": {
-        "./command-base": "./src/command-base.ts",
-        "./commands-manager": "./src/commands-manager.ts",
-        "./commands-context": "./src/commands-context.ts",
-        "./commands-provider": "./src/commands-provider.tsx",
-        "./with-commands": "./src/with-commands.tsx",
-        "./hooks": "./src/hooks/index.ts",
-        "./hooks/utils": "./src/hooks/utils.ts",
-        "./definitions": "./src/definitions.ts",
-        "./constants": "./src/_internal/constants.ts",
-        "./core": "./src/_internal/core.ts",
-        "./query/auto-save-manager": "./src/query/query-auto-save-manager.ts",
-        "./query/cache": "./src/query/query-cache.ts",
-        "./query/client": "./src/query/query-client.tsx",
-        "./query/component": "./src/query/query-component.tsx",
-        "./query/definitions": "./src/query/query-definitions.ts",
-        "./query/list-diff": "./src/query/query-list-diff.ts",
-        "./query/module-base": "./src/query/query-module-base.ts",
-        "./query/item-module-base": "./src/query/query-item-module-base.ts",
-        "./query/list-module-base": "./src/query/query-list-module-base.ts",
-        "./query/router": "./src/query/query-router.ts",
-        "./query/utils": "./src/query/query-utils.ts",
-        "./query/provider": "./src/query/query-provider.tsx"
-
-    },
-    "dependencies": {
-        "eventemitter3": "^5.0.1"
-    },
-    "peerDependencies": {
-        "vite": "^5.4.5",
-        "react": "^19.2.0",
-        "react-dom": "^19.2.0"
-    }
+    "./src/*": "./src/*",
+    "./command-base": "./src/command-base.ts",
+    "./commands-manager": "./src/commands-manager.ts",
+    "./commands-context": "./src/commands-context.ts",
+    "./commands-provider": "./src/commands-provider.tsx",
+    "./with-commands": "./src/with-commands.tsx",
+    "./hooks": "./src/hooks/index.ts",
+    "./hooks/utils": "./src/hooks/utils.ts",
+    "./definitions": "./src/definitions.ts",
+    "./constants": "./src/_internal/constants.ts",
+    "./core": "./src/_internal/core.ts",
+    "./query/auto-save-manager": "./src/query/query-auto-save-manager.ts",
+    "./query/cache": "./src/query/query-cache.ts",
+    "./query/client": "./src/query/query-client.tsx",
+    "./query/component": "./src/query/query-component.tsx",
+    "./query/definitions": "./src/query/query-definitions.ts",
+    "./query/list-diff": "./src/query/query-list-diff.ts",
+    "./query/module-base": "./src/query/query-module-base.ts",
+    "./query/item-module-base": "./src/query/query-item-module-base.ts",
+    "./query/list-module-base": "./src/query/query-list-module-base.ts",
+    "./query/router": "./src/query/query-router.ts",
+    "./query/utils": "./src/query/query-utils.ts",
+    "./query/provider": "./src/query/query-provider.tsx"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "dependencies": {
+    "eventemitter3": "^5.0.1"
+  },
+  "devDependencies": {
+    "@types/react": "^19.2.0",
+    "@types/react-dom": "^19.2.0"
+  },
+  "peerDependencies": {
+    "vite": "^5.4.5",
+    "react": "^19.2.0",
+    "react-dom": "^19.2.0"
+  }
 }

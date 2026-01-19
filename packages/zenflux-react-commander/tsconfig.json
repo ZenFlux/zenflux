@@ -43,19 +43,8 @@
         // Allow default imports from modules with no default export.
         "allowSyntheticDefaultImports": true,
 
-        //Used to specify a list of types to be included in the compile.
-        "types": [
-            "node",
-            "lib.dom",
-            "react",
-            "react-dom",
-            "react-scripts",
-            "vite/client"
-        ],
-
         // Specify multiple type root directories.
         "typeRoots": [
-            "../../node_modules",
             "../../node_modules/@types"
         ]
     },
