@@ -22,8 +22,11 @@ import type { CommandBase } from "@zenflux/react-commander/command-base";
  *
  * Sugar, e.g `ComponentType.getName` not `ComponentInstance`
  **/
-export interface DCommandFunctionComponent<TProps = any, TState = undefined> extends React.FC<TProps> {
+export interface DCommandFunctionComponent<TProps = object, TState = undefined> {
     ( props: TProps, state?: TState ): React.ReactNode;
+
+    displayName?: string;
+    defaultProps?: Partial<TProps>;
 
     // Those methods always implemented "under the hood"
     getName?(): string;

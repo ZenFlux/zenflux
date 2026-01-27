@@ -1,0 +1,48 @@
+{
+    "name": "@zenflux/app-create-files-structure-image",
+    "type": "module",
+    "exports": {
+        "./package.json": "./package.json",
+        "./src/*": "./src/*"
+    },
+    "scripts": {
+        "z-demos:files-structure:dev": "vite",
+        "z-demos:files-structure:build": "vite build",
+        "z-demos:files-structure:lint": "@z-cli @lint",
+        "z-demos:files-structure:preview": "vite preview",
+        "z-demos:files-structure:clean": "vite clean",
+        "z-demos:files-structure:typecheck": "@z-cli @typecheck"
+    },
+    "peerDependencies": {
+        "typescript": "^5.0.0"
+    },
+    "dependencies": {
+        "@radix-ui/react-slot": "^1.0.2",
+        "@radix-ui/react-tabs": "^1.0.4",
+        "@zenflux/react-commander": "workspace:*",
+        "@zenflux/react-ui": "workspace:*",
+        "class-variance-authority": "^0.7.0",
+        "clsx": "^2.0.0",
+        "html-to-image": "^1.11.11",
+        "lucide-react": "^0.292.0",
+        "react": "^19.2.0",
+        "react-dom": "^19.2.0",
+        "tailwind-merge": "^2.0.0"
+    },
+    "devDependencies": {
+        "@types/react": "^19.2.0",
+        "@types/react-dom": "^19.2.0",
+        "@vitejs/plugin-react": "^4.2.0",
+        "autoprefixer": "^10.4.16",
+        "bun-types": "latest",
+        "eslint-plugin-react": "^7.33.2",
+        "eslint-plugin-react-hooks": "^4.6.0",
+        "eslint-plugin-react-refresh": "^0.4.4",
+        "postcss": "^8.4.31",
+        "postcss-import": "^16.1.1",
+        "sass": "^1.69.5",
+        "tailwindcss": "^3.3.5",
+        "vite": "^5.0.0",
+        "vite-plugin-svgr": "^4.2.0"
+    }
+}

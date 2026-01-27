@@ -1,0 +1,47 @@
+{
+    "extends": "../../tsconfig.json",
+    "compilerOptions": {
+        "composite": true,
+        "lib": [
+            "ESNext",
+            "DOM"
+        ],
+        "esModuleInterop": true,
+        "baseUrl": "./src/",
+        "paths": {
+            "@zenflux/app-create-files-structure-image/src/*": [ "./*" ],
+            "@zenflux/react-ui/src/*": [ "../../../packages/zenflux-react-ui/src/*" ]
+        },
+        "module": "esnext",
+        "target": "esnext",
+        "moduleResolution": "bundler",
+        "moduleDetection": "force",
+        "allowImportingTsExtensions": true,
+        "noEmit": true,
+        "strict": true,
+        "downlevelIteration": true,
+        "skipLibCheck": true,
+        "jsx": "react-jsx",
+        "allowSyntheticDefaultImports": true,
+        "forceConsistentCasingInFileNames": true,
+        "allowJs": true,
+        "types": [
+            "node",
+            "lib.dom",
+            "react",
+            "react-dom",
+            "react-scripts",
+            "bun-types",
+            "vite/client"
+        ],
+        "typeRoots": [
+            "../../node_modules",
+            "../../node_modules/@types",
+            "../../node_modules/typescript/lib"
+        ]
+    },
+    "include": [
+        "src/**/*",
+        "zenflux.config.ts"
+    ]
+}
