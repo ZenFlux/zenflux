@@ -47,7 +47,7 @@ export function useCommand( commandName: string, ref?: React.RefObject<any> ) {
     const debug = ( ..._args: Array<unknown> ) => {
         try {
             // TODO: Enable when needed
-            console.debug( "[react-commander/useCommand]", ..._args );
+            // console.debug( "[react-commander/useCommand]", ..._args );
         } catch {}
     };
 

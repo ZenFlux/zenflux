@@ -180,8 +180,8 @@ class CommandsManager {
             throw new Error( `Component '${ componentName }' not registered` );
         }
 
-        // @ts-ignore - If it hot reloads then skip the error
-        const shouldSilentError = !! typeof import.meta.hot?.hmrClient.pruneMap.size;
+        // If HMR is active, suppress errors for missing contexts during hot reload
+        const shouldSilentError = !! import.meta.hot;
 
         const singleComponentContext = core[ GET_INTERNAL_SYMBOL ]( componentNameUnique, shouldSilentError ) as DCommandSingleComponentContext;
 
