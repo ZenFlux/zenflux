@@ -1,5 +1,5 @@
 
-import { GET_INTERNAL_SYMBOL } from "./_internal/constants";
+import { DEBUG_ENABLED, GET_INTERNAL_SYMBOL } from "./_internal/constants";
 
 import core from "./_internal/core.ts";
 
@@ -65,7 +65,7 @@ class CommandsManager {
             throw new Error( `Command '${ commandName }' not registered for component '${ componentName }'` );
         }
 
-        console.log( `Commands.run() '${ commandName }' for component '${ componentNameUnique }'`, args );
+        if ( DEBUG_ENABLED ) console.log( `Commands.run() '${ commandName }' for component '${ componentNameUnique }'`, args );
 
         const singleComponentContext = core[ GET_INTERNAL_SYMBOL ]( componentNameUnique );
 

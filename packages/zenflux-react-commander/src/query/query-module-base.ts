@@ -1,3 +1,4 @@
+import { DEBUG_ENABLED } from "@zenflux/react-commander/constants";
 import { QueryRouterBase } from "@zenflux/react-commander/query/router";
 
 import type { DCommandFunctionComponent } from "@zenflux/react-commander/definitions";
@@ -130,15 +131,17 @@ export abstract class QueryModuleBase<TResource extends object = object> {
             throw new Error( `Cannot find route for ${ name }` );
         }
 
+        if ( DEBUG_ENABLED ) console.log( "request", { name, args, found: { method: found.method, path: found.route.path } } );
         const payload = args ?? {};
 
-        const result = await this.api.fetch( found.method!, found.route.path, payload, async ( response ) => {
+        const result = await this.api.fetch( found.method!, found.route.path, payload, async( response ) => {
             if ( found!.route.handlers.responseHandler ) {
                 return await ( found!.route.handlers.responseHandler as ( e: DCommandFunctionComponent<Record<string, unknown>, React.ComponentState>, r: Response ) => Promise<unknown> )( undefined as unknown as DCommandFunctionComponent<Record<string, unknown>, React.ComponentState>, response );
             }
             return await response.json();
         } );
 
+        if ( DEBUG_ENABLED ) console.log( "request result", { name, result } );
         return result as TResult;
     }
 

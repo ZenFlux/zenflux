@@ -1,5 +1,9 @@
 import type React from "react";
 
+import { DEBUG_ENABLED } from "./constants";
+
+export { DEBUG_ENABLED };
+
 import type {
     GET_INTERNAL_MATCH_SYMBOL,
     GET_INTERNAL_SYMBOL,

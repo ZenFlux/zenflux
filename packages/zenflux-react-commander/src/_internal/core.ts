@@ -1,5 +1,6 @@
 
 import {
+    DEBUG_ENABLED,
     GET_INTERNAL_MATCH_SYMBOL,
     GET_INTERNAL_SYMBOL,
     REGISTER_INTERNAL_SYMBOL,
@@ -224,8 +225,8 @@ function getOrCreateCore(): DCoreInterface {
 const core = getOrCreateCore();
 
 if ( /* from vite */ import.meta.env.DEV ) {
-    if ( ( window as any ).__DEBUG__ ) {
-        core.__devDebug = ( ... args: any[] ) => {
+    if ( DEBUG_ENABLED ) {
+        core.__devDebug = ( ... args: Parameters<DCoreInterface[ "__devDebug" ]> ) => {
             console.log( ... args );
         };
     }
