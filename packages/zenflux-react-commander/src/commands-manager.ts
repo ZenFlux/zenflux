@@ -1,9 +1,16 @@
 
 import { DEBUG_ENABLED, GET_INTERNAL_SYMBOL } from "./_internal/constants";
+import { logger } from "./_internal/logger";
 
 import core from "./_internal/core.ts";
 
+import { Commands as CoreCommands } from "@zenflux/core/src/managers/commands";
+import { CommandNotFound } from "@zenflux/core/src/errors/command-not-found";
+
+import type { TCommandCallbackType } from "@zenflux/core/src/interfaces";
+
 import type { CommandBase } from "@zenflux/react-commander/command-base";
+import type { CommandBase as CoreCommandBase } from "@zenflux/core/src/command-bases/command-base";
 
 import type {
     DCommandArgs,
@@ -14,7 +21,34 @@ import type {
     DCommandSingleComponentContext
 } from "@zenflux/react-commander/definitions";
 
+/**
+ * Adapter that exposes core Commands' protected hook-firing methods.
+ */
+class CoreCommandsAdapter extends CoreCommands {
+    public static getName() {
+        return "@zenflux/react-commander/CoreCommandsAdapter";
+    }
+
+    public static getSourcePath() {
+        return "@zenflux/react-commander";
+    }
+
+    public fireBeforeRun( command: CoreCommandBase, args: any = {}, options = {} ) {
+        this.onBeforeRun( command, args, options );
+    }
+
+    public async fireAfterRun( command: CoreCommandBase, args: any, options: {}, result: any ) {
+        return this.onAfterRun( command, args, options, result );
+    }
+}
+
 class CommandsManager {
+    /**
+     * Core Commands instance providing hook infrastructure
+     * (onBefore, onAfter, onAfterUI, onAfterOnce, onAfterAffect).
+     */
+    private coreCommands = new CoreCommandsAdapter();
+
     private commands: {
         [ componentName: string ]: {
             [ commandName: string ]: CommandBase
@@ -62,10 +96,13 @@ class CommandsManager {
         const command = this.commands[ componentName ]?.[ commandName ];
 
         if ( ! command ) {
-            throw new Error( `Command '${ commandName }' not registered for component '${ componentName }'` );
+            throw new CommandNotFound( commandName );
         }
 
-        if ( DEBUG_ENABLED ) console.log( `Commands.run() '${ commandName }' for component '${ componentNameUnique }'`, args );
+        if ( DEBUG_ENABLED ) logger.debug( this.run, `Commands.run() '${ commandName }' for component '${ componentNameUnique }'`, args );
+
+        // Fire core's before-run hooks
+        this.coreCommands.fireBeforeRun( command as unknown as CoreCommandBase, args );
 
         const singleComponentContext = core[ GET_INTERNAL_SYMBOL ]( componentNameUnique );
 
@@ -79,6 +116,9 @@ class CommandsManager {
         } else {
             executionResult = await command.execute( singleComponentContext.emitter, args );
         }
+
+        // Fire core's after-run hooks
+        await this.coreCommands.fireAfterRun( command as unknown as CoreCommandBase, args, {}, executionResult );
 
         if ( callback ) {
             callback( executionResult );
@@ -113,7 +153,7 @@ class CommandsManager {
 
         // Check if id exist within the component context
         if ( ! singleComponentContext.commands[ commandName ] ) {
-            throw new Error( `Command '${ commandName }' not registered for component '${ componentNameUnique }'` );
+            throw new CommandNotFound( commandName );
         }
 
         const listeners = singleComponentContext.emitter.listeners( commandName );
@@ -121,7 +161,7 @@ class CommandsManager {
         if ( ! options?.__ignoreDuplicatedHookError ) {
             // Check if the same callback is already registered
             if ( listeners.length > 0 && listeners.find( l => l.name === callback.name ) ) {
-                console.warn(
+                logger.warn( this.hook,
                     `Probably duplicated hook in '${ commandName }'\n` +
                     `callback '${ callback.name }()' already hooked for component '${ componentNameUnique }'` +
                     "The hook will be ignored, to avoid this error bound the callback or pass options: { __ignoreDuplicatedHookError: true }"
@@ -153,7 +193,7 @@ class CommandsManager {
         const singleComponentContext = core[ GET_INTERNAL_SYMBOL ]( componentNameUnique ) as DCommandSingleComponentContext;
 
         if ( ! singleComponentContext.commands[ commandName ] ) {
-            throw new Error( `Command '${ commandName }' not registered for component '${ componentNameUnique }'` );
+            throw new CommandNotFound( commandName );
         }
         const wrapped = ( result?: any, args?: DCommandArgs ) => callback( result, args );
         singleComponentContext.emitter.on( commandName, wrapped );
@@ -191,7 +231,7 @@ class CommandsManager {
 
         // Check if id exist within the component context
         if ( ! singleComponentContext.commands[ commandName ] ) {
-            throw new Error( `Command '${ commandName }' not registered for component '${ componentNameUnique }'` );
+            throw new CommandNotFound( commandName );
         }
 
         singleComponentContext.emitter.removeAllListeners( commandName );
@@ -265,7 +305,7 @@ class CommandsManager {
         const contexts = core.__devGetContextValues?.() || [];
         const matches = contexts.filter( c => c.componentName === componentName && !!c.commands[ commandName ] );
         const ctx = matches[ index ];
-        if ( ! ctx ) throw new Error( `Command '${ commandName }' for component '${ componentName }' not found` );
+        if ( ! ctx ) throw new CommandNotFound( commandName );
         return { commandName, componentName, componentNameUnique: ctx.componentNameUnique };
     }
 
@@ -281,6 +321,50 @@ class CommandsManager {
 
     public isContextRegistered( componentNameUnique: string ) {
         return !! core[ GET_INTERNAL_SYMBOL ]( componentNameUnique, true );
+    }
+
+    // --- Core Commands hook API delegation ---
+
+    /**
+     * Register a data-only before hook for a command.
+     */
+    public onBefore( hookCommand: string, callback: TCommandCallbackType ) {
+        this.coreCommands.onBefore( hookCommand, callback );
+    }
+
+    /**
+     * Register a UI-only before hook for a command.
+     */
+    public onBeforeUI( hookCommand: string, callback: TCommandCallbackType ) {
+        this.coreCommands.onBeforeUI( hookCommand, callback );
+    }
+
+    /**
+     * Register a data-only after hook for a command.
+     */
+    public onAfter( hookCommand: string, callback: TCommandCallbackType ) {
+        this.coreCommands.onAfter( hookCommand, callback );
+    }
+
+    /**
+     * Register a UI-only after hook for a command.
+     */
+    public onAfterUI( command: string, callback: TCommandCallbackType ) {
+        this.coreCommands.onAfterUI( command, callback );
+    }
+
+    /**
+     * Register a one-time after hook for a command.
+     */
+    public onAfterOnce( command: string, callback: TCommandCallbackType ) {
+        this.coreCommands.onAfterOnce( command, callback );
+    }
+
+    /**
+     * Register a trigger that runs a command after another command runs.
+     */
+    public onAfterAffect( hookCommand: string, affectCommand: string ) {
+        this.coreCommands.onAfterAffect( hookCommand, affectCommand );
     }
 
     public devShowComponents() {

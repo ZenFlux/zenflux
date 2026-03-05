@@ -1,4 +1,5 @@
 import { DEBUG_ENABLED } from "@zenflux/react-commander/constants";
+import { logger } from "../_internal/logger";
 import { QueryRouterBase } from "@zenflux/react-commander/query/router";
 
 import type { DCommandFunctionComponent } from "@zenflux/react-commander/definitions";
@@ -131,7 +132,7 @@ export abstract class QueryModuleBase<TResource extends object = object> {
             throw new Error( `Cannot find route for ${ name }` );
         }
 
-        if ( DEBUG_ENABLED ) console.log( "request", { name, args, found: { method: found.method, path: found.route.path } } );
+        if ( DEBUG_ENABLED ) logger.debug( this.request, `request`, { name, args, found: { method: found.method, path: found.route.path } } );
         const payload = args ?? {};
 
         const result = await this.api.fetch( found.method!, found.route.path, payload, async( response ) => {
@@ -141,7 +142,7 @@ export abstract class QueryModuleBase<TResource extends object = object> {
             return await response.json();
         } );
 
-        if ( DEBUG_ENABLED ) console.log( "request result", { name, result } );
+        if ( DEBUG_ENABLED ) logger.debug( this.request, `request result`, { name, result } );
         return result as TResult;
     }
 

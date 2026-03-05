@@ -8,6 +8,8 @@ import {
     UNREGISTER_INTERNAL_SYMBOL
 } from "./constants";
 
+import { logger } from "./logger";
+
 import { version } from "../../package.json";
 
 import type { DCoreContext, DCoreInterface, DCoreRegisterArgs } from "./definitions";
@@ -227,7 +229,7 @@ const core = getOrCreateCore();
 if ( /* from vite */ import.meta.env.DEV ) {
     if ( DEBUG_ENABLED ) {
         core.__devDebug = ( ... args: Parameters<DCoreInterface[ "__devDebug" ]> ) => {
-            console.log( ... args );
+            logger.debug( core.__devDebug, ... args );
         };
     }
 
