@@ -12,7 +12,7 @@ import { prepareWorkInProgressFreshStack } from "@zenflux/react-reconciler/src/r
 import { renderRootSync } from "@zenflux/react-reconciler/src/react-fiber-work-on-root-render-root";
 import { RootExitStatus } from "@zenflux/react-reconciler/src/root-exit-status";
 
-import type { FiberRoot, Lanes } from "@zenflux/react-shared/src/react-internal-types";
+import type { FiberRoot, Lanes } from "@zenflux/react-shared/src/react-internal-types/index";
 
 const {
     errorHydratingContainer,

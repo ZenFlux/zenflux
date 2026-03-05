@@ -30,7 +30,7 @@ import {
 import { retryIfBlockedOn } from "@zenflux/react-dom-bindings/src/events/ReactDOMEventReplaying";
 
 import type { SuspenseInstance } from "@zenflux/react-shared/src/react-internal-types/suspense";
-import type { Fiber } from "@zenflux/react-shared/src/react-internal-types";
+import type { Fiber } from "@zenflux/react-shared/src/react-internal-types/index";
 
 import type { Container, HostContext, HydratableInstance, Instance, Props, TextInstance } from "@zenflux/react-dom-bindings/src/client/ReactFiberConfigDOM";
 

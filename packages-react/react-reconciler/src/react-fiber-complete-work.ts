@@ -83,7 +83,7 @@ import {
 } from "@zenflux/react-reconciler/src/react-fiber-work-loop";
 import { transferActualDuration } from "@zenflux/react-reconciler/src/react-profile-timer";
 
-import type { Cache, Lane, Lanes , Fiber, FiberRoot } from "@zenflux/react-shared/src/react-internal-types";
+import type { Cache, Lane, Lanes , Fiber, FiberRoot } from "@zenflux/react-shared/src/react-internal-types/index";
 
 import type { ChildSet, Container, Instance, Props, Resource, Type } from "@zenflux/react-reconciler/src/react-fiber-config";
 import type { RootState } from "@zenflux/react-reconciler/src/react-fiber-root";

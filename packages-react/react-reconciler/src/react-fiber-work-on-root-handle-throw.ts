@@ -26,7 +26,7 @@ import { stopProfilerTimerIfRunningAndRecordDelta } from "@zenflux/react-reconci
 import { SuspendedReason } from "@zenflux/react-reconciler/src/react-suspended-reason";
 import { RootExitStatus } from "@zenflux/react-reconciler/src/root-exit-status";
 
-import type { FiberRoot } from "@zenflux/react-shared/src/react-internal-types";
+import type { FiberRoot } from "@zenflux/react-shared/src/react-internal-types/index";
 import type { Wakeable } from "@zenflux/react-shared/src/react-types";
 
 const {

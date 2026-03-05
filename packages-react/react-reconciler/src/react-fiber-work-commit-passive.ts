@@ -58,7 +58,7 @@ import {
 import type { SuspenseState } from "@zenflux/react-reconciler/src/react-fiber-suspense-component";
 import type { Instance } from "@zenflux/react-dom-bindings/src/client/ReactFiberConfigDOM";
 
-import type { Cache, Fiber, FiberRoot, Lanes } from "@zenflux/react-shared/src/react-internal-types";
+import type { Cache, Fiber, FiberRoot, Lanes } from "@zenflux/react-shared/src/react-internal-types/index";
 
 import type {
     OffscreenInstance,
@@ -1036,7 +1036,7 @@ function commitHookPassiveMountEffects( finishedWork: Fiber, hookFlags: HookFlag
 
         try {
             commitHookEffectListMount( hookFlags, finishedWork );
-        } catch ( error ) {
+        } catch( error ) {
             captureCommitPhaseError( finishedWork, finishedWork.return, error );
         }
 
@@ -1044,7 +1044,7 @@ function commitHookPassiveMountEffects( finishedWork: Fiber, hookFlags: HookFlag
     } else {
         try {
             commitHookEffectListMount( hookFlags, finishedWork );
-        } catch ( error ) {
+        } catch( error ) {
             captureCommitPhaseError( finishedWork, finishedWork.return, error );
         }
     }

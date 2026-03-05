@@ -1,4 +1,4 @@
-import type { Fiber } from "@zenflux/react-shared/src/react-internal-types";
+import type { Fiber } from "@zenflux/react-shared/src/react-internal-types/index";
 import type { CapturedValue } from "@zenflux/react-reconciler/src/react-captured-value";
 
 // This module is forked in different environments.

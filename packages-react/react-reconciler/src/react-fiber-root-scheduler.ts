@@ -3,7 +3,7 @@ import { NoLane } from "@zenflux/react-shared/src/react-internal-constants/fiber
 import { ReactFiberRootSchedulerShared } from "@zenflux/react-reconciler/src/react-fiber-root-scheduler-shared";
 import { claimNextTransitionLane } from "@zenflux/react-reconciler/src/react-fiber-lane";
 
-import type { Lane } from "@zenflux/react-shared/src/react-internal-types";
+import type { Lane } from "@zenflux/react-shared/src/react-internal-types/index";
 
 export function requestTransitionLane(): Lane {
     // The algorithm for assigning an update to a lane should be stable for all

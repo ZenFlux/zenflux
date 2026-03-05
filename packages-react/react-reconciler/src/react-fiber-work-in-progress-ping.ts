@@ -22,7 +22,7 @@ import { prepareWorkInProgressFreshStack } from "@zenflux/react-reconciler/src/r
 import { isGlobalMostRecentFallbackNotExceeded } from "@zenflux/react-reconciler/src/react-fiber-work-most-recent-fallback-time";
 import { RootExitStatus } from "@zenflux/react-reconciler/src/root-exit-status";
 
-import type { FiberRoot, Lanes } from "@zenflux/react-shared/src/react-internal-types";
+import type { FiberRoot, Lanes } from "@zenflux/react-shared/src/react-internal-types/index";
 import type { Wakeable } from "@zenflux/react-shared/src/react-types";
 
 const PossiblyWeakMap: WeakMapConstructor = typeof WeakMap === "function" ? WeakMap : Map;

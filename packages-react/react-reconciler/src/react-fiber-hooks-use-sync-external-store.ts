@@ -37,7 +37,7 @@ import {
 
 import { scheduleUpdateOnFiber } from "@zenflux/react-reconciler/src/react-fiber-work-schedule-update";
 
-import type { Fiber, FiberRoot } from "@zenflux/react-shared/src/react-internal-types";
+import type { Fiber, FiberRoot } from "@zenflux/react-shared/src/react-internal-types/index";
 
 import type { StoreConsistencyCheck, StoreInstance } from "@zenflux/react-shared/src/react-internal-types/store";
 
@@ -66,7 +66,7 @@ function checkIfSnapshotChanged<T>( inst: StoreInstance<T> ): boolean {
         const nextValue = latestGetSnapshot();
         return ! is( prevValue, nextValue );
         // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    } catch ( error ) {
+    } catch( error ) {
         return true;
     }
 }

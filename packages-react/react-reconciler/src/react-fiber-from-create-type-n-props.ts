@@ -53,7 +53,7 @@ import { createFiberFromOffscreen } from "@zenflux/react-reconciler/src/react-fi
 import { createFiberFromLegacyHidden } from "@zenflux/react-reconciler/src/react-fiber-create-from-hidden";
 import { shouldConstruct } from "@zenflux/react-reconciler/src/react-fiber-create-utils";
 
-import type { Fiber, Lanes } from "@zenflux/react-shared/src/react-internal-types";
+import type { Fiber, Lanes } from "@zenflux/react-shared/src/react-internal-types/index";
 import type { Source } from "@zenflux/react-shared/src/react-element-type";
 import type { ReactScope } from "@zenflux/react-shared/src/react-types";
 

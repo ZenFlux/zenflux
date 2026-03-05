@@ -19,7 +19,7 @@ import { isHydrating } from "@zenflux/react-reconciler/src/react-fiber-hydration
 import { getWorkInProgressRoot } from "@zenflux/react-reconciler/src/react-fiber-work-in-progress";
 
 import type { Dispatch, FormStateActionQueue, FormStateActionQueueNode, Hook } from "@zenflux/react-reconciler/src/react-fiber-hooks-types";
-import type { Fiber, FiberRoot } from "@zenflux/react-shared/src/react-internal-types";
+import type { Fiber, FiberRoot } from "@zenflux/react-shared/src/react-internal-types/index";
 import type { RejectedThenable, Thenable } from "@zenflux/react-shared/src/react-types";
 import type { BatchConfigTransition } from "@zenflux/react-shared/src/react-internal-types/transition";
 
@@ -91,7 +91,7 @@ function runFormStateAction<S, P>( actionQueue: FormStateActionQueue<S, P>, setS
             actionQueue.state = nextState;
             finishRunningFormStateAction( actionQueue, ( setState as any ) );
         }
-    } catch ( error ) {
+    } catch( error ) {
         // This is a trick to get the `useFormState` hook to rethrow the error.
         // When it unwraps the thenable with the `use` algorithm, the error
         // will be thrown.

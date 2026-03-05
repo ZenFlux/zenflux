@@ -3,7 +3,7 @@ import { isTransitionLane } from "@zenflux/react-shared/src/react-internal-const
 import { markRootEntangled } from "@zenflux/react-reconciler/src/react-entangled-lane";
 import { intersectLanes, mergeLanes } from "@zenflux/react-reconciler/src/react-fiber-lane";
 
-import type { Lane, FiberRoot, HookUpdateQueue } from "@zenflux/react-shared/src/react-internal-types";
+import type { Lane, FiberRoot, HookUpdateQueue } from "@zenflux/react-shared/src/react-internal-types/index";
 
 // TODO: Move to ReactFiberConcurrentUpdates?
 export function entangleTransitionUpdate<S, A>( root: FiberRoot, queue: HookUpdateQueue<S, A>, lane: Lane ): void {

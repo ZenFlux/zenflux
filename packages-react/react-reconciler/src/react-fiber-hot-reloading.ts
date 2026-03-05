@@ -23,7 +23,7 @@ import { scheduleUpdateOnFiber } from "@zenflux/react-reconciler/src/react-fiber
 import type { Family, RefreshHandler } from "@zenflux/react-reconciler/src/react-fiber-hot-reloading-resvole";
 
 import type { Instance } from "@zenflux/react-reconciler/src/react-fiber-config";
-import type { Fiber, FiberRoot } from "@zenflux/react-shared/src/react-internal-types";
+import type { Fiber, FiberRoot } from "@zenflux/react-shared/src/react-internal-types/index";
 import type { ReactElement } from "@zenflux/react-shared/src/react-element-type";
 import type { ReactNodeList } from "@zenflux/react-shared/src/react-types";
 

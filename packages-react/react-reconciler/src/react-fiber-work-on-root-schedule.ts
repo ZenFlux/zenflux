@@ -47,7 +47,7 @@ import { ReactFiberRootSchedulerShared } from "@zenflux/react-reconciler/src/rea
 
 import { performConcurrentWorkOnRoot } from "@zenflux/react-reconciler/src/react-fiber-work-on-root-concurrent";
 
-import type { FiberRoot, Lane } from "@zenflux/react-shared/src/react-internal-types";
+import type { FiberRoot, Lane } from "@zenflux/react-shared/src/react-internal-types/index";
 import type { PriorityLevel, SchedulerCallback, SchedulerTask } from "@zenflux/react-scheduler";
 
 const {

@@ -4,7 +4,7 @@ import { WorkTag } from "@zenflux/react-shared/src/react-internal-constants/work
 
 import type { Instance } from "@zenflux/react-reconciler/src/react-fiber-config";
 
-import type { Fiber } from "@zenflux/react-shared/src/react-internal-types";
+import type { Fiber } from "@zenflux/react-shared/src/react-internal-types/index";
 
 const {
     findFiberRoot,

@@ -92,7 +92,7 @@ import type { TransitionStatus } from "@zenflux/react-shared/src/react-internal-
 import type { SuspenseInstance } from "@zenflux/react-shared/src/react-internal-types/suspense";
 
 import type { ReactScopeInstance } from "@zenflux/react-shared/src/react-types";
-import type { Fiber, FiberRoot } from "@zenflux/react-shared/src/react-internal-types";
+import type { Fiber, FiberRoot } from "@zenflux/react-shared/src/react-internal-types/index";
 import type {
     BoundingRect,
     IntersectionObserverOptions,
@@ -274,7 +274,7 @@ let selectionInformation: SelectionInformation | null = null;
 // export * from "@zenflux/react-reconciler/src/ReactFiberConfigWithNoPersistence";
 
 function getOwnerDocumentFromRootContainer( rootContainerElement: Element | Document | DocumentFragment ): Document {
-    return rootContainerElement.nodeType === DOCUMENT_NODE ? ( rootContainerElement as any ) : rootContainerElement.ownerDocument;
+    return rootContainerElement.nodeType === DOCUMENT_NODE ? ( rootContainerElement as any ) : rootContainerElement.ownerDocument!;
 }
 
 export function getRootHostContext( rootContainerInstance: Container ): HostContext {
@@ -949,6 +949,7 @@ export function clearContainer( container: Container ): void {
                     return;
 
                 default: {
+                    // @ts-ignore
                     container.textContent = "";
                 }
             }

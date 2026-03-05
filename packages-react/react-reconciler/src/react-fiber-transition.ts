@@ -10,7 +10,7 @@ import { getWorkInProgressRoot, getWorkInProgressTransitions } from "@zenflux/re
 
 import type { Transition } from "@zenflux/react-shared/src/react-internal-types/transition";
 
-import type { Cache, SpawnedCachePool , Fiber, FiberRoot, Lanes } from "@zenflux/react-shared/src/react-internal-types";
+import type { Cache, SpawnedCachePool , Fiber, FiberRoot, Lanes } from "@zenflux/react-shared/src/react-internal-types/index";
 import type { StackCursor } from "@zenflux/react-reconciler/src/react-fiber-stack";
 
 const {

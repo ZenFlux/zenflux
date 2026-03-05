@@ -10,7 +10,7 @@ import { TypeOfMode } from "@zenflux/react-shared/src/react-internal-constants/t
 
 import { pickArbitraryLaneIndex } from "@zenflux/react-reconciler/src/react-fiber-lane";
 
-import type { FiberRoot, Lanes } from "@zenflux/react-shared/src/react-internal-types";
+import type { FiberRoot, Lanes } from "@zenflux/react-shared/src/react-internal-types/index";
 
 // A contextual version of WorkInProgressRootRenderLanes. It is a superset of
 // the lanes that we started working on at the root. When we enter a subtree

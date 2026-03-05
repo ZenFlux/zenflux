@@ -12,7 +12,7 @@ import { RootExitStatus } from "@zenflux/react-reconciler/src/root-exit-status";
 
 import { mergeLanes } from "@zenflux/react-reconciler/src/react-fiber-lane";
 
-import type { Fiber, FiberRoot, Lane, Lanes } from "@zenflux/react-shared/src/react-internal-types";
+import type { Fiber, FiberRoot, Lane, Lanes } from "@zenflux/react-shared/src/react-internal-types/index";
 
 import type { CapturedValue } from "@zenflux/react-reconciler/src/react-captured-value";
 import type { Transition } from "@zenflux/react-shared/src/react-internal-types/transition";

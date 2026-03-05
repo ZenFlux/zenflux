@@ -9,7 +9,7 @@ import type { Container, HostContext } from "@zenflux/react-reconciler/src/react
 import type { Hook } from "@zenflux/react-reconciler/src/react-fiber-hooks-types";
 import type { StackCursor } from "@zenflux/react-reconciler/src/react-fiber-stack";
 
-import type { Fiber } from "@zenflux/react-shared/src/react-internal-types";
+import type { Fiber } from "@zenflux/react-shared/src/react-internal-types/index";
 
 import type { ReactContext } from "@zenflux/react-shared/src/react-types";
 

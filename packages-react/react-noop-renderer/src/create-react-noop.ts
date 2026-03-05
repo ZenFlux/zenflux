@@ -22,7 +22,7 @@ import type { RootTag } from "@zenflux/react-shared/src/react-internal-constants
 import type { reactReconciler } from "@zenflux/react-reconciler";
 import type { Fiber, PublicInstance, ReactReconcilerConfig } from "@zenflux/react-reconciler/src/react-fiber-config";
 
-import type { FiberUpdateQueue, TransitionTracingCallbacks } from "@zenflux/react-shared/src/react-internal-types";
+import type { FiberUpdateQueue, TransitionTracingCallbacks } from "@zenflux/react-shared/src/react-internal-types/index";
 
 import type { ReactNodeList } from "@zenflux/react-shared/src/react-types";
 import type { TransitionStatus } from "@zenflux/react-shared/src/react-internal-types/transition";

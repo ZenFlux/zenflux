@@ -4,11 +4,11 @@ import type { ThenableState } from "@zenflux/react-reconciler/src/react-fiber-th
 let thenableState: ThenableState | null = null;
 let thenableIndexCounter: number = 0;
 
-let didWarnAboutMaps: boolean;
-let didWarnAboutGenerators: boolean;
-let didWarnAboutStringRefs: Record<string, boolean>;
-let ownerHasKeyUseWarning: Record<string, boolean>;
-let ownerHasFunctionTypeWarning: Record<string, boolean>;
+let didWarnAboutMaps!: boolean;
+let didWarnAboutGenerators!: boolean;
+let didWarnAboutStringRefs!: Record<string, boolean>;
+let ownerHasKeyUseWarning!: Record<string, boolean>;
+let ownerHasFunctionTypeWarning!: Record<string, boolean>;
 
 export class ReactChildFiberCurrent {
     public static thenableState: ThenableState | null = thenableState;

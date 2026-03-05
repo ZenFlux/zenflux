@@ -7,7 +7,7 @@
     "type": "module",
     "exports": {
         "./package.json": "./package.json",
-        "./src/*": "./src/*"
+        "./src/*": "./src/*.ts"
     },
     "main": "dist/zenflux-react-test-renderer.cjs",
     "scripts": {

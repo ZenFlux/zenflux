@@ -33,7 +33,7 @@ import {
 
 import type { Container, Instance } from "@zenflux/react-reconciler/src/react-fiber-config";
 import type { SuspenseState } from "@zenflux/react-reconciler/src/react-fiber-suspense-component";
-import type { Fiber, FiberRoot, Lanes } from "@zenflux/react-shared/src/react-internal-types";
+import type { Fiber, FiberRoot, Lanes } from "@zenflux/react-shared/src/react-internal-types/index";
 import type { OffscreenState } from "@zenflux/react-shared/src/react-internal-types/offscreen";
 
 const {

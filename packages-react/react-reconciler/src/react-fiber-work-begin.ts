@@ -225,7 +225,7 @@ import type {
     FiberUpdateQueue,
     Lane,
     Lanes
-} from "@zenflux/react-shared/src/react-internal-types";
+} from "@zenflux/react-shared/src/react-internal-types/index";
 import type { ReactContext, ReactNodeList, ReactProviderType } from "@zenflux/react-shared/src/react-types";
 
 import type { TracingMarkerInstance } from "@zenflux/react-shared/src/react-internal-types/tracing";
@@ -485,7 +485,7 @@ function updateSimpleMemoComponent( current: Fiber | null, workInProgress: Fiber
                 try {
                     outerMemoType = init( payload );
                     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-                } catch ( x ) {
+                } catch( x ) {
                     outerMemoType = null;
                 }
 

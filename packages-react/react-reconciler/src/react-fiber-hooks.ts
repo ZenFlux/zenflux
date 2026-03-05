@@ -105,7 +105,7 @@ import reactGetComponentNameFromFiber from "@zenflux/react-reconciler/src/react-
 import type { TransitionStatus } from "@zenflux/react-shared/src/react-internal-types/transition";
 
 import type { BasicStateAction, Hook } from "@zenflux/react-reconciler/src/react-fiber-hooks-types";
-import type { Dispatcher, Fiber, HookUpdateQueue, Lanes } from "@zenflux/react-shared/src/react-internal-types";
+import type { Dispatcher, Fiber, HookUpdateQueue, Lanes } from "@zenflux/react-shared/src/react-internal-types/index";
 import type { ReactContext, Thenable, Usable } from "@zenflux/react-shared/src/react-types";
 
 import type { HookType } from "@zenflux/react-shared/src/react-internal-types/hook";
@@ -1354,7 +1354,7 @@ if ( __DEV__ ) {
     }
 
     if ( enableUseMemoCacheHook ) {
-        ( ReactFiberHooksInvalidNestedHooksDispatcherInDEV.onMount as Dispatcher ).useMemoCache = function ( size: number ): Array<any> {
+        ( ReactFiberHooksInvalidNestedHooksDispatcherInDEV.onMount as Dispatcher ).useMemoCache = function( size: number ): Array<any> {
             warnInvalidHookAccess();
             return useMemoCache( size );
         };
@@ -1540,7 +1540,7 @@ if ( __DEV__ ) {
     }
 
     if ( enableUseMemoCacheHook ) {
-        ( ReactFiberHooksInvalidNestedHooksDispatcherInDEV.onUpdate as Dispatcher ).useMemoCache = function ( size: number ): Array<any> {
+        ( ReactFiberHooksInvalidNestedHooksDispatcherInDEV.onUpdate as Dispatcher ).useMemoCache = function( size: number ): Array<any> {
             warnInvalidHookAccess();
             return useMemoCache( size );
         };
@@ -1726,7 +1726,7 @@ if ( __DEV__ ) {
     }
 
     if ( enableUseMemoCacheHook ) {
-        ( ReactFiberHooksInvalidNestedHooksDispatcherInDEV.onRenderer as Dispatcher ).useMemoCache = function ( size: number ): Array<any> {
+        ( ReactFiberHooksInvalidNestedHooksDispatcherInDEV.onRenderer as Dispatcher ).useMemoCache = function( size: number ): Array<any> {
             warnInvalidHookAccess();
             return useMemoCache( size );
         };

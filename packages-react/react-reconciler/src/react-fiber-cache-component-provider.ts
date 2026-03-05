@@ -4,7 +4,7 @@ import { popProvider, pushProvider } from "@zenflux/react-reconciler/src/react-f
 
 import { CacheContext } from "@zenflux/react-reconciler/src/react-fiber-cache-component";
 
-import type { Fiber, Cache } from "@zenflux/react-shared/src/react-internal-types";
+import type { Fiber, Cache } from "@zenflux/react-shared/src/react-internal-types/index";
 
 export function pushCacheProvider( workInProgress: Fiber, cache: Cache ) {
     if ( ! enableCache ) {

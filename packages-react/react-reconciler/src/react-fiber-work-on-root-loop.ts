@@ -58,7 +58,7 @@ import { SuspenseException } from "@zenflux/react-reconciler/src/react-fiber-the
 
 import { SelectiveHydrationException } from "@zenflux/react-reconciler/src/react-fiber-work-selective-hydration-exception";
 
-import type { Fiber, FiberRoot, Lanes } from "@zenflux/react-shared/src/react-internal-types";
+import type { Fiber, FiberRoot, Lanes } from "@zenflux/react-shared/src/react-internal-types/index";
 
 const {
     ReactCurrentOwner,
@@ -79,7 +79,7 @@ if ( __DEV__ && replayFailedUnitOfWorkWithInvokeGuardedCallback ) {
 
         try {
             return originalBeginWork( current, unitOfWork, lanes );
-        } catch ( originalError: any ) {
+        } catch( originalError: any ) {
             if (
                 didSuspendOrErrorWhileHydratingDEV() ||
                 originalError === SuspenseException ||
@@ -166,7 +166,7 @@ export function throwAndUnwindWorkLoop( unitOfWork: Fiber, thrownValue: unknown 
         // Find and mark the nearest Suspense or error boundary that can handle
         // this "exception".
         throwException( getWorkInProgressRoot() as NonNullable<FiberRoot>, returnFiber, unitOfWork, thrownValue, getWorkInProgressRootRenderLanes() );
-    } catch ( error ) {
+    } catch( error ) {
         // We had trouble processing the error. An example of this happening is
         // when accessing the `componentDidCatch` property of an error boundary
         // throws an error. A weird edge case. There's a regression test for this.

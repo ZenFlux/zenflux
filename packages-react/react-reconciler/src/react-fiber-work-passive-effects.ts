@@ -54,7 +54,7 @@ import {
     commitPassiveUnmountEffects
 } from "@zenflux/react-reconciler/src/react-fiber-work-commit-passive";
 
-import type { FiberRoot, Fiber, Lanes } from "@zenflux/react-shared/src/react-internal-types";
+import type { FiberRoot, Fiber, Lanes } from "@zenflux/react-shared/src/react-internal-types/index";
 import type { Transition } from "@zenflux/react-shared/src/react-internal-types/transition";
 
 const {

@@ -20,7 +20,7 @@ import {
 import { resetSuspendedWorkLoopOnUnwind } from "@zenflux/react-reconciler/src/react-fiber-work-unwind";
 import { unwindInterruptedWork } from "@zenflux/react-reconciler/src/react-fiber-unwind-work";
 
-import type { Fiber  } from "@zenflux/react-shared/src/react-internal-types";
+import type { Fiber  } from "@zenflux/react-shared/src/react-internal-types/index";
 
 export function resetWorkInProgressStack() {
     if ( getWorkInProgress() === null ) return;

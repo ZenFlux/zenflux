@@ -7,6 +7,7 @@
  */
 import { ObjectBase } from "../bases";
 import { ControllerAlreadySet, ForceMethodImplementation } from "../errors";
+import { createLogger } from "../modules/logger/create-logger";
 
 import type { ControllerBase } from "../bases";
 
@@ -41,10 +42,7 @@ export abstract class CommandBase extends ObjectBase {
 
         const type = ( this.constructor as typeof CommandBase );
 
-        this.logger = new zCore.classes.Logger( type, {
-            // Happens or occurs many times, often in a similar or identical manner.
-            repeatedly: true,
-        } );
+        this.logger = createLogger( type );
 
         this.logger.startsWith( this.constructor, { args, options } );
 

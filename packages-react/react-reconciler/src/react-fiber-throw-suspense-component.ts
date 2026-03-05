@@ -8,7 +8,7 @@ import { noopSuspenseyCommitThenable } from "@zenflux/react-reconciler/src/react
 import { attachPingListener } from "@zenflux/react-reconciler/src/react-fiber-work-in-progress-ping";
 import { markSuspenseBoundaryShouldCapture } from "@zenflux/react-reconciler/src/react-fiber-throw-suspense-boundary";
 
-import type { Fiber, FiberRoot, Lanes } from "@zenflux/react-shared/src/react-internal-types";
+import type { Fiber, FiberRoot, Lanes } from "@zenflux/react-shared/src/react-internal-types/index";
 import type { Wakeable } from "@zenflux/react-shared/src/react-types";
 import type { RetryQueue } from "@zenflux/react-shared/src/react-internal-types/queue";
 

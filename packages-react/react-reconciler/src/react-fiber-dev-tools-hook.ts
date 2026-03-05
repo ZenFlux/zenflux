@@ -26,7 +26,7 @@ import {
 } from "@zenflux/react-reconciler/src/react-event-priorities";
 
 import type { EventPriority } from "@zenflux/react-reconciler/src/react-event-priorities";
-import type { Fiber, FiberRoot, Lane, Lanes } from "@zenflux/react-shared/src/react-internal-types";
+import type { Fiber, FiberRoot, Lane, Lanes } from "@zenflux/react-shared/src/react-internal-types/index";
 import type { ReactNodeList, Wakeable } from "@zenflux/react-shared/src/react-types";
 
 // import type {DevToolsProfilingHooks} from 'react-devtools-shared/src/backend/types';
@@ -82,7 +82,7 @@ export function injectInternals( internals: Record<string, any> ): boolean {
         rendererID = hook.inject( internals );
         // We have successfully injected, so now it is safe to set up hooks.
         injectedHook = hook;
-    } catch ( err ) {
+    } catch( err ) {
         // Catch all errors because it is unsafe to throw during initialization.
         if ( __DEV__ ) {
             console.error( "React instrumentation encountered an error: %s.", err );
@@ -103,7 +103,7 @@ export function onScheduleRoot( root: FiberRoot, children: ReactNodeList ) {
         if ( injectedHook && typeof injectedHook.onScheduleFiberRoot === "function" ) {
             try {
                 injectedHook.onScheduleFiberRoot( rendererID, root, children );
-            } catch ( err ) {
+            } catch( err ) {
                 if ( __DEV__ && ! hasLoggedError ) {
                     hasLoggedError = true;
                     console.error( "React instrumentation encountered an error: %s", err );
@@ -147,7 +147,7 @@ export function onCommitRoot( root: FiberRoot, eventPriority: EventPriority ) {
             } else {
                 injectedHook.onCommitFiberRoot( rendererID, root, undefined, didError );
             }
-        } catch ( err ) {
+        } catch( err ) {
             if ( __DEV__ ) {
                 if ( ! hasLoggedError ) {
                     hasLoggedError = true;
@@ -162,7 +162,7 @@ export function onPostCommitRoot( root: FiberRoot ) {
     if ( injectedHook && typeof injectedHook.onPostCommitFiberRoot === "function" ) {
         try {
             injectedHook.onPostCommitFiberRoot( rendererID, root );
-        } catch ( err ) {
+        } catch( err ) {
             if ( __DEV__ ) {
                 if ( ! hasLoggedError ) {
                     hasLoggedError = true;
@@ -177,7 +177,7 @@ export function onCommitUnmount( fiber: Fiber ) {
     if ( injectedHook && typeof injectedHook.onCommitFiberUnmount === "function" ) {
         try {
             injectedHook.onCommitFiberUnmount( rendererID, fiber );
-        } catch ( err ) {
+        } catch( err ) {
             if ( __DEV__ ) {
                 if ( ! hasLoggedError ) {
                     hasLoggedError = true;
@@ -201,7 +201,7 @@ export function setIsStrictModeForDevtools( newIsStrictMode: boolean ) {
         if ( injectedHook && typeof injectedHook.setStrictMode === "function" ) {
             try {
                 injectedHook.setStrictMode( rendererID, newIsStrictMode );
-            } catch ( err ) {
+            } catch( err ) {
                 if ( __DEV__ ) {
                     if ( ! hasLoggedError ) {
                         hasLoggedError = true;

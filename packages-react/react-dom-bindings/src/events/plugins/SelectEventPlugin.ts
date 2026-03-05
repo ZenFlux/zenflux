@@ -13,7 +13,7 @@ import { DOCUMENT_NODE } from "@zenflux/react-dom-bindings/src/client/HTMLNodeTy
 
 import { accumulateTwoPhaseListeners } from "@zenflux/react-dom-bindings/src/events/react-dom-plugin-event-system-accumulate";
 
-import type { Fiber } from "@zenflux/react-shared/src/react-internal-types";
+import type { Fiber } from "@zenflux/react-shared/src/react-internal-types/index";
 
 import type { DispatchQueue } from "@zenflux/react-dom-bindings/src/events/DOMPluginEventSystem";
 

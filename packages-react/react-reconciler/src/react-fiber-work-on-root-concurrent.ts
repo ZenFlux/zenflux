@@ -99,7 +99,7 @@ import { resetNestedUpdateFlag } from "@zenflux/react-reconciler/src/react-profi
 import { SuspendedReason } from "@zenflux/react-reconciler/src/react-suspended-reason";
 import { RootExitStatus } from "@zenflux/react-reconciler/src/root-exit-status";
 
-import type { Fiber, FiberRoot, Lanes } from "@zenflux/react-shared/src/react-internal-types";
+import type { Fiber, FiberRoot, Lanes } from "@zenflux/react-shared/src/react-internal-types/index";
 import type { SchedulerCallback } from "@zenflux/react-scheduler";
 import type { Thenable } from "@zenflux/react-shared/src/react-types";
 
@@ -568,7 +568,7 @@ function renderRootConcurrent( root: FiberRoot, lanes: Lanes ) {
             }
 
             break;
-        } catch ( thrownValue ) {
+        } catch( thrownValue ) {
             handleThrow( root, thrownValue );
         }
     } while ( true );

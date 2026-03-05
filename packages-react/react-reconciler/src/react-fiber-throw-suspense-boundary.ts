@@ -6,7 +6,7 @@ import { SyncLane } from "@zenflux/react-shared/src/react-internal-constants/fib
 import { mergeLanes } from "@zenflux/react-reconciler/src/react-fiber-lane";
 import { createUpdate, enqueueUpdate, ForceUpdate } from "@zenflux/react-reconciler/src/react-fiber-class-update-queue";
 
-import type { Fiber, FiberRoot, Lanes } from "@zenflux/react-shared/src/react-internal-types";
+import type { Fiber, FiberRoot, Lanes } from "@zenflux/react-shared/src/react-internal-types/index";
 
 export function markSuspenseBoundaryShouldCapture( suspenseBoundary: Fiber,
     returnFiber: Fiber,

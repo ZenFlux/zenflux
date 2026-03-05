@@ -15,7 +15,7 @@ import {
     removeLanes,
 } from "@zenflux/react-reconciler/src/react-fiber-lane";
 
-import type { FiberRoot, Lane, Lanes } from "@zenflux/react-shared/src/react-internal-types";
+import type { FiberRoot, Lane, Lanes } from "@zenflux/react-shared/src/react-internal-types/index";
 
 function markSpawnedDeferredLane( root: FiberRoot, spawnedLane: Lane, entangledLanes: Lanes ) {
     // This render spawned a deferred task. Mark it as pending.

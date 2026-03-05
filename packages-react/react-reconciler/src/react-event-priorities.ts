@@ -11,7 +11,7 @@ import {
 import type {
     Lane,
     Lanes
-} from "@zenflux/react-shared/src/react-internal-types";
+} from "@zenflux/react-shared/src/react-internal-types/index";
 
 export type EventPriority = Lane;
 

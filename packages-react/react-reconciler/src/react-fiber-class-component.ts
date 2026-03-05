@@ -55,7 +55,7 @@ import { isMounted } from "@zenflux/react-reconciler/src/react-fiber-tree-reflec
 import ReactStrictModeWarnings from "@zenflux/react-reconciler/src/react-strict-mode-warnings";
 
 import type { FiberUpdateQueue } from "@zenflux/react-shared/src/react-internal-types/queue";
-import type { Fiber, Lanes } from "@zenflux/react-shared/src/react-internal-types";
+import type { Fiber, Lanes } from "@zenflux/react-shared/src/react-internal-types/index";
 
 const fakeInternalInstance: {
     _processChildContext?: () => never;
@@ -87,7 +87,7 @@ if ( __DEV__ ) {
     // exception.
     Object.defineProperty( fakeInternalInstance, "_processChildContext", {
         enumerable: false,
-        value: function (): never {
+        value: function(): never {
             throw new Error( "_processChildContext is not available in React 16+. This likely " + "means you have multiple copies of React and are attempting to nest " + "a React 15 tree inside a React 16 tree using " + "unstable_renderSubtreeIntoContainer, which isn't supported. Try " + "to make sure you have only one copy of React (and ideally, switch " + "to ReactDOM.createPortal)." );
         }
     } );

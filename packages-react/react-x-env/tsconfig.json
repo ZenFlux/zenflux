@@ -21,7 +21,6 @@
 
         "types": [
             "node",
-            "react"
         ],
         "typeRoots": [
             "../../node_modules/@types",

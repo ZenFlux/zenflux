@@ -28,7 +28,7 @@ import type { SuspenseInstance } from "@zenflux/react-shared/src/react-internal-
 
 import type { TracingMarkerInstance } from "@zenflux/react-shared/src/react-internal-types/tracing";
 
-import type { Lanes } from "@zenflux/react-shared/src/react-internal-types";
+import type { Lanes } from "@zenflux/react-shared/src/react-internal-types/index";
 
 import type { Fiber } from "@zenflux/react-reconciler/src/react-fiber-config";
 import type { ReactFragment, ReactPortal } from "@zenflux/react-shared/src/react-types";
@@ -46,7 +46,7 @@ if ( __DEV__ ) {
         new Set( [ nonExtensibleObject ] );
 
         // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    } catch ( e ) {
+    } catch( e ) {
         // TODO: Consider warning about bad polyfills
         hasBadMapPolyfill = true;
     }

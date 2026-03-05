@@ -4,7 +4,7 @@ import { FiberFlags } from "@zenflux/react-shared/src/react-internal-constants/f
 
 import type { FunctionComponentUpdateQueue } from "@zenflux/react-shared/src/react-internal-types/queue";
 
-import type { Fiber } from "@zenflux/react-shared/src/react-internal-types";
+import type { Fiber } from "@zenflux/react-shared/src/react-internal-types/index";
 
 export function isRenderConsistentWithExternalStores( finishedWork: Fiber ): boolean {
     // Search the rendered tree for external store reads, and check whether the
@@ -31,7 +31,7 @@ export function isRenderConsistentWithExternalStores( finishedWork: Fiber ): boo
                                 return false;
                             }
                             // eslint-disable-next-line @typescript-eslint/no-unused-vars
-                        } catch ( error ) {
+                        } catch( error ) {
                             // If `getSnapshot` throws, return `false`. This will schedule
                             // a re-render, and the error will be rethrown during render.
                             return false;

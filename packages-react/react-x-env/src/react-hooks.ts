@@ -1,7 +1,7 @@
 
 import "@zenflux/react-x-env/src/react-internals";
 
-import type { Dispatcher } from "@zenflux/react-shared/src/react-internal-types";
+import type { Dispatcher } from "@zenflux/react-shared/src/react-internal-types/index";
 
 import type { ReactContext, StartTransitionOptions, Usable } from "@zenflux/react-shared/src/react-types";
 

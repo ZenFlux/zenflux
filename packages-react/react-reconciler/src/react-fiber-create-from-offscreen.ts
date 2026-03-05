@@ -11,7 +11,7 @@ import { createFiber } from "@zenflux/react-reconciler/src/react-fiber";
 import type { OffscreenInstance, OffscreenProps } from "@zenflux/react-shared/src/react-internal-types/offscreen";
 
 import type { TypeOfMode } from "@zenflux/react-shared/src/react-internal-constants/type-of-mode";
-import type { Fiber, Lanes } from "@zenflux/react-shared/src/react-internal-types";
+import type { Fiber, Lanes } from "@zenflux/react-shared/src/react-internal-types/index";
 
 export function createFiberFromOffscreen( pendingProps: OffscreenProps, mode: TypeOfMode, lanes: Lanes, key: null | string ): Fiber {
     const fiber = createFiber( WorkTag.OffscreenComponent, pendingProps, key, mode );

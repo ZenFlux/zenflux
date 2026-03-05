@@ -10,7 +10,7 @@ import { accumulateSuspenseyCommit } from "@zenflux/react-reconciler/src/react-f
 import type { Transition } from "@zenflux/react-shared/src/react-internal-types/transition";
 
 import type { CapturedValue } from "@zenflux/react-reconciler/src/react-captured-value";
-import type { Fiber, FiberRoot, Lane, Lanes } from "@zenflux/react-shared/src/react-internal-types";
+import type { Fiber, FiberRoot, Lane, Lanes } from "@zenflux/react-shared/src/react-internal-types/index";
 
 const {
     startSuspendingCommit,

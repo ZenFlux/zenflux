@@ -1,6 +1,6 @@
 import { isRefreshHandler } from "@zenflux/react-reconciler/src/react-fiber-hot-reloading-resvole";
 
-import type { Fiber } from "@zenflux/react-shared/src/react-internal-types";
+import type { Fiber } from "@zenflux/react-shared/src/react-internal-types/index";
 
 let failedBoundaries: WeakSet<Fiber> | null = null;
 

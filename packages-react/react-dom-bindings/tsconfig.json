@@ -6,7 +6,7 @@
         "declarationMap": true,
         "emitDeclarationOnly": true,
 
-        "moduleResolution": "Bundler",
+        "moduleResolution": "bundler",
         "baseUrl": "./",
         "typeRoots": [
             "../../node_modules/@types",

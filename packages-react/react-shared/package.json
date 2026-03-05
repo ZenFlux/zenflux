@@ -4,9 +4,13 @@
     "private": true,
     "exports": {
         "./package.json": "./package.json",
-        "./src/*": "./src/*"
+        "./src/*": "./src/*.ts"
     },
     "devDependencies": {
+        "@types/react": "^18.2.45",
         "@zenflux/react-x-env": "workspace:*"
+    },
+    "peerDependencies": {
+        "react": "^18.2.0"
     }
 }

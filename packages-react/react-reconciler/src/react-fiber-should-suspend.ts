@@ -1,4 +1,4 @@
-import type { Fiber } from "@zenflux/react-shared/src/react-internal-types";
+import type { Fiber } from "@zenflux/react-shared/src/react-internal-types/index";
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 export let shouldSuspendImpl = ( fiber: Fiber ) => false;

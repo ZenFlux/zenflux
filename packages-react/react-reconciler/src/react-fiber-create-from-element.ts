@@ -1,7 +1,7 @@
 import { createFiberFromTypeAndProps } from "@zenflux/react-reconciler/src/react-fiber-from-create-type-n-props";
 
 import type { ReactElement } from "@zenflux/react-shared/src/react-element-type";
-import type { Fiber, Lanes } from "@zenflux/react-shared/src/react-internal-types";
+import type { Fiber, Lanes } from "@zenflux/react-shared/src/react-internal-types/index";
 import type { TypeOfMode } from "@zenflux/react-shared/src/react-internal-constants/type-of-mode";
 
 export function createFiberFromElement( element: ReactElement, mode: TypeOfMode, lanes: Lanes ): Fiber {

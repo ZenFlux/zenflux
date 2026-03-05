@@ -18,7 +18,7 @@ import type { DependencyList } from "@zenflux/react-reconciler/src/react-fiber-h
 
 import type { Effect, EffectInstance } from "@zenflux/react-shared/src/react-internal-types/effect";
 
-import type { Dispatcher } from "@zenflux/react-shared/src/react-internal-types";
+import type { Dispatcher } from "@zenflux/react-shared/src/react-internal-types/index";
 
 export function createEffectInstance(): EffectInstance {
     return {

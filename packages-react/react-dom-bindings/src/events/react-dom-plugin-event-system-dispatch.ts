@@ -27,7 +27,7 @@ import type {
 import type { DOMEventName } from "@zenflux/react-dom-bindings/src/events/DOMEventNames";
 import type { AnyNativeEvent } from "@zenflux/react-dom-bindings/src/events/PluginModuleType";
 import type { EventSystemFlags } from "@zenflux/react-dom-bindings/src/events/EventSystemFlags";
-import type { Fiber } from "@zenflux/react-shared/src/react-internal-types";
+import type { Fiber } from "@zenflux/react-shared/src/react-internal-types/index";
 
 function isMatchingRootContainer( grandContainer: Element, targetContainer: EventTarget ): boolean {
     return grandContainer === targetContainer || grandContainer.nodeType === COMMENT_NODE && grandContainer.parentNode === targetContainer;

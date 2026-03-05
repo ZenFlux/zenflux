@@ -2,7 +2,7 @@ import { enableAsyncActions, enableFormActions } from "@zenflux/react-shared/src
 
 import ReactSharedInternals from "@zenflux/react-shared/src/react-shared-internals";
 
-import type { Dispatcher } from "@zenflux/react-shared/src/react-internal-types";
+import type { Dispatcher } from "@zenflux/react-shared/src/react-internal-types/index";
 
 const ReactCurrentDispatcher = ReactSharedInternals.ReactCurrentDispatcher;
 type FormStatusNotPending = {

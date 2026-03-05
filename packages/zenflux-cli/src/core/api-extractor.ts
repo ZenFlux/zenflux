@@ -55,16 +55,67 @@ export function zApiExporter(
         selfPackageLocalize = packageJsonContent[ "name" ] + "/*";
 
     tsConfigExtractor.raw.compilerOptions ??= {};
-    tsConfigExtractor.raw.include ??= [];
-    tsConfigExtractor.raw.exclude ??= [];
 
-    tsConfigExtractor.raw.include.push(
-        "dist/src/**/*.d.ts"
-    );
+    // parseJsonConfigFileContent mutates raw, merging extends chain values (e.g. include: ["src"], exclude: ["dist"]).
+    // Override include to ONLY match declaration files, and remove "dist" from exclude so they're not filtered out.
+    tsConfigExtractor.raw.include = [ "dist/**/*.d.ts" ];
+    tsConfigExtractor.raw.exclude = [ "node_modules" ];
+
+    // Ensure baseUrl is set so that paths mappings work (paths are relative to baseUrl)
+    tsConfigExtractor.raw.compilerOptions[ "baseUrl" ] = "./";
 
     const additionalPaths: ts.ParsedCommandLine[ "options" ][ "paths" ] = {};
 
-    if ( ! tsConfigVirtual.options.rootDir && tsConfigVirtual.projectReferences?.length ) {
+    if ( tsConfigVirtual.options.rootDir ) {
+        // With rootDir set, cross-project declarations are NOT emitted into this project's dist.
+        // Each referenced package has its own declarations in its own dist directory.
+        // Note: projectReferences may be undefined since `references` in tsconfig are NOT inherited through `extends`.
+        // Instead, scan node_modules for @zenflux/* dependencies and resolve their dist paths via symlinks.
+        const scope = packageJsonContent[ "name" ]?.split( "/" )[ 0 ];
+
+        if ( scope ) {
+            let nodeModulesDir: string | undefined;
+            let searchDir = projectPath;
+
+            // Find the nearest node_modules containing the scoped packages
+            while ( searchDir !== path.dirname( searchDir ) ) {
+                const candidate = path.join( searchDir, "node_modules", scope );
+
+                if ( fs.existsSync( candidate ) ) {
+                    nodeModulesDir = candidate;
+                    break;
+                }
+
+                searchDir = path.dirname( searchDir );
+            }
+
+            if ( nodeModulesDir ) {
+                const scopedPackages = fs.readdirSync( nodeModulesDir );
+
+                for ( const pkgName of scopedPackages ) {
+                    const symlink = path.join( nodeModulesDir, pkgName );
+
+                    try {
+                        const realPkgPath = fs.realpathSync( symlink );
+                        const realDist = path.join( realPkgPath, "dist" );
+
+                        if ( fs.existsSync( realDist ) ) {
+                            const refDist = path.relative( projectPath, realDist );
+                            additionalPaths[ `${ scope }/${ pkgName }/*` ] = [ `./${ refDist }/*` ];
+                        }
+                    } catch { /* skip unresolvable symlinks */ }
+                }
+            }
+        }
+
+        // Self-package declarations are at dist/* (rootDir "." means src/ maps to dist/src/)
+        additionalPaths[ selfPackageLocalize ] = [ "./dist/*" ];
+
+        // Override moduleResolution to "node" so that the API Extractor resolves imports through
+        // paths mappings instead of package.json exports (which point to .ts source files).
+        tsConfigExtractor.raw.compilerOptions[ "moduleResolution" ] = "Node";
+    } else if ( tsConfigVirtual.projectReferences?.length ) {
+        // Without rootDir, cross-project declarations are emitted into this project's dist.
         // For each reference that starts with "@" add path to `dist/${ref}/*`/.
         tsConfigVirtual.projectReferences.forEach( ref => {
             if ( ref.originalPath!.startsWith( "@" ) ) {

@@ -1,6 +1,6 @@
 // The deepest Fiber on the stack involved in a hydration context.
 // This may have been an insertion or a hydration.
-import type { Fiber } from "@zenflux/react-shared/src/react-internal-types";
+import type { Fiber } from "@zenflux/react-shared/src/react-internal-types/index";
 
 let hydrationParentFiber: null | Fiber = null;
 

@@ -31,7 +31,7 @@ import { getPublicInstance } from "@zenflux/react-test-renderer/src/react-reconc
 import type { ReactNodeList } from "@zenflux/react-shared/src/react-types";
 
 import type { Container, Instance, TextInstance, } from "@zenflux/react-test-renderer/src/react-reconciler-test-config";
-import type { Fiber, FiberRoot } from "@zenflux/react-shared/src/react-internal-types";
+import type { Fiber, FiberRoot } from "@zenflux/react-shared/src/react-internal-types/index";
 
 type TestRendererOptions = {
     createNodeMock: ( element: ReactNodeList ) => any,
@@ -60,7 +60,7 @@ export const act = React.unstable_act;
 export type Predicate = ( node: ReactTestInstance ) => boolean;
 
 const defaultTestOptions = {
-    createNodeMock: function () {
+    createNodeMock: function() {
         return null;
     },
 };
@@ -561,7 +561,7 @@ function create(
         ( {
             configurable: true,
             enumerable: true,
-            get: function () {
+            get: function() {
                 {
                     if ( root === null ) {
                         throw new Error( "Can't access .root on unmounted test renderer" );

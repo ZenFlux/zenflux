@@ -4,7 +4,7 @@ import { CacheContext } from "@zenflux/react-reconciler/src/react-fiber-cache-co
 
 import { readContext } from "@zenflux/react-reconciler/src/react-fiber-new-context";
 
-import type { Cache, CacheDispatcher } from "@zenflux/react-shared/src/react-internal-types";
+import type { Cache, CacheDispatcher } from "@zenflux/react-shared/src/react-internal-types/index";
 
 function getCacheSignal(): AbortSignal {
     if ( ! enableCache ) {

@@ -7,7 +7,7 @@ import {
     enableUnifiedSyncLane
 } from "@zenflux/react-shared/src/react-feature-flags";
 
-import type { Lanes, Lane, FiberRoot } from "@zenflux/react-shared/src/react-internal-types";
+import type { Lanes, Lane, FiberRoot } from "@zenflux/react-shared/src/react-internal-types/index";
 
 // Lane values below should be kept in sync with getLabelForLane(), used by react-devtools-timeline.
 // If those values are changed that package should be rebuilt and redeployed.

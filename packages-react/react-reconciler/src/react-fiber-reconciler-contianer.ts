@@ -31,7 +31,7 @@ import type {
     Lane,
     SuspenseHydrationCallbacks,
     TransitionTracingCallbacks
-} from "@zenflux/react-shared/src/react-internal-types";
+} from "@zenflux/react-shared/src/react-internal-types/index";
 
 import type { RootTag } from "@zenflux/react-shared/src/react-internal-constants/root-tags";
 

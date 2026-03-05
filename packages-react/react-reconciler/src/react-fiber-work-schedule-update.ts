@@ -64,7 +64,7 @@ import {
 
 import { RootExitStatus } from "@zenflux/react-reconciler/src/root-exit-status";
 
-import type { Fiber, FiberRoot, Lane } from "@zenflux/react-shared/src/react-internal-types";
+import type { Fiber, FiberRoot, Lane } from "@zenflux/react-shared/src/react-internal-types/index";
 import type { Transition } from "@zenflux/react-shared/src/react-internal-types/transition";
 
 const {

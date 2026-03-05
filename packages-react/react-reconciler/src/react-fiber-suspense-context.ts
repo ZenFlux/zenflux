@@ -11,7 +11,7 @@ import type { OffscreenState } from "@zenflux/react-shared/src/react-internal-ty
 
 import type { StackCursor } from "@zenflux/react-reconciler/src/react-fiber-stack";
 
-import type { Fiber } from "@zenflux/react-shared/src/react-internal-types";
+import type { Fiber } from "@zenflux/react-shared/src/react-internal-types/index";
 import type { SuspenseProps, SuspenseState } from "@zenflux/react-reconciler/src/react-fiber-suspense-component";
 
 // The Suspense handler is the boundary that should capture if something

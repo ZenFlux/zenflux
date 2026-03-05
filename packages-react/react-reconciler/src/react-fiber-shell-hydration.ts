@@ -1,4 +1,4 @@
-import type { FiberRoot } from "@zenflux/react-shared/src/react-internal-types";
+import type { FiberRoot } from "@zenflux/react-shared/src/react-internal-types/index";
 import type { RootState } from "@zenflux/react-reconciler/src/react-fiber-root";
 
 // This is imported by the event replaying implementation in React DOM. It's

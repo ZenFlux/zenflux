@@ -25,7 +25,7 @@ import { popCacheProvider } from "@zenflux/react-reconciler/src/react-fiber-cach
 
 import type { ReactContext } from "@zenflux/react-shared/src/react-types";
 import type { SuspenseState } from "@zenflux/react-reconciler/src/react-fiber-suspense-component";
-import type { Fiber, FiberRoot, Cache, Lanes } from "@zenflux/react-shared/src/react-internal-types";
+import type { Fiber, FiberRoot, Cache, Lanes } from "@zenflux/react-shared/src/react-internal-types/index";
 
 import type { TracingMarkerInstance } from "@zenflux/react-shared/src/react-internal-types/tracing";
 

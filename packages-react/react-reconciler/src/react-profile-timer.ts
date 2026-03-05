@@ -10,7 +10,7 @@ import { WorkTag } from "@zenflux/react-shared/src/react-internal-constants/work
 
 // Intentionally not named imports because Rollup would use dynamic dispatch for
 // CommonJS interop named imports.
-import type { Fiber } from "@zenflux/react-shared/src/react-internal-types";
+import type { Fiber } from "@zenflux/react-shared/src/react-internal-types/index";
 
 const {
     unstable_now: now

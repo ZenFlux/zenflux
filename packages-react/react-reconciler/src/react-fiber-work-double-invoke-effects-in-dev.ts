@@ -31,7 +31,7 @@ import {
 
 import { ReactFiberWorkDoubleInvokeSharedDev } from "@zenflux/react-reconciler/src/react-fiber-work-double-invoke-shared-dev";
 
-import type { Fiber, FiberRoot } from "@zenflux/react-shared/src/react-internal-types";
+import type { Fiber, FiberRoot } from "@zenflux/react-shared/src/react-internal-types/index";
 
 // ---
 // Find better solution for this

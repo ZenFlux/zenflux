@@ -26,7 +26,7 @@ import { NoTransition, requestCurrentTransition } from "@zenflux/react-reconcile
 
 import { requestTransitionLane } from "@zenflux/react-reconciler/src/react-fiber-root-scheduler";
 
-import type { Fiber, Lane } from "@zenflux/react-shared/src/react-internal-types";
+import type { Fiber, Lane } from "@zenflux/react-shared/src/react-internal-types/index";
 
 const {
     getCurrentEventPriority,

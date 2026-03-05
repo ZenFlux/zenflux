@@ -18,7 +18,7 @@ import * as SimpleEventPlugin from "@zenflux/react-dom-bindings/src/events/plugi
 
 import { addTrappedEventListener } from "@zenflux/react-dom-bindings/src/events/react-dom-plugin-event-system-trapped";
 
-import type { Fiber } from "@zenflux/react-shared/src/react-internal-types";
+import type { Fiber } from "@zenflux/react-shared/src/react-internal-types/index";
 import type { ReactSyntheticEvent } from "@zenflux/react-dom-bindings/src/events/ReactSyntheticEventType";
 import type { DOMEventName } from "@zenflux/react-dom-bindings/src/events/DOMEventNames";
 

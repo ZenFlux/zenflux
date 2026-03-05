@@ -17,7 +17,7 @@ import type {
     FiberRoot, Lane,
     SuspenseHydrationCallbacks,
     TransitionTracingCallbacks,
-} from "@zenflux/react-shared/src/react-internal-types";
+} from "@zenflux/react-shared/src/react-internal-types/index";
 
 import type {
     BoundingRect,

@@ -6,6 +6,7 @@ import { ObjectBase } from "../bases/object-base";
 
 import { CommandNotFound } from "../errors/command-not-found";
 import { CommandAlreadyRegistered } from "../errors/command-already-registered";
+import { createLogger } from "../modules/logger/create-logger";
 
 import type {
     TCommandCallbackType,
@@ -73,7 +74,7 @@ export class Commands extends ObjectBase {
 
         const type = ( this.constructor as typeof Commands );
 
-        this.logger = new zCore.classes.Logger( type );
+        this.logger = createLogger( type );
         this.logger.startsEmpty( this.constructor );
     }
 

@@ -27,7 +27,7 @@ import type {
     FiberRoot,
     SuspenseHydrationCallbacks,
     TransitionTracingCallbacks
-} from "@zenflux/react-shared/src/react-internal-types";
+} from "@zenflux/react-shared/src/react-internal-types/index";
 
 const {
     noTimeout

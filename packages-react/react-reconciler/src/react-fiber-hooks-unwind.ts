@@ -3,7 +3,7 @@ import { NoLanes } from "@zenflux/react-shared/src/react-internal-constants/fibe
 import { ReactFiberHooksCurrent, ReactFiberHooksFlags } from "@zenflux/react-reconciler/src/react-fiber-hooks-shared";
 
 import type { Hook } from "@zenflux/react-reconciler/src/react-fiber-hooks-types";
-import type { Fiber } from "@zenflux/react-shared/src/react-internal-types";
+import type { Fiber } from "@zenflux/react-shared/src/react-internal-types/index";
 
 export function resetHooksOnUnwind( workInProgress: Fiber ): void {
     if ( ReactFiberHooksFlags.didScheduleRenderPhaseUpdate ) {

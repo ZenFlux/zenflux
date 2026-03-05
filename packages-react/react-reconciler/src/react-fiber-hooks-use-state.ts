@@ -31,7 +31,7 @@ import type {
     Hook,
     SetStateAction,
 } from "@zenflux/react-reconciler/src/react-fiber-hooks-types";
-import type { Fiber, HookUpdateQueue } from "@zenflux/react-shared/src/react-internal-types";
+import type { Fiber, HookUpdateQueue } from "@zenflux/react-shared/src/react-internal-types/index";
 import type { HookUpdate } from "@zenflux/react-shared/src/react-internal-types/update";
 
 const {
@@ -143,7 +143,7 @@ export function dispatchSetState<S, A>( fiber: Fiber, queue: HookUpdateQueue<S, 
                         return;
                     }
                     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-                } catch ( error ) {// Suppress the error. It will throw again in the render phase.
+                } catch( error ) {// Suppress the error. It will throw again in the render phase.
                 } finally {
                     if ( __DEV__ ) {
                         ReactCurrentDispatcher.current = prevDispatcher ?? null;

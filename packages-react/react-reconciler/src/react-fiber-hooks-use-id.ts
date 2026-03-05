@@ -8,7 +8,7 @@ import {
     updateWorkInProgressHook
 } from "@zenflux/react-reconciler/src/react-fiber-hooks-infra";
 
-import type { FiberRoot } from "@zenflux/react-shared/src/react-internal-types";
+import type { FiberRoot } from "@zenflux/react-shared/src/react-internal-types/index";
 
 export function mountId(): string {
     const hook = mountWorkInProgressHook();

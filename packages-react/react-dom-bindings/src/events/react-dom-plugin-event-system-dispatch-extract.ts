@@ -10,7 +10,7 @@ import * as BeforeInputEventPlugin from "@zenflux/react-dom-bindings/src/events/
 import * as FormActionEventPlugin from "@zenflux/react-dom-bindings/src/events/plugins/FormActionEventPlugin";
 
 import type { AnyNativeEvent } from "@zenflux/react-dom-bindings/src/events/PluginModuleType";
-import type { Fiber } from "@zenflux/react-shared/src/react-internal-types";
+import type { Fiber } from "@zenflux/react-shared/src/react-internal-types/index";
 import type { DOMEventName } from "@zenflux/react-dom-bindings/src/events/DOMEventNames";
 import type { DispatchQueue } from "@zenflux/react-dom-bindings/src/events/DOMPluginEventSystem";
 import type { EventSystemFlags } from "@zenflux/react-dom-bindings/src/events/EventSystemFlags";

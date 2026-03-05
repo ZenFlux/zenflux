@@ -444,6 +444,8 @@ export async function zTSCreateDeclaration( tsConfig: ts.ParsedCommandLine, conf
         declaration: true,
         noEmit: false,
         emitDeclarationOnly: true,
+        // Strip rootDir so cross-project declarations from references are emitted into this project's outDir.
+        rootDir: undefined,
         declarationDir: tsConfig.options.declarationDir || tsConfig.options.outDir,
     } as ts.CompilerOptions ), compilerHost, cacheProgram[ tsConfig.options.configFilePath as string ] );
 

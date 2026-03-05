@@ -14,7 +14,7 @@ import type { Component } from "@zenflux/react-shared/src/component";
 
 import type { SuspenseState } from "@zenflux/react-reconciler/src/react-fiber-suspense-component";
 import type { Container } from "@zenflux/react-reconciler/src/react-fiber-config";
-import type { Fiber } from "@zenflux/react-shared/src/react-internal-types";
+import type { Fiber } from "@zenflux/react-shared/src/react-internal-types/index";
 
 const ReactCurrentOwner = ReactSharedInternals.ReactCurrentOwner;
 

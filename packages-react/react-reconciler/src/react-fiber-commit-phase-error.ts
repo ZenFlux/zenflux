@@ -12,7 +12,7 @@ import { reportUncaughtErrorInDEV } from "@zenflux/react-reconciler/src/react-fi
 import { createClassErrorUpdate, createRootErrorUpdate } from "@zenflux/react-reconciler/src/react-fiber-throw-error-update";
 import { ReactFiberRootSchedulerShared } from "@zenflux/react-reconciler/src/react-fiber-root-scheduler-shared";
 
-import type { Fiber, Dispatcher, Lane } from "@zenflux/react-shared/src/react-internal-types";
+import type { Fiber, Dispatcher, Lane } from "@zenflux/react-shared/src/react-internal-types/index";
 
 function captureCommitPhaseErrorOnRoot( rootFiber: Fiber, sourceFiber: Fiber, error: unknown ) {
     const errorInfo = createCapturedValueAtFiber( error, sourceFiber );
@@ -28,7 +28,7 @@ function captureCommitPhaseErrorOnRoot( rootFiber: Fiber, sourceFiber: Fiber, er
 export function safelyCallDestroy( current: Fiber, nearestMountedAncestor: Fiber | null, destroy: ReturnType<Parameters<Dispatcher[ "useEffect" ]>[ 0 ]> ) {
     try {
         ( destroy as any )();
-    } catch ( error ) {
+    } catch( error ) {
         captureCommitPhaseError( current, nearestMountedAncestor, error );
     }
 }

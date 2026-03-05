@@ -8,7 +8,7 @@ import { noopSuspenseyCommitThenable } from "@zenflux/react-reconciler/src/react
 import { attachPingListener } from "@zenflux/react-reconciler/src/react-fiber-work-in-progress-ping";
 
 import type { Wakeable } from "@zenflux/react-shared/src/react-types";
-import type { Fiber, FiberRoot, Lanes } from "@zenflux/react-shared/src/react-internal-types";
+import type { Fiber, FiberRoot, Lanes } from "@zenflux/react-shared/src/react-internal-types/index";
 import type { OffscreenQueue } from "@zenflux/react-shared/src/react-internal-types/offscreen";
 
 export function handleOffscreenComponent(

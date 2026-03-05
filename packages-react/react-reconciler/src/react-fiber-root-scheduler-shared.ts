@@ -1,6 +1,6 @@
 import { NoLane } from "@zenflux/react-shared/src/react-internal-constants/fiber-lane-constants";
 
-import type { FiberRoot, Lane } from "@zenflux/react-shared/src/react-internal-types";
+import type { FiberRoot, Lane } from "@zenflux/react-shared/src/react-internal-types/index";
 
 import type {
     EnsureRootScheduledCallback,

@@ -35,7 +35,7 @@ import { isHydrating } from "@zenflux/react-reconciler/src/react-fiber-hydration
 import { ReactChildFiberCurrent, ReactChildFlags } from "@zenflux/react-reconciler/src/react-fiber-child-shared";
 import { createFiberFromElement } from "@zenflux/react-reconciler/src/react-fiber-create-from-element";
 
-import type { Fiber, Lanes } from "@zenflux/react-shared/src/react-internal-types";
+import type { Fiber, Lanes } from "@zenflux/react-shared/src/react-internal-types/index";
 import type { ReactContext, ReactNode, ReactPortal, Thenable } from "@zenflux/react-shared/src/react-types";
 import type { ReactElement } from "@zenflux/react-shared/src/react-element-type";
 
@@ -150,7 +150,7 @@ function coerceRef( returnFiber: Fiber, current: Fiber | null, element: ReactEle
                 return current.ref;
             }
 
-            const ref = function ( value: unknown ) {
+            const ref = function( value: unknown ) {
                 const refs = resolvedInst.refs;
 
                 if ( value === null ) {

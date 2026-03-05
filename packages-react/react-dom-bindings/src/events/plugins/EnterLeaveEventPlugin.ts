@@ -16,7 +16,7 @@ import {
 import { accumulateEnterLeaveTwoPhaseListeners } from "@zenflux/react-dom-bindings/src/events/react-dom-plugin-event-system-accumulate";
 
 import type { DispatchQueue } from "@zenflux/react-dom-bindings/src/events/DOMPluginEventSystem";
-import type { Fiber } from "@zenflux/react-shared/src/react-internal-types";
+import type { Fiber } from "@zenflux/react-shared/src/react-internal-types/index";
 
 import type { AnyNativeEvent } from "@zenflux/react-dom-bindings/src/events/PluginModuleType";
 import type { DOMEventName } from "@zenflux/react-dom-bindings/src/events/DOMEventNames";

@@ -6,7 +6,7 @@ import { isFiberSuspenseAndTimedOut } from "@zenflux/react-reconciler/src/react-
 
 import type { ReactContext, ReactScopeInstance, ReactScopeQuery } from "@zenflux/react-shared/src/react-types";
 
-import type { Fiber } from "@zenflux/react-shared/src/react-internal-types";
+import type { Fiber } from "@zenflux/react-shared/src/react-internal-types/index";
 
 function getSuspenseFallbackChild( fiber: Fiber ): Fiber | null {
     return ( ( ( ( fiber.child as any ) as Fiber ).sibling as any ) as Fiber ).child;

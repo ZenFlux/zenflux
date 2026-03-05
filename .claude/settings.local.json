@@ -14,7 +14,14 @@
       "mcp__chrome-devtools__fill",
       "mcp__chrome-devtools__evaluate_script",
       "mcp__chrome-devtools__press_key",
-      "mcp__chrome-devtools__list_console_messages"
+      "mcp__chrome-devtools__list_console_messages",
+      "Bash(wc:*)",
+      "Bash(pnpm run:*)",
+      "Bash(ls:*)",
+      "Bash(npx tsc:*)",
+      "Bash(node -e:*)",
+      "Bash(bunx ts-node:*)",
+      "Bash(find:*)"
     ],
     "deny": [],
     "ask": []

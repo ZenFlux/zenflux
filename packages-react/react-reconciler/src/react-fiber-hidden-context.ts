@@ -7,7 +7,7 @@ import { createCursor, pop, push } from "@zenflux/react-reconciler/src/react-fib
 
 import type { StackCursor } from "@zenflux/react-reconciler/src/react-fiber-stack";
 
-import type { Fiber, Lanes } from "@zenflux/react-shared/src/react-internal-types";
+import type { Fiber, Lanes } from "@zenflux/react-shared/src/react-internal-types/index";
 // TODO: Remove `renderLanes` context in favor of hidden context
 type HiddenContext = {
     // Represents the lanes that must be included when processing updates in

@@ -37,7 +37,7 @@ import {
     getInstanceFromNode
 } from "@zenflux/react-dom-bindings/src/client/ReactDOMComponentTree";
 
-import type { FiberRoot } from "@zenflux/react-shared/src/react-internal-types";
+import type { FiberRoot } from "@zenflux/react-shared/src/react-internal-types/index";
 import type { EventPriority } from "@zenflux/react-reconciler/src/react-event-priorities";
 
 import type { EventSystemFlags } from "@zenflux/react-dom-bindings/src/events/EventSystemFlags";

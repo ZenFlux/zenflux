@@ -4,7 +4,7 @@ import { NoLanes } from "@zenflux/react-shared/src/react-internal-constants/fibe
 
 import { releaseCache } from "@zenflux/react-reconciler/src/react-fiber-cache-component";
 
-import type { FiberRoot, Lanes } from "@zenflux/react-shared/src/react-internal-types";
+import type { FiberRoot, Lanes } from "@zenflux/react-shared/src/react-internal-types/index";
 
 export function reactReleaseRootPooledCache( root: FiberRoot, remainingLanes: Lanes ) {
     if ( enableCache ) {

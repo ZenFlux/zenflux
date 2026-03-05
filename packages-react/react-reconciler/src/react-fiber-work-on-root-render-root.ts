@@ -53,7 +53,7 @@ import { throwAndUnwindWorkLoop, workLoopSync } from "@zenflux/react-reconciler/
 import { SuspendedReason } from "@zenflux/react-reconciler/src/react-suspended-reason";
 import { RootExitStatus } from "@zenflux/react-reconciler/src/root-exit-status";
 
-import type { FiberRoot, Lanes } from "@zenflux/react-shared/src/react-internal-types";
+import type { FiberRoot, Lanes } from "@zenflux/react-shared/src/react-internal-types/index";
 
 // TODO: Over time, this function and renderRootConcurrent have become more
 // and more similar. Not sure it makes sense to maintain forked paths. Consider
@@ -144,7 +144,7 @@ export function renderRootSync( root: FiberRoot, lanes: Lanes ) {
 
             workLoopSync();
             break;
-        } catch ( thrownValue ) {
+        } catch( thrownValue ) {
             handleThrow( root, thrownValue );
         }
     } while ( true );

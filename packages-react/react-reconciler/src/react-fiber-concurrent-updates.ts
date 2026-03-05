@@ -28,7 +28,7 @@ import type {
     Lane,
     Lanes,
     SharedQueue
-} from "@zenflux/react-shared/src/react-internal-types";
+} from "@zenflux/react-shared/src/react-internal-types/index";
 import type { ConcurrentUpdate, HookUpdate } from "@zenflux/react-shared/src/react-internal-types/update";
 import type { OffscreenInstance } from "@zenflux/react-shared/src/react-internal-types/offscreen";
 

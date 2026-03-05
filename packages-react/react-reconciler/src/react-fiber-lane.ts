@@ -56,7 +56,7 @@ import type { Transition } from "@zenflux/react-shared/src/react-internal-types/
 import type { ConcurrentUpdate } from "@zenflux/react-shared/src/react-internal-types/update";
 import type { LaneMap } from "@zenflux/react-shared/src/react-internal-types/lanes";
 
-import type { Fiber, FiberRoot, Lane, Lanes } from "@zenflux/react-shared/src/react-internal-types";
+import type { Fiber, FiberRoot, Lane, Lanes } from "@zenflux/react-shared/src/react-internal-types/index";
 
 export const NoTimestamp = -1;
 let nextTransitionLane: Lane = TransitionLane1;

@@ -1,4 +1,4 @@
-import type { Fiber } from "@zenflux/react-shared/src/react-internal-types";
+import type { Fiber } from "@zenflux/react-shared/src/react-internal-types/index";
 
 import type { DOMEventName } from "@zenflux/react-dom-bindings/src/events/DOMEventNames";
 

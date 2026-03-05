@@ -9,7 +9,7 @@ import { enqueueConcurrentRenderForLane } from "@zenflux/react-reconciler/src/re
 import { claimNextRetryLane } from "@zenflux/react-reconciler/src/react-fiber-lane";
 
 import type { SuspenseState } from "@zenflux/react-reconciler/src/react-fiber-suspense-component";
-import type { Fiber, Lane } from "@zenflux/react-shared/src/react-internal-types";
+import type { Fiber, Lane } from "@zenflux/react-shared/src/react-internal-types/index";
 
 function requestRetryLane( fiber: Fiber ) {
     // This is a fork of `requestUpdateLane` designed specifically for Suspense

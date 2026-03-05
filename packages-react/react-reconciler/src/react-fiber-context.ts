@@ -9,7 +9,7 @@ import { createCursor, pop, push } from "@zenflux/react-reconciler/src/react-fib
 import { isFiberMounted } from "@zenflux/react-reconciler/src/react-fiber-tree-reflection";
 
 import type { StackCursor } from "@zenflux/react-reconciler/src/react-fiber-stack";
-import type { Fiber } from "@zenflux/react-shared/src/react-internal-types";
+import type { Fiber } from "@zenflux/react-shared/src/react-internal-types/index";
 
 let warnedAboutMissingGetChildContext: Record<string, boolean>;
 

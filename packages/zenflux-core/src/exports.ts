@@ -2,7 +2,7 @@
  * @author Leonid Vinikov <leonidvinikov@gmail.com>
  */
 // @ts-ignore - TODO handle error in jest
-import { bases, commandBases, errors, interfaces, managers, } from "./exports-index";
+import { bases, commandBases, errors, interfaces, managers, modules } from "./exports-index";
 
 import { Logger } from "./modules/logger";
 
@@ -12,13 +12,9 @@ declare global {
     var __ZEN_CORE__IS_INITIALIZED__: boolean;
 }
 
+// @deprecated
 export const classes = {
-    /* eslint-disable @typescript-eslint/no-unused-vars */
-    /* eslint-disable @typescript-eslint/explicit-member-accessibility */
-
     Logger,
-
-    /* eslint-enable */
 };
 
 let exportedConfig: interfaces.IAPIConfig = {
@@ -54,5 +50,6 @@ export {
     commandBases,
     errors,
     interfaces,
-    managers
+    managers,
+    modules
 };

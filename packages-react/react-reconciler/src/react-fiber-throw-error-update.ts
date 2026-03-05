@@ -10,7 +10,7 @@ import { onUncaughtError } from "@zenflux/react-reconciler/src/react-fiber-throw
 import reactGetComponentNameFromFiber from "@zenflux/react-reconciler/src/react-get-component-name-from-fiber";
 
 import type { CapturedValue } from "@zenflux/react-reconciler/src/react-captured-value";
-import type { Fiber, FiberUpdate, Lane } from "@zenflux/react-shared/src/react-internal-types";
+import type { Fiber, FiberUpdate, Lane } from "@zenflux/react-shared/src/react-internal-types/index";
 
 export function createRootErrorUpdate( fiber: Fiber, errorInfo: CapturedValue<unknown>, lane: Lane ): FiberUpdate<unknown> {
     const update = createUpdate( lane );

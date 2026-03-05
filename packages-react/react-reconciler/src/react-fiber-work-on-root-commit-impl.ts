@@ -115,7 +115,7 @@ import { reactReleaseRootPooledCache } from "@zenflux/react-reconciler/src/react
 
 import type { CapturedValue } from "@zenflux/react-reconciler/src/react-captured-value";
 import type { EventPriority } from "@zenflux/react-reconciler/src/react-event-priorities";
-import type { FiberRoot, Lane } from "@zenflux/react-shared/src/react-internal-types";
+import type { FiberRoot, Lane } from "@zenflux/react-shared/src/react-internal-types/index";
 
 import type { Transition } from "@zenflux/react-shared/src/react-internal-types/transition";
 

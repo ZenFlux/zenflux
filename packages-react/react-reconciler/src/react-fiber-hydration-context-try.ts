@@ -12,7 +12,7 @@ import {
     hasRootOrSingletonContextFlag
 } from "@zenflux/react-reconciler/src/react-fiber-hydration-context-root-or-singleton";
 
-import type { Fiber } from "@zenflux/react-shared/src/react-internal-types";
+import type { Fiber } from "@zenflux/react-shared/src/react-internal-types/index";
 import type { Instance, TextInstance } from "@zenflux/react-dom-bindings/src/client/ReactFiberConfigDOM";
 
 const {

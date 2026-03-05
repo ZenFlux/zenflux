@@ -1,6 +1,6 @@
 import { getStackByFiberInDevAndProd } from "@zenflux/react-reconciler/src/react-fiber-component-stack";
 
-import type { Fiber } from "@zenflux/react-shared/src/react-internal-types";
+import type { Fiber } from "@zenflux/react-shared/src/react-internal-types/index";
 
 export type CapturedValue<T> = {
     value: T;

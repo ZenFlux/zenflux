@@ -1,6 +1,6 @@
 import getEventCharCode from "@zenflux/react-dom-bindings/src/events/getEventCharCode";
 
-import type { Fiber } from "@zenflux/react-shared/src/react-internal-types";
+import type { Fiber } from "@zenflux/react-shared/src/react-internal-types/index";
 
 import type { FocusEvent, MouseEvent } from "react";
 
@@ -62,7 +62,7 @@ const EventInterface: EventInterfaceType = {
     eventPhase: 0,
     bubbles: 0,
     cancelable: 0,
-    timeStamp: function ( event: Record<string, unknown> ) {
+    timeStamp: function( event: Record<string, unknown> ) {
         return event.timeStamp || Date.now();
     },
     defaultPrevented: 0,
@@ -94,7 +94,7 @@ const MouseEventInterface: EventInterfaceType = {
     getModifierState: getEventModifierState,
     button: 0,
     buttons: 0,
-    relatedTarget: function ( event ) {
+    relatedTarget: function( event ) {
         if ( event.relatedTarget === undefined ) {
             // @ts-ignore - zenflux didnt find srcElement in fromElement.
             return event.fromElement === event.srcElement ? event.toElement : event.fromElement;
@@ -102,7 +102,7 @@ const MouseEventInterface: EventInterfaceType = {
 
         return event.relatedTarget;
     },
-    movementX: function ( event ) {
+    movementX: function( event ) {
         if ( "movementX" in event ) {
             return event.movementX;
         }
@@ -110,7 +110,7 @@ const MouseEventInterface: EventInterfaceType = {
         updateMouseMovementPolyfillState( event );
         return lastMovementX;
     },
-    movementY: function ( event ) {
+    movementY: function( event ) {
         if ( "movementY" in event ) {
             return event.movementY;
         }
@@ -219,7 +219,7 @@ function createSyntheticEvent( Interface: EventInterfaceType ) {
     // $FlowFixMe[prop-missing] found when upgrading Flow
     Object.assign( SyntheticBaseEvent.prototype, {
         // $FlowFixMe[missing-this-annot]
-        preventDefault: function () {
+        preventDefault: function() {
             // @ts-ignore
             const self = this;
             // @ts-ignore
@@ -242,7 +242,7 @@ function createSyntheticEvent( Interface: EventInterfaceType ) {
             self.isDefaultPrevented = functionThatReturnsTrue;
         },
         // $FlowFixMe[missing-this-annot]
-        stopPropagation: function () {
+        stopPropagation: function() {
             // @ts-ignore
             const self = this;
             // @ts-ignore
@@ -274,7 +274,7 @@ function createSyntheticEvent( Interface: EventInterfaceType ) {
          * them back into the pool. This allows a way to hold onto a reference that
          * won't be added back into the pool.
          */
-        persist: function () {// Modern event system doesn't use pooling.
+        persist: function() {// Modern event system doesn't use pooling.
         },
 
         /**
@@ -351,7 +351,7 @@ export const SyntheticAnimationEvent: any = createSyntheticEvent( AnimationEvent
  */
 const ClipboardEventInterface: EventInterfaceType = {
     ... EventInterface,
-    clipboardData: function ( event ) {
+    clipboardData: function( event ) {
         // @ts-ignore
         return "clipboardData" in event ? event.clipboardData : window.clipboardData;
     }
@@ -529,7 +529,7 @@ const KeyboardEventInterface = {
     locale: 0,
     getModifierState: getEventModifierState,
     // Legacy Interface
-    charCode: function ( event: KeyboardEvent ) {
+    charCode: function( event: KeyboardEvent ) {
         // `charCode` is the result of a KeyPress event and represents the value of
         // the actual printable character.
         // KeyPress is deprecated, but its replacement is not yet final and not
@@ -541,7 +541,7 @@ const KeyboardEventInterface = {
 
         return 0;
     },
-    keyCode: function ( event: KeyboardEvent ) {
+    keyCode: function( event: KeyboardEvent ) {
         // `keyCode` is the result of a KeyDown/Up event and represents the value of
         // physical keyboard key.
         // The actual meaning of the value depends on the users' keyboard layout
@@ -554,7 +554,7 @@ const KeyboardEventInterface = {
 
         return 0;
     },
-    which: function ( event: KeyboardEvent ) {
+    which: function( event: KeyboardEvent ) {
         // `which` is an alias for either `keyCode` or `charCode` depending on the
         // type of the event.
         if ( event.type === "keypress" ) {

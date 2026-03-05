@@ -6,7 +6,7 @@ import {
 
 import { WorkTag } from "@zenflux/react-shared/src/react-internal-constants/work-tags";
 
-import type { Fiber } from "@zenflux/react-shared/src/react-internal-types";
+import type { Fiber } from "@zenflux/react-shared/src/react-internal-types/index";
 
 function describeFiber( fiber: Fiber ): string {
     const owner: null | ( ( ... args: Array<any> ) => any ) = __DEV__ ? fiber._debugOwner ? fiber._debugOwner.type : null : null;
@@ -55,7 +55,7 @@ export function getStackByFiberInDevAndProd( workInProgress: Fiber ): string {
         } while ( node );
 
         return info;
-    } catch ( x: any ) {
+    } catch( x: any ) {
         return "\nError generating stack: " + x.message + "\n" + x.stack;
     }
 }

@@ -9,7 +9,7 @@ import type { Transition, TransitionAbort } from "@zenflux/react-shared/src/reac
 
 import type { StackCursor } from "@zenflux/react-reconciler/src/react-fiber-stack";
 
-import type { Fiber, FiberRoot, TransitionTracingCallbacks } from "@zenflux/react-shared/src/react-internal-types";
+import type { Fiber, FiberRoot, TransitionTracingCallbacks } from "@zenflux/react-shared/src/react-internal-types/index";
 import type { PendingBoundaries } from "@zenflux/react-shared/src/react-internal-types/boundaries";
 import type { TracingMarkerInstance } from "@zenflux/react-shared/src/react-internal-types/tracing";
 

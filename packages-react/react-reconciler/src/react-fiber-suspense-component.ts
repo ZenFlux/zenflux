@@ -5,7 +5,7 @@ import type { SuspenseInstance } from "@zenflux/react-shared/src/react-internal-
 
 import type { TreeContext } from "@zenflux/react-reconciler/src/react-fiber-tree-context";
 import type { ReactNodeList, Wakeable } from "@zenflux/react-shared/src/react-types";
-import type { Fiber, Lane } from "@zenflux/react-shared/src/react-internal-types";
+import type { Fiber, Lane } from "@zenflux/react-shared/src/react-internal-types/index";
 
 const {
     isSuspenseInstancePending,

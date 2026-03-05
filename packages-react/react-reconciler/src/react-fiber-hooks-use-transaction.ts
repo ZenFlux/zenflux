@@ -25,7 +25,7 @@ import {
 import type { BatchConfigTransition } from "@zenflux/react-shared/src/react-internal-types/transition";
 
 import type { BasicStateAction } from "@zenflux/react-reconciler/src/react-fiber-hooks-types";
-import type { Fiber, HookUpdateQueue } from "@zenflux/react-shared/src/react-internal-types";
+import type { Fiber, HookUpdateQueue } from "@zenflux/react-shared/src/react-internal-types/index";
 import type { RejectedThenable, StartTransitionOptions, Thenable } from "@zenflux/react-shared/src/react-types";
 
 const {
@@ -94,7 +94,7 @@ export function startTransition<S>( fiber: Fiber, queue: HookUpdateQueue<S | The
             dispatchSetState( fiber, queue, finishedState );
             callback();
         }
-    } catch ( error ) {
+    } catch( error ) {
         if ( enableAsyncActions ) {
             // This is a trick to get the `useTransition` hook to rethrow the error.
             // When it unwraps the thenable with the `use` algorithm, the error

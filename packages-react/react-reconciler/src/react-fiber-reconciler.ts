@@ -60,7 +60,7 @@ import type {
     TextInstance
 } from "@zenflux/react-reconciler/src/react-fiber-config";
 import type { SuspenseState } from "@zenflux/react-reconciler/src/react-fiber-suspense-component";
-import type { Fiber, FiberRoot, Lane } from "@zenflux/react-shared/src/react-internal-types";
+import type { Fiber, FiberRoot, Lane } from "@zenflux/react-shared/src/react-internal-types/index";
 import type { Component } from "@zenflux/react-shared/src/component";
 import type React from "react";
 

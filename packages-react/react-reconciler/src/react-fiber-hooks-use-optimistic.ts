@@ -23,7 +23,7 @@ import { scheduleUpdateOnFiber } from "@zenflux/react-reconciler/src/react-fiber
 import type { HookUpdate } from "@zenflux/react-shared/src/react-internal-types/update";
 
 import type { Hook } from "@zenflux/react-reconciler/src/react-fiber-hooks-types";
-import type { Fiber, HookUpdateQueue } from "@zenflux/react-shared/src/react-internal-types";
+import type { Fiber, HookUpdateQueue } from "@zenflux/react-shared/src/react-internal-types/index";
 
 const {
     ReactCurrentBatchConfig

@@ -2,7 +2,7 @@ import { enableDebugTracing } from "@zenflux/react-shared/src/react-feature-flag
 
 import type { Wakeable } from "@zenflux/react-shared/src/react-types";
 
-import type { Lane, Lanes } from "@zenflux/react-shared/src/react-internal-types";
+import type { Lane, Lanes } from "@zenflux/react-shared/src/react-internal-types/index";
 
 const nativeConsole: Record<string, any> = console;
 let nativeConsoleLog: null | ( ( ... args: Array<any> ) => any ) = null;

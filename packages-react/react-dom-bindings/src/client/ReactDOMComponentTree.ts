@@ -13,7 +13,7 @@ import type {
     TextInstance
 } from "@zenflux/react-dom-bindings/src/client/ReactFiberConfigDOM";
 
-import type { Fiber } from "@zenflux/react-shared/src/react-internal-types";
+import type { Fiber } from "@zenflux/react-shared/src/react-internal-types/index";
 
 import type { ReactScopeInstance } from "@zenflux/react-shared/src/react-types";
 

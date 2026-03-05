@@ -25,7 +25,7 @@ import { finishQueueingConcurrentUpdates } from "@zenflux/react-reconciler/src/r
 import ReactStrictModeWarnings from "@zenflux/react-reconciler/src/react-strict-mode-warnings";
 import { createWorkInProgress, resetWorkInProgressStack } from "@zenflux/react-reconciler/src/react-fiber-work-in-progress-ex";
 
-import type { Fiber, FiberRoot, Lanes } from "@zenflux/react-shared/src/react-internal-types";
+import type { Fiber, FiberRoot, Lanes } from "@zenflux/react-shared/src/react-internal-types/index";
 
 const {
     noTimeout,

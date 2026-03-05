@@ -99,7 +99,7 @@ import type {
 
 import type { RootState } from "@zenflux/react-reconciler/src/react-fiber-root";
 import type { SuspenseState } from "@zenflux/react-reconciler/src/react-fiber-suspense-component";
-import type { Fiber, FiberRoot, Lanes, FiberUpdateQueue } from "@zenflux/react-shared/src/react-internal-types";
+import type { Fiber, FiberRoot, Lanes, FiberUpdateQueue } from "@zenflux/react-shared/src/react-internal-types/index";
 import type { Wakeable } from "@zenflux/react-shared/src/react-types";
 import type {
     OffscreenInstance,
@@ -192,7 +192,7 @@ export function invokeLayoutEffectMountInDEV( fiber: Fiber ): void {
             case WorkTag.SimpleMemoComponent: {
                 try {
                     commitHookEffectListMount( HookFlags.Layout | HookFlags.HasEffect, fiber );
-                } catch ( error ) {
+                } catch( error ) {
                     captureCommitPhaseError( fiber, fiber.return, error );
                 }
 
@@ -205,7 +205,7 @@ export function invokeLayoutEffectMountInDEV( fiber: Fiber ): void {
                 if ( typeof instance.componentDidMount === "function" ) {
                     try {
                         instance.componentDidMount();
-                    } catch ( error ) {
+                    } catch( error ) {
                         captureCommitPhaseError( fiber, fiber.return, error );
                     }
                 }
@@ -226,7 +226,7 @@ export function invokePassiveEffectMountInDEV( fiber: Fiber ): void {
             case WorkTag.SimpleMemoComponent: {
                 try {
                     commitHookEffectListMount( HookFlags.Passive | HookFlags.HasEffect, fiber );
-                } catch ( error ) {
+                } catch( error ) {
                     captureCommitPhaseError( fiber, fiber.return, error );
                 }
 
@@ -246,7 +246,7 @@ export function invokeLayoutEffectUnmountInDEV( fiber: Fiber ): void {
             case WorkTag.SimpleMemoComponent: {
                 try {
                     commitHookEffectListUnmount( HookFlags.Layout | HookFlags.HasEffect, fiber, fiber.return );
-                } catch ( error ) {
+                } catch( error ) {
                     captureCommitPhaseError( fiber, fiber.return, error );
                 }
 
@@ -276,7 +276,7 @@ export function invokePassiveEffectUnmountInDEV( fiber: Fiber ): void {
             case WorkTag.SimpleMemoComponent: {
                 try {
                     commitHookEffectListUnmount( HookFlags.Passive | HookFlags.HasEffect, fiber, fiber.return );
-                } catch ( error ) {
+                } catch( error ) {
                     captureCommitPhaseError( fiber, fiber.return, error );
                 }
             }
@@ -309,7 +309,7 @@ function commitClassCallbacks( finishedWork: Fiber ) {
         // TODO: revisit this when we implement resuming.
         try {
             commitCallbacks( updateQueue, instance );
-        } catch ( error ) {
+        } catch( error ) {
             captureCommitPhaseError( finishedWork, finishedWork.return, error );
         }
     }
@@ -322,7 +322,7 @@ function commitHostComponentMount( finishedWork: Fiber ) {
 
     try {
         commitMount( instance, type, props, finishedWork );
-    } catch ( error ) {
+    } catch( error ) {
         captureCommitPhaseError( finishedWork, finishedWork.return, error );
     }
 }
@@ -379,7 +379,7 @@ function commitProfilerUpdate( finishedWork: Fiber, current: Fiber | null ) {
                     parentFiber = parentFiber.return;
                 }
             }
-        } catch ( error ) {
+        } catch( error ) {
             captureCommitPhaseError( finishedWork, finishedWork.return, error );
         }
     }
@@ -409,7 +409,7 @@ function hideOrUnhideAllChildren( finishedWork: Fiber, isHidden: boolean ) {
                         } else {
                             unhideInstance( node.stateNode, node.memoizedProps );
                         }
-                    } catch ( error ) {
+                    } catch( error ) {
                         captureCommitPhaseError( finishedWork, finishedWork.return, error );
                     }
                 }
@@ -423,7 +423,7 @@ function hideOrUnhideAllChildren( finishedWork: Fiber, isHidden: boolean ) {
                         } else {
                             unhideTextInstance( instance, node.memoizedProps );
                         }
-                    } catch ( error ) {
+                    } catch( error ) {
                         captureCommitPhaseError( finishedWork, finishedWork.return, error );
                     }
                 }
@@ -557,7 +557,7 @@ function commitSuspenseHydrationCallbacks( finishedRoot: FiberRoot, finishedWork
                                 }
                             }
                         }
-                    } catch ( error ) {
+                    } catch( error ) {
                         captureCommitPhaseError( finishedWork, finishedWork.return, error );
                     }
                 }
@@ -614,7 +614,7 @@ function callComponentWillUnmountWithTimer( current: Fiber, instance: any ) {
 function safelyCallComponentWillUnmount( current: Fiber, nearestMountedAncestor: Fiber | null, instance: any ) {
     try {
         callComponentWillUnmountWithTimer( current, instance );
-    } catch ( error ) {
+    } catch( error ) {
         captureCommitPhaseError( current, nearestMountedAncestor, error );
     }
 }
@@ -623,7 +623,7 @@ function safelyCallComponentWillUnmount( current: Fiber, nearestMountedAncestor:
 function safelyAttachRef( current: Fiber, nearestMountedAncestor: Fiber | null ) {
     try {
         commitAttachRef( current );
-    } catch ( error ) {
+    } catch( error ) {
         captureCommitPhaseError( current, nearestMountedAncestor, error );
     }
 }
@@ -645,7 +645,7 @@ function safelyDetachRef( current: Fiber, nearestMountedAncestor: Fiber | null )
                 } else {
                     refCleanup();
                 }
-            } catch ( error ) {
+            } catch( error ) {
                 captureCommitPhaseError( current, nearestMountedAncestor, error );
             } finally {
                 // `refCleanup` has been called. Nullify all references to it to prevent double invocation.
@@ -670,7 +670,7 @@ function safelyDetachRef( current: Fiber, nearestMountedAncestor: Fiber | null )
                 } else {
                     retVal = ref( null );
                 }
-            } catch ( error ) {
+            } catch( error ) {
                 captureCommitPhaseError( current, nearestMountedAncestor, error );
             }
 
@@ -709,7 +709,7 @@ function commitClassLayoutLifecycles( finishedWork: Fiber, current: Fiber | null
             try {
                 startLayoutEffectTimer();
                 instance.componentDidMount();
-            } catch ( error ) {
+            } catch( error ) {
                 captureCommitPhaseError( finishedWork, finishedWork.return, error );
             }
 
@@ -717,7 +717,7 @@ function commitClassLayoutLifecycles( finishedWork: Fiber, current: Fiber | null
         } else {
             try {
                 instance.componentDidMount();
-            } catch ( error ) {
+            } catch( error ) {
                 captureCommitPhaseError( finishedWork, finishedWork.return, error );
             }
         }
@@ -744,7 +744,7 @@ function commitClassLayoutLifecycles( finishedWork: Fiber, current: Fiber | null
             try {
                 startLayoutEffectTimer();
                 instance.componentDidUpdate( prevProps, prevState, instance.__reactInternalSnapshotBeforeUpdate );
-            } catch ( error ) {
+            } catch( error ) {
                 captureCommitPhaseError( finishedWork, finishedWork.return, error );
             }
 
@@ -752,7 +752,7 @@ function commitClassLayoutLifecycles( finishedWork: Fiber, current: Fiber | null
         } else {
             try {
                 instance.componentDidUpdate( prevProps, prevState, instance.__reactInternalSnapshotBeforeUpdate );
-            } catch ( error ) {
+            } catch( error ) {
                 captureCommitPhaseError( finishedWork, finishedWork.return, error );
             }
         }
@@ -851,7 +851,7 @@ function recursivelyTraverseMutationEffects( root: FiberRoot, parentFiber: Fiber
 
             try {
                 commitDeletionEffects( root, parentFiber, childToDelete );
-            } catch ( error ) {
+            } catch( error ) {
                 captureCommitPhaseError( childToDelete, parentFiber, error );
             }
         }
@@ -1188,7 +1188,7 @@ function commitHookLayoutEffects( finishedWork: Fiber, hookFlags: HookFlags ) {
         try {
             startLayoutEffectTimer();
             commitHookEffectListMount( hookFlags, finishedWork );
-        } catch ( error ) {
+        } catch( error ) {
             captureCommitPhaseError( finishedWork, finishedWork.return, error );
         }
 
@@ -1196,7 +1196,7 @@ function commitHookLayoutEffects( finishedWork: Fiber, hookFlags: HookFlags ) {
     } else {
         try {
             commitHookEffectListMount( hookFlags, finishedWork );
-        } catch ( error ) {
+        } catch( error ) {
             captureCommitPhaseError( finishedWork, finishedWork.return, error );
         }
     }
@@ -1221,7 +1221,7 @@ function commitMutationEffectsOnFiber( finishedWork: Fiber, root: FiberRoot, lan
                 try {
                     commitHookEffectListUnmount( HookFlags.Insertion | HookFlags.HasEffect, finishedWork, finishedWork.return );
                     commitHookEffectListMount( HookFlags.Insertion | HookFlags.HasEffect, finishedWork );
-                } catch ( error ) {
+                } catch( error ) {
                     captureCommitPhaseError( finishedWork, finishedWork.return, error );
                 }
 
@@ -1234,7 +1234,7 @@ function commitMutationEffectsOnFiber( finishedWork: Fiber, root: FiberRoot, lan
                     try {
                         startLayoutEffectTimer();
                         commitHookEffectListUnmount( HookFlags.Layout | HookFlags.HasEffect, finishedWork, finishedWork.return );
-                    } catch ( error ) {
+                    } catch( error ) {
                         captureCommitPhaseError( finishedWork, finishedWork.return, error );
                     }
 
@@ -1242,7 +1242,7 @@ function commitMutationEffectsOnFiber( finishedWork: Fiber, root: FiberRoot, lan
                 } else {
                     try {
                         commitHookEffectListUnmount( HookFlags.Layout | HookFlags.HasEffect, finishedWork, finishedWork.return );
-                    } catch ( error ) {
+                    } catch( error ) {
                         captureCommitPhaseError( finishedWork, finishedWork.return, error );
                     }
                 }
@@ -1325,7 +1325,7 @@ function commitMutationEffectsOnFiber( finishedWork: Fiber, root: FiberRoot, lan
 
                         try {
                             commitUpdate( finishedWork.stateNode, updatePayload, finishedWork.type, current.memoizedProps, finishedWork.memoizedProps, finishedWork );
-                        } catch ( error ) {
+                        } catch( error ) {
                             captureCommitPhaseError( finishedWork, finishedWork.return, error );
                         }
                     }
@@ -1375,7 +1375,7 @@ function commitMutationEffectsOnFiber( finishedWork: Fiber, root: FiberRoot, lan
 
                     try {
                         resetTextContent( instance );
-                    } catch ( error ) {
+                    } catch( error ) {
                         captureCommitPhaseError( finishedWork, finishedWork.return, error );
                     }
                 }
@@ -1397,7 +1397,7 @@ function commitMutationEffectsOnFiber( finishedWork: Fiber, root: FiberRoot, lan
 
                         try {
                             commitUpdate( instance, updatePayload, type, oldProps, newProps, finishedWork );
-                        } catch ( error ) {
+                        } catch( error ) {
                             captureCommitPhaseError( finishedWork, finishedWork.return, error );
                         }
                     }
@@ -1426,7 +1426,7 @@ function commitMutationEffectsOnFiber( finishedWork: Fiber, root: FiberRoot, lan
 
                     try {
                         commitTextUpdate( textInstance, oldText, newText );
-                    } catch ( error ) {
+                    } catch( error ) {
                         captureCommitPhaseError( finishedWork, finishedWork.return, error );
                     }
                 }
@@ -1456,7 +1456,7 @@ function commitMutationEffectsOnFiber( finishedWork: Fiber, root: FiberRoot, lan
                         if ( prevRootState.isDehydrated ) {
                             try {
                                 commitHydratedContainer( root.containerInfo );
-                            } catch ( error ) {
+                            } catch( error ) {
                                 captureCommitPhaseError( finishedWork, finishedWork.return, error );
                             }
                         }
@@ -1469,7 +1469,7 @@ function commitMutationEffectsOnFiber( finishedWork: Fiber, root: FiberRoot, lan
 
                     try {
                         replaceContainerChildren( containerInfo, pendingChildren );
-                    } catch ( error ) {
+                    } catch( error ) {
                         captureCommitPhaseError( finishedWork, finishedWork.return, error );
                     }
                 }
@@ -1498,7 +1498,7 @@ function commitMutationEffectsOnFiber( finishedWork: Fiber, root: FiberRoot, lan
 
                     try {
                         replaceContainerChildren( containerInfo, pendingChildren );
-                    } catch ( error ) {
+                    } catch( error ) {
                         captureCommitPhaseError( finishedWork, finishedWork.return, error );
                     }
                 }
@@ -1545,7 +1545,7 @@ function commitMutationEffectsOnFiber( finishedWork: Fiber, root: FiberRoot, lan
             if ( flags & FiberFlags.Update ) {
                 try {
                     commitSuspenseCallback( finishedWork );
-                } catch ( error ) {
+                } catch( error ) {
                     captureCommitPhaseError( finishedWork, finishedWork.return, error );
                 }
 
@@ -1745,7 +1745,7 @@ function commitBeforeMutationEffects_complete() {
 
         try {
             commitBeforeMutationEffectsOnFiber( fiber );
-        } catch ( error ) {
+        } catch( error ) {
             captureCommitPhaseError( fiber, fiber.return, error );
         }
 
@@ -1960,7 +1960,7 @@ function commitLayoutEffectOnFiber( finishedRoot: FiberRoot, current: Fiber | nu
 
                     try {
                         commitCallbacks( updateQueue, instance );
-                    } catch ( error ) {
+                    } catch( error ) {
                         captureCommitPhaseError( finishedWork, finishedWork.return, error );
                     }
                 }
@@ -2142,7 +2142,7 @@ function commitReconciliationEffects( finishedWork: Fiber ) {
     if ( flags & FiberFlags.Placement ) {
         try {
             commitPlacement( finishedWork );
-        } catch ( error ) {
+        } catch( error ) {
             captureCommitPhaseError( finishedWork, finishedWork.return, error );
         }
 
@@ -2248,7 +2248,7 @@ export function reappearLayoutEffects( finishedRoot: FiberRoot, current: Fiber |
             if ( typeof instance.componentDidMount === "function" ) {
                 try {
                     instance.componentDidMount();
-                } catch ( error ) {
+                } catch( error ) {
                     captureCommitPhaseError( finishedWork, finishedWork.return, error );
                 }
             }

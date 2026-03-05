@@ -121,7 +121,7 @@ import type {
     SharedQueue,
     FiberUpdateQueue,
     FiberUpdate
-} from "@zenflux/react-shared/src/react-internal-types";
+} from "@zenflux/react-shared/src/react-internal-types/index";
 
 export const UpdateState = 0;
 export const ReplaceState = 1;

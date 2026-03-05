@@ -4,7 +4,7 @@ import reactGetComponentNameFromFiber from "@zenflux/react-reconciler/src/react-
 
 import { getStackByFiberInDevAndProd } from "@zenflux/react-reconciler/src/react-fiber-component-stack";
 
-import type { Fiber } from "@zenflux/react-shared/src/react-internal-types";
+import type { Fiber } from "@zenflux/react-shared/src/react-internal-types/index";
 
 const ReactDebugCurrentFrame = ReactSharedInternals.ReactDebugCurrentFrame;
 export let current: Fiber | null = null;

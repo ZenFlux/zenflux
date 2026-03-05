@@ -34,7 +34,7 @@ import { syncNestedUpdateFlag } from "@zenflux/react-reconciler/src/react-profil
 import { ReactFiberWorkOnRootShared } from "@zenflux/react-reconciler/src/react-fiber-work-on-root-shared";
 import { RootExitStatus } from "@zenflux/react-reconciler/src/root-exit-status";
 
-import type { Fiber, FiberRoot, Lanes } from "@zenflux/react-shared/src/react-internal-types";
+import type { Fiber, FiberRoot, Lanes } from "@zenflux/react-shared/src/react-internal-types/index";
 
 // --- Find Better Solution ---
 type FlushSyncWorkOnAllRootsCallback = typeof flushSyncWorkOnAllRoots;
@@ -177,7 +177,7 @@ function flushSyncWorkAcrossRoots_impl( onlyLegacy: boolean ) {
                     try {
                         didPerformSomeWork = true;
                         performSyncWorkOnRoot( root, nextLanes );
-                    } catch ( error ) {
+                    } catch( error ) {
                         // Collect errors so we can rethrow them at the end
                         if ( errors === null ) {
                             errors = [ error ];

@@ -9,7 +9,7 @@ import type {
     RejectedThenable,
     Thenable
 } from "@zenflux/react-shared/src/react-types";
-import type { Lane } from "@zenflux/react-shared/src/react-internal-types";
+import type { Lane } from "@zenflux/react-shared/src/react-internal-types/index";
 
 // If there are multiple, concurrent async actions, they are entangled. All
 // transition updates that occur while the async action is still in progress

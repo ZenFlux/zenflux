@@ -8,7 +8,7 @@ import { WorkTag } from "@zenflux/react-shared/src/react-internal-constants/work
 
 import type { ReactContext, ReactProviderType } from "@zenflux/react-shared/src/react-types";
 
-import type { Fiber } from "@zenflux/react-shared/src/react-internal-types";
+import type { Fiber } from "@zenflux/react-shared/src/react-internal-types/index";
 
 // Keep in sync with shared/getComponentNameFromType
 function getWrappedName( outerType: unknown, innerType: any, wrapperName: string ): string {

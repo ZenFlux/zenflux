@@ -18,7 +18,7 @@ import reactGetComponentNameFromFiber from "@zenflux/react-reconciler/src/react-
 import { logStateUpdateScheduled } from "@zenflux/react-reconciler/src/react-debug-tracing";
 import { markStateUpdateScheduled } from "@zenflux/react-reconciler/src/react-fiber-dev-tools-hook";
 
-import type { Fiber, HookUpdateQueue, Lane } from "@zenflux/react-shared/src/react-internal-types";
+import type { Fiber, HookUpdateQueue, Lane } from "@zenflux/react-shared/src/react-internal-types/index";
 import type { DependencyList, Hook } from "@zenflux/react-reconciler/src/react-fiber-hooks-types";
 import type { HookUpdate } from "@zenflux/react-shared/src/react-internal-types/update";
 

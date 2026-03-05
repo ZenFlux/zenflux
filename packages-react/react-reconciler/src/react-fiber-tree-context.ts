@@ -55,7 +55,7 @@ import { clz32 } from "@zenflux/react-reconciler/src/clz32";
 
 import { isHydrating } from "@zenflux/react-reconciler/src/react-fiber-hydration-is-hydrating";
 
-import type { Fiber } from "@zenflux/react-shared/src/react-internal-types";
+import type { Fiber } from "@zenflux/react-shared/src/react-internal-types/index";
 
 export type TreeContext = {
     id: number;

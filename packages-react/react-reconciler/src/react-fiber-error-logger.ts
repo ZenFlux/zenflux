@@ -4,7 +4,7 @@ import reactGetComponentNameFromFiber from "@zenflux/react-reconciler/src/react-
 
 import { showErrorDialog } from "@zenflux/react-reconciler/src/react-fiber-error-dialog";
 
-import type { Fiber } from "@zenflux/react-shared/src/react-internal-types";
+import type { Fiber } from "@zenflux/react-shared/src/react-internal-types/index";
 import type { CapturedValue } from "@zenflux/react-reconciler/src/react-captured-value";
 
 export function logCapturedError( boundary: Fiber, errorInfo: CapturedValue<unknown> ): void {
@@ -67,7 +67,7 @@ export function logCapturedError( boundary: Fiber, errorInfo: CapturedValue<unkn
             // We pass the error object instead of custom message so that the browser displays the error natively.
             console[ "error" ]( error ); // Don't transform to our wrapper
         }
-    } catch ( e ) {
+    } catch( e ) {
         // This method must not throw, or React internal state will get messed up.
         // If console.error is overridden, or logCapturedError() shows a dialog that throws,
         // we want to report this error outside of the normal stack as a last resort.

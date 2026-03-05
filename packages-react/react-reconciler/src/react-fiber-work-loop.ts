@@ -27,7 +27,7 @@ import {
 import { ReactFiberWorkOnRootShared } from "@zenflux/react-reconciler/src/react-fiber-work-on-root-shared";
 import { upgradePendingLanesToSync } from "@zenflux/react-reconciler/src/react-fiber-lane";
 
-import type { FiberRoot, Lane, Lanes } from "@zenflux/react-shared/src/react-internal-types";
+import type { FiberRoot, Lane, Lanes } from "@zenflux/react-shared/src/react-internal-types/index";
 
 const {
     ReactCurrentBatchConfig,

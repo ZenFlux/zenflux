@@ -5,7 +5,7 @@ import { attachPingListener } from "@zenflux/react-reconciler/src/react-fiber-wo
 import { renderDidSuspendDelayIfPossible } from "@zenflux/react-reconciler/src/react-fiber-work-in-progress-render-did";
 
 import type { Wakeable } from "@zenflux/react-shared/src/react-types";
-import type { FiberRoot, Lanes } from "@zenflux/react-shared/src/react-internal-types";
+import type { FiberRoot, Lanes } from "@zenflux/react-shared/src/react-internal-types/index";
 
 export function handleSuspenseNoBoundary(
     root: FiberRoot,

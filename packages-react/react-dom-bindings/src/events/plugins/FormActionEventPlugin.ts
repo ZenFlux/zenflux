@@ -4,7 +4,7 @@ import { getFiberCurrentPropsFromNode } from "@zenflux/react-dom-bindings/src/cl
 
 import { SyntheticEvent } from "@zenflux/react-dom-bindings/src/events/SyntheticEvent";
 
-import type { Fiber } from "@zenflux/react-shared/src/react-internal-types";
+import type { Fiber } from "@zenflux/react-shared/src/react-internal-types/index";
 
 import type { FormStatus } from "@zenflux/react-dom-bindings/src/shared/ReactDOMFormActions";
 

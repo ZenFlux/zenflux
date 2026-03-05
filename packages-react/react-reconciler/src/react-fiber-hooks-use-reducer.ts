@@ -28,7 +28,7 @@ import { markWorkInProgressReceivedUpdate } from "@zenflux/react-reconciler/src/
 import { requestUpdateLane } from "@zenflux/react-reconciler/src/react-fiber-work-in-progress-request-lane";
 import { scheduleUpdateOnFiber } from "@zenflux/react-reconciler/src/react-fiber-work-schedule-update";
 
-import type { Fiber, HookUpdateQueue } from "@zenflux/react-shared/src/react-internal-types";
+import type { Fiber, HookUpdateQueue } from "@zenflux/react-shared/src/react-internal-types/index";
 
 import type {
     Dispatch,

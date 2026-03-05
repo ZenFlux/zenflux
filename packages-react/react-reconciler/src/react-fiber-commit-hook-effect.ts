@@ -18,7 +18,7 @@ import { safelyCallDestroy } from "@zenflux/react-reconciler/src/react-fiber-com
 
 import type { FunctionComponentUpdateQueue } from "@zenflux/react-shared/src/react-internal-types/queue";
 
-import type { Fiber } from "@zenflux/react-shared/src/react-internal-types";
+import type { Fiber } from "@zenflux/react-shared/src/react-internal-types/index";
 
 export function commitHookEffectListUnmount( flags: HookFlags, finishedWork: Fiber, nearestMountedAncestor: Fiber | null ) {
     const updateQueue: FunctionComponentUpdateQueue | null = ( finishedWork.updateQueue as any );

@@ -9,7 +9,7 @@ import {
     REACT_OFFSCREEN_TYPE, REACT_SUSPENSE_LIST_TYPE
 } from "@zenflux/react-shared/src/react-symbols";
 
-import type { Dispatcher, CacheDispatcher, Fiber } from "@zenflux/react-shared/src/react-internal-types";
+import type { Dispatcher, CacheDispatcher, Fiber } from "@zenflux/react-shared/src/react-internal-types/index";
 
 import type { ReactServerContext } from "@zenflux/react-shared/src/react-types";
 import type { BatchConfigTransition } from "@zenflux/react-shared/src/react-internal-types/transition";

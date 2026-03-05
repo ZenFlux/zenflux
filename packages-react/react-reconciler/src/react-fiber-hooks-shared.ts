@@ -7,7 +7,7 @@ import type { Hook } from "@zenflux/react-reconciler/src/react-fiber-hooks-types
 
 import type { HookType } from "@zenflux/react-shared/src/react-internal-types/hook";
 import type { ThenableState } from "@zenflux/react-reconciler/src/react-fiber-thenable";
-import type { Fiber, Lanes } from "@zenflux/react-shared/src/react-internal-types";
+import type { Fiber, Lanes } from "@zenflux/react-shared/src/react-internal-types/index";
 
 // These are set right before calling the component.
 let renderLanes: Lanes = NoLanes;
@@ -51,10 +51,10 @@ let didScheduleRenderPhaseUpdate: boolean = false;
 // render attempts.
 let globalClientIdCounter: number = 0;
 
-let didWarnAboutMismatchedHooksForComponent: Set<string | null>;
-let didWarnUncachedGetSnapshot: void | true;
-let didWarnAboutUseWrappedInTryCatch: Set<string | null>;
-let didWarnAboutAsyncClientComponent: Set<string | null>;
+let didWarnAboutMismatchedHooksForComponent!: Set<string | null>;
+let didWarnUncachedGetSnapshot!: void | true;
+let didWarnAboutUseWrappedInTryCatch!: Set<string | null>;
+let didWarnAboutAsyncClientComponent!: Set<string | null>;
 
 let HooksDispatcherOnMountInDEV: Dispatcher | null = null;
 let HooksDispatcherOnMountWithHookTypesInDEV: Dispatcher | null = null;
@@ -67,7 +67,7 @@ let InvalidNestedHooksDispatcherOnRerenderInDEV: Dispatcher | null = null;
 
 // NOTE: defining two versions of this function to avoid size impact when this feature is disabled.
 // Previously this function was inlined, the additional `memoCache` property makes it not inlined.
-let createFunctionComponentUpdateQueue: () => FunctionComponentUpdateQueue;
+let createFunctionComponentUpdateQueue!: () => FunctionComponentUpdateQueue;
 
 // In DEV, this tracks whether currently rendering component needs to ignore
 // the dependencies for Hooks that need them (e.g. useEffect or useMemo).

@@ -41,7 +41,7 @@ import {
     createRootErrorUpdate
 } from "@zenflux/react-reconciler/src/react-fiber-throw-error-update";
 
-import type { Fiber, FiberRoot, Lanes } from "@zenflux/react-shared/src/react-internal-types";
+import type { Fiber, FiberRoot, Lanes } from "@zenflux/react-shared/src/react-internal-types/index";
 import type { Wakeable } from "@zenflux/react-shared/src/react-types";
 
 function resetSuspendedComponent( sourceFiber: Fiber, rootRenderLanes: Lanes ) {
@@ -92,7 +92,7 @@ export function throwException( root: FiberRoot, returnFiber: Fiber, sourceFiber
         if ( enablePostpone && value.$$typeof === REACT_POSTPONE_TYPE ) {
             // Act as if this is an infinitely suspending promise.
             value = {
-                then: function () {
+                then: function() {
                 }
             };
         }

@@ -41,7 +41,7 @@ import type { StackCursor } from "@zenflux/react-reconciler/src/react-fiber-stac
 import type { ReactContext, ReactProviderType } from "@zenflux/react-shared/src/react-types";
 
 import type { Hook } from "@zenflux/react-reconciler/src/react-fiber-hooks-types";
-import type { Fiber, Lanes, SharedQueue } from "@zenflux/react-shared/src/react-internal-types";
+import type { Fiber, Lanes, SharedQueue } from "@zenflux/react-shared/src/react-internal-types/index";
 import type { Dependencies } from "@zenflux/react-shared/src/react-internal-types/dependencies";
 
 import type { ContextDependency } from "@zenflux/react-shared/src/react-internal-types/context";

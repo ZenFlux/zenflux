@@ -20,7 +20,7 @@ import {
     REACT_SUSPENSE_TYPE
 } from "@zenflux/react-shared/src/react-symbols";
 
-import type { Dispatcher } from "@zenflux/react-shared/src/react-internal-types";
+import type { Dispatcher } from "@zenflux/react-shared/src/react-internal-types/index";
 
 import type { LazyComponent } from "@zenflux/react-shared/src/lazy-component";
 import type { Source } from "@zenflux/react-shared/src/react-element-type";
@@ -37,7 +37,7 @@ export function describeBuiltInComponentFrame( name: string, source: void | null
             // Extract the VM specific prefix used by each line.
             try {
                 throw Error();
-            } catch ( x: any ) {
+            } catch( x: any ) {
                 const match = x.stack.trim().match( /\n( *(at )?)/ );
                 prefix = match && match[ 1 ] || "";
             }
@@ -80,7 +80,7 @@ export function describeNativeComponentFrame( fn: ( ... args: Array<any> ) => an
     reentry = true;
     const previousPrepareStackTrace = Error.prepareStackTrace;
 
-    Error.prepareStackTrace = undefined;
+    Error.prepareStackTrace = undefined as any;
 
     let previousDispatcher: Dispatcher | null = null;
 
@@ -96,12 +96,12 @@ export function describeNativeComponentFrame( fn: ( ... args: Array<any> ) => an
         // This should throw.
         if ( construct ) {
             // Something should be setting the props in the constructor.
-            const Fake = function () {
+            const Fake = function() {
                 throw Error();
             };
 
             Object.defineProperty( Fake.prototype, "props", {
-                set: function () {
+                set: function() {
                     // We use a throwing setter instead of frozen or non-writable props
                     // because that won't throw in a non-strict mode function.
                     throw Error();
@@ -113,7 +113,7 @@ export function describeNativeComponentFrame( fn: ( ... args: Array<any> ) => an
                 // frames added by the construct call.
                 try {
                     Reflect.construct( Fake, [] );
-                } catch ( x ) {
+                } catch( x ) {
                     control = x;
                 }
 
@@ -122,7 +122,7 @@ export function describeNativeComponentFrame( fn: ( ... args: Array<any> ) => an
                 try {
                     // @ts-ignore
                     Fake.call();
-                } catch ( x ) {
+                } catch( x ) {
                     control = x;
                 }
 
@@ -132,7 +132,7 @@ export function describeNativeComponentFrame( fn: ( ... args: Array<any> ) => an
             try {
                 // noinspection ExceptionCaughtLocallyJS
                 throw Error();
-            } catch ( x ) {
+            } catch( x ) {
                 control = x;
             }
 
@@ -150,7 +150,7 @@ export function describeNativeComponentFrame( fn: ( ... args: Array<any> ) => an
                 } );
             }
         }
-    } catch ( sample: any ) {
+    } catch( sample: any ) {
         // This is inlined manually because closure doesn't do it for us.
         if ( sample && control && typeof sample.stack === "string" ) {
             // This extracts the first frame from the sample that isn't also in the control.
@@ -353,7 +353,7 @@ export function describeUnknownElementTypeFrameInDEV( type: any, source: void | 
                     // Lazy may contain any component type so we recursively resolve it.
                     return describeUnknownElementTypeFrameInDEV( init( payload ), source, ownerFn );
                     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-                } catch ( x ) {
+                } catch( x ) {
                 }
             }
         }

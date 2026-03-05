@@ -5,7 +5,7 @@
     "private": true,
     "exports": {
         "./package.json": "./package.json",
-        "./src/*": "./src/*"
+        "./src/*": "./src/*.ts"
     },
     "main": "index.js",
     "repository": {

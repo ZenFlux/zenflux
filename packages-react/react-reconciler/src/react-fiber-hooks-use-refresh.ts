@@ -17,7 +17,7 @@ import {
     updateWorkInProgressHook
 } from "@zenflux/react-reconciler/src/react-fiber-hooks-infra";
 
-import type { Fiber } from "@zenflux/react-shared/src/react-internal-types";
+import type { Fiber } from "@zenflux/react-shared/src/react-internal-types/index";
 
 export function mountRefresh(): any {
     const hook = mountWorkInProgressHook();

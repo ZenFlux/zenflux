@@ -18,7 +18,7 @@ import type {
     UpdatePayload,
 } from "@zenflux/react-dom-bindings/src/client/ReactFiberConfigDOM";
 
-import type { Fiber } from "@zenflux/react-shared/src/react-internal-types";
+import type { Fiber } from "@zenflux/react-shared/src/react-internal-types/index";
 
 // TODO: Should be configurable
 export type {

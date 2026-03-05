@@ -52,7 +52,7 @@ import type { SuspenseInstance } from "@zenflux/react-shared/src/react-internal-
 
 import type { TreeContext } from "@zenflux/react-reconciler/src/react-fiber-tree-context";
 
-import type { Fiber } from "@zenflux/react-shared/src/react-internal-types";
+import type { Fiber } from "@zenflux/react-shared/src/react-internal-types/index";
 import type { SuspenseState } from "@zenflux/react-reconciler/src/react-fiber-suspense-component";
 import type {
     Container,

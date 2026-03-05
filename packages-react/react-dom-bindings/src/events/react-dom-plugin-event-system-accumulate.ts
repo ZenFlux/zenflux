@@ -13,7 +13,7 @@ import type { DOMEventName } from "@zenflux/react-dom-bindings/src/events/DOMEve
 import type { DispatchListener, DispatchQueue } from "@zenflux/react-dom-bindings/src/events/DOMPluginEventSystem";
 import type { AnyNativeEvent } from "@zenflux/react-dom-bindings/src/events/PluginModuleType";
 import type { ReactScopeInstance } from "@zenflux/react-shared/src/react-types";
-import type { Fiber } from "@zenflux/react-shared/src/react-internal-types";
+import type { Fiber } from "@zenflux/react-shared/src/react-internal-types/index";
 import type { KnownReactSyntheticEvent } from "@zenflux/react-dom-bindings/src/events/ReactSyntheticEventType";
 
 function createDispatchListener( instance: null | Fiber, listener: any, currentTarget: EventTarget ): DispatchListener {

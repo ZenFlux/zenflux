@@ -1,4 +1,4 @@
-import type { FiberRoot } from "@zenflux/react-shared/src/react-internal-types";
+import type { FiberRoot } from "@zenflux/react-shared/src/react-internal-types/index";
 
 // Only used when enableProfilerNestedUpdateScheduledHook is true;
 // to track which root is currently committing layout effects.

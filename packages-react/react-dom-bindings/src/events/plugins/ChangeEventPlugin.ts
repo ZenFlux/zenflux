@@ -30,7 +30,7 @@ import type { EventSystemFlags } from "@zenflux/react-dom-bindings/src/events/Ev
 import type { DOMEventName } from "@zenflux/react-dom-bindings/src/events/DOMEventNames";
 import type { AnyNativeEvent } from "@zenflux/react-dom-bindings/src/events/PluginModuleType";
 import type { Instance, TextInstance } from "@zenflux/react-dom-bindings/src/client/ReactFiberConfigDOM";
-import type { Fiber } from "@zenflux/react-shared/src/react-internal-types";
+import type { Fiber } from "@zenflux/react-shared/src/react-internal-types/index";
 
 function registerEvents() {
     registerTwoPhaseEvent( "onChange", [ "change", "click", "focusin", "focusout", "input", "keydown", "keyup", "selectionchange" ] );

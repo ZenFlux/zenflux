@@ -23,7 +23,7 @@ import { tryHydrateInstance, tryHydrateSuspense, tryHydrateText } from "@zenflux
 import { deleteHydratableInstance } from "@zenflux/react-reconciler/src/react-fiber-hydration-context";
 
 import type { SuspenseState } from "@zenflux/react-reconciler/src/react-fiber-suspense-component";
-import type { Fiber } from "@zenflux/react-shared/src/react-internal-types";
+import type { Fiber } from "@zenflux/react-shared/src/react-internal-types/index";
 
 const {
     canHydrateFormStateMarker,

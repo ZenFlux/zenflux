@@ -1,7 +1,7 @@
 import { TypeOfMode } from "@zenflux/react-shared/src/react-internal-constants/type-of-mode";
 import { FiberFlags } from "@zenflux/react-shared/src/react-internal-constants/fiber-flags";
 
-import type { Fiber } from "@zenflux/react-shared/src/react-internal-types";
+import type { Fiber } from "@zenflux/react-shared/src/react-internal-types/index";
 
 export function shouldClientRenderOnMismatch( fiber: Fiber ) {
     return ( fiber.mode & TypeOfMode.ConcurrentMode ) !== TypeOfMode.NoMode &&

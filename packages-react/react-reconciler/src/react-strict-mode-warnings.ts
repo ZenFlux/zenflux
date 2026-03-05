@@ -7,7 +7,7 @@ import {
     setCurrentFiber as setCurrentDebugFiberInDEV
 } from "@zenflux/react-reconciler/src/react-current-fiber";
 
-import type { Fiber } from "@zenflux/react-shared/src/react-internal-types";
+import type { Fiber } from "@zenflux/react-shared/src/react-internal-types/index";
 
 type FiberArray = Array<Fiber>;
 type FiberToFiberComponentsMap = Map<Fiber, FiberArray>;

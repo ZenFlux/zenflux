@@ -5,7 +5,7 @@ import * as Scheduler from "@zenflux/react-scheduler";
 
 import type { ReactContext } from "@zenflux/react-shared/src/react-types";
 
-import type { Cache } from "@zenflux/react-shared/src/react-internal-types";
+import type { Cache } from "@zenflux/react-shared/src/react-internal-types/index";
 
 // In environments without AbortController (e.g. tests)
 // replace it with a lightweight shim that only has the features we use.

@@ -15,7 +15,7 @@ import getEventTarget from "@zenflux/react-dom-bindings/src/events/getEventTarge
 import type { AnyNativeEvent } from "@zenflux/react-dom-bindings/src/events/PluginModuleType";
 import type { Container } from "@zenflux/react-dom-bindings/src/client/ReactFiberConfigDOM";
 import type { SuspenseInstance } from "@zenflux/react-shared/src/react-internal-types/suspense";
-import type { Fiber, FiberRoot } from "@zenflux/react-shared/src/react-internal-types";
+import type { Fiber, FiberRoot } from "@zenflux/react-shared/src/react-internal-types/index";
 
 export function findInstanceBlockingEvent( nativeEvent: AnyNativeEvent ): null | Container | SuspenseInstance {
     const nativeEventTarget = getEventTarget( nativeEvent );
