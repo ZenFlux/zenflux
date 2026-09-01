@@ -284,44 +284,63 @@ export function zTSConfigRead( format: TZFormatType | null, projectPath: string 
 }
 
 /**
- * Function zTSGetCompilerHost() - Retrieves the compiler host for a given TypeScript configuration.
+ * Function zTSResolveWorkspacePaths() - Injects workspace aware `paths` mappings into the given config.
  *
- * Retrieves the compiler host for a given TypeScript configuration.
+ * Mutates `tsConfig.options.paths` (and `tsConfig.projectReferences`) so that project references and the
+ * package itself resolve to their sources rather than to their built output.
+ *
+ * Shared by the TypeScript 5 compiler host and the TypeScript 7 project config generator.
  */
-export async function zTSGetCompilerHost( tsConfig: ts.ParsedCommandLine, activeConsole = ConsoleManager.$ ) {
+export async function zTSResolveWorkspacePaths( tsConfig: ts.ParsedCommandLine, activeConsole = ConsoleManager.$ ) {
     const currentConfigFilePath = tsConfig.options.configFilePath as string,
         currentProjectPath = path.dirname( currentConfigFilePath );
 
     const chain = zTSConfigReadExtendsChain( tsConfig, activeConsole ),
         mergedTsConfig = zDeepMergeAll<ts.ParsedCommandLine>( ... chain );
 
-    if ( ! mergedTsConfig.options?.rootDir ) {
-        const currentPackage = new Package( currentProjectPath );
-
-        // If one of configs in the chain have `projectReferences` and they are part of this workspace, then try to add paths.
-        const workspaces = await zWorkspaceGetPackages(),
-            paths: ts.ParsedCommandLine[ "options" ][ "paths" ] = tsConfig.options.paths ?? {};
-
-        if ( mergedTsConfig.projectReferences ) {
-            mergedTsConfig.projectReferences.forEach( projectReference => {
-                const packageName = projectReference.originalPath!,
-                    packageInfo = workspaces[ packageName ];
-
-                if ( packageInfo ) {
-                    paths[ packageName + "/*" ] = [ packageInfo.getPath() + "/*" ];
-
-                    projectReference.path = packageInfo.getPath();
-                }
-            } );
-
-            tsConfig.projectReferences = [ ... mergedTsConfig.projectReferences ];
-        }
-
-        // Add self to paths.
-        paths[ currentPackage.json.name + "/*" ] = [ currentProjectPath + "/*" ];
-
-        tsConfig.options.paths = paths;
+    // When `rootDir` is declared the project is self contained, resolution is left to TypeScript.
+    if ( mergedTsConfig.options?.rootDir ) {
+        return;
     }
+
+    const currentPackage = new Package( currentProjectPath );
+
+    // If one of configs in the chain have `projectReferences` and they are part of this workspace, then try to add paths.
+    const workspaces = await zWorkspaceGetPackages(),
+        paths: ts.ParsedCommandLine[ "options" ][ "paths" ] = tsConfig.options.paths ?? {};
+
+    if ( mergedTsConfig.projectReferences ) {
+        mergedTsConfig.projectReferences.forEach( projectReference => {
+            const packageName = projectReference.originalPath!,
+                packageInfo = workspaces[ packageName ];
+
+            if ( packageInfo ) {
+                paths[ packageName + "/*" ] = [ packageInfo.getPath() + "/*" ];
+
+                projectReference.path = packageInfo.getPath();
+            }
+        } );
+
+        tsConfig.projectReferences = [ ... mergedTsConfig.projectReferences ];
+    }
+
+    // Add self to paths.
+    paths[ currentPackage.json.name + "/*" ] = [ currentProjectPath + "/*" ];
+
+    tsConfig.options.paths = paths;
+
+    return paths;
+}
+
+/**
+ * Function zTSGetCompilerHost() - Retrieves the compiler host for a given TypeScript configuration.
+ *
+ * Retrieves the compiler host for a given TypeScript configuration.
+ */
+export async function zTSGetCompilerHost( tsConfig: ts.ParsedCommandLine, activeConsole = ConsoleManager.$ ) {
+    const currentConfigFilePath = tsConfig.options.configFilePath as string;
+
+    await zTSResolveWorkspacePaths( tsConfig, activeConsole );
 
     const outPath = tsConfig.options.declarationDir || tsConfig.options.outDir;
 
@@ -369,6 +388,7 @@ export async function zTSPreDiagnostics( tsConfig: ts.ParsedCommandLine, options
     const {
         useCache = true,
         haltOnError = false,
+        useBetaTS7 = false,
     } = options;
 
     /**
@@ -381,6 +401,33 @@ export async function zTSPreDiagnostics( tsConfig: ts.ParsedCommandLine, options
             `Skipping validation for '${ tsConfig.options.configFilePath }', already validated`
         ] );
         return;
+    }
+
+    /**
+     * TypeScript 7 has no programmatic compiler API, so it cannot be driven the way the rest of this
+     * function does. Hand off to the native backend, which resolves to `undefined` when TypeScript 7 is
+     * not installed so that opting in never breaks a build.
+     *
+     * Imported lazily, `typescript-ts7` imports back from this module.
+     */
+    if ( useBetaTS7 ) {
+        const { zTS7PreDiagnostics } = await import( "@zenflux/cli/src/core/typescript-ts7" );
+
+        // Resolved here rather than inside the backend, so that `typescript-ts7` stays a leaf module.
+        const paths = await zTSResolveWorkspacePaths( tsConfig, activeConsole );
+
+        const result = await zTS7PreDiagnostics( tsConfig, options, paths, activeConsole );
+
+        if ( result ) {
+            configValidationCache[ tsConfig.options.configFilePath as string ] = true;
+
+            return result;
+        }
+
+        activeConsole.verbose( () => [
+            zTSPreDiagnostics.name,
+            "TypeScript 7 backend unavailable, continuing with TypeScript 5"
+        ] );
     }
 
     const compilerHost = await zTSGetCompilerHost( {

@@ -79,6 +79,16 @@ These commands are designed to help you manage and build your projects efficient
             - No declaration file generation
             - No api-exporter will be used
               <br /><br />
+    - **--useBetaTS7:** (**beta**)
+        - Description: Run typescript diagnostics through the TypeScript 7 native backend
+        - Behaviors:
+            - Diagnostics only, declaration generation stays on TypeScript 5
+            - Requires TypeScript 7 installed alongside TypeScript 5
+            - Falls back to TypeScript 5 with a warning when TypeScript 7 is not found
+            - Can be set per package via `useBetaTS7` in `zenflux.config.ts`
+            - Override off with `--no-useBetaTS7`
+        - See [TypeScript 7 diagnostics (beta)](#typescript-7-diagnostics-beta)
+              <br /><br />
 
 - **Configuration file (`zenflux.config.ts`)**;
     - `format`:
@@ -103,6 +113,8 @@ These commands are designed to help you manage and build your projects efficient
       - Enables zCustomLoader, (moduleForwarding depended on this)
     - `enableCjsAsyncWrap` (**optional**):
       - Enables cjs top level async wrap
+    - `useBetaTS7` (**optional**):
+      - Opts this package into the TypeScript 7 native diagnostics backend, see [TypeScript 7 diagnostics (beta)](#typescript-7-diagnostics-beta)
     - `moduleForwarding`
         - This property is an object that maps module names to their respective paths. It is used to redirect module imports to different locations, which can be particularly useful in a monorepo setup.
           <br />
@@ -266,6 +278,17 @@ The CLI tool provides a command for performing TypeScript type checking across w
             - Kill the process if typescript diagnostic error occurred
               <br /><br />
 
+    - **--useBetaTS7:** (**beta**)
+        - Description: Run diagnostics through the TypeScript 7 native backend
+        - Behaviors:
+            - Requires TypeScript 7 installed alongside TypeScript 5
+            - Falls back to TypeScript 5 with a warning when TypeScript 7 is not found
+            - TypeScript 7 turns several TypeScript 5 deprecations into hard errors, new diagnostics may appear
+            - Can be set per package via `useBetaTS7` in `zenflux.config.ts`
+            - Override off with `--no-useBetaTS7`
+        - See [TypeScript 7 diagnostics (beta)](#typescript-7-diagnostics-beta)
+              <br /><br />
+
     - **--config:**
         - Description: Specify a custom config file
         - Examples:
@@ -278,6 +301,65 @@ The CLI tool provides a command for performing TypeScript type checking across w
     - `@z-cli @typecheck --workspace "react-*"` - Typecheck packages matching pattern
     - `@z-cli @typecheck --workspace zenflux-cli` - Typecheck specific package
     - `@z-cli @typecheck --haltOnDiagnosticError` - Stop on first type error
+    - `@z-cli @typecheck --useBetaTS7` - Typecheck using the TypeScript 7 native backend
+
+---
+
+### TypeScript 7 diagnostics (beta)
+
+TypeScript 7 is the native (Go) compiler. It is considerably faster than TypeScript 5, but it removed the
+`ts.*` programmatic compiler API that this CLI is built on, `ts.createProgram()` and
+`ts.getPreEmitDiagnostics()` do not exist there.
+
+Instead it ships an out of process API under `typescript/unstable/sync`. The `--useBetaTS7` flag routes
+**diagnostics only** through that API, everything else (declaration generation, api-extractor, rollup)
+stays on TypeScript 5.
+
+It is marked beta because the API is published under `unstable/`, and because TypeScript 7 turns a number
+of TypeScript 5 deprecations into hard errors, opting in can surface new diagnostics on unchanged code.
+
+- **Installation** - TypeScript 7 is not a dependency of this package, install it next to TypeScript 5:
+  ```bash
+  npm pkg set devDependencies.typescript7="npm:typescript@^7.0.2" && npm install
+  ```
+  The alias keeps `typescript` pointing at 5.x for the rest of the toolchain. If your root `node_modules/.bin/tsc`
+  ends up resolving to 7.x after installing, declare `typescript` explicitly at the root to reclaim it.
+  <br /><br />
+  When TypeScript 7 cannot be found the CLI logs the install command and falls back to TypeScript 5,
+  opting in never breaks a build.
+  <br /><br />
+
+- **Enabling it** - resolved per package, highest precedence first:
+    1. `--no-useBetaTS7` on the command line, or `Z_USE_BETA_TS7=0` - forces TypeScript 5
+    2. `--useBetaTS7` on the command line
+    3. `Z_USE_BETA_TS7=1` in the environment - convenient for CI
+    4. `useBetaTS7: true` in `zenflux.config.ts` - opts in a single package
+       <br /><br />
+
+- **What it is worth** - measured on this repository's workspace, `@typecheck` over 15 configs:
+
+  | Backend | Diagnostics step |
+  |---|---|
+  | TypeScript 5 | 9410ms |
+  | TypeScript 7 | **1700ms** |
+
+  `@build` benefits less, declaration generation still runs on TypeScript 5.
+  <br /><br />
+
+- **Migration notes** - things that pass on TypeScript 5 and fail on TypeScript 7:
+    - **`strict` defaults to `true`** in TypeScript 7, it defaulted to `false` in TypeScript 5. A project
+      that never set `strict` is suddenly checked under the full strict family
+      (`strictPropertyInitialization`, `noImplicitAny`, `strictNullChecks`).
+    - **`baseUrl` was removed** (`TS5102`), use `"paths": { "*": [ "./*" ] }` instead.
+    - **`moduleResolution: "node10"` was removed**.
+    - **Import assertions** (`assert`) were replaced by import attributes (`with`).
+    - **`typeRoots` auto discovery does not follow symlinks**, so symlink based layouts (`bun`, and likely
+      `pnpm`) silently lose their `@types/*`. Declare the types you need explicitly, eg: `"types": [ "node" ]`.
+      <br /><br />
+
+- **A note on error counts** - TypeScript 7's own `tsc` stops at the first config level or syntax error and
+  never runs the type checker, so it can report a single error where `--useBetaTS7` reports hundreds. The
+  API does not stop early. Once the blocking error is fixed both agree exactly.
 
 ---
 

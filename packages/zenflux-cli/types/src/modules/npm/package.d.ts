@@ -31,6 +31,7 @@ export type TPackagePartialJson = TPackagePartialDependencies & {
 export type TNewPackageOptions = {
     registryUrl: string;
     npmRcPath: string;
+    token?: string;
 };
 export declare class Package {
     private projectPath;

@@ -9,6 +9,8 @@ import { CommandConfigBase } from "@zenflux/cli/src/base/command-config-base";
 
 import { zTSConfigRead, zTSPreDiagnostics, zTSCreateDiagnosticWorker } from "@zenflux/cli/src/core/typescript";
 
+import { zTS7IsEnabled } from "@zenflux/cli/src/core/typescript-ts7";
+
 import { ConsoleManager } from "@zenflux/cli/src/managers/console-manager";
 
 import { tsDiagnosticConsole } from "@zenflux/cli/src/console/console-build";
@@ -83,6 +85,7 @@ export default class Typecheck extends CommandConfigBase {
         const options = {
             useCache: false,
             haltOnError: process.argv.includes( "--haltOnDiagnosticError" ),
+            useBetaTS7: zTS7IsEnabled( config ),
         };
 
         try {
@@ -123,6 +126,16 @@ export default class Typecheck extends CommandConfigBase {
             "--haltOnDiagnosticError": {
                 description: "Halt on typescript diagnostic error",
                 behaviors: "Kill the process if typescript diagnostic error occurred"
+            },
+            "--useBetaTS7": {
+                description: "Run diagnostics through the TypeScript 7 native backend (beta)",
+                behaviors: [
+                    "Requires TypeScript 7 installed alongside TypeScript 5, eg: npm pkg set devDependencies.typescript7=\"npm:typescript@^7.0.2\"",
+                    "Falls back to TypeScript 5 with a warning when TypeScript 7 is not found",
+                    "TypeScript 7 turns several TypeScript 5 deprecations into hard errors, new diagnostics may appear",
+                    "Can be set per package via 'useBetaTS7' in the zenflux config",
+                    "Override off with --no-useBetaTS7"
+                ]
             }
         } ) );
 
@@ -130,5 +143,6 @@ export default class Typecheck extends CommandConfigBase {
         ConsoleManager.$.log( "  " + name + "                    # Typecheck all packages in workspace" );
         ConsoleManager.$.log( "  " + name + " --workspace \"react-*\"  # Typecheck packages matching pattern" );
         ConsoleManager.$.log( "  " + name + " --workspace zenflux-cli # Typecheck specific package" );
+        ConsoleManager.$.log( "  " + name + " --useBetaTS7           # Typecheck using the TypeScript 7 native backend" );
     }
 }

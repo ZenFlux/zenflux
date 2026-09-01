@@ -68,6 +68,8 @@
         "dotenv": "^17.3.1",
         "eslint": "latest",
         "eslint-import-resolver-typescript": "^4.4.4",
-        "ssh2": "^1.17.0"
+        "ssh2": "^1.17.0",
+        "typescript": "^5.9.0",
+        "typescript7": "npm:typescript@^7.0.2"
     }
 }
