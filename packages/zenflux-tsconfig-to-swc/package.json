@@ -17,7 +17,7 @@
     "access": "public"
   },
   "dependencies": {
-    "typescript": "latest"
+    "typescript": "^5.9.0"
   },
   "devDependencies": {
     "@swc/types": "latest"

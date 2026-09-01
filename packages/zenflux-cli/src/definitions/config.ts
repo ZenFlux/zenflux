@@ -26,6 +26,16 @@ interface IIConfigArgsGeneralBase {
 
     omitWarningCodes?: string[],
 
+    /**
+     * Opt this package into the TypeScript 7 native diagnostics backend.
+     *
+     * TypeScript 7 is 8-12x faster but has no stable programmatic API yet, and turns a number of
+     * TypeScript 5 deprecations into hard errors, so it is opt-in per package.
+     *
+     * Can also be set for the whole run with `--useBetaTS7`, or overridden off with `--no-useBetaTS7`.
+     */
+    useBetaTS7?: boolean,
+
     // Dts probably built once, since it's not format dependent - TODO: Use tsconfig.json
     // TODO: Merge with `apiExtractor`.
     inputDtsPath?: string;

@@ -16,11 +16,14 @@ import { zRollupGetConfig } from "@zenflux/cli/src/core/rollup";
 
 import { zTSConfigRead, zTSCreateDeclarationWorker, zTSCreateDiagnosticWorker } from "@zenflux/cli/src/core/typescript";
 
+import { zTS7IsEnabled } from "@zenflux/cli/src/core/typescript-ts7";
+
 import { Z_CONFIG_DEFAULTS } from "@zenflux/cli/src/definitions/config";
 
 import type { RollupOptions } from "rollup";
 import type { ConsoleThreadFormat } from "@zenflux/cli/src/console/console-thread-format";
 import type { IZConfigInternal } from "@zenflux/cli/src/definitions/config";
+import type { TZPreDiagnosticsOptions } from "@zenflux/cli/src/definitions/typescript";
 
 export abstract class CommandBuildBase extends CommandConfigBase {
     private rollupConfig: {
@@ -73,6 +76,16 @@ export abstract class CommandBuildBase extends CommandConfigBase {
                     "No api-exporter will be used"
                 ]
             },
+            "--useBetaTS7": {
+                description: "Run typescript diagnostics through the TypeScript 7 native backend (beta)",
+                behaviors: [
+                    "Diagnostics only, declaration generation stays on TypeScript 5 (TypeScript 7 has no emit API yet)",
+                    "Requires TypeScript 7 installed alongside TypeScript 5",
+                    "Falls back to TypeScript 5 with a warning when TypeScript 7 is not found",
+                    "Can be set per package via 'useBetaTS7' in the zenflux config",
+                    "Override off with --no-useBetaTS7"
+                ]
+            },
         } ) );
     }
 
@@ -113,13 +126,15 @@ export abstract class CommandBuildBase extends CommandConfigBase {
         ];
     }
 
-    protected async handleTSDiagnostics( config: IZConfigInternal, options = {
+    protected async handleTSDiagnostics( config: IZConfigInternal, options: TZPreDiagnosticsOptions = {
         useCache: false,
         haltOnError: process.argv.includes( "--haltOnDiagnosticError" ),
     } ) {
         if ( process.argv.includes( "--no-diagnostic" ) ) {
             return;
         }
+
+        options = { useBetaTS7: zTS7IsEnabled( config ), ... options };
 
         const tsDiagnosticConsole = this.getTSDiagnosticsConsole(),
             id = "DI" + this.getIdByConfig( config ),
