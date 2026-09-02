@@ -25,7 +25,8 @@ export interface ServerConfig {
 }
 
 export const serverConfig: ServerConfig = {
-    port: 3001,
+    // Docker maps host 3001 -> container 3000 (PORT=3000), matching the pdf-service convention.
+    port: Number( process.env.PORT ) || 3001,
     host: "0.0.0.0",
     cors: {
         origins: true, // Allow all origins for now

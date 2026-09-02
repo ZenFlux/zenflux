@@ -7,8 +7,10 @@ import svgr from 'vite-plugin-svgr'
 import tailwindcss from 'tailwindcss'
 import path from 'path'
 
-export default defineConfig( {
-    base: '',
+// Served from https://inewlegend.com/projects/budget-allocation/ (nginx alias -> /home/ubuntu/projects/budget-allocation).
+// Dev keeps '/' so http://localhost:5174 still works.
+export default defineConfig( ( { command } ) => ( {
+    base: command === 'build' ? '/projects/budget-allocation/' : '/',
     plugins: [
         react(),
         svgr({
@@ -34,4 +36,4 @@ export default defineConfig( {
     server: {
         port: 5174,
     },
-} )
+} ) )

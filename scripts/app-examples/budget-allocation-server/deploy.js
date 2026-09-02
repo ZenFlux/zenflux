@@ -173,7 +173,7 @@ EOF
                             sudo docker build -t ${APP_NAME} . &&
                             sudo docker stop ${APP_NAME} 2>/dev/null || true &&
                             sudo docker rm -f ${APP_NAME} 2>/dev/null || true &&
-                            sudo docker run -d --name ${APP_NAME} -p ${APP_PORT}:3000 --restart unless-stopped ${APP_NAME}
+                            sudo docker run -d --name ${APP_NAME} -e PORT=3000 -p 127.0.0.1:${APP_PORT}:3000 --restart unless-stopped ${APP_NAME}
                         `;
                         
                         conn.exec(dockerCmd, (err, stream) => {
@@ -211,7 +211,7 @@ EOF
                                     
                                     stream.on('close', () => {
                                         console.log(`\n🎉 Deployment completed!`);
-                                        console.log(`🌐 Service available at: http://${SERVER}:${APP_PORT}`);
+                                        console.log(`🌐 Service available at: https://inewlegend.com/projects/budget-allocation/api/ (nginx -> 127.0.0.1:${APP_PORT})`);
                                         conn.end();
                                         resolve();
                                     });

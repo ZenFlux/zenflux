@@ -12,6 +12,11 @@
     "sourceMap": true,
     "outDir": "./dist",
     "baseUrl": "./",
+    // Self-reference alias: this package is `private` so bun does not create a
+    // node_modules/@zenflux/budget-allocation-server symlink to resolve it through.
+    "paths": {
+      "@zenflux/budget-allocation-server/*": [ "./*" ]
+    },
     "incremental": true,
     "skipLibCheck": true,
     "strictNullChecks": false,

@@ -27,7 +27,7 @@ const BudgetAllocation = React.lazy( () => import( "@zenflux/app-budget-allocati
     BudgetOverview = React.lazy( () => import( "@zenflux/app-budget-allocation/src/budget-overview" ) );
 
 const client = new QueryClient(
-    import.meta.env.VITE_DEPLOY_BUDGET_ALLOCATION_API_URL || "http://localhost:3002"
+    import.meta.env.VITE_DEPLOY_BUDGET_ALLOCATION_API_URL || "http://localhost:3001"
 );
 
 client.registerModule( ChannelsListQuery );

@@ -49,6 +49,8 @@
         "directory": "react-packages/zenflux-react-scheduler"
     },
     "devDependencies": {
-        "@zenflux/react-internal-test-utils": "workspace:*"
+        "@zenflux/react-internal-test-utils": "workspace:*",
+        "react": "18.2.0",
+        "scheduler": "0.23.0"
     }
 }
