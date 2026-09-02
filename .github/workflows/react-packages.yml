@@ -31,7 +31,7 @@ jobs:
         run: bun install
 
       - name: Build
-        run: bun run @z-flux:react:build:ci
+        run: bun run @z-workspace:react:build:ci
 
       - name: Compress build artifacts
         run: |
@@ -83,7 +83,7 @@ jobs:
             eslint-cache-${{ runner.os }}-
 
       - name: Run ESLint
-        run: bun run @z-flux:react:eslint:ci
+        run: bun run @z-workspace:react:eslint:ci
 
       - name: Save ESLint cache
         if: steps.restore-eslint-cache.outputs.cache-hit != 'true'
@@ -121,4 +121,4 @@ jobs:
         run: tar -xzf build-artifacts.tar.gz
 
       - name: Run tests
-        run: bun run @z-flux:react:test:ci
+        run: bun run @z-workspace:react:test:ci
