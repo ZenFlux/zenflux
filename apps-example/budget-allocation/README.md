@@ -1,4 +1,4 @@
 # zenflux-budget-allocation
 
 ## demo
-https://inewlegend.com/projects/budget-allocation/
+https://inewlegend.com/projects/budget-allocation/#allocation
