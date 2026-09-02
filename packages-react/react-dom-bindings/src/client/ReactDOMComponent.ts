@@ -201,7 +201,7 @@ function warnForExtraAttributes( attributeNames: Set<string> ) {
 
         didWarnInvalidHydration = true;
         const names: string[] = [];
-        attributeNames.forEach( function ( name ) {
+        attributeNames.forEach( function( name ) {
             names.push( name );
         } );
         console.error( "Extra attributes from the server: %s", names );

@@ -9,7 +9,7 @@ export default function getActiveElement( doc?: Document | null | undefined ): E
     try {
         return doc.activeElement || doc.body;
         // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    } catch ( e ) {
+    } catch( e ) {
         return doc.body;
     }
 }

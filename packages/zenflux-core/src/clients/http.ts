@@ -92,7 +92,7 @@ export class Http extends ObjectBase {
             if ( this.applyResponseHandler( data ) ) {
                 return false;
             }
-        } catch ( e ) {
+        } catch( e ) {
             if ( this.applyErrorHandler( e ) ) {
                 return false;
             }

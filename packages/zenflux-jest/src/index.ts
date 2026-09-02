@@ -128,7 +128,7 @@ async function getProjectsConfig(): Promise<DZJestProjectConfigInterface[]> {
 
             return fs.existsSync( pkg.getPath() + "/jest.config.ts" );
         } )
-        .map( async ( pkg ) => {
+        .map( async( pkg ) => {
             const configPath = pkg.getPath() + "/jest.config.ts";
             return import( configPath ).then( p => {
                 return {
@@ -203,7 +203,7 @@ async function addCurrentPackageIfAny( target: string [] ) {
         try {
             packageJSON = JSON.parse( fs.readFileSync( process.env[ "npm_package_json" ], "utf-8" ) );
             // eslint-disable-next-line @typescript-eslint/no-unused-vars
-        } catch ( e ) {
+        } catch( e ) {
             // Silence
         }
 
@@ -283,7 +283,7 @@ let didCatch = false;
 const projects = await Promise.all( await getProjectsConfig() );
 
 // Pre validate
-const normalizers = projects.map( async ( project, index ) => {
+const normalizers = projects.map( async( project, index ) => {
     const configPath = project.configPath;
 
     project.config.rootDir = project.pkg.getPath();

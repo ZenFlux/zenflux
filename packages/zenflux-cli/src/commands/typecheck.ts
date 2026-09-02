@@ -71,7 +71,7 @@ export default class Typecheck extends CommandConfigBase {
     private async runTypecheckWithDependencyOrdering( configs: IZConfigInternal[] ): Promise<boolean[]> {
         // For typecheck, we'll use a simpler approach: run all packages in parallel
         // but without the complex dependency waiting mechanism
-        const promises = configs.map( async ( config ) => {
+        const promises = configs.map( async( config ) => {
             return this.runTypecheckForConfig( config, false ); // Always use sync for typecheck
         } );
 
@@ -109,7 +109,7 @@ export default class Typecheck extends CommandConfigBase {
             }
 
             return true;
-        } catch ( error ) {
+        } catch( error ) {
             if ( options.haltOnError ) {
                 throw error;
             }

@@ -27,7 +27,7 @@ export default class Lint extends CommandConfigBase {
         if ( isMultiplePackages ) {
             ConsoleManager.$.log( "Lint", "start", `linting ${ util.inspect( configs.length ) } packages in parallel` );
 
-            const results = await Promise.all( configs.map( async ( config ) => this.runLintForConfig( config ) ) );
+            const results = await Promise.all( configs.map( async( config ) => this.runLintForConfig( config ) ) );
 
             results.forEach( ( result ) => {
                 if ( result ) {
@@ -143,7 +143,7 @@ export default class Lint extends CommandConfigBase {
             } );
 
             return res.status === 0;
-        } catch ( error ) {
+        } catch( error ) {
             ConsoleManager.$.error( "Lint", "error", `Failed to lint ${ util.inspect( config.outputName ) }:`, error );
             return false;
         }

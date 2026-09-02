@@ -1,9 +1,9 @@
 import shared from "./__shared__";
 
-beforeAll( async () => {
+beforeAll( async() => {
 } );
 
-beforeEach( async () => {
+beforeEach( async() => {
     shared.initZenCore();
 } );
 

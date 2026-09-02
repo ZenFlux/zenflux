@@ -7,10 +7,11 @@ import { zLintDefaultConfig } from "./default-config.js";
 /**
  * @param {string[]} files
  * @param {string[]} workspaces
+ * @param {{ tsconfigRootDir?: string }} [options] - see `zLintDefaultConfig()`.
  * @returns {import("../types/default-config.d.ts").ESLintTSLintCompatible[]}
  */
-export function zLintReactDefaultConfig( files, workspaces ) {
-    const base = zLintDefaultConfig( files, workspaces ),
+export function zLintReactDefaultConfig( files, workspaces, options = {} ) {
+    const base = zLintDefaultConfig( files, workspaces, options ),
         { files: baseFiles } = base[ 0 ];
 
     return [

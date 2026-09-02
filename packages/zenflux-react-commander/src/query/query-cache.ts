@@ -77,7 +77,7 @@ export function queryCreateMemoryCache(): QueryCache {
         return get<T>( queryKey );
     };
 
-    const invalidateQueries = async ( options: { queryKey: QueryCacheKey } ): Promise<void> => {
+    const invalidateQueries = async( options: { queryKey: QueryCacheKey } ): Promise<void> => {
         const prefix = serializeKey( options.queryKey );
         for ( const key of Array.from( data.keys() ) ) {
             if ( keyStartsWith( key, prefix ) ) {

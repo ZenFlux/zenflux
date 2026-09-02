@@ -4,7 +4,7 @@ import { ObjectBase } from "../../bases/object-base";
 class SimpleEventEmitter {
     private listeners = new Map<string, Set<Function>>();
 
-    on( event: string, callback: Function ) {
+    public on( event: string, callback: Function ) {
         if ( ! this.listeners.has( event ) ) {
             this.listeners.set( event, new Set() );
         }
@@ -12,11 +12,11 @@ class SimpleEventEmitter {
         this.listeners.get( event )!.add( callback );
     }
 
-    off( event: string, callback: Function ) {
+    public off( event: string, callback: Function ) {
         this.listeners.get( event )?.delete( callback );
     }
 
-    emit( event: string, ...args: any[] ) {
+    public emit( event: string, ...args: any[] ) {
         const callbacks = this.listeners.get( event );
 
         if ( ! callbacks || callbacks.size === 0 ) {
@@ -27,11 +27,11 @@ class SimpleEventEmitter {
         return true;
     }
 
-    removeAllListeners( event: string ) {
+    public removeAllListeners( event: string ) {
         this.listeners.delete( event );
     }
 
-    eventNames() {
+    public eventNames() {
         return Array.from( this.listeners.keys() );
     }
 }

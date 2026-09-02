@@ -159,7 +159,7 @@ function flushWork( hasTimeRemaining: boolean, initialTime: number ) {
         if ( enableProfiling ) {
             try {
                 return workLoop( hasTimeRemaining, initialTime );
-            } catch ( error ) {
+            } catch( error ) {
                 if ( currentTask !== null ) {
                     const currentTime = getCurrentTime();
                     // $FlowFixMe[incompatible-call] found when upgrading Flow
@@ -326,7 +326,7 @@ function unstable_wrapCallback<T extends ( ... args: Array<unknown> ) => unknown
     // $FlowFixMe[incompatible-return]
     // $FlowFixMe[missing-this-annot]
     // @ts-ignore
-    return function () {
+    return function() {
         // This is a fork of runWithPriority, inlined for performance.
         let previousPriorityLevel = currentPriorityLevel;
         currentPriorityLevel = parentPriorityLevel;

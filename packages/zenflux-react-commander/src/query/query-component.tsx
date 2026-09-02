@@ -47,7 +47,7 @@ export class QueryComponent<
 
     public render() {
         // The resource will start loading
-        const resource = wrapPromiseSuspendable( ( async () => {
+        const resource = wrapPromiseSuspendable( ( async() => {
             const data = await this.queryModule.getData<TData, TProps & { $data: TData }, TState>( this.props.component, this.props.props as Record<string, unknown> );
 
             return {

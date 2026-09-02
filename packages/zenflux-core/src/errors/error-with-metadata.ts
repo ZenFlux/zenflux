@@ -23,7 +23,7 @@ function formatMetadata( metadata: any ) {
         }
 
         return String( metadata );
-    } catch ( err ) {
+    } catch {
         return "[unserializable metadata]";
     }
 }

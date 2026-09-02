@@ -1,4 +1,4 @@
-export function ThreeDots ( props: {
+export function ThreeDots( props: {
     className?: string;
     innerRef?: any
 } ) {

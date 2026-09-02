@@ -12,18 +12,18 @@
 // version, too, since our constraints in our test suite are not the same as
 // those of developers using React — we're testing React itself, as opposed to
 // building an app with React.
+import * as Scheduler from "@zenflux/react-scheduler/mock";
+
+import { enqueueTask } from "@zenflux/react-internal-test-utils/src/enqueue-task";
+
+import type { Thenable } from "@zenflux/react-shared/src/react-types";
+
 declare const jest: {
     isMockFunction( fn: unknown ): boolean;
     isEnvironmentTornDown(): boolean;
     getTimerCount(): number;
     runOnlyPendingTimers(): void;
 };
-
-import * as Scheduler from "@zenflux/react-scheduler/mock";
-
-import { enqueueTask } from "@zenflux/react-internal-test-utils/src/enqueue-task";
-
-import type { Thenable } from "@zenflux/react-shared/src/react-types";
 
 let actingUpdatesScopeDepth: number = 0;
 

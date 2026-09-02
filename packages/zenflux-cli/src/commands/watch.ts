@@ -144,7 +144,7 @@ export default class Watch extends CommandBuildBase {
             otherConfigs: this.getConfigs().filter( ( c ) => c !== config )
         }, rollupConsole );
 
-        const buildCallback = async () => {
+        const buildCallback = async() => {
             callbacks.onWorkerStart( id );
 
             await build();
@@ -152,10 +152,10 @@ export default class Watch extends CommandBuildBase {
             callbacks.onWorkerEnd( id );
         };
 
-        watcher.on( "ready", async () => {
+        watcher.on( "ready", async() => {
             await buildCallback();
 
-            watcher.on( "change", function ( path ) {
+            watcher.on( "change", function( path ) {
                 rollupConsole.verbose( () => [
                     "watcher",
                     "Changes",

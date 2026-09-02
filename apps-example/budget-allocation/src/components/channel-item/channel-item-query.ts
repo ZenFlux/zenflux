@@ -35,7 +35,7 @@ export class ChannelItemQuery extends QueryItemModuleBase<ChannelItemApiResponse
                 };
                 return { key: state.meta.id, ... apiResponse };
             },
-            save: async ( input ) => {
+            save: async( input ) => {
                 await this.router.save( input as ChannelItemApiResponse & { key: string } );
             },
             debounceMs: 800,

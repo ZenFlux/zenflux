@@ -52,7 +52,7 @@ export default class Registry extends CommandBase {
                 const server = await runServer( paths.verdaccioConfig ),
                     url = `http://${ DEFAULT_Z_REGISTRY_HOST }:${ port }`;
 
-                server.listen( port, async () => {
+                server.listen( port, async() => {
                     ConsoleManager.$.log( `Server running on port ${ port }` );
                     ConsoleManager.$.log( `You can access the registry at ${ util.inspect( url ) }` );
                     ConsoleManager.$.log( `Username: ${ util.inspect( DEFAULT_Z_REGISTRY_USER ) }` );

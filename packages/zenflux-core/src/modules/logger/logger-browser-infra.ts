@@ -207,8 +207,8 @@ export abstract class LoggerBrowserInfra extends ObjectBase {
         LoggerBrowserInfra.outputSubscribers.forEach( ( subscriber ) => {
             try {
                 subscriber( event );
-            } catch ( error ) {
-                // eslint-disable-next-line no-console -- emitting errors here would create loops
+            } catch( error ) {
+
                 console.error( "[ZenFlux][Logger] output subscriber failed", error );
             }
         } );
@@ -218,7 +218,7 @@ export abstract class LoggerBrowserInfra extends ObjectBase {
         this.outputHandler = outputHandler;
     }
 
-    protected runWithOutputMetadata<T> ( metadata: LoggerOutputMetadata | undefined, callback: () => T ): T {
+    protected runWithOutputMetadata<T>( metadata: LoggerOutputMetadata | undefined, callback: () => T ): T {
         const previous = this.pendingOutputMetadata;
         this.pendingOutputMetadata = metadata;
 

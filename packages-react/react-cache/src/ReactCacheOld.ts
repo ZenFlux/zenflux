@@ -44,6 +44,9 @@ const Rejected = 2;
 
 const ReactCurrentDispatcher =
 
+    // Reached by string key on purpose, the internals are deliberately absent from React's public
+    // typings, so `import/namespace` cannot validate the reference.
+    // eslint-disable-next-line import/namespace
     React[ "__SECRET_INTERNALS_DO_NOT_USE_OR_YOU_WILL_BE_FIRED" ]
         .ReactCurrentDispatcher;
 

@@ -31,7 +31,7 @@ function willCoercionThrow( value: any ) {
         try {
             testStringCoercion( value );
             // eslint-disable-next-line @typescript-eslint/no-unused-vars
-        } catch ( e ) {
+        } catch( e ) {
             return true;
         }
     }

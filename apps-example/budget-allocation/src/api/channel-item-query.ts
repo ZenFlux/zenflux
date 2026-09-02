@@ -26,7 +26,7 @@ export class ChannelItemQuery extends QueryModuleBase<Channel> {
                 const payload = pickEnforcedKeys( state, CHANNEL_LIST_STATE_DATA ) as Channel;
                 return { key: state.meta.id, ... payload };
             },
-            save: async ( input ) => {
+            save: async( input ) => {
                 await this.router.save( input as Channel & { key: string } );
             },
             debounceMs: 800,

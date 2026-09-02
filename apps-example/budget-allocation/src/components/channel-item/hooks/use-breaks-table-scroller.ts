@@ -22,7 +22,7 @@ export function useBreaksTableScroller( durationMs = 500 ) {
             }
         }
 
-        Math.easeInOutQuad = function ( t: number, b: number, c: number, d: number ) {
+        Math.easeInOutQuad = function( t: number, b: number, c: number, d: number ) {
             t /= d / 2;
             if ( t < 1 ) return c / 2 * t * t + b;
             t--;

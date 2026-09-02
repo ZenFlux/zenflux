@@ -1,3 +1,5 @@
+import path from "node:path";
+
 import { fixupPluginRules } from "@eslint/compat";
 
 import TSLint from "typescript-eslint";
@@ -13,10 +15,24 @@ const ZenFluxPlugin = ( await import( "./plugin.js" ) ).default;
 /**
  * @param {string[]} files
  * @param {string[]} workspaces
+ * @param {{ tsconfigRootDir?: string }} [options] - `tsconfigRootDir` anchors the `workspaces` entries.
+ *        Without it relative entries resolve against the process cwd, which breaks a nested
+ *        `eslint.config.js` the moment eslint is run from anywhere but its own directory. Nested
+ *        configs should pass `import.meta.dirname`.
  *
  * @returns {import("../types/default-config.d.ts").ESLintTSLintCompatible[]}
  */
-export function zLintDefaultConfig( files, workspaces ) {
+export function zLintDefaultConfig( files, workspaces, options = {} ) {
+    const { tsconfigRootDir } = options;
+
+    const projects = workspaces.map( ( p ) => `${ p }/tsconfig.eslint.json` );
+
+    // `import/resolver` does not read `tsconfigRootDir`, it resolves relative entries against the
+    // process cwd, so it gets absolute paths whenever a root was declared.
+    const resolverProjects = tsconfigRootDir
+        ? projects.map( ( p ) => path.resolve( tsconfigRootDir, p ) )
+        : projects;
+
     return [
         {
             files,
@@ -31,7 +47,9 @@ export function zLintDefaultConfig( files, workspaces ) {
                         "jsx": true
                     },
 
-                    "project": workspaces.map( ( p ) => `${ p }/tsconfig.eslint.json` ),
+                    ... ( tsconfigRootDir ? { tsconfigRootDir } : {} ),
+
+                    "project": projects,
                 },
             },
 
@@ -58,7 +76,7 @@ export function zLintDefaultConfig( files, workspaces ) {
                         // Always try to use types when resolving
                         "alwaysTryTypes": true,
 
-                        "project": workspaces.map( ( p ) => `${ p }/tsconfig.eslint.json` ),
+                        "project": resolverProjects,
                     },
                     // Use Node.js module resolution strategy
                     "node": true,

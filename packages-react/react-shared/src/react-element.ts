@@ -61,7 +61,7 @@ function hasValidKey( config: { key: undefined; } ): boolean {
 }
 
 function defineKeyPropWarningGetter( props: {}, displayName: any ) {
-    const warnAboutAccessingKey = function () {
+    const warnAboutAccessingKey = function() {
         if ( __DEV__ ) {
             if ( ! specialPropKeyWarningShown ) {
                 specialPropKeyWarningShown = true;
@@ -83,7 +83,7 @@ function defineKeyPropWarningGetter( props: {}, displayName: any ) {
 }
 
 function defineRefPropWarningGetter<T>( props: {} | T, displayName: any ) {
-    const warnAboutAccessingRef = function () {
+    const warnAboutAccessingRef = function() {
         if ( __DEV__ ) {
             if ( ! specialPropRefWarningShown ) {
                 specialPropRefWarningShown = true;

@@ -16,7 +16,7 @@ let warnedForNaNValue = false;
 let warnedForInfinityValue = false;
 
 function camelize( string: string ) {
-    return string.replace( hyphenPattern, function ( _, character ) {
+    return string.replace( hyphenPattern, function( _, character ) {
         return character.toUpperCase();
     } );
 }

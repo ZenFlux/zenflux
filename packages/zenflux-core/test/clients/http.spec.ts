@@ -17,7 +17,7 @@ describe( "clients", () => {
             globalThis.fetch = fetchOriginal;
         } );
 
-        test( "fetch():: returns correct data", async () => {
+        test( "fetch():: returns correct data", async() => {
             // Arrange.
             const mockResponse = { data: "mock data" },
                 mockJsonPromise = Promise.resolve( mockResponse ),
@@ -39,7 +39,7 @@ describe( "clients", () => {
             expect( result ).toEqual( mockResponse );
         } );
 
-        test( "fetch():: with POST method sends correct data", async () => {
+        test( "fetch():: with POST method sends correct data", async() => {
             // Arrange.
             const mockBody = { key: "value" },
                 mockFetchPromise = Promise.resolve( {
@@ -65,7 +65,7 @@ describe( "clients", () => {
             );
         } );
 
-        test( "fetch():: throws an error when fetch fails", async () => {
+        test( "fetch():: throws an error when fetch fails", async() => {
             // Arrange.
             const mockFetchPromise = Promise.resolve( {
                 ok: false,
@@ -81,7 +81,7 @@ describe( "clients", () => {
             await expect( promise ).rejects.toBeDefined();
         } );
 
-        test( "fetch():: throws an error when the response is not valid JSON", async () => {
+        test( "fetch():: throws an error when the response is not valid JSON", async() => {
             // Arrange.
             const mockFetchPromise = Promise.resolve( {
                 text: () => Promise.resolve( "not valid JSON" ),

@@ -68,7 +68,7 @@ export function act<T>( callback: () => T | Thenable<T> ): Thenable<T> {
             // that's how it worked before version 18. Yes, it's confusing! We should
             // delete legacy mode!!
             ReactCurrentActQueue.isBatchingLegacy = prevIsBatchingLegacy;
-        } catch ( error ) {
+        } catch( error ) {
             // `isBatchingLegacy` gets reset using the regular stack, not the async
             // one used to track `act` scopes. Why, you may be wondering? Because
             // that's how it worked before version 18. Yes, it's confusing! We should
@@ -121,7 +121,7 @@ export function act<T>( callback: () => T | Thenable<T> ): Thenable<T> {
                                     // Recursively flush tasks scheduled by a microtask.
                                         recursivelyFlushAsyncActWork( returnValue, resolve, reject ),
                                     );
-                                } catch ( error ) {
+                                } catch( error ) {
                                 // `thenable` might not be a real promise, and `flushActQueue`
                                 // might throw, so we need to wrap `flushActQueue` in a
                                 // try/catch.
@@ -243,7 +243,7 @@ function recursivelyFlushAsyncActWork<T>(
                     queueMacrotask( () =>
                         recursivelyFlushAsyncActWork( returnValue, resolve, reject ),
                     );
-                } catch ( error ) {
+                } catch( error ) {
                     // Leave remaining tasks on the queue if something throws.
                     reject( error );
                 }
@@ -291,7 +291,7 @@ function flushActQueue( queue: Function[] ) {
                 }
                 // We flushed the entire queue.
                 queue.length = 0;
-            } catch ( error ) {
+            } catch( error ) {
                 // If something throws, leave the remaining callbacks on the queue.
                 queue.splice( 0, i + 1 );
                 throw error;

@@ -10,7 +10,7 @@ if ( canUseDOM ) {
             passive?: void;
         } = {};
         Object.defineProperty( options, "passive", {
-            get: function () {
+            get: function() {
                 passiveBrowserEventsSupported = true;
             }
         } );
@@ -19,7 +19,7 @@ if ( canUseDOM ) {
         // @ts-ignore
         window.removeEventListener( "test", options, options );
         // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    } catch ( e ) {
+    } catch( e ) {
         passiveBrowserEventsSupported = false;
     }
 }

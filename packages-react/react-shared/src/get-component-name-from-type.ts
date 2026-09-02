@@ -129,7 +129,7 @@ export default function getComponentNameFromType( type: any ): string | null {
                 try {
                     return getComponentNameFromType( init( payload ) );
                     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-                } catch ( x ) {
+                } catch( x ) {
                     return null;
                 }
             }

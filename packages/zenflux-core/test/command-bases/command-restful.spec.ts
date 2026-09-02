@@ -30,10 +30,10 @@ describe( "command-bases", () => {
             expect( endpoint ).toThrow( ZenCore.errors.ForceMethodImplementation );
         } );
 
-        test( "apply()", async () => {
+        test( "apply()", async() => {
             // Arrange
             ZenCore.managers.restful.getClient().fetch = jest.fn().mockImplementation(
-                async ( path: string, method: ZenCore.interfaces.E_HTTP_METHOD_TYPE, body: {} | null = null ) => {
+                async( path: string, method: ZenCore.interfaces.E_HTTP_METHOD_TYPE, body: {} | null = null ) => {
                     // Fake result.
                     return {
                         path,
@@ -55,10 +55,10 @@ describe( "command-bases", () => {
             expect( result.path ).toEqual( restfulCommand.getEndpoint() );
         } );
 
-        test( "apply():: Ensure applyEndpointFormat()", async () => {
+        test( "apply():: Ensure applyEndpointFormat()", async() => {
             // Arrange.
             ZenCore.managers.restful.getClient().fetch = jest.fn().mockImplementation(
-                async ( path: string, method: ZenCore.interfaces.E_HTTP_METHOD_TYPE, body: {} | null = null ) => {
+                async( path: string, method: ZenCore.interfaces.E_HTTP_METHOD_TYPE, body: {} | null = null ) => {
                     // Fake result.
                     return {
                         path,

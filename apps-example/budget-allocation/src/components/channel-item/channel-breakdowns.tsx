@@ -23,7 +23,7 @@ export const ChannelBreakdowns: React.FC = () => {
         component.run( "App/ChannelItem/SetBreakdown", { index, value, source: UpdateSource.FROM_BUDGET_BREAKS } );
     }, [ component ] );
 
-    const handleBudgetSettingsChange = async () => {
+    const handleBudgetSettingsChange = async() => {
         const currentState = component.getState<ChannelState>();
         const newBreaks = generateBreaks( currentState.frequency, currentState.baseline );
 

@@ -18,19 +18,19 @@ export abstract class QueryRouterBase<Resource, Model extends QueryModel = Query
         this.model = model;
     }
 
-    protected fetchList = async (): Promise<Resource[]> => {
+    protected fetchList = async(): Promise<Resource[]> => {
         return this.api.fetch( "GET", `v1/${ this.resource }`, {}, ( r ) => r.json() ) as Promise<Resource[]>;
     };
 
-    protected fetchItem = async ( key: string ): Promise<Resource> => {
+    protected fetchItem = async( key: string ): Promise<Resource> => {
         return this.api.fetch( "GET", `v1/${ this.resource }/:key`, { key }, ( r ) => r.json() ) as Promise<Resource>;
     };
 
-    protected saveItem = async ( input: Resource & { key: string } ): Promise<void> => {
+    protected saveItem = async( input: Resource & { key: string } ): Promise<void> => {
         await this.api.fetch( "POST", `v1/${ this.resource }/:key`, input as unknown as Record<string, unknown>, ( r ) => r.json() );
     };
 
-    protected deleteItem = async ( key: string ): Promise<void> => {
+    protected deleteItem = async( key: string ): Promise<void> => {
         await this.api.fetch( "DELETE", `v1/${ this.resource }/${ key }`, {}, ( r ) => r.json() );
     };
 

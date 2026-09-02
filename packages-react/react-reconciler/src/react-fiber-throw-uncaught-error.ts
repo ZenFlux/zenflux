@@ -1,7 +1,7 @@
 let _hasUncaughtError = false;
 let _firstUncaughtError: unknown = null;
 
-export const onUncaughtError = function ( error: unknown ) {
+export const onUncaughtError = function( error: unknown ) {
     if ( ! _hasUncaughtError ) {
         _hasUncaughtError = true;
         _firstUncaughtError = error;

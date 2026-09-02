@@ -48,13 +48,13 @@ export class ChannelsListQuery extends QueryListModuleBase<Channel> {
                     channels
                 };
             },
-            save: async ( input ) => {
+            save: async( input ) => {
                 const payload: Record<string, string | Channel[]> = {
                     key: input.key,
                     channels: input.channels
                 };
 
-                await this.api.fetch( "POST", "v1/channels/list", payload, async ( response ) => {
+                await this.api.fetch( "POST", "v1/channels/list", payload, async( response ) => {
                     return await response.json();
                 } );
             },
@@ -105,7 +105,7 @@ export class ChannelsListQuery extends QueryListModuleBase<Channel> {
             const onSelectionAttached = accordion[ "UI/Accordion/onSelectionAttached" ],
                 onSelectionDetached = accordion[ "UI/Accordion/onSelectionDetached" ];
 
-            const saveChannelsCallback = async () => {
+            const saveChannelsCallback = async() => {
                 const state = context.getState<ChannelsListState>();
 
                 this.autosave.queryUpsert( state );
@@ -122,7 +122,7 @@ export class ChannelsListQuery extends QueryListModuleBase<Channel> {
         if ( channelsList ) {
             const setNameCommand = channelsList[ "App/ChannelsList/SetName" ];
 
-            const setNameHandler = async ( _result?: void, args?: DCommandArgs ) => {
+            const setNameHandler = async( _result?: void, args?: DCommandArgs ) => {
                 if ( ! args?.id || ! args?.name ) return;
 
                 await this.request( "App/ChannelsList/SetName", {

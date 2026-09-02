@@ -23,7 +23,7 @@ export const LoadingButton: DCommandFunctionComponent<ButtonProps> = ( { label, 
     </div>;
 
     return (
-        <ButtonComponent { ...props } onClick={ async () =>  {
+        <ButtonComponent { ...props } onClick={ async() =>  {
             setIsLoading( true );
 
             await command.run();

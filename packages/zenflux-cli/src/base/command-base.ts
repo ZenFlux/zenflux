@@ -31,7 +31,7 @@ export abstract class CommandBase {
             return;
         }
 
-        this.initializePromise = ( async () => {
+        this.initializePromise = ( async() => {
             await ( this.initialize?.() ?? Promise.resolve() );
             this.paths = zGlobalInitPaths( this.initPathsArgs );
         } )();

@@ -161,7 +161,7 @@ export class Console extends NodeConsole {
 
     // TODO: Move out
     public confirm( message: string ): Promise<boolean> {
-        return new Promise( async ( resolve ) => {
+        return new Promise( async( resolve ) => {
             const answer = await this.prompt( `${ message } (y/n)` );
 
             resolve( answer === "y" );

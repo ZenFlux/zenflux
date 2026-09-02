@@ -124,7 +124,7 @@ export async function zRollupBuildInWorker(
 
     rollupOptions = ! Array.isArray( rollupOptions ) ? [ rollupOptions ] : rollupOptions;
 
-    const linkedRollupOptions = await Promise.all( rollupOptions.map( async ( rollupOptions ) => {
+    const linkedRollupOptions = await Promise.all( rollupOptions.map( async( rollupOptions ) => {
         const output = rollupOptions.output as OutputOptions;
 
         const convertFormatToInternalFormat = ( format: typeof output.format ): InternalModuleFormat => {
@@ -159,7 +159,7 @@ export async function zRollupBuildInWorker(
         return rollupOptions;
     } ) );
 
-    await Promise.all( linkedRollupOptions.map( async ( singleRollupOptions ) => {
+    await Promise.all( linkedRollupOptions.map( async( singleRollupOptions ) => {
         const output = singleRollupOptions.output as OutputOptions,
             outputFile = output.file ?? output.entryFileNames;
 

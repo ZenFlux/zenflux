@@ -57,7 +57,7 @@ export function addTrappedEventListener( targetContainer: EventTarget, domEventN
         const originalListener = listener;
 
         // $FlowFixMe[missing-this-annot]
-        listener = function ( ... p ) {
+        listener = function( ... p ) {
             removeEventListener( targetContainer, domEventName, unsubscribeListener, isCapturePhaseListener );
             // @ts-ignore
             return originalListener.apply( this, p );

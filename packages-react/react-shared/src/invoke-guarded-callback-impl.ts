@@ -74,7 +74,7 @@ export default function invokeGuardedCallbackImpl<Args extends any[], Context>(
                         try {
                             error._suppressLogging = true;
                             // eslint-disable-next-line @typescript-eslint/no-unused-vars
-                        } catch ( inner ) {
+                        } catch( inner ) {
                             // Ignore.
                         }
                     }
@@ -127,14 +127,14 @@ export default function invokeGuardedCallbackImpl<Args extends any[], Context>(
         const funcArgs = Array.prototype.slice.call( arguments, 3 );
         try {
             func.apply( context, funcArgs as Args );
-        } catch ( error ) {
+        } catch( error ) {
             this.onError( error );
         }
     } else {
         const funcArgs = Array.prototype.slice.call( arguments, 3 );
         try {
             func.apply( context, funcArgs as Args );
-        } catch ( error ) {
+        } catch( error ) {
             this.onError( error );
         }
     }

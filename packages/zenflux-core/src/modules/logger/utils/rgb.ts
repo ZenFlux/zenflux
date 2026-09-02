@@ -3,7 +3,7 @@
  *
  * @copyright http://jsfiddle.net/96sME/
  */
-export const getHexColorDelta = function ( hex1: string, hex2: string ): number {
+export const getHexColorDelta = function( hex1: string, hex2: string ): number {
     hex1 = hex1.replace( "#", "" );
     hex2 = hex2.replace( "#", "" );
 

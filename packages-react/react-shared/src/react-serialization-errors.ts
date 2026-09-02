@@ -82,7 +82,7 @@ export function isSimpleObject( object: any ): boolean {
 
 export function objectName( object: unknown ): string {
     const name = Object.prototype.toString.call( object );
-    return name.replace( /^\[object (.*)\]$/, function ( m, p0 ) {
+    return name.replace( /^\[object (.*)\]$/, function( m, p0 ) {
         return p0;
     } );
 }
@@ -150,7 +150,7 @@ function describeElementType( type: any ): string {
                     // Lazy may contain any component type so we recursively resolve it.
                     return describeElementType( init( payload ) );
                     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-                } catch ( x ) {
+                } catch( x ) {
                 }
             }
         }

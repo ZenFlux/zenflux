@@ -27,7 +27,7 @@ describe( "managers", () => {
             expect( command.getName() ).toBe( MyCommand.getName() );
         } );
 
-        test( "run()", async () => {
+        test( "run()", async() => {
             // Arrange
             let didTestCommandRun = false;
 

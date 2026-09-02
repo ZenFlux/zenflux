@@ -136,7 +136,7 @@ const terminate = () => {
     process.exit( 0 );
 };
 
-const work = async () => {
+const work = async() => {
     const task = getTask();
 
     if ( ! task ) {
@@ -177,7 +177,7 @@ const debugMemoryUsage = ( prefix: string ) => {
     threadHost.sendDebug( "Memory usage", prefix, output );
 };
 
-parentPort.on( "message", async ( raw ) => {
+parentPort.on( "message", async( raw ) => {
     const message: DMessageInterface = JSON.parse( raw );
 
     const { type } = message;
@@ -193,7 +193,7 @@ parentPort.on( "message", async ( raw ) => {
             try {
                 result = await promise;
 
-            } catch ( error ) {
+            } catch( error ) {
                 sendMessage( {
                     type: "internal-error",
                     name: error.name,

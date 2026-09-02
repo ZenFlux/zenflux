@@ -68,7 +68,7 @@ export abstract class CommandConfigBase extends CommandBase {
             this.isWorkspaceSpecified = true;
 
             const filterValue = this.args[ filterArgIndex + 1 ];
-            
+
             ConsoleManager.$.log( "config", "filter", `Applying filter: ${ util.inspect( filterValue ) }` );
 
             const filterPaths = filterValue
@@ -95,16 +95,16 @@ export abstract class CommandConfigBase extends CommandBase {
             ConsoleManager.$.log( "config", "filter", `Total packages found: ${ allPackagePaths.length }` );
 
             const matchedPaths: string[] = [];
-            
+
             for ( const pkgPath of allPackagePaths ) {
                 for ( const filterPath of filterPaths ) {
                     // Ensure strict directory matching to prevent partial string matches (e.g., 'packages' matching 'packages-react')
-                    const filterPathWithSep = filterPath.endsWith( path.sep ) 
-                        ? filterPath 
+                    const filterPathWithSep = filterPath.endsWith( path.sep )
+                        ? filterPath
                         : filterPath + path.sep;
-                    
+
                     const isMatch = pkgPath.startsWith( filterPathWithSep );
-                    
+
                     if ( isMatch ) {
                         ConsoleManager.$.log( "config", "filter", `✓ Matched: ${ pkgPath } (starts with ${ filterPathWithSep })` );
                         matchedPaths.push( pkgPath );
@@ -201,7 +201,7 @@ export abstract class CommandConfigBase extends CommandBase {
 
         ConsoleManager.$.log( "config", "loadConfigs", `Loading configs for ${ this.paths.projects.length } projects: ${ util.inspect( this.paths.projects ) }` );
 
-        const promises = this.paths.projects.map( async ( projectPath: string ) => {
+        const promises = this.paths.projects.map( async( projectPath: string ) => {
             const path = zGlobalGetConfigPath( projectPath, configFileName );
 
             // Silent is true, because we might have packages that don't have a config file.

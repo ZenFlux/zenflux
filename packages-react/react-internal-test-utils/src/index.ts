@@ -134,7 +134,7 @@ export async function waitForThrow( expectedError: string ) {
         }
         try {
             SchedulerMock.unstable_flushAllWithoutAsserting();
-        } catch ( x ) {
+        } catch( x ) {
             if ( expectedError === undefined ) {
                 // If no expected error was provided, then assume the caller is OK with
                 // any error being thrown. We're returning the error so they can do

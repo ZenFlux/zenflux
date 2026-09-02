@@ -189,7 +189,7 @@ export async function zWorkspaceGetPackagesPaths( rootPkg: Package, options = { 
         return zWorkspaceGetPackagesPathsCache[ rootPkg.getPath() ];
     }
 
-    const promises = ( rootPkg.json.workspaces ).map( async ( workspace: string ) => {
+    const promises = ( rootPkg.json.workspaces ).map( async( workspace: string ) => {
         const workspacesPackageJsons = await zGetMatchingPathsRecursive(
             rootPkg.getPath(),
             new RegExp( workspace.replace( "*", ".*" ) + "/package.json" ),

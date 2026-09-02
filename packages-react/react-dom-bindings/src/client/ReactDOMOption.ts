@@ -12,7 +12,7 @@ export function validateOptionProps( element: Element, props: Record<string, any
         if ( props.value == null ) {
             if ( typeof props.children === "object" && props.children !== null ) {
                 // @ts-ignore
-                React.Children.forEach( props.children, function ( child ) {
+                React.Children.forEach( props.children, function( child ) {
                     if ( child == null ) {
                         return;
                     }

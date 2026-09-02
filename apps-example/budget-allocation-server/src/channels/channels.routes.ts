@@ -13,21 +13,21 @@ export async function channelsRoutes(
     fastify: FastifyInstance,
     _options: FastifyPluginOptions
 ) {
-    fastify.get( "/channels", async ( _request, _reply ) => {
+    fastify.get( "/channels", async( _request, _reply ) => {
         return DelayUtil.withDelay( () => channelsService.findAllWithBreaks(), {
             ...serverConfig.delays.endpoints.getChannels,
             enabled: serverConfig.delays.enabled
         } );
     } );
 
-    fastify.get( "/channels/with-breaks", async ( _request, _reply ) => {
+    fastify.get( "/channels/with-breaks", async( _request, _reply ) => {
         return DelayUtil.withDelay( () => channelsService.findAll(), {
             ...serverConfig.delays.endpoints.getChannels,
             enabled: serverConfig.delays.enabled
         } );
     } );
 
-    fastify.post( "/channels/reset", async ( _request, _reply ) => {
+    fastify.post( "/channels/reset", async( _request, _reply ) => {
         return DelayUtil.withDelay( () => {
             channelsService.reset();
             return channelsService.findAll();
@@ -37,7 +37,7 @@ export async function channelsRoutes(
         } );
     } );
 
-    fastify.post<{ Body: Partial<CreateChannelDto> }>( "/channels", async ( request, _reply ) => {
+    fastify.post<{ Body: Partial<CreateChannelDto> }>( "/channels", async( request, _reply ) => {
         const body = request.body || {};
 
         return DelayUtil.withDelay( () => {
@@ -57,7 +57,7 @@ export async function channelsRoutes(
         } );
     } );
 
-    fastify.post<{ Body: UpdateChannelsListDto }>( "/channels/list", async ( request, _reply ) => {
+    fastify.post<{ Body: UpdateChannelsListDto }>( "/channels/list", async( request, _reply ) => {
         const updateListDto = request.body;
 
         fastify.log.info( { channels: updateListDto.channels.length }, "Updating channels list" );
@@ -71,7 +71,7 @@ export async function channelsRoutes(
         } );
     } );
 
-    fastify.post<{ Body: SetChannelNameDto }>( "/channels/set-name", async ( request, reply ) => {
+    fastify.post<{ Body: SetChannelNameDto }>( "/channels/set-name", async( request, reply ) => {
         const setNameDto = request.body;
 
         fastify.log.info( { id: setNameDto.id, name: setNameDto.name }, "Setting channel name" );
@@ -90,7 +90,7 @@ export async function channelsRoutes(
         } );
     } );
 
-    fastify.get<{ Params: { key: string } }>( "/channels/:key", async ( request, reply ) => {
+    fastify.get<{ Params: { key: string } }>( "/channels/:key", async( request, reply ) => {
         const { key } = request.params;
 
         return DelayUtil.withDelay( () => {
@@ -109,7 +109,7 @@ export async function channelsRoutes(
 
     fastify.post<{ Params: { key: string }; Body: CreateChannelDto }>(
         "/channels/:key",
-        async ( request, _reply ) => {
+        async( request, _reply ) => {
             const { key } = request.params;
             const createChannelDto = request.body;
 
@@ -137,7 +137,7 @@ export async function channelsRoutes(
 
     fastify.put<{ Params: { key: string }; Body: UpdateChannelDto }>(
         "/channels/:key",
-        async ( request, reply ) => {
+        async( request, reply ) => {
             const { key } = request.params;
             const updateChannelDto = request.body;
 
@@ -156,7 +156,7 @@ export async function channelsRoutes(
         }
     );
 
-    fastify.delete<{ Params: { key: string } }>( "/channels/:key", async ( request, reply ) => {
+    fastify.delete<{ Params: { key: string } }>( "/channels/:key", async( request, reply ) => {
         const { key } = request.params;
 
         return DelayUtil.withDelay( () => {

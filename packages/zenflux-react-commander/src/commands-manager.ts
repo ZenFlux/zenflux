@@ -1,11 +1,12 @@
 
+import { Commands as CoreCommands } from "@zenflux/core/src/managers/commands";
+
+import { CommandNotFound } from "@zenflux/core/src/errors/command-not-found";
+
 import { DEBUG_ENABLED, GET_INTERNAL_SYMBOL } from "./_internal/constants";
 import { logger } from "./_internal/logger";
 
 import core from "./_internal/core.ts";
-
-import { Commands as CoreCommands } from "@zenflux/core/src/managers/commands";
-import { CommandNotFound } from "@zenflux/core/src/errors/command-not-found";
 
 import type { TCommandCallbackType } from "@zenflux/core/src/interfaces";
 

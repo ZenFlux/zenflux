@@ -128,7 +128,7 @@ export function withCommands(
             originalName = Component.displayName || Component.name || "Component";
 
         // This approach give us ability to inject second argument to the functional component.
-        Component = function ( props: any ) {
+        Component = function( props: any ) {
             return originalFunction( props, state );
         };
 

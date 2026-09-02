@@ -150,7 +150,7 @@ function runTask<T>( priorityLevel: PriorityLevel, postTaskPriority: PostTaskPri
                 scheduler.postTask( nextTask, continuationOptions ).catch( handleAbortError );
             }
         }
-    } catch ( error ) {
+    } catch( error ) {
         // We're inside a `postTask` promise. If we don't handle this error, then it
         // will trigger an "Unhandled promise rejection" error. We don't want that,
         // but we do want the default error reporting behavior that normal

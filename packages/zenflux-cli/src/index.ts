@@ -34,27 +34,27 @@ export default async function boot( args = process.argv.slice( 2 ) ) {
 
     const commands = {
         "@watch": {
-            module: async () => ( await import( "@zenflux/cli/src/commands/watch" ) ).default,
+            module: async() => ( await import( "@zenflux/cli/src/commands/watch" ) ).default,
         },
 
         "@build": {
-            module: async () => ( await import( "@zenflux/cli/src/commands/build" ) ).default,
+            module: async() => ( await import( "@zenflux/cli/src/commands/build" ) ).default,
         },
 
         "@typecheck": {
-            module: async () => ( await import( "@zenflux/cli/src/commands/typecheck" ) ).default,
+            module: async() => ( await import( "@zenflux/cli/src/commands/typecheck" ) ).default,
         },
 
         "@lint": {
-            module: async () => ( await import( "@zenflux/cli/src/commands/lint" ) ).default,
+            module: async() => ( await import( "@zenflux/cli/src/commands/lint" ) ).default,
         },
 
         "@publish": {
-            module: async () => ( await import( "@zenflux/cli/src/commands/publish" ) ).default,
+            module: async() => ( await import( "@zenflux/cli/src/commands/publish" ) ).default,
         },
 
         "@registry": {
-            module: async () => ( await import( "@zenflux/cli/src/commands/registry" ) ).default,
+            module: async() => ( await import( "@zenflux/cli/src/commands/registry" ) ).default,
         },
     };
 

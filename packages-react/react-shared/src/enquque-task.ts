@@ -21,11 +21,11 @@ export default function enqueueTask( task: () => void ): void {
             // version of setImmediate, bypassing fake timers if any.
             enqueueTaskImpl = nodeRequire.call( module, "timers" ).setImmediate;
             // eslint-disable-next-line @typescript-eslint/no-unused-vars
-        } catch ( err ) {
+        } catch( err ) {
             // we're in a browser
             // we can't use regular timers because they may still be faked
             // so we try MessageChannel+postMessage instead
-            enqueueTaskImpl = function ( callback: () => void ) {
+            enqueueTaskImpl = function( callback: () => void ) {
                 if ( __DEV__ ) {
                     if ( didWarnAboutMessageChannel === false ) {
                         didWarnAboutMessageChannel = true;

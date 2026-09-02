@@ -20,7 +20,7 @@ export function queryCreateAutoSaveManager<TState extends object, TSave extends 
     const debounceMs = options.debounceMs ?? 800;
     const intervalMs = options.intervalMs ?? 5000;
 
-    const queryFlush = async () => {
+    const queryFlush = async() => {
         const entries = Array.from( pending.values() );
         if ( ! entries.length ) return;
         pending.clear();
@@ -39,7 +39,7 @@ export function queryCreateAutoSaveManager<TState extends object, TSave extends 
         return schedule( Boolean( immediate ) );
     };
 
-    const queryFlushKey = async ( key: string ) => {
+    const queryFlushKey = async( key: string ) => {
         const s = pending.get( key );
         if ( ! s ) return;
         pending.delete( key );

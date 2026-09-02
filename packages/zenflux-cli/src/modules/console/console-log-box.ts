@@ -146,7 +146,7 @@ function zConsoleEnsureScreen() {
         screen.on( "resize", zConsoleOnResize );
 
         // Quit on Escape, q, or Control-C.
-        screen.key( [ "escape", "q", "C-c" ], function () {
+        screen.key( [ "escape", "q", "C-c" ], function() {
             return process.exit( 0 );
         } );
 
@@ -253,7 +253,7 @@ function zConsoleRender( logs = allLogs, options = {
     }
 
     function zConsoleHandleWheelEvent( log: ReturnType<typeof blessed.log>, add: boolean ) {
-        return function () {
+        return function() {
             // @ts-ignore - Internal property
             log._userScrolled = true;
 

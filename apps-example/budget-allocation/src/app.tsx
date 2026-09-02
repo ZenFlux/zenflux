@@ -68,7 +68,7 @@ export function App() {
 
     const channelsListAddRequest = useCommand( "App/ChannelsList/AddRequest" );
 
-    useCommandHook( "App/AddChannel", async () => {
+    useCommandHook( "App/AddChannel", async() => {
         if ( location.hash === "#overview" ) {
             uiTabsSelect?.run( { key: "allocation" } );
 
@@ -85,7 +85,7 @@ export function App() {
             } );
 
             await channelsListAddRequest?.run();
-        } catch ( error ) {
+        } catch( error ) {
             console.error( "Error adding channel", error );
         } finally {
             setState( {

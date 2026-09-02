@@ -71,7 +71,7 @@ export function zTSCustomizeDiagnostic( diagnostic: ts.Diagnostic ) {
     const str = ts.flattenDiagnosticMessageText( diagnostic.messageText, "\n" );
 
     // Make the message more readable and useful
-    const customized = str.replace( /'([^']*)'/g, function ( _, match ) {
+    const customized = str.replace( /'([^']*)'/g, function( _, match ) {
         let pathSegments = match.split( "/" );
         if ( match.startsWith( "/" ) && pathSegments[ pathSegments.length - 1 ].includes( "." ) ) {
             // Some IDE's support path links
@@ -608,7 +608,7 @@ export async function zTSCreateDiagnosticWorker(
         return zTSCreateDiagnosticWorker( tsConfig, options, activeConsole );
     }
 
-    return new Promise( async ( resolve, reject ) => {
+    return new Promise( async( resolve, reject ) => {
         // Main thread will wait for dependencies before starting the worker.
         await zTSWaitForDependencies( tsConfig, options.otherTSConfigs, activeConsole );
 
@@ -674,7 +674,7 @@ export async function zTSCreateDeclarationWorker(
 
     const diagnosticThreadId = options.id.replace( "DE", "DI" );
 
-    const promise = new Promise( async ( resolve, reject ) => {
+    const promise = new Promise( async( resolve, reject ) => {
         // Main thread will wait for dependencies before starting the worker.
         await zTSWaitForDependencies( tsConfig, options.otherTSConfigs, activeConsole );
 

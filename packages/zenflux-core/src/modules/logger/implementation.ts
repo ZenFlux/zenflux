@@ -9,12 +9,14 @@ import {
     isLoggerPreviousSourceDisabled
 } from "./config";
 
-import { LoggerBrowserInfra, type LoggerOutputFormat, type LoggerOutputMetadata, type LoggerOutputSubscriber } from "./logger-browser-infra";
+import { LoggerBrowserInfra    } from "./logger-browser-infra";
 
 import { reduceCircularReferences } from "./utils";
 
 import { ObjectBase } from "../../bases/object-base";
 import { EventBus } from "../event-bus/event-bus";
+
+import type { LoggerOutputFormat, LoggerOutputMetadata, LoggerOutputSubscriber } from "./logger-browser-infra";
 
 import type * as interfaces from "../../interfaces";
 

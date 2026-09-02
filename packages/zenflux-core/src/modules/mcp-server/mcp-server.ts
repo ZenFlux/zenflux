@@ -118,7 +118,7 @@ export class McpServer extends ObjectBase {
                     endpoint: "/mcp" // Standard MCP endpoint
                 }
             } );
-        } catch ( err ) {
+        } catch( err ) {
             console.error( "Error starting fastmcp server:", err );
             process.exit( 1 );
         }

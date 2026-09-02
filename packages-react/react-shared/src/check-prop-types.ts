@@ -52,7 +52,7 @@ export default function checkPropTypes( typeSpecs: Record<string, any>, values: 
                     }
 
                     error = typeSpecs[ typeSpecName ]( values, typeSpecName, componentName, location, null, "SECRET_DO_NOT_PASS_THIS_OR_YOU_WILL_BE_FIRED" );
-                } catch ( ex ) {
+                } catch( ex ) {
                     error = ex;
                 }
 

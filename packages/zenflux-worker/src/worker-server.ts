@@ -141,7 +141,7 @@ export class WorkerServer {
             ( message ) => this.messageInternal( JSON.parse( message ) )
         );
 
-        process.on( "SIGINT", async () => {
+        process.on( "SIGINT", async() => {
             if ( this.isKilled() ) {
                 return;
             }
@@ -325,7 +325,7 @@ export class WorkerServer {
         try {
             await this.createPromise.await;
             await this.runPromise.await;
-        } catch ( e ) {
+        } catch( e ) {
             if ( this.isKilled() ) {
                 throw new Error( this.killReason || "Thread was killed" );
             }
@@ -368,7 +368,7 @@ export class WorkerServer {
     public async waitForTaskComplete( uniqueTaskId: string ) {
         const taskPromise = this.taskPromises.get( uniqueTaskId );
 
-        if( ! taskPromise ) {
+        if ( ! taskPromise ) {
             throw new Error( `Task with id '${ uniqueTaskId }' not found` );
         }
 

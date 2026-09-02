@@ -89,7 +89,7 @@ export default function zRollupSwcPlugin( args: Required<IPluginArgs> ): Plugin 
                 cache.set( id, { output, lastModified } );
 
                 return output;
-            } catch ( error: any ) {
+            } catch( error: any ) {
                 // Make error message more readable/useful
                 if ( "undefined" !== typeof error.message ) {
                     let newMessage = `${ error.message } in project ${ util.inspect( args.tsConfig.options.configFilePath ) }\n    While SWC transform of file: (${ id.startsWith( "file://" ) ? id : "file://" + id }) ` +

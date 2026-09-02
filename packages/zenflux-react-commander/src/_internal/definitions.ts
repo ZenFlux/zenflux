@@ -1,8 +1,6 @@
-import type React from "react";
-
 import { DEBUG_ENABLED } from "./constants";
 
-export { DEBUG_ENABLED };
+import type React from "react";
 
 import type {
     GET_INTERNAL_MATCH_SYMBOL,
@@ -15,6 +13,8 @@ import type {
 import type { DCommandSingleComponentContext } from "@zenflux/react-commander/definitions";
 
 import type EventEmitter from "eventemitter3";
+
+export { DEBUG_ENABLED };
 
 export type DCoreContext = {
     [componentNameUnique: string]: DCommandSingleComponentContext;

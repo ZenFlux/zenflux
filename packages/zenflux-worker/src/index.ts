@@ -38,7 +38,7 @@ export async function zCreateWorker( args: DCreateWorkerArguments ) {
         isExist = workFilePath && fs.existsSync( workFilePath );
 
         // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    } catch ( e ) {
+    } catch( e ) {
     }
 
     if ( ! isExist ) {

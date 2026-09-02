@@ -46,7 +46,7 @@ function isSameOriginFrame( iframe: HTMLIFrameElement ) {
         // @ts-ignore
         return typeof iframe.contentWindow.location.href === "string";
         // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    } catch ( err ) {
+    } catch( err ) {
         return false;
     }
 }

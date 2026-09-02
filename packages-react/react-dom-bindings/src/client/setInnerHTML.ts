@@ -56,13 +56,13 @@ if ( typeof MSApp !== "undefined" && MSApp.execUnsafeLocalFunction ) {
     /**
      * Create a function which has 'unsafe' privileges (required by windows8 apps)
      */
-    setInnerHTML = function ( node: Element, html: {
+    setInnerHTML = function( node: Element, html: {
         valueOf(): {
             toString(): string;
         };
     } ): void {
         // $FlowFixMe[cannot-resolve-name]
-        return MSApp.execUnsafeLocalFunction( function () {
+        return MSApp.execUnsafeLocalFunction( function() {
             return setInnerHTMLImpl( node, html );
         } );
     };

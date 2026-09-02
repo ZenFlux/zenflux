@@ -5,6 +5,6 @@ const unitlessNumbers = new Set( [ "animationIterationCount", "aspectRatio", "bo
     "floodOpacity", "stopOpacity", "strokeDasharray", "strokeDashoffset", "strokeMiterlimit", "strokeOpacity", "strokeWidth", "MozAnimationIterationCount", // Known Prefixed Properties
     "MozBoxFlex", // TODO: Remove these since they shouldn't be used in modern code
     "MozBoxFlexGroup", "MozLineClamp", "msAnimationIterationCount", "msFlex", "msZoom", "msFlexGrow", "msFlexNegative", "msFlexOrder", "msFlexPositive", "msFlexShrink", "msGridColumn", "msGridColumnSpan", "msGridRow", "msGridRowSpan", "WebkitAnimationIterationCount", "WebkitBoxFlex", "WebKitBoxFlexGroup", "WebkitBoxOrdinalGroup", "WebkitColumnCount", "WebkitColumns", "WebkitFlex", "WebkitFlexGrow", "WebkitFlexPositive", "WebkitFlexShrink", "WebkitLineClamp" ] );
-export default function ( name: string ): boolean {
+export default function( name: string ): boolean {
     return unitlessNumbers.has( name );
 }
