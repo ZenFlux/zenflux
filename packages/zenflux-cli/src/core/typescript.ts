@@ -57,7 +57,9 @@ const diagnosticWorkers = new Map<string, WorkerServer>(),
 
 const waitingTSConfigs = new Map<string, {
     promise: ReturnType<typeof zCreateResolvablePromise>,
-    dependencies: Record<string, true>,
+    // Value is how many of that package's configs are still outstanding, not a flag, see
+    // `zTSWaitForDependencies`.
+    dependencies: Record<string, number>,
 }>();
 
 const pathsCache: { [ key: string ]: string } = {},
@@ -771,13 +773,17 @@ async function zTSWaitForDependencies(
     // If the package has dependencies
     if ( Object.keys( dependencies ).length ) {
         // If one of the dependencies is in other projects that are building at the same time.
-        const availableDependencies: Record<string, true> = {};
+        // A package may own several configs, each emitting its own declaration file, eg.
+        // `@zenflux/react-scheduler` emits one for `.`, `/mock` and `/post-task`. Count them rather
+        // than flagging the package once, otherwise the first config to finish opens the gate while
+        // the declarations of its siblings are still being written.
+        const availableDependencies: Record<string, number> = {};
 
         otherTSConfigs.forEach( ( c ) => {
             const pkg = zTSGetPackageByTSConfig( c );
 
             if ( dependencies[ pkg.json.name ] ) {
-                availableDependencies[ pkg.json.name ] = true;
+                availableDependencies[ pkg.json.name ] = ( availableDependencies[ pkg.json.name ] ?? 0 ) + 1;
             }
         } );
 
@@ -822,17 +828,27 @@ async function zTSResumeDependencies(
 
     // Loop through all waiting TSConfigs
     for ( const [ configFilePath, { promise, dependencies } ] of waitingTSConfigs ) {
-        // If current resumed TSConfig is in the dependencies list then remove it from the dependencies list.
-        if ( dependencies[ pkg.json.name ] ) {
+        // If current resumed TSConfig is in the dependencies list then account for it, the
+        // dependency is only cleared once every one of its configs has emitted.
+        const outstanding = dependencies[ pkg.json.name ];
+
+        if ( outstanding ) {
+            const left = outstanding - 1;
+
             activeConsole.verbose( () => [
                 zTSResumeDependencies.name,
                 "Package:",
                 util.inspect( zTSGetPackageByTSConfig( tsConfig ).json.name ),
-                "Removing dependency:",
+                left ? "Remaining configs of dependency:" : "Removing dependency:",
                 util.inspect( pkg.json.name ),
+                ... ( left ? [ util.inspect( left ) ] : [] ),
             ] );
 
-            delete dependencies[ pkg.json.name ];
+            if ( left ) {
+                dependencies[ pkg.json.name ] = left;
+            } else {
+                delete dependencies[ pkg.json.name ];
+            }
         }
 
         // If no left dependencies then resolve the promise.
