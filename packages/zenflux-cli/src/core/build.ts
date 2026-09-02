@@ -278,12 +278,15 @@ export async function zRollupBuild( rollupOptions: RollupOptions[] | RollupOptio
 }
 
 async function zBuildThreadWaitForDependencies( options: TZBuildWorkerOptions, pkg: Package, config: IZConfigInternal, activeConsole = ConsoleManager.$ ) {
-    const { zWorkspaceGetWorkspaceDependencies } = await import( "@zenflux/cli/src/core/workspace" );
+    const {
+        zWorkspaceGetWorkspaceDependencies,
+        Z_WORKSPACE_BUILD_ORDER_DEPENDENCIES
+    } = await import( "@zenflux/cli/src/core/workspace" );
 
     if ( options.otherConfigs.length ) {
         const packagesDependencies = zWorkspaceGetWorkspaceDependencies( {
             [ pkg.json.name ]: pkg,
-        } );
+        }, Z_WORKSPACE_BUILD_ORDER_DEPENDENCIES );
 
         if ( Object.keys( packagesDependencies[ pkg.json.name ].dependencies ).length ) {
             const dependencies = packagesDependencies[ pkg.json.name ].dependencies;

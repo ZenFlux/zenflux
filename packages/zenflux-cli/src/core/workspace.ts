@@ -12,7 +12,14 @@ import { ConsoleManager } from "@zenflux/cli/src/managers/console-manager";
 
 import { Package } from "@zenflux/cli/src/modules/npm/package";
 
-import type { TNewPackageOptions, TPackageDependencies, TPackages } from "@zenflux/cli/src/modules/npm/package";
+import type {
+    TNewPackageOptions,
+    TPackageDependencies,
+    TPackagePartialDependencies,
+    TPackages
+} from "@zenflux/cli/src/modules/npm/package";
+
+import type { TForceEnumKeys } from "@zenflux/cli/src/utils/common";
 
 export type TWorkspace = {
     workspace: string;
@@ -220,9 +227,23 @@ export async function zWorkspaceGetPackagesPaths( rootPkg: Package, options = { 
 }
 
 /**
+ * Dependency kinds that determine build ordering.
+ *
+ * `devDependencies` are deliberately excluded, they are test and tooling only. Counting them lets a
+ * test-only edge (eg. a package depending on the workspace's test utils) gate the build graph, and since
+ * those edges run both ways between siblings it can leave the graph with no leaf at all, in which case
+ * every config waits for another and none ever starts.
+ */
+export const Z_WORKSPACE_BUILD_ORDER_DEPENDENCIES: TForceEnumKeys<TPackagePartialDependencies> = {
+    dependencies: true,
+    devDependencies: false,
+    peerDependencies: true,
+};
+
+/**
  * Get packages dependencies that are part of the workspace
  */
-export function zWorkspaceGetWorkspaceDependencies( packages: TPackages ) {
+export function zWorkspaceGetWorkspaceDependencies( packages: TPackages, keys?: TForceEnumKeys<TPackagePartialDependencies> ) {
     const packagesDependencies: {
         [ packageName: string ]: {
             pkg: Package,
@@ -234,7 +255,7 @@ export function zWorkspaceGetWorkspaceDependencies( packages: TPackages ) {
     Object.values( packages ).forEach( ( pkg ) => {
         const workspaceDependencies: TPackageDependencies = {};
 
-        Object.values( pkg.getDependencies() ).forEach( dependencies => {
+        Object.values( pkg.getDependencies( keys ) ).forEach( dependencies => {
             Object.entries( dependencies ).forEach( ( [ key, value ] ) => {
                 if ( value.startsWith( "workspace:" ) ) {
                     workspaceDependencies[ key ] = value;

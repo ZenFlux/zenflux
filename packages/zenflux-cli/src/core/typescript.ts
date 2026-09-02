@@ -29,7 +29,8 @@ import { zApiExporter } from "@zenflux/cli/src/core/api-extractor";
 
 import {
     zWorkspaceGetPackages,
-    zWorkspaceGetWorkspaceDependencies
+    zWorkspaceGetWorkspaceDependencies,
+    Z_WORKSPACE_BUILD_ORDER_DEPENDENCIES
 } from "@zenflux/cli/src/core/workspace";
 
 import { ConsoleManager } from "@zenflux/cli/src/managers/console-manager";
@@ -764,7 +765,7 @@ async function zTSWaitForDependencies(
     const pkg = zTSGetPackageByTSConfig( tsConfig ),
         pkgDependencies = zWorkspaceGetWorkspaceDependencies( {
             [ pkg.json.name ]: pkg,
-        } ),
+        }, Z_WORKSPACE_BUILD_ORDER_DEPENDENCIES ),
         dependencies = pkgDependencies[ pkg.json.name ].dependencies;
 
     // If the package has dependencies
