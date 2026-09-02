@@ -10,7 +10,7 @@
             "require": "./dist/zenflux-react-noop-renderer.cjs",
             "types": "./dist/src/index.d.ts"
         },
-        "./persistent":{
+        "./persistent": {
             "require": "./dist/zenflux-react-noop-renderer.persistent.cjs",
             "types": "./dist/src/react-noop-persistent.d.ts"
         },
@@ -22,10 +22,12 @@
         "@z-react-noop-renderer--build-dev": "bun run @z-cli @build --dev"
     },
     "dependencies": {
+        "@jest/expect-utils": "^29.7.0",
         "@zenflux/react-reconciler": "workspace:*",
+        "@zenflux/react-scheduler": "workspace:*",
         "@zenflux/react-shared": "workspace:*",
         "@zenflux/react-x-env": "workspace:*",
-        "@zenflux/react-scheduler": "workspace:*"
+        "jest-diff": "^29.7.0"
     },
     "repository": {
         "type": "git",

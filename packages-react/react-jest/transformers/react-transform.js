@@ -23,9 +23,12 @@ const conditionalPlugins = [];
  */
 const babelOptions = {
     plugins: [
-        "@babel/plugin-transform-react-jsx-source",
-        "@babel/plugin-syntax-jsx",
-        '@babel/plugin-transform-react-jsx',
+        // Resolved from this file rather than passed by name, babel resolves plugin names against its
+        // `cwd` (the jest project root), while these live in this package's own `node_modules` under
+        // an isolated install layout.
+        require.resolve( "@babel/plugin-transform-react-jsx-source" ),
+        require.resolve( "@babel/plugin-syntax-jsx" ),
+        require.resolve( "@babel/plugin-transform-react-jsx" ),
 
         pathToTransformTestGatePragma,
 

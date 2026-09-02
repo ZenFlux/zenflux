@@ -28,15 +28,21 @@
         "react": "^18.2.0"
     },
     "dependencies": {
-        "loose-envify": "^1.1.0",
         "@zenflux/react-dom-bindings": "workspace:*",
         "@zenflux/react-scheduler": "workspace:*",
-        "@zenflux/react-shared": "workspace:*"
+        "@zenflux/react-shared": "workspace:*",
+        "loose-envify": "^1.1.0"
     },
     "devDependencies": {
         "@babel/plugin-transform-react-jsx": "^7.22.15",
+        "@zenflux/react-cache": "workspace:*",
+        "@zenflux/react-internal-test-utils": "workspace:*",
+        "@zenflux/react-test-renderer": "workspace:*",
+        "pretty-format": "^20.0.3",
         "prop-types": "^15.8.1",
         "random-seed": "^0.3.0",
+        "react": "18.2.0",
+        "react-dom": "18.2.0",
         "react-test-renderer": "^18.2.0"
     },
     "browserify": {

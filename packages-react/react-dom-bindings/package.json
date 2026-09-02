@@ -30,6 +30,7 @@
         "@zenflux/react-shared": "workspace:*"
     },
     "devDependencies": {
-        "@types/react": "^18.2.45"
+        "@types/react": "^18.2.45",
+        "react": "18.2.0"
     }
 }

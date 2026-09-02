@@ -48,16 +48,19 @@
     "access": "public"
   },
   "dependencies": {
-    "eventemitter3": "^5.0.1",
-    "@zenflux/core": "workspace:*"
+    "@zenflux/core": "workspace:*",
+    "eventemitter3": "^5.0.1"
   },
   "devDependencies": {
     "@types/react": "^19.2.0",
-    "@types/react-dom": "^19.2.0"
+    "@types/react-dom": "^19.2.0",
+    "react": "^19.2.0",
+    "react-dom": "^19.2.0",
+    "vite": "^5.4.5"
   },
   "peerDependencies": {
-    "vite": "^5.4.5",
     "react": "^19.2.0",
-    "react-dom": "^19.2.0"
+    "react-dom": "^19.2.0",
+    "vite": "^5.4.5"
   }
 }

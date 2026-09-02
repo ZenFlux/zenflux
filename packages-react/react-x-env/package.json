@@ -23,7 +23,6 @@
             "import": "./dist/react-x-env.act.mjs",
             "require": "./dist/react-x-env.act.cjs"
         },
-
         "./src/env": "./src/env.ts",
         "./src/react-internals": "./src/react-internals.ts"
     },
@@ -38,5 +37,8 @@
     "dependencies": {
         "@zenflux/react-scheduler": "workspace:*",
         "@zenflux/react-shared": "workspace:*"
+    },
+    "devDependencies": {
+        "react": "18.2.0"
     }
 }

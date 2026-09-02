@@ -6,6 +6,10 @@
     "license": "MIT",
     "type": "module",
     "exports": {
+        ".": {
+            "require": "./dist/zenflux-react-cache.cjs",
+            "types": "./src/index.ts"
+        },
         "./package.json": "./package.json",
         "./src/*": "./src/*.ts"
     },
@@ -21,6 +25,9 @@
         "@zenflux/react-shared": "workspace:*"
     },
     "devDependencies": {
+        "@zenflux/react-internal-test-utils": "workspace:*",
+        "@zenflux/react-test-renderer": "workspace:*",
+        "react": "18.2.0"
     },
     "peerDependencies": {
         "react": "^18.2.0"

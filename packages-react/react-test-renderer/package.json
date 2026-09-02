@@ -6,6 +6,10 @@
     "license": "MIT",
     "type": "module",
     "exports": {
+        ".": {
+            "require": "./dist/zenflux-react-test-renderer.cjs",
+            "types": "./src/index.ts"
+        },
         "./package.json": "./package.json",
         "./src/*": "./src/*.ts"
     },
@@ -17,16 +21,20 @@
         "@z-react-test-renderer--test": "@z-jest --selectedProjects react-test-renderer"
     },
     "dependencies": {
+        "@jest/expect-utils": "^29.7.0",
         "@zenflux/react-reconciler": "workspace:*",
         "@zenflux/react-scheduler": "workspace:*",
         "@zenflux/react-shared": "workspace:*",
         "@zenflux/react-x-env": "workspace:*",
+        "jest-diff": "^29.7.0",
         "react-is": "^18.2.0",
         "react-shallow-renderer": "^16.15.0"
     },
     "devDependencies": {
         "@zenflux/react-cache": "workspace:*",
+        "@zenflux/react-internal-test-utils": "workspace:*",
         "pretty-format": "^20.0.3",
+        "react": "18.2.0",
         "react-dom": "18.2.0"
     },
     "peerDependencies": {

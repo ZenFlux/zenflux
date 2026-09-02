@@ -8,7 +8,8 @@
     },
     "devDependencies": {
         "@types/react": "^18.2.45",
-        "@zenflux/react-x-env": "workspace:*"
+        "@zenflux/react-x-env": "workspace:*",
+        "react": "18.2.0"
     },
     "peerDependencies": {
         "react": "^18.2.0"

@@ -21,15 +21,12 @@
             "types": "./dist/zenflux-react-scheduler.post-task.d.ts"
         },
         "./package.json": "./package.json",
-
         "./src/*.ts": "./src/*.ts",
         "./src/forks/*.ts": "./src/forks/*.ts",
-
         "./src/scheduler-min-heap": "./src/scheduler-min-heap.ts",
         "./src/scheduler-profiling": "./src/scheduler-profiling.ts",
         "./src/scheduler-priorities": "./src/scheduler-priorities.ts",
         "./src/scheduler-feature-flags": "./src/scheduler-feature-flags.ts",
-
         "./src/forks/scheduler": "./src/forks/scheduler.ts",
         "./src/forks/scheduler-mock": "./src/forks/scheduler-mock.ts"
     },
@@ -50,5 +47,8 @@
         "type": "git",
         "url": "https://github.com/zenflux/zenflux.git",
         "directory": "react-packages/zenflux-react-scheduler"
+    },
+    "devDependencies": {
+        "@zenflux/react-internal-test-utils": "workspace:*"
     }
 }

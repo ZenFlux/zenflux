@@ -4,6 +4,11 @@
     "version": "0.0.0",
     "type": "module",
     "exports": {
+        ".": {
+            "import": "./dist/zenflux-react-internal-test-utils.mjs",
+            "require": "./dist/zenflux-react-internal-test-utils.cjs",
+            "types": "./src/index.ts"
+        },
         "./package.json": "./package.json",
         "./src/*": "./src/*.ts"
     },
@@ -18,7 +23,8 @@
         "jest-environment-jsdom": "^29.7.0"
     },
     "devDependencies": {
-        "@jest/globals": "^29.7.0"
+        "@jest/globals": "^29.7.0",
+        "react": "18.2.0"
     },
     "scripts": {
         "@z-react-internals-test-utils--test": "bun run @z-jest --selectedProjects internal-test-utils",
